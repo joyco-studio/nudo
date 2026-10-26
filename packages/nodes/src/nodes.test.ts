@@ -1,0 +1,133 @@
+import { addNode, asEdgeId, asNodeId, compile, connect, createGraph } from '@nudo-tsl/core'
+import type { CompileBackend, Graph, NodeRegistry, Result } from '@nudo-tsl/core'
+import { describe, expect, it } from 'vitest'
+import { createDefaultRegistry, createRecordingFacade, fresnelNode } from './index'
+
+const PHASE_1_TYPES = [
+  'master/stack',
+  'input/float',
+  'input/color',
+  'input/time',
+  'input/uv',
+  'input/normal',
+  'math/add',
+  'math/multiply',
+  'math/sin',
+  'interpolation/lerp',
+  'effects/fresnel',
+]
+
+const ORIGIN = { x: 0, y: 0 }
+
+const unwrap = <T, E>(result: Result<T, E>): T => {
+  if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
+  return result.value
+}
+
+const createRecordingBackend = (): CompileBackend<string> => ({
+  tsl: createRecordingFacade(),
+  inputValue: (ref) => `u(${ref.nodeId}:${ref.portId})`,
+})
+
+const withNode = (graph: Graph, registry: NodeRegistry, id: string, type: string): Graph =>
+  unwrap(addNode(graph, registry, { id: asNodeId(id), type, position: ORIGIN }))
+
+const withEdge = (
+  graph: Graph,
+  registry: NodeRegistry,
+  id: string,
+  from: readonly [string, string],
+  to: readonly [string, string],
+): Graph =>
+  unwrap(
+    connect(graph, registry, {
+      id: asEdgeId(id),
+      from: { nodeId: asNodeId(from[0]), portId: from[1] },
+      to: { nodeId: asNodeId(to[0]), portId: to[1] },
+    }),
+  )
+
+describe('default registry', () => {
+  it('contains exactly the 11 phase-1 types', () => {
+    const types = createDefaultRegistry()
+      .list()
+      .map((definition) => definition.type)
+
+    expect([...types].sort()).toEqual([...PHASE_1_TYPES].sort())
+  })
+
+  it('gives every definition a description and keywords', () => {
+    for (const definition of createDefaultRegistry().list()) {
+      expect(definition.description.trim(), definition.type).not.toBe('')
+      expect(definition.keywords.length, definition.type).toBeGreaterThan(0)
+    }
+  })
+
+  it('defines the master stack without outputs', () => {
+    const master = createDefaultRegistry().get('master/stack')
+
+    expect(master?.category).toBe('master')
+    expect(master?.outputs).toEqual([])
+    expect(master?.inputs.map((input) => input.id)).toEqual([
+      'position',
+      'baseColor',
+      'emission',
+      'metalness',
+      'roughness',
+      'normal',
+      'opacity',
+    ])
+    expect(master?.inputs.filter((input) => input.optional === true).map((i) => i.id)).toEqual([
+      'position',
+      'normal',
+    ])
+  })
+})
+
+describe('recording facade', () => {
+  it('prints every call as name(args)', () => {
+    const tsl = createRecordingFacade()
+
+    expect(tsl.mix('a', 'b', 't')).toBe('mix(a,b,t)')
+    expect(tsl.builtin('time')).toBe('builtin(time)')
+    expect(tsl.construct('float', [0])).toBe('construct(float,[0])')
+    expect(tsl.swizzle('v', 'xy')).toBe('swizzle(v,xy)')
+  })
+})
+
+describe('fresnel', () => {
+  it('builds the expected expression', () => {
+    const { out } = fresnelNode.build({
+      tsl: createRecordingFacade(),
+      inputs: { power: 'power' },
+      resolvedTypes: { power: 'float' },
+      params: {},
+    })
+
+    expect(out).toBe(
+      'pow(oneMinus(clamp(dot(builtin(normalView),builtin(positionViewDirection)),' +
+        'construct(float,[0]),construct(float,[1]))),power)',
+    )
+  })
+})
+
+describe('compiling a built-in graph', () => {
+  it('succeeds for Time -> Sin -> Lerp -> baseColor', () => {
+    const registry = createDefaultRegistry()
+    let graph = createGraph()
+    graph = withNode(graph, registry, 'time', 'input/time')
+    graph = withNode(graph, registry, 'sin', 'math/sin')
+    graph = withNode(graph, registry, 'lerp', 'interpolation/lerp')
+    graph = withEdge(graph, registry, 'e1', ['time', 'out'], ['sin', 'in'])
+    graph = withEdge(graph, registry, 'e2', ['sin', 'out'], ['lerp', 't'])
+    graph = withEdge(graph, registry, 'e3', ['lerp', 'out'], ['master', 'baseColor'])
+
+    const result = compile(graph, registry, createRecordingBackend(), { kind: 'master' })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok || result.output.kind !== 'master') return
+    expect(result.output.slots.baseColor).toBe(
+      'construct(vec3,[mix(u(lerp:a),u(lerp:b),sin(builtin(time)))])',
+    )
+  })
+})

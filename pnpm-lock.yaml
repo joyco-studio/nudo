@@ -108,6 +108,12 @@ importers:
 
   packages/core: {}
 
+  packages/nodes:
+    dependencies:
+      '@nudo-tsl/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@babel/code-frame@7.29.7':
