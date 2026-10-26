@@ -39,6 +39,7 @@ async function expectFocusIndicator(page: Page, target: Locator): Promise<void> 
 function shellControls(page: Page) {
   return {
     skipLink: page.getByRole('link', { name: 'Skip to canvas' }),
+    addNodeButton: page.getByRole('button', { name: 'Add node', exact: true }),
     themeToggle: page.getByRole('button', { name: 'Dark theme', exact: true }),
     previewToggle: page.getByRole('button', { name: 'Preview panel', exact: true }),
     canvas: page.getByRole('main', { name: 'Node canvas' }),
@@ -114,11 +115,11 @@ for (const theme of THEMES) {
     )
     await page.goto('/')
     await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`))
-    const { skipLink, themeToggle, previewToggle, canvas } = shellControls(page)
+    const { skipLink, addNodeButton, themeToggle, previewToggle, canvas } = shellControls(page)
 
     // The canvas (nodes and their fields) sits between the header and the preview panel in the
     // tab order, so each control is reached by tabbing forward until it has focus.
-    for (const control of [skipLink, themeToggle, previewToggle]) {
+    for (const control of [skipLink, addNodeButton, themeToggle, previewToggle]) {
       await tabUntilFocused(page, control)
       await expectFocusIndicator(page, control)
     }

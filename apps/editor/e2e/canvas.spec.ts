@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { AUTOSAVE_KEY, COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
+import { readStoredNodes } from './support/read-autosave'
+import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
 const VEC3_COLOR = 'oklch(0.82 0.16 80)'
 const DRAG_OFFSET = { x: 160, y: 90 }
@@ -61,17 +62,8 @@ async function edgeEndpoints(
 
 /** Reads one inline value from the autosave document in localStorage. */
 async function storedInputValue(page: Page, nodeId: string, portId: string): Promise<unknown> {
-  const rawText = await page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY)
-  if (rawText === null) return null
-  const document: unknown = JSON.parse(rawText)
-  if (!isRecord(document) || !isRecord(document.nodes)) return null
-  const node = document.nodes[nodeId]
-  if (!isRecord(node) || !isRecord(node.inputValues)) return null
-  return node.inputValues[portId] ?? null
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
+  const node = (await readStoredNodes(page)).find((stored) => stored.id === nodeId)
+  return node?.inputValues[portId] ?? null
 }
 
 /** React Flow tracks pointer moves, so the drag needs intermediate steps. */

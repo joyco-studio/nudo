@@ -1,0 +1,152 @@
+import { useState } from 'react'
+import type { AnyNodeDefinition, NodeTypeId } from '@nudo-tsl/core'
+
+import { registry } from '@/store/registry'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/shared/ui/command'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
+import { Kbd } from '@/shared/ui/kbd'
+
+import { searchNodes } from './search-nodes'
+import type { AddableCategory, NodeSearchGroup } from './search-nodes'
+
+const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
+  input: 'Input',
+  math: 'Math',
+  interpolation: 'Interpolation',
+  vector: 'Vector',
+  effects: 'Effects',
+  texture: 'Texture',
+  utility: 'Utility',
+}
+
+const KEY_HINTS = [
+  { keys: '↑ ↓', action: 'Move' },
+  { keys: 'Enter', action: 'Add' },
+  { keys: 'Esc', action: 'Close' },
+] as const
+
+export interface AddNodeMenuProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onPick: (type: NodeTypeId) => void
+  /**
+   * Runs once the dialog has closed, in place of Radix's default (which would focus a trigger this
+   * dialog doesn't have), so the parent decides where focus goes.
+   */
+  restoreFocus: () => void
+}
+
+/** A searchable dialog listing every node a person can add, grouped by category. */
+export function AddNodeMenu({ open, onOpenChange, onPick, restoreFocus }: AddNodeMenuProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="top-[20%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-md"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          restoreFocus()
+        }}
+      >
+        <DialogTitle className="sr-only">Add node</DialogTitle>
+        <DialogDescription className="sr-only">
+          Search nodes by name or keyword, then press Enter to add the highlighted node.
+        </DialogDescription>
+        <NodeSearch onPick={onPick} />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+interface NodeSearchProps {
+  onPick: (type: NodeTypeId) => void
+}
+
+function findDefinition(
+  groups: readonly NodeSearchGroup[],
+  type: string,
+): AnyNodeDefinition | undefined {
+  for (const group of groups) {
+    const match = group.items.find((definition) => definition.type === type)
+    if (match !== undefined) return match
+  }
+  return undefined
+}
+
+/**
+ * Lives inside the dialog content, so the query resets every time the menu opens. Rows show only
+ * the label so the list scans quickly; the highlighted node's description shows in the footer.
+ */
+function NodeSearch({ onPick }: NodeSearchProps) {
+  const [query, setQuery] = useState('')
+  const [highlightedType, setHighlightedType] = useState('')
+  const groups = searchNodes(registry.list(), query)
+  const highlighted = findDefinition(groups, highlightedType)
+
+  return (
+    <Command
+      shouldFilter={false}
+      loop
+      label="Search nodes"
+      value={highlightedType}
+      onValueChange={setHighlightedType}
+      className="gap-1"
+    >
+      <CommandInput
+        value={query}
+        onValueChange={setQuery}
+        placeholder="Search nodes, e.g. mix or time"
+        aria-label="Search nodes"
+        className="h-full pr-1.5"
+      />
+      <CommandList label="Nodes" className="max-h-[min(22rem,50dvh)]">
+        <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
+          No nodes match "{query.trim()}". Try another word, like mix or time.
+        </CommandEmpty>
+        {groups.map((group) => (
+          <CommandGroup key={group.category} heading={CATEGORY_HEADINGS[group.category]}>
+            {group.items.map((definition) => (
+              <CommandItem
+                key={definition.type}
+                value={definition.type}
+                onSelect={() => {
+                  onPick(definition.type)
+                }}
+              >
+                {definition.label}
+                <span className="sr-only">, {definition.description}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ))}
+      </CommandList>
+      <footer className="-mx-1 -mb-1 flex flex-col gap-2 border-t bg-muted/40 px-3 py-2 text-xs">
+        {/* Screen readers already hear the description as part of the highlighted option. */}
+        <p aria-hidden="true" className="min-h-[2lh] text-pretty text-foreground sm:min-h-lh">
+          {highlighted?.description}
+        </p>
+        <KeyHints />
+      </footer>
+    </Command>
+  )
+}
+
+function KeyHints() {
+  return (
+    <ul aria-hidden="true" className="flex items-center gap-4 text-muted-foreground">
+      {KEY_HINTS.map((hint) => (
+        <li key={hint.action} className="flex items-center gap-1.5">
+          <Kbd>{hint.keys}</Kbd>
+          {hint.action}
+        </li>
+      ))}
+    </ul>
+  )
+}

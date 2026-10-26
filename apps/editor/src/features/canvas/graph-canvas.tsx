@@ -10,6 +10,7 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
 
 import { NodeView } from './node-view'
 import { TypedEdge } from './typed-edge'
@@ -48,6 +49,7 @@ export interface GraphCanvasProps {
   onConnect: OnConnect
   onDelete: OnDelete<FlowNode, FlowEdge>
   isValidConnection: IsValidConnection<FlowEdge>
+  onPaneContextMenu: (event: MouseEvent | ReactMouseEvent) => void
 }
 
 export function GraphCanvas({
@@ -58,6 +60,7 @@ export function GraphCanvas({
   onConnect,
   onDelete,
   isValidConnection,
+  onPaneContextMenu,
 }: GraphCanvasProps) {
   const [fitViewOptions] = useState(() => fitViewOptionsFor(window.innerWidth))
 
@@ -73,6 +76,7 @@ export function GraphCanvas({
       onConnect={onConnect}
       onDelete={onDelete}
       isValidConnection={isValidConnection}
+      onPaneContextMenu={onPaneContextMenu}
       deleteKeyCode={DELETE_KEYS}
       fitView
       fitViewOptions={fitViewOptions}

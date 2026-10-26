@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
 import { asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
 import type { PortRef } from '@nudo-tsl/core'
 import type {
@@ -10,6 +11,7 @@ import type {
   OnNodesChange,
 } from '@xyflow/react'
 
+import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
@@ -103,6 +105,16 @@ export function GraphCanvasContainer() {
     return checkConnection(getStore().graph, registry, refs.from, refs.to).ok
   }, [])
 
+  const openAddNodeMenu = useOpenAddNodeMenu()
+  /** Right-click on empty canvas replaces the browser menu with the add-node menu, at the cursor. */
+  const onPaneContextMenu = useCallback(
+    (event: MouseEvent | ReactMouseEvent) => {
+      event.preventDefault()
+      openAddNodeMenu({ kind: 'cursor', clientX: event.clientX, clientY: event.clientY }, null)
+    },
+    [openAddNodeMenu],
+  )
+
   const actions = useMemo<GraphCanvasActions>(
     () => ({
       setInputValue: (ref, value) => {
@@ -122,6 +134,7 @@ export function GraphCanvasContainer() {
         onConnect={onConnect}
         onDelete={onDelete}
         isValidConnection={isValidConnection}
+        onPaneContextMenu={onPaneContextMenu}
       />
     </GraphCanvasActionsContext>
   )

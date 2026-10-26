@@ -23,3 +23,18 @@
   outline-offset: -4px;
   box-shadow: inset 0 0 0 2px var(--background);
 }
+
+/*
+ * Input groups (a field plus an icon or button addon, such as the add-node search) ring the whole
+ * group, so the indicator wraps the addon instead of cutting through it. Same two tones as above.
+ */
+[data-slot='input-group']:has(> input:focus-visible) {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+
+[data-slot='input-group'] > input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
