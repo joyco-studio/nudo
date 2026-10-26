@@ -1,7 +1,7 @@
 import { OrbitControls } from '@react-three/drei'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
-import type { MeshStandardNodeMaterial } from 'three/webgpu'
+import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import type { OrbitView } from './orbit-view'
 import { PreviewMesh } from './preview-mesh'
@@ -19,7 +19,7 @@ const MAX_ORBIT_DISTANCE = 12
 
 export interface PreviewSceneProps {
   /** The newest material that compiled; it is checked against the renderer before it is shown. */
-  candidate: MeshStandardNodeMaterial | null
+  candidate: RuntimeMaterial | null
   shape: PreviewShape
   model: Group | null
   backgroundColor: string

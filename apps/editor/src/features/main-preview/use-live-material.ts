@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createMaterial } from '@nudo-tsl/runtime'
-import type { MaterialBuild } from '@nudo-tsl/runtime'
+import type { MaterialBuild, RuntimeMaterial } from '@nudo-tsl/runtime'
 import type { Graph } from '@nudo-tsl/core'
-import type { MeshStandardNodeMaterial } from 'three/webgpu'
 
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
@@ -21,7 +20,7 @@ function buildPreviewMaterial(graph: Graph): MaterialBuild {
 
 export interface LiveMaterial {
   /** The newest material that compiled, `null` before the first one. */
-  material: MeshStandardNodeMaterial | null
+  material: RuntimeMaterial | null
   /** True when the latest build failed, so `material` is an older graph's. */
   buildFailed: boolean
 }

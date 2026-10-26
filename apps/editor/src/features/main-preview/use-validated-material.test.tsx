@@ -1,6 +1,7 @@
 import { act, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
+import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 import { MeshStandardNodeMaterial } from 'three/webgpu'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -17,7 +18,7 @@ vi.mock('@react-three/fiber', () => ({
 }))
 vi.mock('./validate-material', () => ({ validateMaterial: mocks.validateMaterial }))
 
-type Candidate = MeshStandardNodeMaterial | null
+type Candidate = RuntimeMaterial | null
 
 interface HarnessProps {
   candidate: Candidate

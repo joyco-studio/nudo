@@ -11,19 +11,11 @@ export type ApplyInputValueResult =
   /** The value's type differs from the uniform's kind; only a recompile can represent it. */
   | 'mismatch'
 
-/**
- * Pushes a new inline value into its live uniform in place, so nothing is recompiled.
- * `missing` means nothing in the material reads the port, so the edit has no visible effect;
- * `mismatch` means the caller must recompile.
- */
-export function applyInputValue(
-  uniforms: ReadonlyMap<PortKey, LiveUniform>,
-  ref: PortRef,
+/** Writes a value into a uniform of the same kind, in place; `mismatch` when the kinds differ. */
+export function assignUniformValue(
+  uniform: LiveUniform,
   value: PortValue,
-): ApplyInputValueResult {
-  const uniform = uniforms.get(portKey(ref))
-  if (uniform === undefined) return 'missing'
-
+): Exclude<ApplyInputValueResult, 'missing'> {
   const current = uniform.value
   if (value.type === 'float' && typeof current === 'number') {
     uniform.value = value.value
@@ -42,4 +34,19 @@ export function applyInputValue(
     return 'applied'
   }
   return 'mismatch'
+}
+
+/**
+ * Pushes a new inline value into its live uniform in place, so nothing is recompiled.
+ * `missing` means nothing in the material reads the port, so the edit has no visible effect;
+ * `mismatch` means the caller must recompile.
+ */
+export function applyInputValue(
+  uniforms: ReadonlyMap<PortKey, LiveUniform>,
+  ref: PortRef,
+  value: PortValue,
+): ApplyInputValueResult {
+  const uniform = uniforms.get(portKey(ref))
+  if (uniform === undefined) return 'missing'
+  return assignUniformValue(uniform, value)
 }

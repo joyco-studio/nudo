@@ -3,7 +3,7 @@ import type { ChangeEvent, RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { RotateCcw, Upload, ZoomIn, ZoomOut } from 'lucide-react'
 import type { Group } from 'three'
-import type { MeshStandardNodeMaterial } from 'three/webgpu'
+import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { useEditorStore } from '@/store/editor-store'
 import { Badge } from '@/shared/ui/badge'
@@ -40,7 +40,7 @@ function describeError(error: unknown): string {
 }
 
 interface ViewportProps {
-  candidate: MeshStandardNodeMaterial | null
+  candidate: RuntimeMaterial | null
   shape: PreviewShape
   model: Group | null
   backgroundColor: string
@@ -225,7 +225,7 @@ function useBackgroundColor() {
 }
 
 interface PreviewWorkspaceProps {
-  candidate: MeshStandardNodeMaterial | null
+  candidate: RuntimeMaterial | null
   buildFailed: boolean
   errorCount: number
 }

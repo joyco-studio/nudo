@@ -1,7 +1,10 @@
 import {
   addNode,
+  addProperty,
+  addPropertyNode,
   asEdgeId,
   asNodeId,
+  asPropertyId,
   concrete,
   connect,
   createGraph,
@@ -10,16 +13,22 @@ import {
   float,
   portKey,
   setInputValue,
+  setParam,
+  texture,
+  vec2,
   vec3,
   vec4,
 } from '@nudo-tsl/core'
 import type { Graph, NodeRegistry, Result } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
-import { Vector3 } from 'three'
+import { DataTexture, DoubleSide, FrontSide, Vector3 } from 'three'
+import { MeshBasicNodeMaterial, MeshStandardNodeMaterial, TextureNode } from 'three/webgpu'
 import { describe, expect, it } from 'vitest'
 import { applyBuildInputValue } from './apply-build-input-value'
 import { applyInputValue } from './apply-input-value'
+import { applyPropertyValue } from './apply-property-value'
 import { createMaterial } from './create-material'
+import { getNeutralTexture } from './texture-resolution'
 
 const ORIGIN = { x: 0, y: 0 }
 
@@ -272,5 +281,324 @@ describe('empty registry', () => {
 
     expect(build.material).toBeNull()
     expect(build.errors[0]?.code).toBe('missing-definition')
+  })
+})
+
+const MASTER = asNodeId('master')
+
+const withMasterParam = (
+  graph: Graph,
+  registry: NodeRegistry,
+  paramId: string,
+  value: string | boolean,
+): Graph => unwrap(setParam(graph, registry, { nodeId: MASTER, paramId }, value))
+
+describe('master settings', () => {
+  const registry = createDefaultRegistry()
+
+  it('builds a standard material by default', () => {
+    const { material } = createMaterial(createGraph(), registry)
+
+    expect(material).toBeInstanceOf(MeshStandardNodeMaterial)
+    expect(material?.side).toBe(FrontSide)
+  })
+
+  it('unlit master builds MeshBasicNodeMaterial', () => {
+    const graph = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.material).toBeInstanceOf(MeshBasicNodeMaterial)
+    expect(build.material).not.toBeInstanceOf(MeshStandardNodeMaterial)
+    expect(build.material?.colorNode).toBeTruthy()
+  })
+
+  it('unlit adds emission to the base color and ignores metalness, roughness and normal', () => {
+    const unlit = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
+    const base = createMaterial(unlit, registry)
+    const emissive = createMaterial(
+      unwrap(setInputValue(unlit, { nodeId: MASTER, portId: 'emission' }, vec3(1, 0, 0))),
+      registry,
+    )
+
+    expect(base.material).not.toHaveProperty('metalnessNode')
+    expect(base.material).not.toHaveProperty('roughnessNode')
+    expect(base.material?.colorNode).not.toBe(emissive.material?.colorNode)
+    expect(base.material).toHaveProperty('opacityNode')
+  })
+
+  it('unlit still reads position, opacity and alpha clip', () => {
+    let graph = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
+    graph = withNode(graph, registry, 'n', 'input/normal')
+    graph = withNode(graph, registry, 'amount', 'input/float')
+    graph = withEdge(graph, registry, ['n', 'out'], ['master', 'position'])
+    graph = withEdge(graph, registry, ['amount', 'out'], ['master', 'opacity'])
+    graph = withEdge(graph, registry, ['amount', 'out'], ['master', 'alphaClip'])
+
+    const { material, errors } = createMaterial(graph, registry)
+
+    expect(errors).toEqual([])
+    expect(material?.positionNode).toBeTruthy()
+    expect(material?.opacityNode).toBeTruthy()
+    expect(material?.alphaTestNode).toBeTruthy()
+    expect(material?.transparent).toBe(true)
+  })
+
+  it('maps the alpha clip slot to alphaTestNode and omits it when unconnected', () => {
+    const unconnected = createMaterial(createGraph(), registry)
+    let graph = withNode(createGraph(), registry, 'threshold', 'input/float')
+    graph = withEdge(graph, registry, ['threshold', 'out'], ['master', 'alphaClip'])
+    const connected = createMaterial(graph, registry)
+
+    expect(unconnected.material?.alphaTestNode).toBeNull()
+    expect(connected.material?.alphaTestNode).toBeTruthy()
+  })
+
+  it('two sided renders both faces', () => {
+    const graph = withMasterParam(createGraph(), registry, 'twoSided', true)
+
+    expect(createMaterial(graph, registry).material?.side).toBe(DoubleSide)
+  })
+
+  it('an opaque surface is never transparent, even with a connected translucent opacity', () => {
+    let graph = withNode(createGraph(), registry, 'alpha', 'input/float')
+    graph = withEdge(graph, registry, ['alpha', 'out'], ['master', 'opacity'])
+    graph = withMasterParam(graph, registry, 'surface', 'opaque')
+
+    expect(createMaterial(graph, registry).material?.transparent).toBe(false)
+  })
+
+  it('a transparent surface is always transparent, even at full opacity', () => {
+    const graph = withMasterParam(createGraph(), registry, 'surface', 'transparent')
+
+    expect(createMaterial(graph, registry).material?.transparent).toBe(true)
+  })
+
+  it('opacity edits leave an explicit surface alone', () => {
+    const opacity = { nodeId: MASTER, portId: 'opacity' }
+    const opaque = createMaterial(
+      withMasterParam(createGraph(), registry, 'surface', 'opaque'),
+      registry,
+    )
+    const transparent = createMaterial(
+      withMasterParam(createGraph(), registry, 'surface', 'transparent'),
+      registry,
+    )
+
+    expect(applyBuildInputValue(opaque, opacity, float(0.2))).toBe('applied')
+    expect(applyBuildInputValue(transparent, opacity, float(1))).toBe('applied')
+    expect(opaque.material?.transparent).toBe(false)
+    expect(transparent.material?.transparent).toBe(true)
+  })
+})
+
+describe('properties', () => {
+  const registry = createDefaultRegistry()
+  const propertyId = asPropertyId('prop-glow')
+
+  const withFloatProperty = (): Graph => {
+    let graph = unwrap(
+      addProperty(createGraph(), {
+        id: propertyId,
+        label: 'Glow',
+        name: 'glow',
+        exposed: true,
+        type: 'float',
+        value: float(0.25),
+      }),
+    )
+    graph = unwrap(
+      addPropertyNode(graph, registry, {
+        id: asNodeId('glow-reader'),
+        propertyId,
+        position: ORIGIN,
+      }),
+    )
+    return withEdge(graph, registry, ['glow-reader', 'out'], ['master', 'roughness'])
+  }
+
+  it('creates one named uniform per property', () => {
+    const { properties, errors } = createMaterial(withFloatProperty(), registry)
+
+    expect(errors).toEqual([])
+    expect([...properties.keys()]).toEqual([propertyId])
+    expect(properties.get(propertyId)?.name).toBe('glow')
+    expect(properties.get(propertyId)?.value).toBe(0.25)
+  })
+
+  it('shares a single uniform between every reader of a property', () => {
+    let graph = withFloatProperty()
+    graph = unwrap(
+      addPropertyNode(graph, registry, {
+        id: asNodeId('second-reader'),
+        propertyId,
+        position: ORIGIN,
+      }),
+    )
+    graph = withEdge(graph, registry, ['second-reader', 'out'], ['master', 'metalness'])
+
+    expect(createMaterial(graph, registry).properties.size).toBe(1)
+  })
+
+  it('property value applies without rebuild', () => {
+    const build = createMaterial(withFloatProperty(), registry)
+    const { material } = build
+
+    expect(applyPropertyValue(build, propertyId, float(0.9))).toBe('applied')
+
+    expect(build.properties.get(propertyId)?.value).toBe(0.9)
+    expect(build.material).toBe(material)
+  })
+
+  it('reports a missing property and a mismatching value', () => {
+    const build = createMaterial(withFloatProperty(), registry)
+    const before = build.properties.get(propertyId)?.value
+
+    expect(applyPropertyValue(build, asPropertyId('ghost'), float(1))).toBe('missing')
+    expect(applyPropertyValue(build, propertyId, vec2(1, 2))).toBe('mismatch')
+    expect(applyPropertyValue(build, propertyId, texture('asset'))).toBe('mismatch')
+    expect(build.properties.get(propertyId)?.value).toBe(before)
+  })
+
+  it('fails with a compile error when a reader points at a removed property', () => {
+    const graph = { ...withFloatProperty(), properties: [] }
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.material).toBeNull()
+    expect(build.errors[0]?.code).toBe('missing-property')
+  })
+})
+
+describe('textures', () => {
+  const registry = createDefaultRegistry()
+  const SAMPLE_INPUT = { nodeId: asNodeId('sample'), portId: 'texture' }
+
+  const withSampledTexture = (assetId: string | null): Graph => {
+    let graph = withNode(createGraph(), registry, 'sample', 'texture/sample-texture-2d')
+    graph = unwrap(setInputValue(graph, SAMPLE_INPUT, texture(assetId)))
+    return withEdge(graph, registry, ['sample', 'rgb'], ['master', 'baseColor'])
+  }
+
+  const realTexture = new DataTexture(new Uint8Array([255, 0, 0, 255]), 1, 1)
+
+  it('missing texture uses neutral fallback and is reported', () => {
+    const build = createMaterial(withSampledTexture('ghost-asset'), registry, {
+      resolveTexture: () => null,
+    })
+
+    expect(build.errors).toEqual([])
+    expect(build.material).not.toBeNull()
+    expect(build.missingTextures).toEqual(['ghost-asset'])
+  })
+
+  it('reports a missing asset once however many readers ask for it', () => {
+    const graph = withEdge(
+      withSampledTexture('ghost-asset'),
+      registry,
+      ['sample', 'a'],
+      ['master', 'roughness'],
+    )
+
+    const build = createMaterial(graph, registry, { resolveTexture: () => null })
+
+    expect(build.missingTextures).toEqual(['ghost-asset'])
+  })
+
+  it('uses the resolved texture and reports nothing when the asset exists', () => {
+    const resolved: string[] = []
+    const build = createMaterial(withSampledTexture('present'), registry, {
+      resolveTexture: (assetId) => {
+        resolved.push(assetId)
+        return realTexture
+      },
+    })
+
+    expect(build.missingTextures).toEqual([])
+    expect(resolved).toEqual(['present'])
+  })
+
+  it('treats an unassigned texture as neutral without reporting it', () => {
+    const build = createMaterial(withSampledTexture(null), registry, {
+      resolveTexture: () => realTexture,
+    })
+
+    expect(build.errors).toEqual([])
+    expect(build.missingTextures).toEqual([])
+  })
+
+  it('builds without options: every asset is missing', () => {
+    const build = createMaterial(withSampledTexture('asset'), registry)
+
+    expect(build.material).not.toBeNull()
+    expect(build.missingTextures).toEqual(['asset'])
+  })
+
+  it('the neutral texture is a shared 1x1 half-grey opaque pixel', () => {
+    const neutral = getNeutralTexture()
+
+    expect(getNeutralTexture()).toBe(neutral)
+    expect(neutral.image.width).toBe(1)
+    expect(neutral.image.height).toBe(1)
+    expect(Array.from(neutral.image.data ?? [])).toEqual([128, 128, 128, 255])
+  })
+
+  it('a texture property compiles to a texture node holding the resolved texture', () => {
+    const id = asPropertyId('prop-albedo')
+    let graph = unwrap(
+      addProperty(createGraph(), {
+        id,
+        label: 'Albedo',
+        name: 'albedo',
+        exposed: true,
+        type: 'texture',
+        value: texture('albedo-asset'),
+      }),
+    )
+    graph = unwrap(
+      addPropertyNode(graph, registry, {
+        id: asNodeId('albedo-reader'),
+        propertyId: id,
+        position: ORIGIN,
+      }),
+    )
+    graph = withNode(graph, registry, 'sample', 'texture/sample-texture-2d')
+    graph = withEdge(graph, registry, ['albedo-reader', 'out'], ['sample', 'texture'])
+    graph = withEdge(graph, registry, ['sample', 'rgb'], ['master', 'baseColor'])
+
+    const build = createMaterial(graph, registry, { resolveTexture: () => realTexture })
+
+    expect(build.errors).toEqual([])
+    const property = build.properties.get(id)
+    expect(property).toBeInstanceOf(TextureNode)
+    expect(property instanceof TextureNode && property.value).toBe(realTexture)
+    expect(applyPropertyValue(build, id, texture('another'))).toBe('mismatch')
+  })
+})
+
+describe('new catalog nodes', () => {
+  const registry = createDefaultRegistry()
+
+  it.each([
+    ['effects/noise', 'out'],
+    ['effects/voronoi', 'f1'],
+    ['effects/checkerboard', 'out'],
+    ['normal/normal-from-height', 'out'],
+    ['scene/depth-fade', 'out'],
+    ['scene/scene-color', 'out'],
+  ] as const)('%s compiles into a master slot', (type, output) => {
+    const slot = type === 'normal/normal-from-height' ? 'normal' : 'emission'
+    const graph = withEdge(
+      withNode(createGraph(), registry, 'subject', type),
+      registry,
+      ['subject', output],
+      ['master', slot],
+    )
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.material).not.toBeNull()
   })
 })

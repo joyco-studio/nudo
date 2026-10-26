@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
-import type { MeshStandardNodeMaterial } from 'three/webgpu'
+import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { validateMaterial } from './validate-material'
 
@@ -9,10 +9,10 @@ export type MaterialStatusHandler = (rejection: string | null) => void
 
 /** Releases GPU resources of materials that are neither shown nor waiting to be validated. */
 function useDisposeRetiredMaterials(
-  accepted: MeshStandardNodeMaterial | null,
-  candidate: MeshStandardNodeMaterial | null,
+  accepted: RuntimeMaterial | null,
+  candidate: RuntimeMaterial | null,
 ): void {
-  const known = useRef(new Set<MeshStandardNodeMaterial>())
+  const known = useRef(new Set<RuntimeMaterial>())
 
   useEffect(() => {
     const seen = known.current
@@ -40,13 +40,13 @@ function useDisposeRetiredMaterials(
  * it compiles, so a broken graph never blanks the preview. Must run inside the R3F canvas.
  */
 export function useValidatedMaterial(
-  candidate: MeshStandardNodeMaterial | null,
+  candidate: RuntimeMaterial | null,
   onStatus: MaterialStatusHandler,
-): MeshStandardNodeMaterial | null {
+): RuntimeMaterial | null {
   const gl = useThree((state) => state.gl)
   const scene = useThree((state) => state.scene)
   const camera = useThree((state) => state.camera)
-  const [accepted, setAccepted] = useState<MeshStandardNodeMaterial | null>(null)
+  const [accepted, setAccepted] = useState<RuntimeMaterial | null>(null)
   const reportStatus = useEffectEvent(onStatus)
 
   useDisposeRetiredMaterials(accepted, candidate)
