@@ -66,7 +66,7 @@ export function parseFragment(
   if (!nodesCheck.ok) return nodesCheck
   const edgesCheck = validateFragmentEdges(edges.value)
   if (!edgesCheck.ok) return edgesCheck
-  const structure = validateEdgeStructure(nodes.value, edges.value, (_edge, index) =>
+  const structure = validateEdgeStructure(nodes.value, edges.value, registry, (_edge, index) =>
     joinPath('edges', index),
   )
   if (!structure.ok) return structure

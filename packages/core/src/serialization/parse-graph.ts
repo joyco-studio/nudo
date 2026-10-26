@@ -66,7 +66,12 @@ export function parseGraph(
   const edgeList = Object.values(edges.value)
   const master = validateMaster(nodeList)
   if (!master.ok) return master
-  const structure = validateEdgeStructure(nodeList, edgeList, (edge) => `edges.${edge.id}`)
+  const structure = validateEdgeStructure(
+    nodeList,
+    edgeList,
+    registry,
+    (edge) => `edges.${edge.id}`,
+  )
   if (!structure.ok) return structure
 
   return ok({ schemaVersion: 1, nodes: nodes.value, edges: edges.value, properties: [] })

@@ -60,8 +60,28 @@ const master = defineNode({
   build: () => ({}),
 })
 
+const everyValueType = defineNode({
+  type: 'test/every-value-type',
+  category: 'utility',
+  label: 'Every value type',
+  description: 'One input per inline value type',
+  keywords: [],
+  inputs: [
+    { id: 'a', label: 'A', type: concrete('float'), default: float(0) },
+    { id: 'b', label: 'B', type: concrete('vec2'), default: vec2(0, 0) },
+    { id: 'c', label: 'C', type: concrete('vec3'), default: vec3(0, 0, 0) },
+    { id: 'd', label: 'D', type: concrete('vec4'), default: vec4(0, 0, 0, 0) },
+    { id: 'e', label: 'E', type: concrete('texture'), default: texture() },
+    { id: 'f', label: 'F', type: concrete('texture'), default: texture() },
+  ],
+  outputs: [],
+  build: () => ({}),
+})
+
 const registry = createNodeRegistry()
-;[floatSource, pass, textureSource, master].forEach((definition) => registry.register(definition))
+;[floatSource, pass, textureSource, everyValueType, master].forEach((definition) =>
+  registry.register(definition),
+)
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -286,6 +306,7 @@ describe('serializeGraph and parseGraph', () => {
       documentOf(base),
       'x',
       nodeJson({
+        type: 'test/every-value-type',
         inputValues: {
           a: float(1),
           b: vec2(1, 2),
@@ -436,6 +457,96 @@ describe('serializeGraph and parseGraph', () => {
     expect(unwrapError(parseGraph(document, registry))).toEqual({
       code: 'invalid-shape',
       path: 'edges.e1.from.portId',
+    })
+  })
+
+  describe('edges against node definitions', () => {
+    const withPass = (id: string): Record<string, unknown> =>
+      withNode(documentOf(createGraph()), id, nodeJson({ id, type: 'test/pass' }))
+    const edgeJson = (
+      id: string,
+      from: readonly [string, string],
+      to: readonly [string, string],
+    ) => ({
+      id,
+      from: { nodeId: from[0], portId: from[1] },
+      to: { nodeId: to[0], portId: to[1] },
+    })
+    const rejectedAt = (document: Record<string, unknown>, path: string) => {
+      expect(unwrapError(parseGraph(document, registry))).toEqual({ code: 'invalid-shape', path })
+    }
+
+    it('rejects an edge that leaves a port its source does not define', () => {
+      const document = {
+        ...withPass('a'),
+        edges: { e1: edgeJson('e1', ['a', 'nope'], ['master', 'baseColor']) },
+      }
+
+      rejectedAt(document, 'edges.e1')
+    })
+
+    it('rejects an edge that leaves an input port instead of an output', () => {
+      const document = {
+        ...withPass('a'),
+        edges: { e1: edgeJson('e1', ['a', 'a'], ['master', 'baseColor']) },
+      }
+
+      rejectedAt(document, 'edges.e1')
+    })
+
+    it('rejects an edge that enters a port its target does not define', () => {
+      const document = {
+        ...withPass('a'),
+        edges: { e1: edgeJson('e1', ['a', 'out'], ['master', 'nope']) },
+      }
+
+      rejectedAt(document, 'edges.e1')
+    })
+
+    it('rejects an edge that enters an output port', () => {
+      const document = {
+        ...withNode(withPass('a'), 'b', nodeJson({ id: 'b', type: 'test/pass' })),
+        edges: { e1: edgeJson('e1', ['a', 'out'], ['b', 'out']) },
+      }
+
+      rejectedAt(document, 'edges.e1')
+    })
+
+    it('rejects a second edge into the same input', () => {
+      const document = {
+        ...withNode(withPass('a'), 'b', nodeJson({ id: 'b', type: 'test/pass' })),
+        edges: {
+          e1: edgeJson('e1', ['a', 'out'], ['master', 'baseColor']),
+          e2: edgeJson('e2', ['b', 'out'], ['master', 'baseColor']),
+        },
+      }
+
+      rejectedAt(document, 'edges.e2')
+    })
+
+    it('accepts one output feeding several inputs', () => {
+      const document = {
+        ...withNode(withPass('a'), 'b', nodeJson({ id: 'b', type: 'test/pass' })),
+        edges: {
+          e1: edgeJson('e1', ['a', 'out'], ['master', 'baseColor']),
+          e2: edgeJson('e2', ['a', 'out'], ['b', 'a']),
+        },
+      }
+
+      expect(parseGraph(document, registry).ok).toBe(true)
+    })
+  })
+
+  it('rejects inline values for inputs the node does not define', () => {
+    const document = withNode(
+      documentOf(createGraph()),
+      'x',
+      nodeJson({ inputValues: { value: float(1), ghost: float(2) } }),
+    )
+
+    expect(unwrapError(parseGraph(document, registry))).toEqual({
+      code: 'invalid-shape',
+      path: 'nodes.x.inputValues.ghost',
     })
   })
 

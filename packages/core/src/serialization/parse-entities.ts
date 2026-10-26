@@ -119,7 +119,12 @@ export function parseNode(
   if (!inputValues.ok) return inputValues
   const params = parseRecord(input.params, joinPath(path, 'params'), parseParamValue)
   if (!params.ok) return params
-  if (registry.get(type) === undefined) return err({ code: 'unknown-node-type', type })
+  const definition = registry.get(type)
+  if (definition === undefined) return err({ code: 'unknown-node-type', type })
+  const inputIds = new Set(definition.inputs.map((input) => input.id))
+  const unknownKey = Object.keys(inputValues.value).find((key) => !inputIds.has(key))
+  if (unknownKey !== undefined)
+    return invalidShape(joinPath(joinPath(path, 'inputValues'), unknownKey))
 
   return ok({
     id: asNodeId(id),

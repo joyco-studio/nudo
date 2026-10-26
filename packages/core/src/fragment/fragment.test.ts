@@ -304,6 +304,47 @@ describe('parseFragment', () => {
     })
   })
 
+  it('rejects edges whose ports their nodes do not define', () => {
+    const portEdge = (id: string, fromPort: string, toNode: string, toPort: string) => ({
+      id,
+      from: { nodeId: 'a', portId: fromPort },
+      to: { nodeId: toNode, portId: toPort },
+    })
+    const rejectedAt = (edges: readonly unknown[], path: string) => {
+      const text = fragmentJson({ nodes: [node('a'), node('b')], edges })
+      expect(unwrapError(parseFragment(text, registry))).toEqual({ code: 'invalid-shape', path })
+    }
+
+    rejectedAt([portEdge('e1', 'nope', 'b', 'a')], 'edges.0')
+    rejectedAt([portEdge('e1', 'a', 'b', 'a')], 'edges.0')
+    rejectedAt([portEdge('e1', 'out', 'b', 'nope')], 'edges.0')
+    rejectedAt([portEdge('e1', 'out', 'b', 'out')], 'edges.0')
+  })
+
+  it('rejects a second edge into the same input', () => {
+    const text = fragmentJson({
+      nodes: [node('a'), node('b'), node('c')],
+      edges: [edge('e1', 'a', 'c'), edge('e2', 'b', 'c')],
+    })
+
+    expect(unwrapError(parseFragment(text, registry))).toEqual({
+      code: 'invalid-shape',
+      path: 'edges.1',
+    })
+  })
+
+  it('rejects inline values for inputs the node does not define', () => {
+    const text = fragmentJson({
+      nodes: [{ ...node('a'), inputValues: { ghost: { type: 'float', value: 1 } } }],
+      edges: [],
+    })
+
+    expect(unwrapError(parseFragment(text, registry))).toEqual({
+      code: 'invalid-shape',
+      path: 'nodes.0.inputValues.ghost',
+    })
+  })
+
   it('rejects a fragment that contains the master node', () => {
     const byId = fragmentJson({ nodes: [node('master', 'test/pass')], edges: [] })
     const byType = fragmentJson({ nodes: [node('copy', 'master/stack')], edges: [] })
