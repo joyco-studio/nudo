@@ -3,7 +3,23 @@ import { describe, expect, it } from 'vitest'
 
 import { searchNodes } from './search-nodes'
 
-const definitions = createDefaultRegistry().list()
+/** A fixed slice of the catalog, so these tests do not change whenever nodes are added. */
+const FIXTURE_TYPES: ReadonlySet<string> = new Set([
+  'master/stack',
+  'input/float',
+  'input/color',
+  'input/time',
+  'input/uv',
+  'input/normal',
+  'math/add',
+  'math/multiply',
+  'math/sin',
+  'interpolation/lerp',
+  'effects/fresnel',
+])
+
+const allDefinitions = createDefaultRegistry().list()
+const definitions = allDefinitions.filter((definition) => FIXTURE_TYPES.has(definition.type))
 
 function summarize(groups: ReturnType<typeof searchNodes>) {
   return groups.map((group) => ({
@@ -46,6 +62,15 @@ describe('searchNodes', () => {
   it('never returns the master, even when its keywords match', () => {
     expect(searchNodes(definitions, 'master')).toEqual([])
     expect(searchNodes(definitions, 'output')).toEqual([])
+  })
+
+  it('finds nodes added after the fixture slice across the full catalog', () => {
+    expect(summarize(searchNodes(allDefinitions, 'smoothstep'))).toEqual([
+      { category: 'interpolation', types: ['interpolation/smoothstep'] },
+    ])
+    expect(summarize(searchNodes(allDefinitions, 'split'))).toEqual([
+      { category: 'vector', types: ['vector/split'] },
+    ])
   })
 
   it('returns no groups when nothing matches', () => {
