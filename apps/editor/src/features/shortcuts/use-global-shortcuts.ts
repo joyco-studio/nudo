@@ -4,19 +4,13 @@ import { useReactFlow } from '@xyflow/react'
 
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { fitViewOptionsFor } from '@/features/canvas/fit-view-options'
+import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { redo, undo, useEditorStore } from '@/store/editor-store'
 
 import { copySelection, pasteFromClipboard } from './clipboard'
 import { globalShortcutAction } from './shortcut-action'
 import type { GlobalShortcutAction } from './shortcut-action'
 import { useOpenShortcutsDialog } from './shortcuts-dialog-context'
-
-/** Text fields keep their own undo, copy and paste, so shortcuts never fire while typing. */
-function isTextEntry(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false
-  if (target.isContentEditable) return true
-  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
-}
 
 const OVERLAY_SELECTOR = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]'
 
@@ -75,6 +69,7 @@ export function useGlobalShortcuts(): void {
       }
     }
 
+    // Text fields keep their own undo, copy and paste, so shortcuts never fire while typing.
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.defaultPrevented || isTextEntry(event.target) || isInsideOverlay(event.target)) {
         return

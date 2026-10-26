@@ -1,6 +1,7 @@
 import { extractFragment, parseFragment, serializeFragment } from '@nudo-tsl/core'
 import type { NodeId, XY } from '@nudo-tsl/core'
 
+import { focusFlowNode } from '@/features/canvas/focus-flow-node'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 import type { Notice } from '@/store/store-types'
@@ -40,7 +41,10 @@ async function readClipboardText(): Promise<string | null> {
   }
 }
 
-/** Pastes nudo-tsl nodes from the clipboard. Anything else leaves the graph as it was. */
+/**
+ * Pastes nudo-tsl nodes from the clipboard and focuses the first pasted node. Anything else leaves
+ * the graph as it was.
+ */
 export async function pasteFromClipboard(): Promise<void> {
   const text = await readClipboardText()
   const store = getStore()
@@ -53,5 +57,6 @@ export async function pasteFromClipboard(): Promise<void> {
     store.showNotice(NOT_NUDO_NOTICE)
     return
   }
-  store.pasteFragment(parsed.value, PASTE_OFFSET)
+  const [firstPastedId] = store.pasteFragment(parsed.value, PASTE_OFFSET)
+  if (firstPastedId !== undefined) focusFlowNode(firstPastedId)
 }

@@ -1,6 +1,7 @@
 import { asNodeId } from '@nudo-tsl/core'
 import type { NodeId, XY } from '@nudo-tsl/core'
 
+import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 
 /** Pixels a focused node moves per arrow press, and with Shift held. */
@@ -71,11 +72,6 @@ export function canvasKeyIntent(press: KeyPress, target: KeyTargetKind): CanvasK
   if (press.key === 'Enter' && target === 'node') return { kind: 'edit-fields' }
   if (press.key === 'Escape' && target === 'field') return { kind: 'leave-field' }
   return null
-}
-
-function isTextEntry(element: Element): boolean {
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) return true
-  return element instanceof HTMLElement && element.isContentEditable
 }
 
 /** Classifies the element that has focus (a keyboard event's target). */

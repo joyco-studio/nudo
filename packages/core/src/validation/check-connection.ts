@@ -1,6 +1,7 @@
 import type { NodeRegistry } from '../registry/node-registry'
 import { portKey } from '../type-inference/port-key'
 import { resolvePortTypes } from '../type-inference/resolve-port-types'
+import type { ResolvedTypes } from '../type-inference/resolve-port-types'
 import { getConversion } from '../types-system/conversion'
 import type { Conversion } from '../types-system/conversion'
 import type { PortTypeSpec } from '../types/data-type'
@@ -29,12 +30,17 @@ function findPortSpecs(
   return output && input ? { output: output.type, input: input.type } : null
 }
 
-/** Whether an output can feed an input, and which implicit conversion that implies. */
+/**
+ * Whether an output can feed an input, and which implicit conversion that implies. Callers that
+ * check many connections against one graph can resolve the port types once and pass them as
+ * `types`; they must be the types of this same graph.
+ */
 export function checkConnection(
   graph: Graph,
   registry: NodeRegistry,
   from: PortRef,
   to: PortRef,
+  types: ResolvedTypes = resolvePortTypes(graph, registry),
 ): ConnectionCheck {
   if (from.nodeId === to.nodeId) return reject('same-node')
 
@@ -43,7 +49,7 @@ export function checkConnection(
 
   if (wouldCreateCycle(graph, from, to)) return reject('cycle')
 
-  const sourceType = resolvePortTypes(graph, registry).outputs.get(portKey(from))
+  const sourceType = types.outputs.get(portKey(from))
   if (sourceType === undefined) return reject('unknown-port')
 
   if (specs.input.kind === 'generic') {

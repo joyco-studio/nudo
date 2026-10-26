@@ -16,6 +16,7 @@ const SHIFT_ARROW_STEP_PX = 50
 const PAN_STEP_PX = 40
 const SHIFT_PAN_STEP_PX = 160
 const TIME_START = { x: 0, y: 100 }
+const ORIGINAL_NODE_IDS = ['master', 'time', 'sine']
 
 function graphNode(page: Page, name: string): Locator {
   return page.getByRole('group', { name, exact: true })
@@ -192,6 +193,19 @@ test.describe('node keyboard model', () => {
   })
 })
 
+test.describe('node without fields', () => {
+  test('enter moves focus to the first port', async ({ page }) => {
+    await openCanvas(page, TIME_AND_SINE)
+    const time = graphNode(page, 'Time')
+    await expect(time.locator('input')).toHaveCount(0)
+    await time.focus()
+
+    await page.keyboard.press('Enter')
+
+    await expect(portButton(time, /^Out, output port/)).toBeFocused()
+  })
+})
+
 test.describe('canvas panning', () => {
   test('arrow keys pan the view 40 px, shift 160 px, when the canvas is focused', async ({
     page,
@@ -237,6 +251,11 @@ test.describe('clipboard', () => {
     await expect(graphNode(page, 'Sine')).toHaveCount(2)
     await expect(graphNode(page, 'Master Stack')).toHaveCount(1)
     await expect(edges(page)).toHaveCount(2)
+
+    // Focus lands on one of the pasted copies, never on an original node.
+    const focusedNode = page.locator('.react-flow__node:focus')
+    await expect(focusedNode).toHaveCount(1)
+    expect(ORIGINAL_NODE_IDS).not.toContain(await focusedNode.getAttribute('data-id'))
   })
 
   test('pasting prose shows notice and leaves graph unchanged', async ({ page }) => {

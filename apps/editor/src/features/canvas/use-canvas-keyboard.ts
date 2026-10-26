@@ -8,6 +8,7 @@ import { useEditorStore } from '@/store/editor-store'
 
 import {
   FLOW_NODE_SELECTOR,
+  PORT_BUTTON_ATTRIBUTE,
   canvasKeyIntent,
   classifyKeyTarget,
   flowNodeIdOf,
@@ -17,6 +18,7 @@ import {
 import type { CanvasKeyIntent } from './canvas-keyboard-model'
 
 const FIRST_FIELD_SELECTOR = 'input:not([type="hidden"]), textarea'
+const FIRST_PORT_SELECTOR = `[${PORT_BUTTON_ATTRIBUTE}]`
 
 const getStore = () => useEditorStore.getState()
 
@@ -55,12 +57,15 @@ function deleteFromKeyboard(event: KeyboardEvent, selectedEdgeIds: readonly stri
   refocusCanvasIfRemoved(target)
 }
 
-function focusFirstField(event: KeyboardEvent): void {
+/** Steps into a node: its first field, or its first port when it has no inline fields. */
+function focusFirstEntry(event: KeyboardEvent): void {
   if (!(event.target instanceof HTMLElement)) return
-  const field = event.target.querySelector<HTMLElement>(FIRST_FIELD_SELECTOR)
-  if (field === null) return
+  const entry =
+    event.target.querySelector<HTMLElement>(FIRST_FIELD_SELECTOR) ??
+    event.target.querySelector<HTMLElement>(FIRST_PORT_SELECTOR)
+  if (entry === null) return
   event.preventDefault()
-  field.focus()
+  entry.focus()
 }
 
 function focusOwningNode(event: KeyboardEvent): void {
@@ -71,7 +76,7 @@ function focusOwningNode(event: KeyboardEvent): void {
 
 /**
  * The canvas keyboard model: arrows move the focused node (or pan the view when the canvas itself
- * has focus), Delete removes, Enter steps into a node's fields and Escape steps back out.
+ * has focus), Delete removes, Enter steps into a node's fields (or ports) and Escape steps back out.
  *
  * Node moves are one history entry per burst: each press updates a draft, and the draft is
  * committed when the last arrow key is released.
@@ -110,7 +115,7 @@ export function useCanvasKeyboard(selectedEdgeIds: readonly string[]): void {
         deleteFromKeyboard(event, selectedEdgeIds)
         return
       case 'edit-fields':
-        focusFirstField(event)
+        focusFirstEntry(event)
         return
       case 'leave-field':
         focusOwningNode(event)

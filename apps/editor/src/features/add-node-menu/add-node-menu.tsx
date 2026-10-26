@@ -11,8 +11,8 @@ import {
   CommandList,
 } from '@/shared/ui/command'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
-import { KeyHints } from '@/shared/ui/key-hints'
-import type { KeyHint } from '@/shared/ui/key-hints'
+import { KeyHints } from '@/shared/components/key-hints'
+import type { KeyHint } from '@/shared/components/key-hints'
 
 import { searchNodes } from './search-nodes'
 import type { AddableCategory, NodeSearchGroup } from './search-nodes'

@@ -89,7 +89,7 @@ export function listConnectCandidates(
     .filter((candidate) => {
       const [from, to] =
         origin.side === 'output' ? [origin.ref, candidate.ref] : [candidate.ref, origin.ref]
-      return checkConnection(graph, registry, from, to).ok
+      return checkConnection(graph, registry, from, to, types).ok
     })
 }
 

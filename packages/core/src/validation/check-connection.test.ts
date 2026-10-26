@@ -4,6 +4,8 @@ import { createNodeRegistry } from '../registry/node-registry'
 import type { Graph, GraphEdge, GraphNode, PortRef } from '../types/graph'
 import { asEdgeId, asNodeId } from '../types/ids'
 import { concrete, float, generic, vec3 } from '../values/port-value-factories'
+import { portKey } from '../type-inference/port-key'
+import { resolvePortTypes } from '../type-inference/resolve-port-types'
 import { checkConnection } from './check-connection'
 import { wouldCreateCycle } from './would-create-cycle'
 
@@ -152,6 +154,24 @@ describe('checkConnection', () => {
         reason: 'type-mismatch',
       },
     )
+  })
+
+  it('uses the port types it is given instead of resolving them again', () => {
+    const graph = graphOf([node('tex', 'test/texture-source'), node('master', 'master/stack')])
+    const types = resolvePortTypes(graph, registry)
+    const textureOut = ref('tex', 'out')
+
+    expect(checkConnection(graph, registry, textureOut, ref('master', 'baseColor'), types)).toEqual(
+      checkConnection(graph, registry, textureOut, ref('master', 'baseColor')),
+    )
+    // Types that claim the output is a float make the same connection acceptable.
+    const floatOutputs = new Map([[portKey(textureOut), 'float' as const]])
+    expect(
+      checkConnection(graph, registry, textureOut, ref('master', 'baseColor'), {
+        inputs: types.inputs,
+        outputs: floatOutputs,
+      }).ok,
+    ).toBe(true)
   })
 
   it('float into concrete vec3 input reports splat conversion', () => {

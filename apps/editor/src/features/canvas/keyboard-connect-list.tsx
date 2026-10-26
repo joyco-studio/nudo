@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import type { RefObject } from 'react'
 
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
-import { KeyHints } from '@/shared/ui/key-hints'
-import type { KeyHint } from '@/shared/ui/key-hints'
+import { KeyHints } from '@/shared/components/key-hints'
+import type { KeyHint } from '@/shared/components/key-hints'
 import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
 
 import type { ConnectCandidate } from './connect-candidates'
