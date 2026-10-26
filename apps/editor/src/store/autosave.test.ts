@@ -69,20 +69,48 @@ describe('loadAutosave', () => {
     expect(result.notice).toEqual(RESTORE_FAILED_NOTICE)
     expect(localStorage.getItem(AUTOSAVE_CORRUPT_KEY)).toBe(raw)
   })
+
+  it('does not claim the data was kept when copying it to the corrupt key fails', () => {
+    localStorage.setItem(AUTOSAVE_KEY, '{not json')
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+
+    const result = loadAutosave(localStorage)
+    setItem.mockRestore()
+
+    expect(result.graph).toEqual(createGraph())
+    expect(result.notice).toEqual({
+      kind: 'error',
+      message: "Couldn't restore your last session, so we started a new graph.",
+    })
+    expect(localStorage.getItem(AUTOSAVE_CORRUPT_KEY)).toBeNull()
+  })
 })
 
 describe('startAutosave', () => {
+  let stopAutosave: (() => void) | null = null
+
+  const startTrackedAutosave = (): (() => void) => {
+    const stop = startAutosave(localStorage)
+    stopAutosave = stop
+    return stop
+  }
+
   beforeEach(() => {
     vi.useFakeTimers()
     localStorage.clear()
-    useEditorStore.setState({ graph: createGraph() })
+    useEditorStore.setState({ graph: createGraph(), notice: null })
   })
   afterEach(() => {
+    stopAutosave?.()
+    stopAutosave = null
+    vi.restoreAllMocks()
     vi.useRealTimers()
   })
 
   it('writes the serialized graph after the 500ms debounce', () => {
-    const stop = startAutosave(localStorage)
+    startTrackedAutosave()
 
     useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
     vi.advanceTimersByTime(499)
@@ -90,12 +118,11 @@ describe('startAutosave', () => {
 
     vi.advanceTimersByTime(1)
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
-    stop()
   })
 
   it('collapses rapid changes into a single write with the latest graph', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem')
-    const stop = startAutosave(localStorage)
+    startTrackedAutosave()
 
     useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
     vi.advanceTimersByTime(300)
@@ -104,23 +131,20 @@ describe('startAutosave', () => {
 
     expect(setItem).toHaveBeenCalledTimes(1)
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
-    setItem.mockRestore()
-    stop()
   })
 
   it('ignores changes that do not touch the graph', () => {
-    const stop = startAutosave(localStorage)
+    startTrackedAutosave()
 
     useEditorStore.getState().setSelection([])
     useEditorStore.getState().showNotice({ kind: 'info', message: 'hi' })
     vi.advanceTimersByTime(1000)
 
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
-    stop()
   })
 
   it('unsubscribe stops listening and clears a pending write', () => {
-    const stop = startAutosave(localStorage)
+    const stop = startTrackedAutosave()
 
     useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
     stop()
@@ -132,15 +156,18 @@ describe('startAutosave', () => {
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
   })
 
-  it('does not throw when storage rejects the write', () => {
-    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+  it('shows an error notice instead of throwing when storage rejects the write', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('quota', 'QuotaExceededError')
     })
-    const stop = startAutosave(localStorage)
+    startTrackedAutosave()
 
     useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
     expect(() => vi.advanceTimersByTime(500)).not.toThrow()
-    setItem.mockRestore()
-    stop()
+
+    expect(useEditorStore.getState().notice).toEqual({
+      kind: 'error',
+      message: "Couldn't save your work automatically. Your browser storage may be full.",
+    })
   })
 })

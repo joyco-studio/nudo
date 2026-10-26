@@ -116,6 +116,83 @@ describe('history', () => {
   })
 })
 
+describe('commitMove without movement', () => {
+  it('clears draft positions without creating a history entry', () => {
+    const id = addNodeOrFail(FLOAT_NODE, { x: 7, y: 7 })
+    const graphBefore = getState().graph
+    const entriesBefore = historyLength()
+
+    getState().setDraftPositions({ [id]: { x: 7, y: 7 } })
+    getState().commitMove({ [id]: { x: 7, y: 7 } })
+
+    expect(getState().graph).toBe(graphBefore)
+    expect(getState().draftPositions).toEqual({})
+    expect(historyLength()).toBe(entriesBefore)
+  })
+})
+
+describe('connect replacing an input edge', () => {
+  it('swaps the old edge for the new one in a single history entry', () => {
+    const first = addNodeOrFail(FLOAT_NODE)
+    const second = addNodeOrFail(FLOAT_NODE)
+    const roughness = { nodeId: MASTER_NODE_ID, portId: 'roughness' }
+    getState().connect({ nodeId: first, portId: 'out' }, roughness)
+    const [oldEdgeId] = Object.keys(getState().graph.edges)
+    const connectedGraph = getState().graph
+    const entriesBefore = historyLength()
+
+    const check = getState().connect({ nodeId: second, portId: 'out' }, roughness)
+
+    expect(check.ok).toBe(true)
+    const edges = Object.values(getState().graph.edges)
+    expect(edges).toHaveLength(1)
+    expect(edges[0]?.from.nodeId).toBe(second)
+    expect(edges[0]?.id).not.toBe(oldEdgeId)
+    expect(historyLength()).toBe(entriesBefore + 1)
+
+    undo()
+    expect(getState().graph).toBe(connectedGraph)
+  })
+})
+
+describe('selection consistency', () => {
+  it('removeNodes prunes removed ids from selection and draft positions', () => {
+    const kept = addNodeOrFail(FLOAT_NODE)
+    const removed = addNodeOrFail(FLOAT_NODE)
+    getState().setSelection([kept, removed])
+    getState().setDraftPositions({ [removed]: { x: 1, y: 1 }, [kept]: { x: 2, y: 2 } })
+
+    getState().removeNodes([removed])
+
+    expect(getState().selectedNodeIds).toEqual([kept])
+    expect(getState().draftPositions).toEqual({ [kept]: { x: 2, y: 2 } })
+  })
+
+  it('undoing the add of a selected node deselects it, and redo does not resurrect the selection', () => {
+    const id = addNodeOrFail(FLOAT_NODE)
+    getState().setSelection([id])
+
+    undo()
+    expect(getState().selectedNodeIds).toEqual([])
+
+    redo()
+    expect(getState().graph.nodes[id]).toBeDefined()
+    expect(getState().selectedNodeIds).toEqual([])
+  })
+
+  it('pruning never creates a history entry', () => {
+    const id = addNodeOrFail(FLOAT_NODE)
+    getState().setSelection([id])
+    const entriesBefore = historyLength()
+
+    undo()
+
+    expect(historyLength()).toBe(0)
+    expect(useEditorStore.temporal.getState().futureStates).toHaveLength(1)
+    expect(entriesBefore).toBe(1)
+  })
+})
+
 describe('rejected operations', () => {
   it('rejected connect leaves history unchanged', () => {
     const id = addNodeOrFail(FLOAT_NODE)

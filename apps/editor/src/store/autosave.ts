@@ -13,6 +13,10 @@ const RESTORE_FAILED_NOTICE: Notice = {
   message:
     "Couldn't restore your last session, so we started a new graph. The previous data was kept.",
 }
+const RESTORE_FAILED_DATA_LOST_NOTICE: Notice = {
+  kind: 'error',
+  message: "Couldn't restore your last session, so we started a new graph.",
+}
 const SAVE_FAILED_NOTICE: Notice = {
   kind: 'error',
   message: "Couldn't save your work automatically. Your browser storage may be full.",
@@ -27,11 +31,12 @@ function readItem(storage: Storage, key: string): string | null {
 }
 
 /** Best effort: failing to keep the corrupt copy must not block starting a fresh graph. */
-function keepCorruptCopy(storage: Storage, rawText: string): void {
+function keepCorruptCopy(storage: Storage, rawText: string): boolean {
   try {
     storage.setItem(AUTOSAVE_CORRUPT_KEY, rawText)
+    return true
   } catch {
-    // Storage is unavailable or full; the user still gets the notice and a working editor.
+    return false
   }
 }
 
@@ -42,8 +47,11 @@ export function loadAutosave(storage: Storage): { graph: Graph; notice: UiSlice[
   const parsed = parseGraph(rawText, registry)
   if (parsed.ok) return { graph: parsed.value, notice: null }
 
-  keepCorruptCopy(storage, rawText)
-  return { graph: createGraph(), notice: RESTORE_FAILED_NOTICE }
+  const isDataKept = keepCorruptCopy(storage, rawText)
+  return {
+    graph: createGraph(),
+    notice: isDataKept ? RESTORE_FAILED_NOTICE : RESTORE_FAILED_DATA_LOST_NOTICE,
+  }
 }
 
 /** Saves the graph to `storage` shortly after it stops changing. Returns the unsubscribe. */

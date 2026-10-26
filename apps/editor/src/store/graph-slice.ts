@@ -10,12 +10,19 @@ import {
   removeNodes,
   setInputValue,
 } from '@nudo-tsl/core'
-import type { Graph, NodeId, XY } from '@nudo-tsl/core'
+import type { ConnectionRejection, Graph, GraphError, NodeId, XY } from '@nudo-tsl/core'
 import { createEdgeId, createNodeId } from './ids'
 import { registry } from './registry'
 import type { EditorSliceCreator, GraphSlice, Notice } from './store-types'
 
 const MASTER_DELETE_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
+
+const CONNECT_FAILED_NOTICE: Notice = { kind: 'error', message: "Couldn't connect those ports." }
+
+/** Core `connect` re-checks the connection, so a failure here is almost always a rejection. */
+function rejectionReason(error: GraphError): ConnectionRejection {
+  return error.code === 'invalid-connection' ? error.reason : 'unknown-port'
+}
 
 /** Whether any of the requested positions differs from where the node already is. */
 function hasMovement(graph: Graph, positions: Readonly<Partial<Record<NodeId, XY>>>): boolean {
@@ -66,7 +73,11 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     const check = checkConnection(graph, registry, from, to)
     if (!check.ok) return check
     const result = connect(graph, registry, { id: createEdgeId(), from, to })
-    if (result.ok) set({ graph: result.value })
+    if (!result.ok) {
+      set({ notice: CONNECT_FAILED_NOTICE })
+      return { ok: false, reason: rejectionReason(result.error) }
+    }
+    set({ graph: result.value })
     return check
   },
 

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { temporal } from 'zundo'
 import { createCompileSlice } from './compile-slice'
 import { createGraphSlice } from './graph-slice'
+import { pruneStaleReferences } from './prune-stale-references'
 import type { EditorState } from './store-types'
 import { createUiSlice } from './ui-slice'
 
@@ -33,3 +34,14 @@ export function undo(): void {
 export function redo(): void {
   useEditorStore.temporal.getState().redo()
 }
+
+/**
+ * Undo and redo restore only `graph`, and deletes remove nodes, so selection and drag drafts can
+ * point at missing nodes. This keeps them consistent; it never touches `graph`, so the history
+ * (which compares `graph` by reference) gets no entry.
+ */
+useEditorStore.subscribe((state, previousState) => {
+  if (state.graph === previousState.graph) return
+  const pruned = pruneStaleReferences(state.graph, state)
+  if (pruned !== null) useEditorStore.setState(pruned)
+})
