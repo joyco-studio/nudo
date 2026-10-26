@@ -1,6 +1,7 @@
 import type { NodeRegistry } from '../registry/node-registry'
 import type { Graph, ParamValue } from '../types/graph'
 import type { NodeId } from '../types/ids'
+import { PROPERTY_ID_PARAM } from '../types/param-definition'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
 import { findParamDefinition, isValidParamValue } from '../validation/param-validation'
@@ -13,7 +14,8 @@ export interface ParamRef {
 
 /**
  * Sets a structural param. The param must be declared by the node's definition or be a universal
- * param, and the value must fit it. Changes to non-universal params recompile.
+ * param, and the value must fit it. On property readers, `propertyId` must name an existing
+ * property. Changes to non-universal params recompile.
  */
 export function setParam(
   graph: Graph,
@@ -32,6 +34,12 @@ export function setParam(
   }
   if (!isValidParamValue(param, value)) {
     return err({ code: 'invalid-param-value', nodeId: ref.nodeId, paramId: ref.paramId })
+  }
+
+  const isPropertyReference = definition.reads === 'property' && ref.paramId === PROPERTY_ID_PARAM
+  const isKnownProperty = graph.properties.some((property) => property.id === value)
+  if (isPropertyReference && !isKnownProperty) {
+    return err({ code: 'property-not-found', id: String(value) })
   }
 
   const updatedNode = { ...node, params: { ...node.params, [ref.paramId]: value } }

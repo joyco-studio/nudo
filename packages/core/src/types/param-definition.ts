@@ -38,12 +38,17 @@ export type ParamDefinition =
       readonly hidden?: boolean
     }
 
-/** Hidden string param through which a node with `reads: 'property'` names its Blackboard property. */
+/**
+ * Hidden string param through which a node with `reads: 'property'` names its Blackboard property.
+ * Reserved: only `reads: 'property'` nodes may declare it, and `removeProperty` relies on that.
+ */
 export const PROPERTY_ID_PARAM = 'propertyId'
 
 /**
  * Editor-managed params every node accepts implicitly. They are never part of `topologyKey`
  * (toggling them never recompiles), and `addNode` does not write them: absence means the default.
+ * Their ids (`collapsed`, `previewMode`) are reserved: a definition that redeclares one is ignored
+ * in favor of the universal definition.
  */
 export const UNIVERSAL_PARAMS: readonly ParamDefinition[] = [
   { id: 'collapsed', label: 'Collapsed', kind: 'boolean', default: false },

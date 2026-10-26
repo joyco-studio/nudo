@@ -8,10 +8,12 @@ import type { Result } from '../types/result'
 import { concrete, float, vec3 } from '../values/port-value-factories'
 import { addNode } from './add-node'
 import { addProperty } from './add-property'
+import { addPropertyNode } from './add-property-node'
 import { connect } from './connect'
 import { createGraph } from './create-graph'
 import { removeProperty } from './remove-property'
 import { renameProperty } from './rename-property'
+import { setParam } from './set-param'
 import { setPropertyExposed } from './set-property-exposed'
 import { setPropertyLabel } from './set-property-label'
 import { setPropertyValue } from './set-property-value'
@@ -27,6 +29,19 @@ const propertyFloat = defineNode({
   params: [{ id: 'propertyId', label: 'Property', kind: 'string', default: '', hidden: true }],
   reads: 'property',
   build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
+})
+
+const propertyVec3 = defineNode({
+  type: 'property/vec3',
+  category: 'input',
+  label: 'Vec3 property',
+  description: 'Reads a vec3 property',
+  keywords: [],
+  inputs: [],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('vec3') }],
+  params: [{ id: 'propertyId', label: 'Property', kind: 'string', default: '', hidden: true }],
+  reads: 'property',
+  build: ({ tsl }) => ({ out: tsl.construct('vec3', [0, 0, 0]) }),
 })
 
 const pass = defineNode({
@@ -52,7 +67,7 @@ const master = defineNode({
 })
 
 const registry = createNodeRegistry()
-;[master, pass, propertyFloat].forEach((definition) => registry.register(definition))
+;[master, pass, propertyFloat, propertyVec3].forEach((definition) => registry.register(definition))
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -225,22 +240,12 @@ describe('removeProperty', () => {
   const graphWithReaders = (): Graph => {
     let graph = graphWithProperties()
     graph = unwrap(
-      addNode(graph, registry, { id: asNodeId('reader'), type: 'property/float', position }),
+      addPropertyNode(graph, registry, { id: asNodeId('reader'), propertyId: speedId, position }),
     )
     graph = unwrap(
-      addNode(graph, registry, { id: asNodeId('other'), type: 'property/float', position }),
+      addPropertyNode(graph, registry, { id: asNodeId('other'), propertyId: tintId, position }),
     )
     graph = unwrap(addNode(graph, registry, { id: asNodeId('keep'), type: 'test/pass', position }))
-    const withParams = (nodeId: string, propertyId: string): void => {
-      const node = graph.nodes[asNodeId(nodeId)]
-      if (node === undefined) throw new Error(`missing node ${nodeId}`)
-      graph = {
-        ...graph,
-        nodes: { ...graph.nodes, [node.id]: { ...node, params: { propertyId } } },
-      }
-    }
-    withParams('reader', speedId)
-    withParams('other', tintId)
     graph = unwrap(
       connect(graph, registry, {
         id: asEdgeId('e-reader'),
@@ -273,5 +278,102 @@ describe('removeProperty', () => {
       code: 'property-not-found',
       id: missing,
     })
+  })
+})
+
+describe('addPropertyNode', () => {
+  const position = { x: 3, y: 4 }
+
+  it('adds the reader that matches the property type, with propertyId set', () => {
+    const graph = graphWithProperties()
+    const withFloat = unwrap(
+      addPropertyNode(graph, registry, { id: asNodeId('r1'), propertyId: speedId, position }),
+    )
+    const withVec3 = unwrap(
+      addPropertyNode(withFloat, registry, { id: asNodeId('r2'), propertyId: tintId, position }),
+    )
+
+    expect(withVec3.nodes[asNodeId('r1')]).toEqual({
+      id: asNodeId('r1'),
+      type: 'property/float',
+      position,
+      inputValues: {},
+      params: { propertyId: speedId },
+    })
+    expect(withVec3.nodes[asNodeId('r2')]?.type).toBe('property/vec3')
+    expect(withVec3.nodes[asNodeId('r2')]?.params).toEqual({ propertyId: tintId })
+  })
+
+  it('rejects an unknown property', () => {
+    const missing = asPropertyId('missing')
+    const input = { id: asNodeId('r1'), propertyId: missing, position }
+
+    expect(unwrapError(addPropertyNode(graphWithProperties(), registry, input))).toEqual({
+      code: 'property-not-found',
+      id: missing,
+    })
+  })
+
+  it('rejects a property whose reader type is not registered', () => {
+    const vec2Property: BlackboardProperty = {
+      ...speed,
+      id: asPropertyId('p-uv'),
+      name: 'uvOffset',
+      type: 'vec2',
+      value: { type: 'vec2', value: [0, 0] },
+    }
+    const graph = unwrap(addProperty(createGraph(), vec2Property))
+    const input = { id: asNodeId('r1'), propertyId: vec2Property.id, position }
+
+    expect(unwrapError(addPropertyNode(graph, registry, input))).toEqual({
+      code: 'unknown-node-type',
+      type: 'property/vec2',
+    })
+  })
+
+  it('rejects a duplicate node id', () => {
+    const first = { id: asNodeId('r1'), propertyId: speedId, position }
+    const graph = unwrap(addPropertyNode(graphWithProperties(), registry, first))
+
+    expect(unwrapError(addPropertyNode(graph, registry, { ...first, propertyId: tintId }))).toEqual(
+      {
+        code: 'duplicate-id',
+        id: 'r1',
+      },
+    )
+  })
+
+  it('makes addNode reject reader definitions', () => {
+    const input = { id: asNodeId('r1'), type: 'property/float', position }
+
+    expect(unwrapError(addNode(graphWithProperties(), registry, input))).toEqual({
+      code: 'property-required',
+    })
+  })
+})
+
+describe('setParam on property readers', () => {
+  const readerId = asNodeId('reader')
+  const ref = { nodeId: readerId, paramId: 'propertyId' }
+  const graphWithReader = (): Graph =>
+    unwrap(
+      addPropertyNode(graphWithProperties(), registry, {
+        id: readerId,
+        propertyId: speedId,
+        position: { x: 0, y: 0 },
+      }),
+    )
+
+  it('rejects a propertyId that is not in the Blackboard', () => {
+    expect(unwrapError(setParam(graphWithReader(), registry, ref, 'ghost'))).toEqual({
+      code: 'property-not-found',
+      id: 'ghost',
+    })
+  })
+
+  it('accepts re-pointing the reader at an existing property', () => {
+    const graph = unwrap(setParam(graphWithReader(), registry, ref, tintId))
+
+    expect(graph.nodes[readerId]?.params).toEqual({ propertyId: tintId })
   })
 })

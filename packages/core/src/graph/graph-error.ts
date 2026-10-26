@@ -11,3 +11,6 @@ export type GraphError =
   | { code: 'unknown-port'; ref: PortRef }
   | { code: 'unknown-param'; nodeId: NodeId; paramId: string }
   | { code: 'invalid-param-value'; nodeId: NodeId; paramId: string }
+  /** Property reader nodes must be created with `addPropertyNode`. */
+  | { code: 'property-required' }
+  | { code: 'property-not-found'; id: string }

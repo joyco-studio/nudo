@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { addNode } from '../graph/add-node'
 import { addProperty } from '../graph/add-property'
+import { addPropertyNode } from '../graph/add-property-node'
 import { createGraph } from '../graph/create-graph'
 import { setParam } from '../graph/set-param'
 import { defineNode } from '../registry/define-node'
@@ -139,18 +140,12 @@ const tint: BlackboardProperty = {
 const richGraph = (): Graph => {
   let graph = unwrap(addProperty(unwrap(addProperty(createGraph(), speed)), tint))
   graph = unwrap(
-    addNode(graph, registry, {
+    addPropertyNode(graph, registry, {
       id: asNodeId('reader'),
-      type: 'property/float',
+      propertyId: speed.id,
       position: { x: 1, y: 2 },
     }),
   )
-  const reader = graph.nodes[asNodeId('reader')]
-  if (reader === undefined) throw new Error('missing reader')
-  graph = {
-    ...graph,
-    nodes: { ...graph.nodes, [reader.id]: { ...reader, params: { propertyId: speed.id } } },
-  }
   graph = unwrap(
     addNode(graph, registry, { id: asNodeId('n'), type: 'test/noise', position: { x: 0, y: 0 } }),
   )
@@ -217,6 +212,27 @@ describe('schema version 2', () => {
 
   it('exposes a single v1 to v2 default migration', () => {
     expect(DEFAULT_MIGRATIONS.map((step) => step.from)).toEqual([1])
+  })
+
+  it('migrates a v1 document with absent properties', () => {
+    const withoutProperties = Object.fromEntries(
+      Object.entries(documentOf(createGraph())).filter(([key]) => key !== 'properties'),
+    )
+
+    const graph = unwrap(parseGraph({ ...withoutProperties, schemaVersion: 1 }, registry))
+
+    expect(graph).toEqual(createGraph())
+  })
+
+  it('still rejects a v1 document that holds properties', () => {
+    const document = {
+      ...documentOf(createGraph()),
+      schemaVersion: 1,
+      properties: [propertyJson()],
+    }
+
+    expect(parseGraph(document, registry).ok).toBe(false)
+    expect(parseGraph({ ...document, properties: {} }, registry).ok).toBe(false)
   })
 
   it('rejects a version newer than current', () => {

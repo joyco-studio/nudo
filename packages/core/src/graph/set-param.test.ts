@@ -36,6 +36,21 @@ const noise = defineNode({
   build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
 })
 
+const redeclaring = defineNode({
+  type: 'test/redeclaring',
+  category: 'utility',
+  label: 'Redeclaring',
+  description: 'Redeclares reserved universal param ids',
+  keywords: [],
+  inputs: [],
+  outputs: [],
+  params: [
+    { id: 'collapsed', label: 'Collapsed', kind: 'string', default: 'no' },
+    { id: 'previewMode', label: 'Mode', kind: 'boolean', default: true },
+  ],
+  build: () => ({}),
+})
+
 const master = defineNode({
   type: 'master/stack',
   category: 'master',
@@ -50,6 +65,7 @@ const master = defineNode({
 const registry = createNodeRegistry()
 registry.register(master)
 registry.register(noise)
+registry.register(redeclaring)
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -152,5 +168,31 @@ describe('setParam', () => {
 
     expect(topologyKey(previewed)).toBe(topologyKey(graph))
     expect(topologyKey(structural)).not.toBe(topologyKey(graph))
+  })
+})
+
+describe('reserved universal param ids', () => {
+  const nodeId = asNodeId('r')
+  const graph = (): Graph =>
+    unwrap(
+      addNode(createGraph(), registry, {
+        id: nodeId,
+        type: 'test/redeclaring',
+        position: { x: 0, y: 0 },
+      }),
+    )
+
+  it('keeps the universal definition when a node redeclares the id', () => {
+    const collapsedRef = { nodeId, paramId: 'collapsed' }
+    const previewRef = { nodeId, paramId: 'previewMode' }
+
+    expect(setParam(graph(), registry, collapsedRef, 'no').ok).toBe(false)
+    expect(setParam(graph(), registry, collapsedRef, true).ok).toBe(true)
+    expect(setParam(graph(), registry, previewRef, true).ok).toBe(false)
+    expect(setParam(graph(), registry, previewRef, '3d').ok).toBe(true)
+  })
+
+  it('does not write defaults for redeclared reserved ids', () => {
+    expect(graph().nodes[nodeId]?.params).toEqual({})
   })
 })
