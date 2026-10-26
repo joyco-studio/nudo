@@ -21,9 +21,13 @@ const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
   input: 'Input',
   math: 'Math',
   interpolation: 'Interpolation',
+  logic: 'Logic',
   vector: 'Vector',
   effects: 'Effects',
   texture: 'Texture',
+  color: 'Color',
+  scene: 'Scene',
+  normal: 'Normal',
   utility: 'Utility',
 }
 

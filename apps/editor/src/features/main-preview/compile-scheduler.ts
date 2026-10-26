@@ -1,9 +1,11 @@
 import { portKey, topologyKey } from '@nudo-tsl/core'
-import type { Graph, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
+import type { Graph, NodeRegistry, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
 import { applyBuildInputValue } from '@nudo-tsl/runtime'
 import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 
 export interface CompileSchedulerOptions {
+  /** Tells `topologyKey` which params are editor-only, so editing them never recompiles. */
+  registry: NodeRegistry
   /** Quiet period before a topology change is compiled. */
   delayMs: number
   build(graph: Graph): MaterialBuild
@@ -84,7 +86,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     const graph = latestGraph
     const build = options.build(graph)
     builtGraph = graph
-    builtKey = topologyKey(graph)
+    builtKey = topologyKey(graph, options.registry)
     builtMaterial = build
     options.onBuilt(build)
   }
@@ -114,7 +116,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
       if (isDisposed) return
       latestGraph = graph
 
-      if (builtGraph === null || builtKey !== topologyKey(graph)) {
+      if (builtGraph === null || builtKey !== topologyKey(graph, options.registry)) {
         scheduleRebuild()
         return
       }

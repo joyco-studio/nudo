@@ -17,7 +17,7 @@ const resolveCompareOp = (param: unknown): CompareOp =>
 
 export const selectNode = defineNode({
   type: 'logic/select',
-  category: 'math',
+  category: 'logic',
   label: 'Select',
   description: 'Picks one of two values depending on how A compares with B.',
   keywords: ['select', 'if', 'branch', 'compare', 'condition', 'switch'],

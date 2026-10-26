@@ -46,7 +46,12 @@ function setUp(
 ) {
   const buildSpy = vi.fn(build)
   const onBuilt = vi.fn<(result: MaterialBuild) => void>()
-  const scheduler = createCompileScheduler({ delayMs: DELAY_MS, build: buildSpy, onBuilt })
+  const scheduler = createCompileScheduler({
+    registry,
+    delayMs: DELAY_MS,
+    build: buildSpy,
+    onBuilt,
+  })
   return { buildSpy, onBuilt, scheduler }
 }
 

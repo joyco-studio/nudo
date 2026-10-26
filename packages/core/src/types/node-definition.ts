@@ -3,10 +3,21 @@ import type { ParamValue } from './graph'
 import type { NodeTypeId } from './ids'
 import type { ParamDefinition } from './param-definition'
 import type { PortValue } from './port-value'
-import type { TslFacade } from './tsl-facade'
+import type { BuiltinName, TslFacade } from './tsl-facade'
 
 export type NodeCategory =
-  'input' | 'math' | 'interpolation' | 'vector' | 'effects' | 'texture' | 'utility' | 'master'
+  | 'input'
+  | 'math'
+  | 'interpolation'
+  | 'logic'
+  | 'vector'
+  | 'effects'
+  | 'texture'
+  | 'color'
+  | 'scene'
+  | 'normal'
+  | 'utility'
+  | 'master'
 
 export type InputWidget = 'number' | 'color'
 
@@ -17,6 +28,11 @@ export interface InputDefinition<I extends string> {
   readonly default: PortValue
   readonly widget?: InputWidget
   readonly optional?: boolean
+  /**
+   * Builtin the compiler uses while the input is unconnected, in place of an inline value: a mesh
+   * default such as the UV or the view normal. Such an input has no uniform and no inline field.
+   */
+  readonly fallback?: BuiltinName
 }
 
 export interface OutputDefinition<O extends string> {

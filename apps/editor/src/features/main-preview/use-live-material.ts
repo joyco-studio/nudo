@@ -42,6 +42,7 @@ export function useLiveMaterial(): LiveMaterial {
 
   useEffect(() => {
     const scheduler = createCompileScheduler({
+      registry,
       delayMs: COMPILE_DEBOUNCE_MS,
       build: buildPreviewMaterial,
       onBuilt: (build) => {

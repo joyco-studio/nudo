@@ -12,6 +12,7 @@ import type { AnyNodeDefinition, InputDefinition } from '../types/node-definitio
 import { PROPERTY_ID_PARAM } from '../types/param-definition'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
+import type { BuiltinName } from '../types/tsl-facade'
 import { convertValue } from '../values/convert-value'
 import { applyConversion } from './apply-conversion'
 import { MASTER_SLOTS } from './compile-backend'
@@ -100,6 +101,14 @@ export function compile<E>(
     }
   }
 
+  const resolveFallback = (node: GraphNode, fallback: BuiltinName): Outcome<E> => {
+    try {
+      return ok(tsl.builtin(fallback))
+    } catch (error) {
+      return fail(node.id, 'build-failed', describeError(error))
+    }
+  }
+
   const resolveInput = (node: GraphNode, input: InputDefinition<string>): Outcome<E> => {
     const ref: PortRef = { nodeId: node.id, portId: input.id }
     const inputType = resolved.inputs.get(portKey(ref))
@@ -107,8 +116,9 @@ export function compile<E>(
       return fail(node.id, 'unresolved-type', `Input ${portKey(ref)} has no resolved type`)
     }
     const edge = incomingByInput.get(portKey(ref))
-    if (edge === undefined) return resolveInline(node, input, ref, inputType)
-    return resolveConnected(ref, edge, inputType)
+    if (edge !== undefined) return resolveConnected(ref, edge, inputType)
+    if (input.fallback !== undefined) return resolveFallback(node, input.fallback)
+    return resolveInline(node, input, ref, inputType)
   }
 
   const findProperty = (node: GraphNode): BlackboardProperty | undefined => {

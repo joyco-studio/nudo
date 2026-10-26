@@ -8,6 +8,7 @@ import type {
   VectorPortValue,
 } from '@nudo-tsl/core'
 
+import { fallbackLabel } from './fallback-label'
 import { linearToSrgbHex, srgbHexToLinear } from './color-space'
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { inlineValue, valueComponents, withComponent } from './inline-value'
@@ -148,6 +149,15 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
       <>
         <PortLabel label={input.label} />
         <MutedHint>{OPTIONAL_HINT}</MutedHint>
+      </>
+    )
+  }
+
+  if (input.fallback !== undefined) {
+    return (
+      <>
+        <PortLabel label={input.label} />
+        <MutedHint>{fallbackLabel(input.fallback)}</MutedHint>
       </>
     )
   }

@@ -15,7 +15,7 @@ import { MASTER_NODE_ID, asEdgeId, asNodeId, asPropertyId } from '../types/ids'
 import type { PortValue } from '../types/port-value'
 import type { Result } from '../types/result'
 import type { TslFacade } from '../types/tsl-facade'
-import { concrete, float, generic, texture, vec3, vec4 } from '../values/port-value-factories'
+import { concrete, float, generic, texture, vec2, vec3, vec4 } from '../values/port-value-factories'
 import { compile } from './compile'
 import type { CompileBackend, CompileResult } from './compile-backend'
 
@@ -237,6 +237,31 @@ const selector = defineNode({
     const op = params.op === 'gte' ? 'gte' : 'lt'
     return { out: tsl.select(op, inputs.a, inputs.b, inputs.a, inputs.b) }
   },
+})
+
+const meshUvConsumer = defineNode({
+  type: 'test/mesh-uv-consumer',
+  category: 'effects',
+  label: 'Mesh UV consumer',
+  description: 'Reads the mesh UV while its input is unconnected',
+  keywords: [],
+  inputs: [
+    { id: 'uv', label: 'UV', type: concrete('vec2'), default: vec2(0, 0), fallback: 'uv' },
+    { id: 'scale', label: 'Scale', type: concrete('float'), default: float(1) },
+  ],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('vec2') }],
+  build: ({ tsl, inputs }) => ({ out: tsl.mul(inputs.uv, inputs.scale) }),
+})
+
+const vec2Source = defineNode({
+  type: 'test/vec2-source',
+  category: 'input',
+  label: 'Vec2 source',
+  description: 'Vec2 constant',
+  keywords: [],
+  inputs: [{ id: 'value', label: 'Value', type: concrete('vec2'), default: vec2(0, 0) }],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('vec2') }],
+  build: ({ inputs }) => ({ out: inputs.value }),
 })
 
 const createParamProbe = (onBuild: (params: Readonly<Record<string, ParamValue>>) => void) =>
@@ -649,6 +674,43 @@ describe('compile', () => {
     expect(result).toEqual({
       ok: true,
       output: { kind: 'port', expression: 'select(gte,u(s:a),u(s:b),u(s:a),u(s:b))' },
+    })
+  })
+
+  it('unconnected uv falls back to builtin uv without asking the backend for a value', () => {
+    const registry = createRegistry(meshUvConsumer)
+    const graph = withNodes(registry, [['m', 'test/mesh-uv-consumer']])
+    const { backend, receivedValues } = createStringBackend()
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('m'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: true,
+      output: { kind: 'port', expression: 'mul(builtin(uv),u(m:scale))' },
+    })
+    expect([...receivedValues.keys()]).toEqual(['m:scale'])
+  })
+
+  it('a connected input with a fallback uses the connection instead', () => {
+    const registry = createRegistry(meshUvConsumer, vec2Source)
+    let graph = withNodes(registry, [
+      ['m', 'test/mesh-uv-consumer'],
+      ['v', 'test/vec2-source'],
+    ])
+    graph = link(graph, registry, 'e1', ['v', 'out'], ['m', 'uv'])
+    const { backend } = createStringBackend()
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('m'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: true,
+      output: { kind: 'port', expression: 'mul(u(v:value),u(m:scale))' },
     })
   })
 

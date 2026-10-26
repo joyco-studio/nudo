@@ -58,6 +58,9 @@ function resolveGroupTypes(
       continue
     }
 
+    // A fallback builtin stands in for the inline value, so it says nothing about the group's type.
+    if (input.fallback !== undefined) continue
+
     const inlineValue = node.inputValues[input.id] ?? input.default
     inlineTypes.set(group, [...(inlineTypes.get(group) ?? []), inlineValue.type])
   }

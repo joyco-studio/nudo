@@ -14,9 +14,13 @@ export const ADDABLE_CATEGORIES = exhaustiveOrder([
   'input',
   'math',
   'interpolation',
+  'logic',
   'vector',
   'effects',
   'texture',
+  'color',
+  'scene',
+  'normal',
   'utility',
 ])
 

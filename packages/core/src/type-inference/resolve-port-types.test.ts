@@ -43,11 +43,32 @@ const add = defineNode({
   build: ({ tsl, inputs }) => ({ out: tsl.add(inputs.a, inputs.b) }),
 })
 
+const genericWithFallback = defineNode({
+  type: 'test/generic-fallback',
+  category: 'math',
+  label: 'Generic with fallback',
+  description: 'A generic input that defaults to a builtin',
+  keywords: [],
+  inputs: [
+    {
+      id: 'a',
+      label: 'A',
+      type: generic('T'),
+      default: vec3(1, 1, 1),
+      fallback: 'normalView',
+    },
+    { id: 'b', label: 'B', type: generic('T'), default: float(0) },
+  ],
+  outputs: [{ id: 'out', label: 'Out', type: generic('T') }],
+  build: ({ tsl, inputs }) => ({ out: tsl.add(inputs.a, inputs.b) }),
+})
+
 const createRegistry = () => {
   const registry = createNodeRegistry()
   registry.register(floatSource)
   registry.register(vec3Source)
   registry.register(add)
+  registry.register(genericWithFallback)
   return registry
 }
 
@@ -157,6 +178,15 @@ describe('resolvePortTypes', () => {
 
     expect(resolvePortTypes(connected, registry).outputs.get(key('add', 'out'))).toBe('vec3')
     expect(resolvePortTypes(disconnected, registry).outputs.get(key('add', 'out'))).toBe('float')
+  })
+
+  it('ignores the inline value of an unconnected input that has a fallback', () => {
+    const graph = createGraph([node('g', 'test/generic-fallback')], [])
+
+    const resolved = resolvePortTypes(graph, createRegistry())
+
+    expect(resolved.inputs.get(key('g', 'a'))).toBe('float')
+    expect(resolved.outputs.get(key('g', 'out'))).toBe('float')
   })
 
   it('skips nodes whose definition is missing', () => {
