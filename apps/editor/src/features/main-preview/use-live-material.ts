@@ -9,6 +9,7 @@ import { registry } from '@/store/registry'
 
 import { createCompileScheduler } from './compile-scheduler'
 import { recordCompile } from './compile-counter'
+import { recordPreviewApply } from './preview-apply-counter'
 
 /** Quiet period after the last structural edit before the graph is compiled again. */
 const COMPILE_DEBOUNCE_MS = 150
@@ -33,8 +34,8 @@ function nextLiveMaterial(current: LiveMaterial, build: MaterialBuild): LiveMate
 }
 
 /**
- * Keeps the editor graph compiled. Inline value edits reach the material in place; structural
- * edits compile again after a pause. A failing graph keeps the last good material.
+ * Keeps the editor graph compiled. Inline value edits, and the values a scrub previews before it
+ * commits, reach the material in place; structural edits compile again after a pause. A failing graph keeps the last good material.
  */
 export function useLiveMaterial(): LiveMaterial {
   const [live, setLive] = useState<LiveMaterial>(NO_MATERIAL_YET)
@@ -51,6 +52,11 @@ export function useLiveMaterial(): LiveMaterial {
     scheduler.update(useEditorStore.getState().graph)
     const unsubscribe = useEditorStore.subscribe((state, previousState) => {
       if (state.graph !== previousState.graph) scheduler.update(state.graph)
+      const { inputPreview } = state
+      if (inputPreview === null || inputPreview === previousState.inputPreview) return
+      if (scheduler.previewValue(inputPreview.ref, inputPreview.value) === 'applied') {
+        recordPreviewApply()
+      }
     })
     return () => {
       unsubscribe()

@@ -29,6 +29,10 @@ export interface NumberFieldProps {
   /** `row` fills a port row; `component` is one cell of a vector. */
   layout: 'row' | 'component'
   onCommit: (value: number) => void
+  /** Called with every value of a pointer scrub, so the preview can follow before the commit. */
+  onScrubPreview: (value: number) => void
+  /** Called once a pointer scrub is over, whether it was committed or cancelled. */
+  onScrubPreviewEnd: () => void
 }
 
 function scrubbedValue(session: ScrubSession, event: PointerEvent): number {
@@ -38,7 +42,8 @@ function scrubbedValue(session: ScrubSession, event: PointerEvent): number {
 
 /**
  * Inline number entry. Typing commits on Enter or blur, Escape reverts, and text that is not a
- * finite number reverts to the last valid value. ArrowUp/Down step by 0.1 (Shift: 1).
+ * finite number reverts to the last valid value. ArrowUp/Down step by 0.1 (Shift: 1). Dragging
+ * the label previews every value live and commits once, on release.
  */
 export function NumberField({
   label,
@@ -47,6 +52,8 @@ export function NumberField({
   isDefault,
   layout,
   onCommit,
+  onScrubPreview,
+  onScrubPreviewEnd,
 }: NumberFieldProps) {
   const inputId = useId()
   const [draftText, setDraftText] = useState<string | null>(null)
@@ -104,20 +111,31 @@ export function NumberField({
       return
     }
     session.isScrubbing = true
+    const scrubbed = scrubbedValue(session, event)
     setDraftText(null)
-    setScrubValue(scrubbedValue(session, event))
+    setScrubValue(scrubbed)
+    onScrubPreview(scrubbed)
   }
 
   const onScrubEnd = (event: PointerEvent<HTMLLabelElement>): void => {
     const session = scrubSession.current
     scrubSession.current = null
     setScrubValue(null)
-    if (session?.isScrubbing === true) commit(scrubbedValue(session, event))
+    if (session?.isScrubbing !== true) return
+    const finalValue = scrubbedValue(session, event)
+    // The uniform must end on the committed value even when the commit changes nothing.
+    onScrubPreview(finalValue)
+    commit(finalValue)
+    onScrubPreviewEnd()
   }
 
   const onScrubCancel = (): void => {
+    const session = scrubSession.current
     scrubSession.current = null
     setScrubValue(null)
+    if (session?.isScrubbing !== true) return
+    onScrubPreview(session.startValue)
+    onScrubPreviewEnd()
   }
 
   return (

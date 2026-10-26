@@ -92,10 +92,19 @@ interface VectorFieldProps {
   value: VectorPortValue
   isDefault: boolean
   onCommit: (value: PortValue) => void
+  onScrubPreview: (value: PortValue) => void
+  onScrubPreviewEnd: () => void
 }
 
 /** One number field per component, on their own line under the port label. */
-function VectorField({ label, value, isDefault, onCommit }: VectorFieldProps) {
+function VectorField({
+  label,
+  value,
+  isDefault,
+  onCommit,
+  onScrubPreview,
+  onScrubPreviewEnd,
+}: VectorFieldProps) {
   return (
     <>
       <PortLabel label={label} />
@@ -113,6 +122,10 @@ function VectorField({ label, value, isDefault, onCommit }: VectorFieldProps) {
               onCommit={(next) => {
                 onCommit(withComponent(value, index, next))
               }}
+              onScrubPreview={(next) => {
+                onScrubPreview(withComponent(value, index, next))
+              }}
+              onScrubPreviewEnd={onScrubPreviewEnd}
             />
           )
         })}
@@ -129,7 +142,7 @@ export interface InlineFieldProps {
 
 /** The label and editor of an unconnected input, picked by widget and resolved type. */
 export function InlineField({ node, input, dataType }: InlineFieldProps) {
-  const { setInputValue } = useGraphCanvasActions()
+  const { setInputValue, previewInputValue, endInputPreview } = useGraphCanvasActions()
   if (input.optional === true) {
     return (
       <>
@@ -150,8 +163,12 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
   }
 
   const isDefault = node.inputValues[input.id] === undefined
+  const ref = { nodeId: node.id, portId: input.id }
   const commit = (next: PortValue): void => {
-    setInputValue({ nodeId: node.id, portId: input.id }, next)
+    setInputValue(ref, next)
+  }
+  const preview = (next: PortValue): void => {
+    previewInputValue(ref, next)
   }
 
   if (input.widget === 'color' && value.type === 'vec3') {
@@ -167,8 +184,21 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
         onCommit={(next) => {
           commit(float(next))
         }}
+        onScrubPreview={(next) => {
+          preview(float(next))
+        }}
+        onScrubPreviewEnd={endInputPreview}
       />
     )
   }
-  return <VectorField label={input.label} value={value} isDefault={isDefault} onCommit={commit} />
+  return (
+    <VectorField
+      label={input.label}
+      value={value}
+      isDefault={isDefault}
+      onCommit={commit}
+      onScrubPreview={preview}
+      onScrubPreviewEnd={endInputPreview}
+    />
+  )
 }

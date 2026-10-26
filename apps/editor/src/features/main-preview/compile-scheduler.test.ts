@@ -209,6 +209,45 @@ describe('createCompileScheduler', () => {
     expect(buildSpy).toHaveBeenCalledTimes(2)
   })
 
+  it('previewValue applies a value to its uniform without a rebuild or a graph change', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp()
+    const graph = createGraph()
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+    const uniform = onBuilt.mock.calls[0]?.[0].uniforms.get(portKey(BASE_COLOR))
+
+    expect(scheduler.previewValue(BASE_COLOR, vec3(0, 1, 0.5))).toBe('applied')
+    expect(uniform?.value).toEqual(new Vector3(0, 1, 0.5))
+    expect(scheduler.previewValue(BASE_COLOR, vec3(1, 0, 0))).toBe('applied')
+    expect(uniform?.value).toEqual(new Vector3(1, 0, 0))
+
+    vi.advanceTimersByTime(DELAY_MS * 4)
+    expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('previewValue reports a value that has no uniform or does not fit it', () => {
+    const { scheduler } = setUp()
+    expect(scheduler.previewValue(BASE_COLOR, vec3(0, 1, 0))).toBe('missing')
+
+    scheduler.update(createGraph())
+    vi.advanceTimersByTime(DELAY_MS)
+
+    expect(scheduler.previewValue(BASE_COLOR, float(1))).toBe('mismatch')
+    const ghost: PortRef = { nodeId: asNodeId('ghost'), portId: 'x' }
+    expect(scheduler.previewValue(ghost, float(1))).toBe('missing')
+  })
+
+  it('previewValue does nothing after dispose', () => {
+    const { onBuilt, scheduler } = setUp()
+    scheduler.update(createGraph())
+    vi.advanceTimersByTime(DELAY_MS)
+    const uniform = onBuilt.mock.calls[0]?.[0].uniforms.get(portKey(BASE_COLOR))
+    scheduler.dispose()
+
+    expect(scheduler.previewValue(BASE_COLOR, vec3(0, 1, 0))).toBe('missing')
+    expect(uniform?.value).toEqual(new Vector3(0.8, 0.8, 0.8))
+  })
+
   it('dispose cancels pending rebuild', () => {
     const { buildSpy, onBuilt, scheduler } = setUp()
     scheduler.update(createGraph())

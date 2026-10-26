@@ -1,7 +1,7 @@
 import { portKey, topologyKey } from '@nudo-tsl/core'
 import type { Graph, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
 import { applyInputValue } from '@nudo-tsl/runtime'
-import type { LiveUniform, MaterialBuild } from '@nudo-tsl/runtime'
+import type { ApplyInputValueResult, LiveUniform, MaterialBuild } from '@nudo-tsl/runtime'
 
 export interface CompileSchedulerOptions {
   /** Quiet period before a topology change is compiled. */
@@ -13,6 +13,12 @@ export interface CompileSchedulerOptions {
 
 export interface CompileScheduler {
   update(graph: Graph): void
+  /**
+   * Shows a value on the live material right away, without touching the graph or compiling.
+   * Whoever previews must end by applying the value the graph holds, because an `update` that
+   * leaves that value unchanged does not touch the uniform.
+   */
+  previewValue(ref: PortRef, value: PortValue): ApplyInputValueResult
   dispose(): void
 }
 
@@ -118,6 +124,10 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
       if (isApplied) return
       isRebuildOwed = true
       scheduleRebuild()
+    },
+    previewValue(ref, value) {
+      if (isDisposed) return 'missing'
+      return applyInputValue(builtUniforms, ref, value)
     },
     dispose() {
       isDisposed = true

@@ -20,6 +20,7 @@ beforeEach(() => {
     graph: createGraph(),
     selectedNodeIds: [],
     draftPositions: {},
+    inputPreview: null,
     notice: null,
     errorsByNode: {},
   })
@@ -94,6 +95,40 @@ describe('history', () => {
     getState().setInputValue({ nodeId: id, portId: 'x' }, float(3))
     expect(getState().graph.nodes[id]?.inputValues.x).toEqual(float(3))
 
+    undo()
+    expect(getState().graph).toBe(graphBefore)
+  })
+
+  it('previewing an input value leaves the graph and the history alone', () => {
+    const id = addNodeOrFail(FLOAT_NODE)
+    const graphBefore = getState().graph
+    const entries = historyLength()
+    const ref = { nodeId: id, portId: 'x' }
+
+    getState().previewInputValue(ref, float(2))
+    getState().previewInputValue(ref, float(3))
+
+    expect(getState().inputPreview).toEqual({ ref, value: float(3) })
+    expect(getState().graph).toBe(graphBefore)
+    expect(historyLength()).toBe(entries)
+
+    getState().clearInputPreview()
+    expect(getState().inputPreview).toBeNull()
+    expect(historyLength()).toBe(entries)
+  })
+
+  it('committing a previewed value is a single undo step', () => {
+    const id = addNodeOrFail(FLOAT_NODE)
+    const graphBefore = getState().graph
+    const entries = historyLength()
+    const ref = { nodeId: id, portId: 'x' }
+
+    getState().previewInputValue(ref, float(1))
+    getState().previewInputValue(ref, float(2))
+    getState().setInputValue(ref, float(2))
+    getState().clearInputPreview()
+
+    expect(historyLength()).toBe(entries + 1)
     undo()
     expect(getState().graph).toBe(graphBefore)
   })

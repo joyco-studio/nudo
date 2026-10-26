@@ -122,6 +122,12 @@ export function GraphCanvasContainer() {
       setInputValue: (ref, value) => {
         getStore().setInputValue(ref, value)
       },
+      previewInputValue: (ref, value) => {
+        getStore().previewInputValue(ref, value)
+      },
+      endInputPreview: () => {
+        getStore().clearInputPreview()
+      },
       listConnectCandidates: (origin) => listConnectCandidates(getStore().graph, registry, origin),
       connectPorts: (origin, target) => {
         const [from, to] = origin.side === 'output' ? [origin.ref, target] : [target, origin.ref]

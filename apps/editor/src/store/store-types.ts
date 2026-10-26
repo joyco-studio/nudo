@@ -34,13 +34,26 @@ export interface Notice {
   message: string
 }
 
+/** A value being scrubbed that is shown live but not yet part of the graph. */
+export interface InputPreview {
+  ref: PortRef
+  value: PortValue
+}
+
 export interface UiSlice {
   selectedNodeIds: readonly NodeId[]
   /** Live drag positions. They are not part of the undo history. */
   draftPositions: Readonly<Partial<Record<NodeId, XY>>>
+  /**
+   * The inline value a pointer scrub is showing right now. It is not part of the graph or the
+   * undo history: the preview material reads it, and the scrub's release commits it.
+   */
+  inputPreview: InputPreview | null
   notice: Notice | null
   setSelection(ids: readonly NodeId[]): void
   setDraftPositions(positions: UiSlice['draftPositions']): void
+  previewInputValue(ref: PortRef, value: PortValue): void
+  clearInputPreview(): void
   showNotice(notice: Notice): void
   dismissNotice(): void
 }

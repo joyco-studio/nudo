@@ -9,6 +9,10 @@ const PAST_DEBOUNCE_MS = 500
 /** The seeded Color node is orange: a lit sphere shows pixels that are clearly redder than blue. */
 const REDDISH_MARGIN = 60
 const MIN_REDDISH_PIXELS = 200
+/** 40 px at 0.01 per pixel moves Roughness from its default 0.5 to 0.9. */
+const SCRUB_DISTANCE_PX = 40
+const SCRUB_STEPS = 10
+const SCRUBBED_ROUGHNESS = '0.9'
 
 function preview(page: Page): Locator {
   return page.getByRole('region', { name: 'Main preview' })
@@ -20,6 +24,15 @@ function meshPicker(page: Page): Locator {
 
 async function compileCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoCompileCount ?? 0)
+}
+
+async function previewApplyCount(page: Page): Promise<number> {
+  return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
+}
+
+async function storedMasterRoughness(page: Page): Promise<unknown> {
+  const master = (await readStoredNodes(page)).find((node) => node.id === 'master')
+  return master?.inputValues.roughness
 }
 
 /** Counts pixels of a PNG screenshot whose red channel clearly dominates the blue one. */
@@ -87,6 +100,45 @@ test.describe('main preview', () => {
     await page.waitForTimeout(PAST_DEBOUNCE_MS)
 
     expect(await compileCount(page)).toBe(before)
+  })
+
+  test('scrubbing a number field updates the preview live without compiling', async ({ page }) => {
+    await page.goto('/')
+    await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
+    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    const compilesBefore = await compileCount(page)
+    const appliedBefore = await previewApplyCount(page)
+
+    const master = page.getByRole('group', { name: 'Master Stack', exact: true })
+    const label = master.locator('label', { hasText: 'Roughness' })
+    const field = master.getByRole('textbox', { name: 'Roughness' })
+    const box = await label.boundingBox()
+    if (box === null) throw new Error('Roughness label has no bounding box')
+    const startX = box.x + box.width / 2
+    const startY = box.y + box.height / 2
+
+    await page.mouse.move(startX, startY)
+    await page.mouse.down()
+    await page.mouse.move(startX + SCRUB_DISTANCE_PX, startY, { steps: SCRUB_STEPS })
+
+    // Mid-scrub: the field and the material move, but the graph (and its history) has not.
+    await expect(field).toHaveValue(SCRUBBED_ROUGHNESS)
+    await expect.poll(() => previewApplyCount(page)).toBeGreaterThan(appliedBefore)
+    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    expect(await storedMasterRoughness(page)).toBeUndefined()
+    expect(await compileCount(page)).toBe(compilesBefore)
+
+    await page.mouse.up()
+    await expect
+      .poll(() => storedMasterRoughness(page))
+      .toEqual({ type: 'float', value: Number(SCRUBBED_ROUGHNESS) })
+    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    expect(await compileCount(page)).toBe(compilesBefore)
+
+    // One scrub is one undo step. Releasing on the label focuses its field, which owns undo.
+    await field.blur()
+    await page.keyboard.press('ControlOrMeta+z')
+    await expect(field).toHaveValue('0.5')
   })
 
   test('switching mesh by keyboard', async ({ page }) => {
