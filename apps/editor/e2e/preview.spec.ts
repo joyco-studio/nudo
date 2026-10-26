@@ -160,7 +160,8 @@ test.describe('without WebGPU or WebGL2', () => {
   }) => {
     await page.goto('/')
 
-    await expect(preview(page).getByText(FALLBACK_MESSAGE)).toBeVisible()
+    // An alert, so assistive technology announces why the preview is missing.
+    await expect(preview(page).getByRole('alert')).toHaveText(FALLBACK_MESSAGE)
     await expect(preview(page).locator('canvas')).toHaveCount(0)
 
     const color = page.getByRole('group', { name: 'Color', exact: true })

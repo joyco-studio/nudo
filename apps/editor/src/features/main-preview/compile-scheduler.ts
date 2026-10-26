@@ -59,6 +59,11 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
   let builtGraph: Graph | null = null
   let builtKey: string | null = null
   let builtUniforms: ReadonlyMap<PortKey, LiveUniform> = new Map()
+  /**
+   * True once a value could not be applied in place. The pending rebuild is then owed to the
+   * material, so returning to the built topology must not cancel it.
+   */
+  let isRebuildOwed = false
 
   const cancelPendingRebuild = (): void => {
     if (pendingTimer === null) return
@@ -68,6 +73,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
 
   const rebuild = (): void => {
     pendingTimer = null
+    isRebuildOwed = false
     if (latestGraph === null) return
     const graph = latestGraph
     const build = options.build(graph)
@@ -101,14 +107,18 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
         return
       }
 
-      // Back on the built topology: a rebuild pending for an edit that was undone is moot.
-      cancelPendingRebuild()
+      // Back on the built topology: a rebuild pending for a structural edit that was undone is
+      // moot, but one owed to a value that could not be applied in place is not.
+      if (!isRebuildOwed) cancelPendingRebuild()
       const isApplied = applyValueChanges(builtGraph, graph)
       builtGraph = graph
-      if (!isApplied) scheduleRebuild()
+      if (isApplied) return
+      isRebuildOwed = true
+      scheduleRebuild()
     },
     dispose() {
       isDisposed = true
+      isRebuildOwed = false
       cancelPendingRebuild()
     },
   }

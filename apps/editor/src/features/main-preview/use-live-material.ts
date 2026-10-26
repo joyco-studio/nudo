@@ -18,29 +18,34 @@ function buildPreviewMaterial(graph: Graph): MaterialBuild {
   return createMaterial(graph, registry)
 }
 
+export interface LiveMaterial {
+  /** The newest material that compiled, `null` before the first one. */
+  material: MeshStandardNodeMaterial | null
+  /** True when the latest build failed, so `material` is an older graph's. */
+  buildFailed: boolean
+}
+
+const NO_MATERIAL_YET: LiveMaterial = { material: null, buildFailed: false }
+
 /** Every build reports its errors to the nodes; only a successful one yields a new material. */
-function handleBuild(
-  build: MaterialBuild,
-  onMaterial: (material: MeshStandardNodeMaterial) => void,
-) {
-  useEditorStore.getState().setCompileErrors(build.errors)
-  if (build.material !== null) onMaterial(build.material)
+function nextLiveMaterial(current: LiveMaterial, build: MaterialBuild): LiveMaterial {
+  return { material: build.material ?? current.material, buildFailed: build.material === null }
 }
 
 /**
  * Keeps the editor graph compiled. Inline value edits reach the material in place; structural
- * edits compile again after a pause. Returns the newest material that compiled, `null` before the
- * first one, so a failing graph keeps showing the last good result.
+ * edits compile again after a pause. A failing graph keeps the last good material.
  */
-export function useLiveMaterial(): MeshStandardNodeMaterial | null {
-  const [material, setMaterial] = useState<MeshStandardNodeMaterial | null>(null)
+export function useLiveMaterial(): LiveMaterial {
+  const [live, setLive] = useState<LiveMaterial>(NO_MATERIAL_YET)
 
   useEffect(() => {
     const scheduler = createCompileScheduler({
       delayMs: COMPILE_DEBOUNCE_MS,
       build: buildPreviewMaterial,
       onBuilt: (build) => {
-        handleBuild(build, setMaterial)
+        useEditorStore.getState().setCompileErrors(build.errors)
+        setLive((current) => nextLiveMaterial(current, build))
       },
     })
     scheduler.update(useEditorStore.getState().graph)
@@ -53,5 +58,5 @@ export function useLiveMaterial(): MeshStandardNodeMaterial | null {
     }
   }, [])
 
-  return material
+  return live
 }

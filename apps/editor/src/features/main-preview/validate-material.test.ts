@@ -73,6 +73,19 @@ describe('validateMaterial', () => {
     expect(order).toEqual(['first:start', 'first:end', 'second:start'])
   })
 
+  it('skips a queued validation that was cancelled before its turn', async () => {
+    const compileAsync = vi.fn(() => Promise.resolve(scene))
+    let isCancelled = false
+    const first = validateMaterial({ compileAsync }, scene, camera, material)
+    const second = validateMaterial({ compileAsync }, scene, camera, material, () => isCancelled)
+    isCancelled = true
+
+    const [, skipped] = await Promise.all([first, second])
+
+    expect(compileAsync).toHaveBeenCalledOnce()
+    expect(skipped.ok).toBe(false)
+  })
+
   it('lets a compile that never finishes through, so it cannot freeze the preview', async () => {
     vi.useFakeTimers()
     const pending = validateWith(() => new Promise(() => undefined))

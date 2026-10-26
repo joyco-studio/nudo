@@ -43,7 +43,10 @@ export class PreviewErrorBoundary extends Component<
     const { failure } = this.state
     if (failure === null) return this.props.children
     return (
-      <p className="grid aspect-square place-items-center p-6 text-center text-sm text-muted-foreground">
+      <p
+        role="alert"
+        className="grid aspect-square place-items-center p-6 text-center text-sm text-muted-foreground"
+      >
         {FAILURE_MESSAGES[failure]}
       </p>
     )

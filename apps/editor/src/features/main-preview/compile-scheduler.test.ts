@@ -5,6 +5,7 @@ import {
   connect,
   createGraph,
   float,
+  moveNodes,
   portKey,
   setInputValue,
   vec3,
@@ -157,6 +158,39 @@ describe('createCompileScheduler', () => {
 
     expect(buildSpy).toHaveBeenCalledTimes(2)
     expect(buildSpy).toHaveBeenLastCalledWith(edited)
+  })
+
+  it('a failed apply still rebuilds once with the latest graph after a later same-topology update', () => {
+    const { buildSpy, scheduler } = setUp(() => FAILED_BUILD)
+    const graph = createGraph()
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    const edited = withBaseColor(graph, 0, 1, 0)
+    scheduler.update(edited)
+    vi.advanceTimersByTime(RAPID_UPDATE_GAP_MS)
+    // A position-only edit of the same topology arrives while the rebuild is still owed.
+    const moved = moveNodes(edited, { [asNodeId('master')]: { x: 5, y: 5 } })
+    scheduler.update(moved)
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+    expect(buildSpy).toHaveBeenLastCalledWith(moved)
+  })
+
+  it('a rebuild owed by a failed apply survives a trip through another topology and back', () => {
+    const { buildSpy, scheduler } = setUp(() => FAILED_BUILD)
+    const graph = createGraph()
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    const edited = withBaseColor(graph, 0, 1, 0)
+    scheduler.update(edited)
+    scheduler.update(withNode(edited, 'time', 'input/time'))
+    scheduler.update(edited)
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
   })
 
   it('rebuilds when the changed value does not match its uniform kind', () => {

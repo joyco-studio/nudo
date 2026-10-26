@@ -10,6 +10,7 @@ type CompilingRenderer = Pick<WebGLRenderer, 'compileAsync'>
 
 const PROBE_SEGMENTS = { width: 8, height: 4 } as const
 const FALLBACK_MESSAGE = 'The material failed to compile.'
+const CANCELLED_MESSAGE = 'The material was replaced before it was checked.'
 /** A renderer that never answers must not block every later material. */
 const COMPILE_TIMEOUT_MS = 10_000
 
@@ -68,7 +69,8 @@ async function withTimeout<T>(task: Promise<T>, timeoutMs: number, fallback: T):
 /**
  * TSL nodes are lazy: some mistakes only surface when the renderer builds the shader. This
  * compiles the material on a throwaway mesh, against the real scene's lights, so a broken one is
- * caught before it replaces the working material. Never throws. A compile that never finishes is
+ * caught before it replaces the working material. Never throws. `isCancelled` is asked when the
+ * validation reaches the front of the queue. A compile that never finishes is
  * let through: the check is a safeguard, not a gate that can freeze the preview.
  */
 export function validateMaterial(
@@ -76,8 +78,11 @@ export function validateMaterial(
   scene: Scene,
   camera: Camera,
   material: Material,
+  isCancelled: () => boolean = () => false,
 ): Promise<MaterialValidation> {
   return runOneAtATime(async () => {
+    // Waiting in the queue can outlast the material: a superseded one never reaches the GPU.
+    if (isCancelled()) return { ok: false, message: CANCELLED_MESSAGE }
     const geometry = new SphereGeometry(1, PROBE_SEGMENTS.width, PROBE_SEGMENTS.height)
     const probe = new Mesh(geometry, material)
     try {

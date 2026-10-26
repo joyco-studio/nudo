@@ -54,7 +54,7 @@ export function useValidatedMaterial(
   useEffect(() => {
     if (candidate === null) return
     let isCurrent = true
-    void validateMaterial(gl, scene, camera, candidate).then((validation) => {
+    void validateMaterial(gl, scene, camera, candidate, () => !isCurrent).then((validation) => {
       if (!isCurrent) return
       if (validation.ok) setAccepted(candidate)
       reportStatus(validation.ok ? null : validation.message)

@@ -131,6 +131,19 @@ interface LoadModelButtonProps {
 
 function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const isMountedRef = useRef(false)
+  const latestLoadRef = useRef(0)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  /** A load result is only used while the button is mounted and no newer load has started. */
+  const isStillWanted = (loadId: number): boolean =>
+    isMountedRef.current && latestLoadRef.current === loadId
 
   const loadPickedFile = (event: ChangeEvent<HTMLInputElement>): void => {
     const input = event.currentTarget
@@ -139,9 +152,17 @@ function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
     input.value = ''
     if (file === undefined) return
     onError(null)
-    loadGlbModel(file).then(onModelLoaded, (error: unknown) => {
-      onError(`Could not load ${file.name}: ${describeError(error)}`)
-    })
+    latestLoadRef.current += 1
+    const loadId = latestLoadRef.current
+    loadGlbModel(file).then(
+      (model) => {
+        if (isStillWanted(loadId)) onModelLoaded(model)
+        else disposeModel(model)
+      },
+      (error: unknown) => {
+        if (isStillWanted(loadId)) onError(`Could not load ${file.name}: ${describeError(error)}`)
+      },
+    )
   }
 
   return (
@@ -205,10 +226,11 @@ function useBackgroundColor() {
 
 interface PreviewWorkspaceProps {
   candidate: MeshStandardNodeMaterial | null
+  buildFailed: boolean
   errorCount: number
 }
 
-function PreviewWorkspace({ candidate, errorCount }: PreviewWorkspaceProps) {
+function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspaceProps) {
   const [shape, setShape] = useState<PreviewShape>(DEFAULT_SHAPE)
   const [model, setModel] = useState<Group | null>(null)
   const [backend, setBackend] = useState<RendererBackend | null>(null)
@@ -224,7 +246,13 @@ function PreviewWorkspace({ candidate, errorCount }: PreviewWorkspaceProps) {
     }
   }, [model])
 
-  const statusMessage = loadError ?? statusFor(rejection, errorCount)
+  // A rejection belongs to the newest material; once a later build failed it is out of date.
+  const statusMessage = loadError ?? statusFor(buildFailed ? null : rejection, errorCount)
+
+  const selectShape = (next: PreviewShape): void => {
+    setLoadError(null)
+    setShape(next)
+  }
 
   return (
     <div className="flex flex-col">
@@ -245,14 +273,14 @@ function PreviewWorkspace({ candidate, errorCount }: PreviewWorkspaceProps) {
         )}
       </div>
       <div className="flex flex-col gap-3 border-t p-3">
-        <MeshPicker shape={shape} hasModel={model !== null} onShapeChange={setShape} />
+        <MeshPicker shape={shape} hasModel={model !== null} onShapeChange={selectShape} />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LoadModelButton
               onError={setLoadError}
               onModelLoaded={(loaded) => {
                 setModel(loaded)
-                setShape('model')
+                selectShape('model')
               }}
             />
             <Button
@@ -312,12 +340,12 @@ function statusFor(rejection: string | null, errorCount: number): string {
 
 /** The live preview: compiles the editor graph and shows it on a mesh. */
 export function MainPreview() {
-  const candidate = useLiveMaterial()
+  const { material: candidate, buildFailed } = useLiveMaterial()
   const errorCount = useEditorStore((state) => Object.keys(state.errorsByNode).length)
 
   return (
     <PreviewErrorBoundary>
-      <PreviewWorkspace candidate={candidate} errorCount={errorCount} />
+      <PreviewWorkspace candidate={candidate} buildFailed={buildFailed} errorCount={errorCount} />
     </PreviewErrorBoundary>
   )
 }
