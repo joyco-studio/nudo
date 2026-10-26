@@ -23,6 +23,7 @@ export type FlowNodeData = {
   inputTypes: Record<string, DataType>
   outputTypes: Record<string, DataType>
   connectedInputs: ReadonlySet<string>
+  connectedOutputs: ReadonlySet<string>
   error: string | undefined
 }
 
@@ -41,12 +42,22 @@ export function nodeTitle(node: GraphNode, definition: AnyNodeDefinition): strin
   return node.id === MASTER_NODE_ID ? MASTER_TITLE : definition.label
 }
 
-function connectedInputsByNode(graph: Graph): ReadonlyMap<NodeId, ReadonlySet<string>> {
+/** Id of the visually hidden element that holds a node's description for `aria-describedby`. */
+export function nodeDescriptionId(nodeId: NodeId): string {
+  return `node-description-${nodeId}`
+}
+
+/** Ids of the ports with at least one edge, per node, on the side `end` of the edges. */
+function connectedPortsByNode(
+  graph: Graph,
+  end: 'from' | 'to',
+): ReadonlyMap<NodeId, ReadonlySet<string>> {
   const connected = new Map<NodeId, Set<string>>()
   for (const edge of Object.values(graph.edges)) {
-    const inputs = connected.get(edge.to.nodeId) ?? new Set<string>()
-    inputs.add(edge.to.portId)
-    connected.set(edge.to.nodeId, inputs)
+    const { nodeId, portId } = edge[end]
+    const ports = connected.get(nodeId) ?? new Set<string>()
+    ports.add(portId)
+    connected.set(nodeId, ports)
   }
   return connected
 }
@@ -110,7 +121,8 @@ export function toFlow(
   selected: readonly NodeId[],
 ): { nodes: FlowNode[]; edges: FlowEdge[] } {
   const selectedIds = new Set(selected)
-  const connected = connectedInputsByNode(graph)
+  const connectedInputs = connectedPortsByNode(graph, 'to')
+  const connectedOutputs = connectedPortsByNode(graph, 'from')
   const entries = new Map<NodeId, NodeEntry>()
   const nodes: FlowNode[] = []
 
@@ -125,13 +137,14 @@ export function toFlow(
       selected: selectedIds.has(node.id),
       deletable: node.id !== MASTER_NODE_ID,
       ariaLabel: nodeTitle(node, definition),
-      domAttributes: { 'aria-description': definition.description },
+      domAttributes: { 'aria-describedby': nodeDescriptionId(node.id) },
       data: {
         definition,
         node,
         inputTypes: portTypes(node.id, definition.inputs, types.inputs),
         outputTypes: portTypes(node.id, definition.outputs, types.outputs),
-        connectedInputs: connected.get(node.id) ?? new Set<string>(),
+        connectedInputs: connectedInputs.get(node.id) ?? new Set<string>(),
+        connectedOutputs: connectedOutputs.get(node.id) ?? new Set<string>(),
         error: errors[node.id],
       },
     })

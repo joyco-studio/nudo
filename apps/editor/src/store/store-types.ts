@@ -17,6 +17,11 @@ export interface GraphSlice {
   /** Returns the new node id, or null when the node could not be added. */
   addNode(type: NodeTypeId, position: XY): NodeId | null
   removeNodes(ids: readonly NodeId[]): void
+  /**
+   * Deletes nodes and edges as one history entry. The master is never deleted: asking for it shows
+   * a notice and the rest of the request still goes through.
+   */
+  removeSelection(nodeIds: readonly NodeId[], edgeIds: readonly EdgeId[]): void
   commitMove(positions: Readonly<Partial<Record<NodeId, XY>>>): void
   setInputValue(ref: PortRef, value: PortValue): void
   connect(from: PortRef, to: PortRef): ConnectionCheck

@@ -11,7 +11,8 @@ import {
   CommandList,
 } from '@/shared/ui/command'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
-import { Kbd } from '@/shared/ui/kbd'
+import { KeyHints } from '@/shared/ui/key-hints'
+import type { KeyHint } from '@/shared/ui/key-hints'
 
 import { searchNodes } from './search-nodes'
 import type { AddableCategory, NodeSearchGroup } from './search-nodes'
@@ -26,11 +27,11 @@ const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
   utility: 'Utility',
 }
 
-const KEY_HINTS = [
+const KEY_HINTS: readonly KeyHint[] = [
   { keys: '↑ ↓', action: 'Move' },
   { keys: 'Enter', action: 'Add' },
   { keys: 'Esc', action: 'Close' },
-] as const
+]
 
 export interface AddNodeMenuProps {
   open: boolean
@@ -132,21 +133,8 @@ function NodeSearch({ onPick }: NodeSearchProps) {
         <p aria-hidden="true" className="min-h-[2lh] text-pretty text-foreground sm:min-h-lh">
           {highlighted?.description}
         </p>
-        <KeyHints />
+        <KeyHints hints={KEY_HINTS} />
       </footer>
     </Command>
-  )
-}
-
-function KeyHints() {
-  return (
-    <ul aria-hidden="true" className="flex items-center gap-4 text-muted-foreground">
-      {KEY_HINTS.map((hint) => (
-        <li key={hint.action} className="flex items-center gap-1.5">
-          <Kbd>{hint.keys}</Kbd>
-          {hint.action}
-        </li>
-      ))}
-    </ul>
   )
 }

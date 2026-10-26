@@ -4,6 +4,7 @@ import type { NodeId, NodeTypeId, XY } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
 
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
+import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 
@@ -29,11 +30,6 @@ function viewportCenter(): XY {
   return rectCenter(
     rect ?? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight },
   )
-}
-
-function focusOpener(element: HTMLElement | null): void {
-  const target = element?.isConnected === true ? element : canvasElement()
-  target?.focus({ preventScroll: true })
 }
 
 interface AddNodeMenuProviderProps {
@@ -86,7 +82,7 @@ export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
   const restoreFocus = useCallback(() => {
     const target = focusOnCloseRef.current
     if (target.kind === 'new-node') focusFlowNode(target.nodeId)
-    else focusOpener(target.element)
+    else focusOpenerOrCanvas(target.element)
   }, [])
 
   useAddNodeShortcut(openMenu)

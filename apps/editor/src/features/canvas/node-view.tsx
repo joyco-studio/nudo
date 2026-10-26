@@ -8,8 +8,9 @@ import { cn } from '@/shared/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { InlineField, PortLabel } from './inline-field'
-import { PortHandle, PortTypeLabel } from './port-handle'
-import { nodeTitle } from './to-flow'
+import { ConnectablePort } from './connectable-port'
+import { PortTypeLabel } from './port-handle'
+import { nodeDescriptionId, nodeTitle } from './to-flow'
 import type { FlowNode, FlowNodeData } from './to-flow'
 
 /**
@@ -56,7 +57,15 @@ function InputRow({ data, input }: InputRowProps) {
       data-port-id={input.id}
       className="relative flex min-h-7 flex-wrap items-center gap-x-1.5 pr-2 pl-3"
     >
-      <PortHandle portId={input.id} side="input" dataType={dataType} />
+      <ConnectablePort
+        nodeId={data.node.id}
+        portId={input.id}
+        side="input"
+        dataType={dataType}
+        nodeTitle={nodeTitle(data.node, data.definition)}
+        portLabel={input.label}
+        isConnected={isConnected}
+      />
       <PortTypeLabel dataType={dataType} />
       {isConnected ? (
         <PortLabel label={input.label} />
@@ -69,11 +78,12 @@ function InputRow({ data, input }: InputRowProps) {
 }
 
 interface OutputRowProps {
+  data: FlowNodeData
   output: OutputDefinition<string>
   dataType: DataType
 }
 
-function OutputRow({ output, dataType }: OutputRowProps) {
+function OutputRow({ data, output, dataType }: OutputRowProps) {
   return (
     <li
       data-port-id={output.id}
@@ -82,7 +92,15 @@ function OutputRow({ output, dataType }: OutputRowProps) {
       <span className="truncate text-xs">{output.label}</span>
       <TypeForAssistiveTech dataType={dataType} />
       <PortTypeLabel dataType={dataType} />
-      <PortHandle portId={output.id} side="output" dataType={dataType} />
+      <ConnectablePort
+        nodeId={data.node.id}
+        portId={output.id}
+        side="output"
+        dataType={dataType}
+        nodeTitle={nodeTitle(data.node, data.definition)}
+        portLabel={output.label}
+        isConnected={data.connectedOutputs.has(output.id)}
+      />
     </li>
   )
 }
@@ -128,6 +146,9 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
         error !== undefined && 'border-destructive',
       )}
     >
+      <p id={nodeDescriptionId(node.id)} className="sr-only">
+        {definition.description}
+      </p>
       <header className="flex h-8 items-center border-b bg-muted/50 px-3">
         <Tooltip delayDuration={DESCRIPTION_DELAY_MS}>
           <TooltipTrigger asChild>
@@ -149,7 +170,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           {definition.outputs.map((output) => {
             const dataType = outputTypes[output.id]
             return dataType === undefined ? null : (
-              <OutputRow key={output.id} output={output} dataType={dataType} />
+              <OutputRow key={output.id} data={data} output={output} dataType={dataType} />
             )
           })}
         </ul>

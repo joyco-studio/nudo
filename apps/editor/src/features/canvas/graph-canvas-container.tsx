@@ -15,11 +15,13 @@ import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-conte
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
+import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
 import { GraphCanvas } from './graph-canvas'
 import { GraphCanvasActionsContext } from './graph-canvas-actions'
 import type { GraphCanvasActions } from './graph-canvas-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
 import { toFlow } from './to-flow'
+import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
 
 /** What `Connection` and `FlowEdge` share: React Flow validates both shapes. */
@@ -94,9 +96,7 @@ export function GraphCanvasContainer() {
 
   const onDelete = useCallback<OnDelete<FlowNode, FlowEdge>>(({ nodes: removed, edges: cut }) => {
     const plan = planDeletion(removed, cut)
-    const store = getStore()
-    if (plan.edgeIds.length > 0) store.disconnect(plan.edgeIds)
-    if (plan.nodeIds.length > 0) store.removeNodes(plan.nodeIds)
+    getStore().removeSelection(plan.nodeIds, plan.edgeIds)
   }, [])
 
   const isValidConnection = useCallback<IsValidConnection<FlowEdge>>((connection) => {
@@ -115,10 +115,20 @@ export function GraphCanvasContainer() {
     [openAddNodeMenu],
   )
 
+  useCanvasKeyboard(selectedEdgeIds)
+
   const actions = useMemo<GraphCanvasActions>(
     () => ({
       setInputValue: (ref, value) => {
         getStore().setInputValue(ref, value)
+      },
+      listConnectCandidates: (origin) => listConnectCandidates(getStore().graph, registry, origin),
+      connectPorts: (origin, target) => {
+        const [from, to] = origin.side === 'output' ? [origin.ref, target] : [target, origin.ref]
+        getStore().connect(from, to)
+      },
+      disconnectPort: (origin) => {
+        getStore().disconnect(edgesAttachedTo(getStore().graph, origin))
       },
     }),
     [],

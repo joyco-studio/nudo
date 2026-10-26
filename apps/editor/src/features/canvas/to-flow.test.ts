@@ -10,7 +10,7 @@ import {
 import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import { registry } from '../../store/registry'
-import { toFlow } from './to-flow'
+import { nodeDescriptionId, toFlow } from './to-flow'
 
 const COLOR_ID = asNodeId('color')
 const TIME_ID = asNodeId('time')
@@ -94,6 +94,14 @@ describe('toFlow', () => {
     const master = findNode(flow, MASTER_NODE_ID)
     expect(master.data.inputTypes).toMatchObject({ baseColor: 'vec3', roughness: 'float' })
     expect(findNode(flow, COLOR_ID).data.outputTypes).toEqual({ out: 'vec3' })
+  })
+
+  it('points each node at its description element instead of using aria-description', () => {
+    const flow = flowFor(sampleGraph())
+
+    const time = findNode(flow, TIME_ID)
+    expect(time.domAttributes).toEqual({ 'aria-describedby': nodeDescriptionId(TIME_ID) })
+    expect(nodeDescriptionId(TIME_ID)).not.toBe(nodeDescriptionId(COLOR_ID))
   })
 
   it('marks selected nodes and makes only the master undeletable', () => {

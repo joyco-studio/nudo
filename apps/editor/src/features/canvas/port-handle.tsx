@@ -1,16 +1,41 @@
+import type { Ref } from 'react'
 import type { DataType } from '@nudo-tsl/core'
 import { Handle, Position } from '@xyflow/react'
 
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 
+import { PORT_BUTTON_ATTRIBUTE } from './canvas-keyboard-model'
+import type { PortSide } from './connect-candidates'
+
+const PORT_BUTTON_PROPS = { [PORT_BUTTON_ATTRIBUTE]: '' }
+
 interface PortHandleProps {
   portId: string
-  side: 'input' | 'output'
+  side: PortSide
   dataType: DataType
+  /** What assistive technology announces for the port. */
+  accessibleName: string
+  buttonRef: Ref<HTMLButtonElement>
+  /** Enter or Space on the focused port. */
+  onActivate: () => void
+  /** Delete or Backspace on the focused port. */
+  onDisconnect: () => void
 }
 
-/** The connection dot on the node edge, colored by type. */
-export function PortHandle({ portId, side, dataType }: PortHandleProps) {
+/**
+ * The connection dot on the node edge, colored by type. It is a React Flow handle, so dragging
+ * from it still draws an edge, and a real button inside it, so the keyboard can reach it. The
+ * `nokey` class keeps React Flow's own key handling off it.
+ */
+export function PortHandle({
+  portId,
+  side,
+  dataType,
+  accessibleName,
+  buttonRef,
+  onActivate,
+  onDisconnect,
+}: PortHandleProps) {
   return (
     <Handle
       id={portId}
@@ -18,7 +43,25 @@ export function PortHandle({ portId, side, dataType }: PortHandleProps) {
       position={side === 'input' ? Position.Left : Position.Right}
       className="port-handle"
       style={{ backgroundColor: PORT_COLORS[dataType] }}
-    />
+    >
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-label={accessibleName}
+        {...PORT_BUTTON_PROPS}
+        className="port-button nokey"
+        onClick={(event) => {
+          // Pointer clicks belong to React Flow (click to connect); a keyboard activation has no
+          // click count.
+          if (event.detail === 0) onActivate()
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Delete' && event.key !== 'Backspace') return
+          event.preventDefault()
+          onDisconnect()
+        }}
+      />
+    </Handle>
   )
 }
 

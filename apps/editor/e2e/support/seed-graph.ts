@@ -72,6 +72,18 @@ export const COLOR_TO_BASE_COLOR = graphDocument(
   [{ id: 'color-to-base', from: ['color', 'out'], to: ['master', 'baseColor'] }],
 )
 
+const TIME_NODE: SeedNode = { id: 'time', type: 'input/time', position: { x: 0, y: 100 } }
+const SINE_NODE: SeedNode = { id: 'sine', type: 'math/sin', position: { x: 300, y: 100 } }
+
+/** A Time node and a Sine node with nothing connected. */
+export const TIME_AND_SINE = graphDocument([TIME_NODE, SINE_NODE], [])
+
+/** Time feeding Sine's input: two nodes joined by one edge, apart from the master. */
+export const TIME_TO_SINE = graphDocument(
+  [TIME_NODE, SINE_NODE],
+  [{ id: 'time-to-sine', from: ['time', 'out'], to: ['sine', 'in'] }],
+)
+
 /** Writes `rawText` to the autosave key before any page script runs. */
 export async function seedAutosave(page: Page, rawText: string): Promise<void> {
   await page.addInitScript(

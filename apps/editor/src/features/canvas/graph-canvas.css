@@ -25,11 +25,22 @@
     top: 14px;
   }
 
-  /* A larger invisible hit area around the small dot. */
-  .graph-canvas .react-flow__handle.port-handle::before {
-    content: '';
+  /*
+   * The keyboard stop and larger hit area around the small dot: a transparent 24px button (the
+   * minimum target size) centered on it. Its focus ring comes from focus-ring.css.
+   */
+  .graph-canvas .react-flow__handle.port-handle .port-button {
     position: absolute;
-    inset: -6px;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    transform: translate(-50%, -50%);
+    cursor: crosshair;
   }
 
   .graph-canvas .react-flow__handle.port-handle.connectingto.valid,

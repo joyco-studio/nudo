@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Background, BackgroundVariant, Controls, ReactFlow } from '@xyflow/react'
 import type {
   EdgeTypes,
-  FitViewOptions,
   IsValidConnection,
   NodeTypes,
   OnConnect,
@@ -12,6 +11,7 @@ import type {
 } from '@xyflow/react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 
+import { fitViewOptionsFor } from './fit-view-options'
 import { NodeView } from './node-view'
 import { TypedEdge } from './typed-edge'
 import { GRAPH_NODE_TYPE, TYPED_EDGE_TYPE } from './to-flow'
@@ -21,25 +21,7 @@ import './graph-canvas.css'
 
 const NODE_TYPES: NodeTypes = { [GRAPH_NODE_TYPE]: NodeView }
 const EDGE_TYPES: EdgeTypes = { [TYPED_EDGE_TYPE]: TypedEdge }
-const DELETE_KEYS = ['Backspace', 'Delete']
 const GRID_GAP = 20
-const MAX_FIT_ZOOM = 1
-const MIN_NARROW_FIT_ZOOM = 0.75
-
-/** Below this width the preview panel covers the canvas top instead of a right-hand column. */
-const WIDE_VIEWPORT_PX = 768
-
-/** Keeps fitted nodes clear of the floating header (top) and, when wide, the preview panel. */
-function fitViewOptionsFor(viewportWidth: number): FitViewOptions<FlowNode> {
-  if (viewportWidth < WIDE_VIEWPORT_PX) {
-    // On a phone, keep fields legible and let the person pan rather than shrink everything.
-    return { maxZoom: MAX_FIT_ZOOM, minZoom: MIN_NARROW_FIT_ZOOM, padding: '24px' }
-  }
-  return {
-    maxZoom: MAX_FIT_ZOOM,
-    padding: { top: '80px', right: '360px', bottom: '48px', left: '48px' },
-  }
-}
 
 export interface GraphCanvasProps {
   nodes: FlowNode[]
@@ -77,7 +59,9 @@ export function GraphCanvas({
       onDelete={onDelete}
       isValidConnection={isValidConnection}
       onPaneContextMenu={onPaneContextMenu}
-      deleteKeyCode={DELETE_KEYS}
+      // Space belongs to the add-node menu, and Delete to the keyboard model (one history entry).
+      deleteKeyCode={null}
+      panActivationKeyCode={null}
       fitView
       fitViewOptions={fitViewOptions}
     >

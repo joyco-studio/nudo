@@ -262,6 +262,89 @@ describe('pasteFragment', () => {
   })
 })
 
+describe('removeSelection', () => {
+  /** A float node feeding Roughness and another feeding Metalness, so there are two edges. */
+  function connectedPair(): { first: NodeId; second: NodeId } {
+    const first = addNodeOrFail(FLOAT_NODE)
+    const second = addNodeOrFail(FLOAT_NODE)
+    getState().connect(
+      { nodeId: first, portId: 'out' },
+      { nodeId: MASTER_NODE_ID, portId: 'roughness' },
+    )
+    getState().connect(
+      { nodeId: second, portId: 'out' },
+      { nodeId: MASTER_NODE_ID, portId: 'metalness' },
+    )
+    return { first, second }
+  }
+
+  it('removes nodes and edges together as one undoable history entry', () => {
+    const { first, second } = connectedPair()
+    const connectedGraph = getState().graph
+    const [firstEdge] = Object.values(connectedGraph.edges).filter(
+      (edge) => edge.from.nodeId === first,
+    )
+    if (firstEdge === undefined) throw new Error('Expected an edge from the first node')
+    const entriesBefore = historyLength()
+
+    getState().removeSelection([second], [firstEdge.id])
+
+    expect(getState().graph.nodes[second]).toBeUndefined()
+    expect(getState().graph.nodes[first]).toBeDefined()
+    expect(Object.keys(getState().graph.edges)).toHaveLength(0)
+    expect(historyLength()).toBe(entriesBefore + 1)
+
+    undo()
+    expect(getState().graph).toBe(connectedGraph)
+  })
+
+  it('removes only edges when no node is given', () => {
+    const { first } = connectedPair()
+    const edgeIds = Object.values(getState().graph.edges).map((edge) => edge.id)
+    const entriesBefore = historyLength()
+
+    getState().removeSelection([], edgeIds)
+
+    expect(Object.keys(getState().graph.edges)).toHaveLength(0)
+    expect(getState().graph.nodes[first]).toBeDefined()
+    expect(historyLength()).toBe(entriesBefore + 1)
+  })
+
+  it('keeps the master, shows the notice and still removes the other nodes', () => {
+    const id = addNodeOrFail(FLOAT_NODE)
+
+    getState().removeSelection([MASTER_NODE_ID, id], [])
+
+    expect(getState().graph.nodes[MASTER_NODE_ID]).toBeDefined()
+    expect(getState().graph.nodes[id]).toBeUndefined()
+    expect(getState().notice).toEqual({
+      kind: 'info',
+      message: "The Master Stack can't be deleted.",
+    })
+  })
+
+  it('on the master alone shows the notice and creates no history entry', () => {
+    const graphBefore = getState().graph
+    const entriesBefore = historyLength()
+
+    getState().removeSelection([MASTER_NODE_ID], [])
+
+    expect(getState().graph).toBe(graphBefore)
+    expect(getState().notice?.message).toBe("The Master Stack can't be deleted.")
+    expect(historyLength()).toBe(entriesBefore)
+  })
+
+  it('ignores ids that are not in the graph', () => {
+    const graphBefore = getState().graph
+    const entriesBefore = historyLength()
+
+    getState().removeSelection([asNodeId('ghost')], [asEdgeId('ghost-edge')])
+
+    expect(getState().graph).toBe(graphBefore)
+    expect(historyLength()).toBe(entriesBefore)
+  })
+})
+
 describe('compile errors', () => {
   it('setCompileErrors indexes messages by node id', () => {
     const nodeId = asNodeId('n1')

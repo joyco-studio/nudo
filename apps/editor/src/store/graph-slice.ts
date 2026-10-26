@@ -32,6 +32,14 @@ function hasMovement(graph: Graph, positions: Readonly<Partial<Record<NodeId, XY
   })
 }
 
+/** Core operations always return a new graph object, so compare what they could have removed. */
+function hasGraphChanged(before: Graph, after: Graph): boolean {
+  return (
+    Object.keys(before.nodes).length !== Object.keys(after.nodes).length ||
+    Object.keys(before.edges).length !== Object.keys(after.edges).length
+  )
+}
+
 export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   graph: createGraph(),
 
@@ -50,6 +58,19 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     }
     const result = removeNodes(get().graph, ids)
     if (!result.ok) return
+    set({ graph: result.value })
+  },
+
+  removeSelection: (nodeIds, edgeIds) => {
+    const removableIds = nodeIds.filter((id) => id !== MASTER_NODE_ID)
+    if (removableIds.length < nodeIds.length) set({ notice: MASTER_DELETE_NOTICE })
+
+    const { graph } = get()
+    const knownIds = removableIds.filter((id) => graph.nodes[id] !== undefined)
+    const withoutEdges = disconnect(graph, edgeIds)
+    const result = removeNodes(withoutEdges, knownIds)
+    if (!result.ok) return
+    if (!hasGraphChanged(graph, result.value)) return
     set({ graph: result.value })
   },
 
