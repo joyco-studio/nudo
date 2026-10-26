@@ -72,7 +72,7 @@ describe('createMaterial', () => {
 
     const applied = applyInputValue(build.uniforms, ref, vec3(1, 0.5, 0.25))
 
-    expect(applied).toBe(true)
+    expect(applied).toBe('applied')
     expect(build.material).toBe(material)
     const uniform = build.uniforms.get(portKey(ref))
     expect(uniform?.value).toBeInstanceOf(Vector3)
@@ -83,25 +83,25 @@ describe('createMaterial', () => {
     const build = createMaterial(createGraph(), createDefaultRegistry())
     const ref = { nodeId: asNodeId('master'), portId: 'roughness' }
 
-    expect(applyInputValue(build.uniforms, ref, float(0.9))).toBe(true)
+    expect(applyInputValue(build.uniforms, ref, float(0.9))).toBe('applied')
     expect(build.uniforms.get(portKey(ref))?.value).toBe(0.9)
   })
 
-  it('applyInputValue returns false for unknown key', () => {
+  it('applyInputValue returns missing for a port without a uniform', () => {
     const build = createMaterial(createGraph(), createDefaultRegistry())
     const unknownRef = { nodeId: asNodeId('ghost'), portId: 'x' }
 
-    expect(applyInputValue(build.uniforms, unknownRef, float(1))).toBe(false)
+    expect(applyInputValue(build.uniforms, unknownRef, float(1))).toBe('missing')
   })
 
-  it('applyInputValue returns false and leaves the uniform alone on a type mismatch', () => {
+  it('applyInputValue returns mismatch and leaves the uniform alone on a type mismatch', () => {
     const build = createMaterial(createGraph(), createDefaultRegistry())
     const colorRef = { nodeId: asNodeId('master'), portId: 'baseColor' }
     const roughnessRef = { nodeId: asNodeId('master'), portId: 'roughness' }
 
-    expect(applyInputValue(build.uniforms, colorRef, float(1))).toBe(false)
-    expect(applyInputValue(build.uniforms, colorRef, vec4(1, 1, 1, 1))).toBe(false)
-    expect(applyInputValue(build.uniforms, roughnessRef, vec3(1, 1, 1))).toBe(false)
+    expect(applyInputValue(build.uniforms, colorRef, float(1))).toBe('mismatch')
+    expect(applyInputValue(build.uniforms, colorRef, vec4(1, 1, 1, 1))).toBe('mismatch')
+    expect(applyInputValue(build.uniforms, roughnessRef, vec3(1, 1, 1))).toBe('mismatch')
     expect(build.uniforms.get(portKey(colorRef))?.value).toEqual(new Vector3(0.8, 0.8, 0.8))
     expect(build.uniforms.get(portKey(roughnessRef))?.value).toBe(0.5)
   })

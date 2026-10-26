@@ -88,13 +88,16 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     pendingTimer = setTimeout(rebuild, options.delayMs)
   }
 
-  /** Returns false when some value could not be applied in place. */
+  /**
+   * Returns false when some value needs a rebuild. A value with no uniform (its node cannot
+   * reach the master) is not visible anywhere, so it never does.
+   */
   const applyValueChanges = (previous: Graph, next: Graph): boolean => {
     const changes = diffInlineValues(previous, next)
     if (changes === null) return false
-    // Every change is applied, even after one fails: the rebuild replaces them all anyway.
+    // Every change is applied, even after one mismatches: the rebuild replaces them all anyway.
     const outcomes = changes.map(({ ref, value }) => applyInputValue(builtUniforms, ref, value))
-    return outcomes.every(Boolean)
+    return !outcomes.includes('mismatch')
   }
 
   return {

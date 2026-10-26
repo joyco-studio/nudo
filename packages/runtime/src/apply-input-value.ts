@@ -3,35 +3,43 @@ import type { PortKey, PortRef, PortValue } from '@nudo-tsl/core'
 import { Vector2, Vector3, Vector4 } from 'three'
 import type { LiveUniform } from './live-backend'
 
+export type ApplyInputValueResult =
+  /** The uniform now holds the value. */
+  | 'applied'
+  /** The build has no uniform for the port (for instance its node cannot reach the master). */
+  | 'missing'
+  /** The value's type differs from the uniform's kind; only a recompile can represent it. */
+  | 'mismatch'
+
 /**
  * Pushes a new inline value into its live uniform in place, so nothing is recompiled.
- * Returns false when there is no uniform for the port or the value's type does not match the
- * uniform's kind; the caller must then recompile.
+ * `missing` means nothing in the material reads the port, so the edit has no visible effect;
+ * `mismatch` means the caller must recompile.
  */
 export function applyInputValue(
   uniforms: ReadonlyMap<PortKey, LiveUniform>,
   ref: PortRef,
   value: PortValue,
-): boolean {
+): ApplyInputValueResult {
   const uniform = uniforms.get(portKey(ref))
-  if (uniform === undefined) return false
+  if (uniform === undefined) return 'missing'
 
   const current = uniform.value
   if (value.type === 'float' && typeof current === 'number') {
     uniform.value = value.value
-    return true
+    return 'applied'
   }
   if (value.type === 'vec2' && current instanceof Vector2) {
     current.set(...value.value)
-    return true
+    return 'applied'
   }
   if (value.type === 'vec3' && current instanceof Vector3) {
     current.set(...value.value)
-    return true
+    return 'applied'
   }
   if (value.type === 'vec4' && current instanceof Vector4) {
     current.set(...value.value)
-    return true
+    return 'applied'
   }
-  return false
+  return 'mismatch'
 }

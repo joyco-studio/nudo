@@ -36,7 +36,9 @@ const withBaseColor = (graph: Graph, red: number, green: number, blue: number): 
 const withNode = (graph: Graph, id: string, type: string): Graph =>
   unwrap(addNode(graph, registry, { id: asNodeId(id), type, position: ORIGIN }))
 
-const FAILED_BUILD: MaterialBuild = { material: null, uniforms: new Map(), errors: [] }
+/** A float for a vec3 slot: no uniform can hold it, so only a rebuild can represent it. */
+const withMismatchedBaseColor = (graph: Graph): Graph =>
+  unwrap(setInputValue(graph, BASE_COLOR, float(0.5)))
 
 function setUp(
   build: (graph: Graph) => MaterialBuild = (graph) => createMaterial(graph, registry),
@@ -143,15 +145,29 @@ describe('createCompileScheduler', () => {
     expect(buildSpy).toHaveBeenCalledOnce()
   })
 
-  it('failed applyInputValue triggers rebuild', () => {
-    const { buildSpy, scheduler } = setUp(() => FAILED_BUILD)
+  it('value change on a node that cannot reach the master is ignored', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp()
+    const graph = withNode(createGraph(), 'stray', 'input/color')
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+    const strayColor: PortRef = { nodeId: asNodeId('stray'), portId: 'color' }
+    // Nothing reads the stray node, so the build never created a uniform for it.
+    expect(onBuilt.mock.calls[0]?.[0].uniforms.has(portKey(strayColor))).toBe(false)
+
+    scheduler.update(unwrap(setInputValue(graph, strayColor, vec3(0, 1, 0))))
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('a value the uniform cannot hold triggers a rebuild', () => {
+    const { buildSpy, scheduler } = setUp()
     const graph = createGraph()
     scheduler.update(graph)
     vi.advanceTimersByTime(DELAY_MS)
     expect(buildSpy).toHaveBeenCalledOnce()
 
-    // The build has no uniform for this port, so the value cannot be applied in place.
-    const edited = unwrap(setInputValue(graph, BASE_COLOR, vec3(0, 1, 0)))
+    const edited = withMismatchedBaseColor(graph)
     scheduler.update(edited)
     expect(buildSpy).toHaveBeenCalledOnce()
     vi.advanceTimersByTime(DELAY_MS)
@@ -160,13 +176,13 @@ describe('createCompileScheduler', () => {
     expect(buildSpy).toHaveBeenLastCalledWith(edited)
   })
 
-  it('a failed apply still rebuilds once with the latest graph after a later same-topology update', () => {
-    const { buildSpy, scheduler } = setUp(() => FAILED_BUILD)
+  it('an unappliable value still rebuilds once with the latest graph after a later same-topology update', () => {
+    const { buildSpy, scheduler } = setUp()
     const graph = createGraph()
     scheduler.update(graph)
     vi.advanceTimersByTime(DELAY_MS)
 
-    const edited = withBaseColor(graph, 0, 1, 0)
+    const edited = withMismatchedBaseColor(graph)
     scheduler.update(edited)
     vi.advanceTimersByTime(RAPID_UPDATE_GAP_MS)
     // A position-only edit of the same topology arrives while the rebuild is still owed.
@@ -178,29 +194,17 @@ describe('createCompileScheduler', () => {
     expect(buildSpy).toHaveBeenLastCalledWith(moved)
   })
 
-  it('a rebuild owed by a failed apply survives a trip through another topology and back', () => {
-    const { buildSpy, scheduler } = setUp(() => FAILED_BUILD)
-    const graph = createGraph()
-    scheduler.update(graph)
-    vi.advanceTimersByTime(DELAY_MS)
-
-    const edited = withBaseColor(graph, 0, 1, 0)
-    scheduler.update(edited)
-    scheduler.update(withNode(edited, 'time', 'input/time'))
-    scheduler.update(edited)
-    vi.advanceTimersByTime(DELAY_MS * 4)
-
-    expect(buildSpy).toHaveBeenCalledTimes(2)
-  })
-
-  it('rebuilds when the changed value does not match its uniform kind', () => {
+  it('a rebuild owed by an unappliable value survives a trip through another topology and back', () => {
     const { buildSpy, scheduler } = setUp()
     const graph = createGraph()
     scheduler.update(graph)
     vi.advanceTimersByTime(DELAY_MS)
 
-    scheduler.update(unwrap(setInputValue(graph, BASE_COLOR, float(0.5))))
-    vi.advanceTimersByTime(DELAY_MS)
+    const edited = withMismatchedBaseColor(graph)
+    scheduler.update(edited)
+    scheduler.update(withNode(edited, 'time', 'input/time'))
+    scheduler.update(edited)
+    vi.advanceTimersByTime(DELAY_MS * 4)
 
     expect(buildSpy).toHaveBeenCalledTimes(2)
   })
