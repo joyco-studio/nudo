@@ -4,15 +4,18 @@ import type { PortKey } from '../type-inference/port-key'
 import { resolvePortTypes } from '../type-inference/resolve-port-types'
 import { getConversion } from '../types-system/conversion'
 import type { DataType } from '../types/data-type'
+import type { BlackboardProperty } from '../types/blackboard-property'
 import type { Graph, GraphEdge, GraphNode, PortRef } from '../types/graph'
-import type { NodeId } from '../types/ids'
+import type { NodeId, PropertyId } from '../types/ids'
 import { MASTER_NODE_ID, MASTER_NODE_TYPE } from '../types/ids'
 import type { AnyNodeDefinition, InputDefinition } from '../types/node-definition'
+import { PROPERTY_ID_PARAM } from '../types/param-definition'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
 import { convertValue } from '../values/convert-value'
 import { applyConversion } from './apply-conversion'
 import { MASTER_SLOTS } from './compile-backend'
+import { resolveParams } from './resolve-params'
 import type {
   CompileBackend,
   CompileError,
@@ -45,6 +48,8 @@ export function compile<E>(
   const resolved = resolvePortTypes(graph, registry)
   const errors: CompileError[] = []
   const evaluated = new Map<NodeId, Outcome<NodeOutputs<E>>>()
+
+  const propertyExpressions = new Map<PropertyId, E>()
 
   const incomingByInput = new Map<PortKey, GraphEdge>(
     Object.values(graph.edges).map((edge) => [portKey(edge.to), edge]),
@@ -106,7 +111,49 @@ export function compile<E>(
     return resolveConnected(ref, edge, inputType)
   }
 
+  const findProperty = (node: GraphNode): BlackboardProperty | undefined => {
+    const propertyId = node.params[PROPERTY_ID_PARAM]
+    return graph.properties.find((candidate) => candidate.id === propertyId)
+  }
+
+  /** Each property is handed to the backend once; every reader of it shares the expression. */
+  const resolveProperty = (node: GraphNode): Outcome<E> => {
+    const property = findProperty(node)
+    if (property === undefined) {
+      return fail(
+        node.id,
+        'missing-property',
+        `Node ${node.id} reads a property that does not exist: ${String(node.params[PROPERTY_ID_PARAM])}`,
+      )
+    }
+    const cached = propertyExpressions.get(property.id)
+    if (cached !== undefined) return ok(cached)
+    try {
+      const expression = backend.property(property)
+      propertyExpressions.set(property.id, expression)
+      return ok(expression)
+    } catch (error) {
+      return fail(node.id, 'build-failed', describeError(error))
+    }
+  }
+
+  const nameOutputs = (
+    node: GraphNode,
+    definition: AnyNodeDefinition,
+    built: NodeOutputs<E>,
+  ): NodeOutputs<E> => {
+    if (backend.nameOutput === undefined) return built
+    const named: Record<string, E> = {}
+    for (const output of definition.outputs) {
+      const expression = built[output.id]
+      if (expression === undefined) continue
+      named[output.id] = backend.nameOutput(node, definition, output.id, expression)
+    }
+    return named
+  }
+
   const buildNode = (node: GraphNode, definition: AnyNodeDefinition): Outcome<NodeOutputs<E>> => {
+    const property = definition.reads === 'property' ? resolveProperty(node) : null
     const inputs: Record<string, E> = {}
     const resolvedTypes: Record<string, DataType> = {}
     let hasFailedInput = false
@@ -121,10 +168,17 @@ export function compile<E>(
       inputs[input.id] = expression.value
       resolvedTypes[input.id] = inputType
     }
-    if (hasFailedInput) return failed
+    if (hasFailedInput || (property !== null && !property.ok)) return failed
 
     try {
-      return ok(definition.build({ tsl, inputs, resolvedTypes, params: node.params }))
+      const built = definition.build({
+        tsl,
+        inputs,
+        resolvedTypes,
+        params: resolveParams(definition, node.params),
+        property: property === null ? null : property.value,
+      })
+      return ok(nameOutputs(node, definition, built))
     } catch (error) {
       return fail(node.id, 'build-failed', describeError(error))
     }

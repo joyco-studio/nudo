@@ -29,7 +29,10 @@ export interface BuildContext<E, I extends string> {
   readonly tsl: TslFacade<E>
   readonly inputs: Readonly<Record<I, E>>
   readonly resolvedTypes: Readonly<Record<I, DataType>>
+  /** Node params with the definition's defaults filled in for params the node does not store. */
   readonly params: Readonly<Record<string, ParamValue>>
+  /** The Blackboard property expression for `reads: 'property'` definitions; `null` otherwise. */
+  readonly property: E | null
 }
 
 export interface NodeDefinition<I extends string, O extends string> {

@@ -27,6 +27,7 @@ const unwrap = <T, E>(result: Result<T, E>): T => {
 const createRecordingBackend = (): CompileBackend<string> => ({
   tsl: createRecordingFacade(),
   inputValue: (ref) => `u(${ref.nodeId}:${ref.portId})`,
+  property: (property) => `prop(${property.name})`,
 })
 
 const withNode = (graph: Graph, registry: NodeRegistry, id: string, type: string): Graph =>
@@ -93,6 +94,21 @@ describe('recording facade', () => {
     expect(tsl.construct('float', [0])).toBe('construct(float,[0])')
     expect(tsl.swizzle('v', 'xy')).toBe('swizzle(v,xy)')
   })
+
+  it('prints the new facade methods in the same format', () => {
+    const tsl = createRecordingFacade()
+
+    expect(tsl.select('lt', 'a', 'b', 't', 'f')).toBe('select(lt,a,b,t,f)')
+    expect(tsl.noise('simplex', 'p')).toBe('noise(simplex,p)')
+    expect(tsl.textureSample('t', 'uv', null)).toBe('textureSample(t,uv,null)')
+    expect(tsl.textureSample('t', 'uv', 'lod')).toBe('textureSample(t,uv,lod)')
+    expect(tsl.colorSpace('srgb-to-linear', 'c')).toBe('colorSpace(srgb-to-linear,c)')
+    expect(tsl.remap('x', 'a', 'b', 'c', 'd')).toBe('remap(x,a,b,c,d)')
+    expect(tsl.smoothstep('e0', 'e1', 'x')).toBe('smoothstep(e0,e1,x)')
+    expect(tsl.voronoi('p', 'j')).toBe('voronoi(p,j)')
+    expect(tsl.checker('uv')).toBe('checker(uv)')
+    expect(tsl.swizzle('v', 'w')).toBe('swizzle(v,w)')
+  })
 })
 
 describe('fresnel', () => {
@@ -102,6 +118,7 @@ describe('fresnel', () => {
       inputs: { power: 'power' },
       resolvedTypes: { power: 'float' },
       params: {},
+      property: null,
     })
 
     expect(out).toBe(

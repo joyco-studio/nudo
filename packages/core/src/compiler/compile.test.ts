@@ -6,8 +6,12 @@ import { disconnect } from '../graph/disconnect'
 import { setInputValue } from '../graph/set-input-value'
 import { defineNode } from '../registry/define-node'
 import { createNodeRegistry } from '../registry/node-registry'
-import type { Graph, PortRef } from '../types/graph'
-import { MASTER_NODE_ID, asEdgeId, asNodeId } from '../types/ids'
+import { addProperty } from '../graph/add-property'
+import { addPropertyNode } from '../graph/add-property-node'
+import { setParam } from '../graph/set-param'
+import type { BlackboardProperty } from '../types/blackboard-property'
+import type { Graph, ParamValue, PortRef } from '../types/graph'
+import { MASTER_NODE_ID, asEdgeId, asNodeId, asPropertyId } from '../types/ids'
 import type { PortValue } from '../types/port-value'
 import type { Result } from '../types/result'
 import type { TslFacade } from '../types/tsl-facade'
@@ -19,20 +23,44 @@ const formatParts = (parts: readonly (string | number)[]): string => `[${parts.j
 
 const stringFacade: TslFacade<string> = {
   add: (a, b) => `add(${a},${b})`,
+  sub: (a, b) => `sub(${a},${b})`,
   mul: (a, b) => `mul(${a},${b})`,
+  div: (a, b) => `div(${a},${b})`,
   sin: (a) => `sin(${a})`,
+  cos: (a) => `cos(${a})`,
+  abs: (a) => `abs(${a})`,
+  fract: (a) => `fract(${a})`,
+  floor: (a) => `floor(${a})`,
+  min: (a, b) => `min(${a},${b})`,
+  max: (a, b) => `max(${a},${b})`,
+  exp: (a) => `exp(${a})`,
   pow: (a, b) => `pow(${a},${b})`,
   oneMinus: (a) => `oneMinus(${a})`,
   clamp: (x, low, high) => `clamp(${x},${low},${high})`,
   dot: (a, b) => `dot(${a},${b})`,
+  length: (a) => `length(${a})`,
+  normalize: (a) => `normalize(${a})`,
+  distance: (a, b) => `distance(${a},${b})`,
   mix: (a, b, t) => `mix(${a},${b},${t})`,
+  step: (edge, x) => `step(${edge},${x})`,
+  smoothstep: (edge0, edge1, x) => `smoothstep(${edge0},${edge1},${x})`,
+  fwidth: (x) => `fwidth(${x})`,
+  remap: (x, inLow, inHigh, outLow, outHigh) =>
+    `remap(${x},${inLow},${inHigh},${outLow},${outHigh})`,
+  select: (op, a, b, whenTrue, whenFalse) => `select(${op},${a},${b},${whenTrue},${whenFalse})`,
+  noise: (kind, p) => `noise(${kind},${p})`,
+  voronoi: (p, jitter) => `voronoi(${p},${jitter})`,
+  checker: (uv) => `checker(${uv})`,
+  textureSample: (texture, uv, level) => `textureSample(${texture},${uv},${level ?? 'null'})`,
+  colorSpace: (direction, color) => `colorSpace(${direction},${color})`,
   builtin: (name) => `builtin(${name})`,
   construct: (type, parts) => `construct(${type},${formatParts(parts)})`,
   swizzle: (value, components) => `swizzle(${value},${components})`,
 }
 
-const createStringBackend = () => {
+const createStringBackend = (options: Pick<CompileBackend<string>, 'nameOutput'> = {}) => {
   const receivedValues = new Map<string, PortValue>()
+  const requestedProperties: string[] = []
   const backend: CompileBackend<string> = {
     tsl: stringFacade,
     inputValue: (ref, value) => {
@@ -40,8 +68,13 @@ const createStringBackend = () => {
       receivedValues.set(key, value)
       return `u(${key})`
     },
+    property: (property) => {
+      requestedProperties.push(property.name)
+      return `prop(${property.name})`
+    },
+    ...options,
   }
-  return { backend, receivedValues }
+  return { backend, receivedValues, requestedProperties }
 }
 
 const colorSource = defineNode({
@@ -161,6 +194,78 @@ const master = defineNode({
   build: () => ({}),
 })
 
+const propertyFloat = defineNode({
+  type: 'property/float',
+  category: 'input',
+  label: 'Float property',
+  description: 'Reads a float property',
+  keywords: [],
+  inputs: [],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  params: [{ id: 'propertyId', label: 'Property', kind: 'string', default: '', hidden: true }],
+  reads: 'property',
+  build: ({ property }) => {
+    if (property === null) throw new Error('reader built without a property')
+    return { out: property }
+  },
+})
+
+const selector = defineNode({
+  type: 'test/selector',
+  category: 'utility',
+  label: 'Selector',
+  description: 'Compares with the configured operator',
+  keywords: [],
+  inputs: [
+    { id: 'a', label: 'A', type: concrete('float'), default: float(0) },
+    { id: 'b', label: 'B', type: concrete('float'), default: float(1) },
+  ],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  params: [
+    {
+      id: 'op',
+      label: 'Operator',
+      kind: 'enum',
+      options: [
+        { value: 'lt', label: '<' },
+        { value: 'gte', label: '>=' },
+      ],
+      default: 'lt',
+    },
+  ],
+  build: ({ tsl, inputs, params }) => {
+    const op = params.op === 'gte' ? 'gte' : 'lt'
+    return { out: tsl.select(op, inputs.a, inputs.b, inputs.a, inputs.b) }
+  },
+})
+
+const createParamProbe = (onBuild: (params: Readonly<Record<string, ParamValue>>) => void) =>
+  defineNode({
+    type: 'test/param-probe',
+    category: 'utility',
+    label: 'Param probe',
+    description: 'Reports the params it receives',
+    keywords: [],
+    inputs: [],
+    outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+    params: [
+      {
+        id: 'kind',
+        label: 'Kind',
+        kind: 'enum',
+        options: [{ value: 'simplex', label: 'Simplex' }],
+        default: 'simplex',
+      },
+      { id: 'wrap', label: 'Wrap', kind: 'boolean', default: true },
+      { id: 'name', label: 'Name', kind: 'string', default: 'fallback' },
+      { id: 'scale', label: 'Scale', kind: 'number', default: 4 },
+    ],
+    build: ({ tsl, params }) => {
+      onBuild(params)
+      return { out: tsl.construct('float', [0]) }
+    },
+  })
+
 const createRegistry = (
   ...extra: Parameters<ReturnType<typeof createNodeRegistry>['register']>[0][]
 ) => {
@@ -195,6 +300,17 @@ const withNodes = (
     (graph, [id, type]) =>
       unwrap(addNode(graph, registry, { id: asNodeId(id), type, position: origin })),
     createGraph(),
+  )
+
+const withNodesOn = (
+  start: Graph,
+  registry: ReturnType<typeof createRegistry>,
+  nodes: readonly (readonly [string, string])[],
+): Graph =>
+  nodes.reduce(
+    (graph, [id, type]) =>
+      unwrap(addNode(graph, registry, { id: asNodeId(id), type, position: origin })),
+    start,
   )
 
 const link = (
@@ -498,6 +614,7 @@ describe('compile', () => {
         if (ref.nodeId === 'c') throw new Error('uniform failed')
         return `u(${ref.nodeId}:${ref.portId})`
       },
+      property: (property) => `prop(${property.name})`,
     }
 
     const result = compile(
@@ -516,6 +633,184 @@ describe('compile', () => {
     expect(result).toEqual({
       ok: false,
       errors: [{ nodeId: 'c', code: 'build-failed', message: 'uniform failed' }],
+    })
+  })
+  it('select builds with the op taken from the node params', () => {
+    const registry = createRegistry(selector)
+    let graph = withNodes(registry, [['s', 'test/selector']])
+    graph = unwrap(setParam(graph, registry, { nodeId: asNodeId('s'), paramId: 'op' }, 'gte'))
+    const { backend } = createStringBackend()
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('s'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: true,
+      output: { kind: 'port', expression: 'select(gte,u(s:a),u(s:b),u(s:a),u(s:b))' },
+    })
+  })
+
+  it('params reach build with defaults filled', () => {
+    const receivedParams: Readonly<Record<string, ParamValue>>[] = []
+    const registry = createRegistry(createParamProbe((params) => receivedParams.push(params)))
+    let graph = withNodes(registry, [['p', 'test/param-probe']])
+    graph = unwrap(setParam(graph, registry, { nodeId: asNodeId('p'), paramId: 'scale' }, 9))
+    const { backend } = createStringBackend()
+
+    compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('p'), portId: 'out' },
+    })
+
+    expect(receivedParams).toEqual([{ kind: 'simplex', wrap: true, name: 'fallback', scale: 9 }])
+  })
+})
+
+describe('compile properties', () => {
+  const speed: BlackboardProperty = {
+    id: asPropertyId('p-speed'),
+    label: 'Speed',
+    name: 'speed',
+    exposed: true,
+    type: 'float',
+    value: float(1),
+  }
+  const reader = (graph: Graph, registry: ReturnType<typeof createRegistry>, id: string): Graph =>
+    unwrap(
+      addPropertyNode(graph, registry, {
+        id: asNodeId(id),
+        propertyId: speed.id,
+        position: origin,
+      }),
+    )
+
+  it('property nodes compile to backend.property once per property even when used twice', () => {
+    const registry = createRegistry(propertyFloat)
+    let graph = unwrap(addProperty(createGraph(), speed))
+    graph = reader(graph, registry, 'r1')
+    graph = reader(graph, registry, 'r2')
+    graph = withNodesOn(graph, registry, [['a', 'test/add']])
+    graph = link(graph, registry, 'e1', ['r1', 'out'], ['a', 'a'])
+    graph = link(graph, registry, 'e2', ['r2', 'out'], ['a', 'b'])
+    const { backend, requestedProperties } = createStringBackend()
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('a'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: true,
+      output: { kind: 'port', expression: 'add(prop(speed),prop(speed))' },
+    })
+    expect(requestedProperties).toEqual(['speed'])
+  })
+
+  it('missing property yields missing-property on that node', () => {
+    const registry = createRegistry(propertyFloat)
+    const graph = reader(unwrap(addProperty(createGraph(), speed)), registry, 'r1')
+    const withoutProperty: Graph = { ...graph, properties: [] }
+    const { backend } = createStringBackend()
+
+    const result = compile(withoutProperty, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('r1'), portId: 'out' },
+    })
+
+    expect(!result.ok && result.errors.map(({ nodeId, code }) => ({ nodeId, code }))).toEqual([
+      { nodeId: 'r1', code: 'missing-property' },
+    ])
+  })
+
+  it('non-reader nodes build with a null property', () => {
+    const receivedNullProperty: boolean[] = []
+    const probe = defineNode({
+      type: 'test/property-probe',
+      category: 'utility',
+      label: 'Probe',
+      description: 'Reports ctx.property',
+      keywords: [],
+      inputs: [],
+      outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+      build: ({ tsl, property }) => {
+        receivedNullProperty.push(property === null)
+        return { out: tsl.construct('float', [0]) }
+      },
+    })
+    const registry = createRegistry(probe)
+    const graph = withNodes(registry, [['p', 'test/property-probe']])
+    const { backend } = createStringBackend()
+
+    compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('p'), portId: 'out' },
+    })
+
+    expect(receivedNullProperty).toEqual([true])
+  })
+})
+
+describe('compile nameOutput', () => {
+  it('nameOutput is called once per evaluated output and its result flows downstream', () => {
+    const registry = createRegistry()
+    let graph = withNodes(registry, [
+      ['c1', 'test/color'],
+      ['l', 'test/lerp'],
+    ])
+    graph = link(graph, registry, 'e1', ['c1', 'out'], ['l', 'a'])
+    graph = link(graph, registry, 'e2', ['c1', 'out'], ['l', 'b'])
+    graph = link(graph, registry, 'e3', ['l', 'out'], [MASTER_NODE_ID, 'baseColor'])
+    const named: string[] = []
+    const { backend } = createStringBackend({
+      nameOutput: (node, definition, portId, expression) => {
+        named.push(`${node.id}.${portId}:${definition.type}=${expression}`)
+        return `id(${node.id}.${portId})`
+      },
+    })
+
+    const result = compile(graph, registry, backend, { kind: 'master' })
+
+    expect(named).toEqual([
+      'c1.out:test/color=u(c1:color)',
+      'l.out:test/lerp=mix(id(c1.out),id(c1.out),u(l:t))',
+    ])
+    expect(expectMasterSlots(result).baseColor).toBe('id(l.out)')
+  })
+
+  it('does not name the master target slots', () => {
+    const registry = createRegistry()
+    const named: string[] = []
+    const { backend } = createStringBackend({
+      nameOutput: (node, _definition, portId, expression) => {
+        named.push(node.id)
+        return expression
+      },
+    })
+
+    compile(createGraph(), registry, backend, { kind: 'master' })
+
+    expect(named).toEqual([])
+  })
+
+  it('a throwing nameOutput yields build-failed on that node', () => {
+    const registry = createRegistry()
+    const graph = withNodes(registry, [['c', 'test/color']])
+    const { backend } = createStringBackend({
+      nameOutput: () => {
+        throw new Error('naming failed')
+      },
+    })
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('c'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: false,
+      errors: [{ nodeId: 'c', code: 'build-failed', message: 'naming failed' }],
     })
   })
 })

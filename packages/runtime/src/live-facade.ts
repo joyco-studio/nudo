@@ -51,6 +51,11 @@ const CONSTRUCTORS: Readonly<Record<VectorType, TslFunction>> = {
   vec4: widen(vec4),
 }
 
+/** Placeholder for facade members that Phase 2 Task 5 implements. */
+const notImplemented = (name: string): never => {
+  throw new Error(`not implemented: ${name}`)
+}
+
 const BUILTINS: Readonly<Record<BuiltinName, () => LiveNode>> = {
   time: () => time,
   uv: () => uv(),
@@ -59,6 +64,9 @@ const BUILTINS: Readonly<Record<BuiltinName, () => LiveNode>> = {
   positionLocal: () => positionLocal,
   positionWorld: () => positionWorld,
   positionViewDirection: () => positionViewDirection,
+  positionView: () => notImplemented('builtin positionView'),
+  screenUV: () => notImplemented('builtin screenUV'),
+  cameraPosition: () => notImplemented('builtin cameraPosition'),
 }
 
 const isLiveNode = (candidate: unknown): candidate is LiveNode => candidate instanceof Node
@@ -73,13 +81,35 @@ function readSwizzle(value: LiveNode, components: Swizzle): LiveNode {
 export function createLiveFacade(): TslFacade<LiveNode> {
   return {
     add: (a, b) => addNodes(a, b),
+    sub: () => notImplemented('sub'),
     mul: (a, b) => mulNodes(a, b),
+    div: () => notImplemented('div'),
     sin: (a) => sinNode(a),
+    cos: () => notImplemented('cos'),
+    abs: () => notImplemented('abs'),
+    fract: () => notImplemented('fract'),
+    floor: () => notImplemented('floor'),
+    min: () => notImplemented('min'),
+    max: () => notImplemented('max'),
+    exp: () => notImplemented('exp'),
     pow: (a, b) => powNodes(a, b),
     oneMinus: (a) => oneMinusNode(a),
     clamp: (x, low, high) => clampNodes(x, low, high),
     dot: (a, b) => dotNodes(a, b),
+    length: () => notImplemented('length'),
+    normalize: () => notImplemented('normalize'),
+    distance: () => notImplemented('distance'),
     mix: (a, b, t) => mixNodes(a, b, t),
+    step: () => notImplemented('step'),
+    smoothstep: () => notImplemented('smoothstep'),
+    fwidth: () => notImplemented('fwidth'),
+    remap: () => notImplemented('remap'),
+    select: () => notImplemented('select'),
+    noise: () => notImplemented('noise'),
+    voronoi: () => notImplemented('voronoi'),
+    checker: () => notImplemented('checker'),
+    textureSample: () => notImplemented('textureSample'),
+    colorSpace: () => notImplemented('colorSpace'),
     builtin: (name) => BUILTINS[name](),
     construct: (type, parts) => CONSTRUCTORS[type](...parts),
     swizzle: readSwizzle,

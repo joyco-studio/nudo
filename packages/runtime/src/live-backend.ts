@@ -42,5 +42,9 @@ export function createLiveBackend(): LiveBackend {
       uniforms.set(portKey(ref), created)
       return created
     },
+    // Replaced in Phase 2 Task 5.
+    property: () => {
+      throw new Error('not implemented: property')
+    },
   }
 }
