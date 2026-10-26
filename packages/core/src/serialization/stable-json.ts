@@ -1,3 +1,4 @@
+import type { BlackboardProperty } from '../types/blackboard-property'
 import type { GraphEdge, GraphNode } from '../types/graph'
 import type { PortValue } from '../types/port-value'
 
@@ -26,6 +27,16 @@ export const nodeJson = (node: GraphNode) => ({
     sortedEntries(node.inputValues).map(([key, value]) => [key, portValueJson(value)]),
   ),
   params: Object.fromEntries(sortedEntries(node.params)),
+})
+
+export const propertyJson = (property: BlackboardProperty) => ({
+  id: property.id,
+  label: property.label,
+  name: property.name,
+  exposed: property.exposed,
+  type: property.type,
+  ...(property.widget === undefined ? {} : { widget: property.widget }),
+  value: portValueJson(property.value),
 })
 
 export const edgeJson = (edge: GraphEdge) => ({

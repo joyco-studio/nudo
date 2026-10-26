@@ -6,7 +6,10 @@ import { ok } from '../types/result'
 import { invalidShape, joinPath, parseJson } from './json-guards'
 import { migrate } from './migrate'
 import type { Migration } from './migrate'
+import { DEFAULT_MIGRATIONS } from './migrations'
 import { parseEdge, parseNode, parseRecord } from './parse-entities'
+import { parseProperties, validatePropertyReaders } from './parse-properties'
+import { CURRENT_SCHEMA_VERSION } from './schema-version'
 import type { ParseError } from './schema-version'
 import { validateEdgeStructure } from './validate-structure'
 
@@ -43,12 +46,13 @@ function validateMaster(nodes: readonly GraphNode[]): Result<void, ParseError> {
 
 /**
  * Validates an untrusted document into a `Graph`. `input` is either the JSON text or an already
- * parsed value. Never throws; the first problem found is returned.
+ * parsed value. Documents older than the current version are migrated first (`DEFAULT_MIGRATIONS`
+ * unless the caller passes its own chain). Never throws; the first problem found is returned.
  */
 export function parseGraph(
   input: unknown,
   registry: NodeRegistry,
-  migrations: readonly Migration[] = [],
+  migrations: readonly Migration[] = DEFAULT_MIGRATIONS,
 ): Result<Graph, ParseError> {
   const document = typeof input === 'string' ? parseJson(input) : ok(input)
   if (!document.ok) return document
@@ -59,13 +63,15 @@ export function parseGraph(
   if (!nodes.ok) return nodes
   const edges = parseRecord(migrated.value.edges, 'edges', parseKeyedEdge)
   if (!edges.ok) return edges
-  const { properties } = migrated.value
-  if (!Array.isArray(properties) || properties.length > 0) return invalidShape('properties')
+  const properties = parseProperties(migrated.value.properties)
+  if (!properties.ok) return properties
 
   const nodeList = Object.values(nodes.value)
   const edgeList = Object.values(edges.value)
   const master = validateMaster(nodeList)
   if (!master.ok) return master
+  const readers = validatePropertyReaders(nodeList, registry, properties.value)
+  if (!readers.ok) return readers
   const structure = validateEdgeStructure(
     nodeList,
     edgeList,
@@ -74,5 +80,10 @@ export function parseGraph(
   )
   if (!structure.ok) return structure
 
-  return ok({ schemaVersion: 1, nodes: nodes.value, edges: edges.value, properties: [] })
+  return ok({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    nodes: nodes.value,
+    edges: edges.value,
+    properties: properties.value,
+  })
 }

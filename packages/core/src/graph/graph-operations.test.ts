@@ -79,7 +79,7 @@ const deepFreeze = <T>(value: T): T => {
 describe('createGraph', () => {
   it('contains only the master node', () => {
     expect(createGraph()).toEqual({
-      schemaVersion: 1,
+      schemaVersion: 2,
       nodes: {
         master: {
           id: 'master',

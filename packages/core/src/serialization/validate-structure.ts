@@ -5,12 +5,13 @@ import type { GraphEdge, GraphNode } from '../types/graph'
 import type { Result } from '../types/result'
 import { ok } from '../types/result'
 import { invalidShape } from './json-guards'
+import { CURRENT_SCHEMA_VERSION } from './schema-version'
 import type { ParseError } from './schema-version'
 
 /** Kahn's order leaves cycle members out, so a short order means the edges loop. */
 const hasCycle = (nodes: readonly GraphNode[], edges: readonly GraphEdge[]): boolean =>
   topologicalOrder({
-    schemaVersion: 1,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     nodes: Object.fromEntries(nodes.map((node) => [node.id, node])),
     // Keyed by position, not id: duplicate edge ids must not hide an edge from the cycle check.
     edges: Object.fromEntries(edges.map((edge, index) => [String(index), edge])),

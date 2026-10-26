@@ -25,7 +25,10 @@ interface SeedEdge {
 
 export const MASTER_POSITION = { x: 600, y: 0 }
 
-/** Builds the autosave document (schema version 1) the editor restores on start. */
+/**
+ * Builds a phase-1 autosave document (schema version 1) the editor restores on start. It stays at
+ * v1 on purpose: every e2e that seeds it also exercises the v1 to v2 migration.
+ */
 export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEdge[]): string {
   const allNodes: SeedNode[] = [
     { id: 'master', type: 'master/stack', position: MASTER_POSITION },

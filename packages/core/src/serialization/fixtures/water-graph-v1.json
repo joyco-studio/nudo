@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "nodes": {
+    "deepColor": {
+      "id": "deepColor",
+      "type": "input/color",
+      "position": {
+        "x": 340,
+        "y": -420
+      },
+      "inputValues": {
+        "color": {
+          "type": "vec3",
+          "value": [0.002, 0.02, 0.08]
+        }
+      },
+      "params": {}
+    },
+    "fresnel": {
+      "id": "fresnel",
+      "type": "effects/fresnel",
+      "position": {
+        "x": 340,
+        "y": 260
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 940,
+        "y": -120
+      },
+      "inputValues": {
+        "metalness": {
+          "type": "float",
+          "value": 0.1
+        },
+        "opacity": {
+          "type": "float",
+          "value": 0.85
+        },
+        "roughness": {
+          "type": "float",
+          "value": 0.08
+        }
+      },
+      "params": {}
+    },
+    "phase": {
+      "id": "phase",
+      "type": "math/add",
+      "position": {
+        "x": -500,
+        "y": -40
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rimColor": {
+      "id": "rimColor",
+      "type": "input/color",
+      "position": {
+        "x": 340,
+        "y": 420
+      },
+      "inputValues": {
+        "color": {
+          "type": "vec3",
+          "value": [0.12, 0.35, 0.45]
+        }
+      },
+      "params": {}
+    },
+    "rimGlow": {
+      "id": "rimGlow",
+      "type": "math/multiply",
+      "position": {
+        "x": 640,
+        "y": 300
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shallowColor": {
+      "id": "shallowColor",
+      "type": "input/color",
+      "position": {
+        "x": 340,
+        "y": -260
+      },
+      "inputValues": {
+        "color": {
+          "type": "vec3",
+          "value": [0.08, 0.55, 0.62]
+        }
+      },
+      "params": {}
+    },
+    "time": {
+      "id": "time",
+      "type": "input/time",
+      "position": {
+        "x": -1100,
+        "y": 160
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "timeScaled": {
+      "id": "timeScaled",
+      "type": "math/multiply",
+      "position": {
+        "x": -800,
+        "y": 140
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1.5
+        }
+      },
+      "params": {}
+    },
+    "uv": {
+      "id": "uv",
+      "type": "input/uv",
+      "position": {
+        "x": -1100,
+        "y": -260
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uvScaled": {
+      "id": "uvScaled",
+      "type": "math/multiply",
+      "position": {
+        "x": -800,
+        "y": -180
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "waterColor": {
+      "id": "waterColor",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 640,
+        "y": -300
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wave": {
+      "id": "wave",
+      "type": "math/sin",
+      "position": {
+        "x": -220,
+        "y": -40
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wave01": {
+      "id": "wave01",
+      "type": "math/add",
+      "position": {
+        "x": 340,
+        "y": -40
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "waveFreq": {
+      "id": "waveFreq",
+      "type": "input/float",
+      "position": {
+        "x": -1100,
+        "y": -60
+      },
+      "inputValues": {
+        "x": {
+          "type": "float",
+          "value": 12
+        }
+      },
+      "params": {}
+    },
+    "waveHalf": {
+      "id": "waveHalf",
+      "type": "math/multiply",
+      "position": {
+        "x": 60,
+        "y": -40
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    }
+  },
+  "edges": {
+    "e1": {
+      "id": "e1",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "uvScaled",
+        "portId": "a"
+      }
+    },
+    "e10": {
+      "id": "e10",
+      "from": {
+        "nodeId": "shallowColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waterColor",
+        "portId": "b"
+      }
+    },
+    "e11": {
+      "id": "e11",
+      "from": {
+        "nodeId": "wave01",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waterColor",
+        "portId": "t"
+      }
+    },
+    "e12": {
+      "id": "e12",
+      "from": {
+        "nodeId": "fresnel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimGlow",
+        "portId": "a"
+      }
+    },
+    "e13": {
+      "id": "e13",
+      "from": {
+        "nodeId": "rimColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimGlow",
+        "portId": "b"
+      }
+    },
+    "e14": {
+      "id": "e14",
+      "from": {
+        "nodeId": "waterColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "e15": {
+      "id": "e15",
+      "from": {
+        "nodeId": "rimGlow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "emission"
+      }
+    },
+    "e2": {
+      "id": "e2",
+      "from": {
+        "nodeId": "waveFreq",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "uvScaled",
+        "portId": "b"
+      }
+    },
+    "e3": {
+      "id": "e3",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "timeScaled",
+        "portId": "a"
+      }
+    },
+    "e4": {
+      "id": "e4",
+      "from": {
+        "nodeId": "uvScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "phase",
+        "portId": "a"
+      }
+    },
+    "e5": {
+      "id": "e5",
+      "from": {
+        "nodeId": "timeScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "phase",
+        "portId": "b"
+      }
+    },
+    "e6": {
+      "id": "e6",
+      "from": {
+        "nodeId": "phase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wave",
+        "portId": "in"
+      }
+    },
+    "e7": {
+      "id": "e7",
+      "from": {
+        "nodeId": "wave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waveHalf",
+        "portId": "a"
+      }
+    },
+    "e8": {
+      "id": "e8",
+      "from": {
+        "nodeId": "waveHalf",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wave01",
+        "portId": "a"
+      }
+    },
+    "e9": {
+      "id": "e9",
+      "from": {
+        "nodeId": "deepColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waterColor",
+        "portId": "a"
+      }
+    }
+  },
+  "properties": []
+}

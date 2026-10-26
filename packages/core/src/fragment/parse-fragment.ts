@@ -7,14 +7,13 @@ import {
   ROOT_PATH,
 } from '../serialization/json-guards'
 import { parseEdge, parseList, parseNode } from '../serialization/parse-entities'
-import { CURRENT_SCHEMA_VERSION } from '../serialization/schema-version'
 import type { ParseError } from '../serialization/schema-version'
 import { validateEdgeStructure } from '../serialization/validate-structure'
 import type { GraphEdge, GraphNode } from '../types/graph'
 import { MASTER_NODE_ID, MASTER_NODE_TYPE } from '../types/ids'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
-import { FRAGMENT_KIND } from './graph-fragment'
+import { FRAGMENT_KIND, FRAGMENT_SCHEMA_VERSION } from './graph-fragment'
 import type { GraphFragment } from './graph-fragment'
 
 /** Nodes must be unique and must not include the master, which a paste can never create. */
@@ -50,10 +49,10 @@ export function parseFragment(
   const { kind, schemaVersion } = document.value
   if (kind !== FRAGMENT_KIND) return invalidShape('kind')
   if (typeof schemaVersion !== 'number') return invalidShape('schemaVersion')
-  if (schemaVersion > CURRENT_SCHEMA_VERSION) {
+  if (schemaVersion > FRAGMENT_SCHEMA_VERSION) {
     return err({ code: 'unsupported-version', version: schemaVersion })
   }
-  if (schemaVersion !== CURRENT_SCHEMA_VERSION) return invalidShape('schemaVersion')
+  if (schemaVersion !== FRAGMENT_SCHEMA_VERSION) return invalidShape('schemaVersion')
 
   const nodes = parseList(document.value.nodes, 'nodes', (input, path) =>
     parseNode(input, path, registry),
@@ -73,7 +72,7 @@ export function parseFragment(
 
   return ok({
     kind: FRAGMENT_KIND,
-    schemaVersion: CURRENT_SCHEMA_VERSION,
+    schemaVersion: FRAGMENT_SCHEMA_VERSION,
     nodes: nodes.value,
     edges: edges.value,
   })

@@ -98,6 +98,20 @@ describe('topologyKey', () => {
     )
   })
 
+  it('ignores universal params but not structural ones', () => {
+    const base = withParams(graphWithPass(), { kind: 'perlin' })
+    const decorated = withParams(graphWithPass(), {
+      kind: 'perlin',
+      collapsed: true,
+      previewMode: '3d',
+    })
+
+    expect(topologyKey(decorated)).toBe(topologyKey(base))
+    expect(topologyKey(withParams(graphWithPass(), { kind: 'simplex', collapsed: true }))).not.toBe(
+      topologyKey(base),
+    )
+  })
+
   it('changes when a node is added', () => {
     expect(topologyKey(graphWithPass())).not.toBe(topologyKey(createGraph()))
   })

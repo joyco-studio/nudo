@@ -18,7 +18,7 @@ const edge = (from: string, to: string): GraphEdge => ({
 })
 
 const createGraph = (ids: readonly string[], edges: readonly GraphEdge[]): Graph => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   nodes: Object.fromEntries(ids.map((id) => [id, node(id)])),
   edges: Object.fromEntries(edges.map((e) => [e.id, e])),
   properties: [],

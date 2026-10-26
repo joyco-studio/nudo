@@ -9,3 +9,5 @@ export type GraphError =
   | { code: 'duplicate-id'; id: string }
   | { code: 'invalid-connection'; reason: ConnectionRejection }
   | { code: 'unknown-port'; ref: PortRef }
+  | { code: 'unknown-param'; nodeId: NodeId; paramId: string }
+  | { code: 'invalid-param-value'; nodeId: NodeId; paramId: string }

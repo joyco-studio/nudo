@@ -2,7 +2,7 @@ import { sortedById } from '../serialization/stable-json'
 import type { Graph } from '../types/graph'
 import type { NodeId } from '../types/ids'
 import { MASTER_NODE_ID } from '../types/ids'
-import { FRAGMENT_KIND } from './graph-fragment'
+import { FRAGMENT_KIND, FRAGMENT_SCHEMA_VERSION } from './graph-fragment'
 import type { GraphFragment } from './graph-fragment'
 
 /**
@@ -20,5 +20,5 @@ export function extractFragment(graph: Graph, nodeIds: readonly NodeId[]): Graph
       (edge) => copiedIds.has(edge.from.nodeId) && copiedIds.has(edge.to.nodeId),
     ),
   )
-  return { kind: FRAGMENT_KIND, schemaVersion: 1, nodes, edges }
+  return { kind: FRAGMENT_KIND, schemaVersion: FRAGMENT_SCHEMA_VERSION, nodes, edges }
 }

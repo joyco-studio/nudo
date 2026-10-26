@@ -1,3 +1,4 @@
+import type { BlackboardProperty } from './blackboard-property'
 import type { EdgeId, NodeId, NodeTypeId } from './ids'
 import type { PortValue } from './port-value'
 
@@ -7,9 +8,6 @@ export interface XY {
   readonly x: number
   readonly y: number
 }
-
-/** Phase 2 placeholder: `Graph.properties` is always empty until the blackboard exists. */
-export type BlackboardProperty = never
 
 export interface PortRef {
   readonly nodeId: NodeId
@@ -33,7 +31,7 @@ export interface GraphEdge {
 }
 
 export interface Graph {
-  readonly schemaVersion: 1
+  readonly schemaVersion: 2
   readonly nodes: Readonly<Record<NodeId, GraphNode>>
   readonly edges: Readonly<Record<EdgeId, GraphEdge>>
   readonly properties: readonly BlackboardProperty[]

@@ -36,6 +36,16 @@ describe('loadAutosave', () => {
     expect(result.notice).toBeNull()
   })
 
+  it('restores a phase-1 (schema v1) autosave through the migration chain', () => {
+    localStorage.setItem(AUTOSAVE_KEY, documentWith({ schemaVersion: 1 }))
+
+    const result = loadAutosave(localStorage)
+
+    expect(result.graph).toEqual(createGraph())
+    expect(result.notice).toBeNull()
+    expect(localStorage.getItem(AUTOSAVE_CORRUPT_KEY)).toBeNull()
+  })
+
   it.each([
     ['corrupt JSON', '{not json'],
     [

@@ -91,7 +91,7 @@ const edge = (id: string, from: PortRef, to: PortRef): GraphEdge => ({
 const ref = (nodeId: string, portId: string): PortRef => ({ nodeId: asNodeId(nodeId), portId })
 
 const graphOf = (nodes: readonly GraphNode[], edges: readonly GraphEdge[] = []): Graph => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   nodes: Object.fromEntries(nodes.map((n) => [n.id, n])),
   edges: Object.fromEntries(edges.map((e) => [e.id, e])),
   properties: [],

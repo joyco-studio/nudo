@@ -1,5 +1,5 @@
 /** Version written by `serializeGraph` and expected by `parseGraph` after migrations. */
-export const CURRENT_SCHEMA_VERSION = 1
+export const CURRENT_SCHEMA_VERSION = 2
 
 export type ParseError =
   | { code: 'invalid-json' }

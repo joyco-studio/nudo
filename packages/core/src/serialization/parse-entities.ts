@@ -1,9 +1,12 @@
 import type { NodeRegistry } from '../registry/node-registry'
 import type { GraphEdge, GraphNode, ParamValue, PortRef, XY } from '../types/graph'
+import type { AnyNodeDefinition } from '../types/node-definition'
 import { asEdgeId, asNodeId } from '../types/ids'
+import { PROPERTY_ID_PARAM } from '../types/param-definition'
 import type { PortValue } from '../types/port-value'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
+import { findParamDefinition, isValidParamValue } from '../validation/param-validation'
 import { invalidShape, isFiniteNumber, isRecord, joinPath } from './json-guards'
 import type { ParseError } from './schema-version'
 
@@ -103,6 +106,23 @@ function parsePortRef(input: unknown, path: string): Result<PortRef, ParseError>
   return ok({ nodeId: asNodeId(nodeId), portId })
 }
 
+/** Params must be declared (or universal) and fit their definition; readers need a `propertyId`. */
+function validateParams(
+  definition: AnyNodeDefinition,
+  params: Readonly<Record<string, ParamValue>>,
+  path: string,
+): Result<void, ParseError> {
+  for (const [paramId, value] of Object.entries(params)) {
+    const param = findParamDefinition(definition, paramId)
+    if (param === undefined || !isValidParamValue(param, value)) {
+      return invalidShape(joinPath(path, paramId))
+    }
+  }
+  const isMissingPropertyId =
+    definition.reads === 'property' && typeof params[PROPERTY_ID_PARAM] !== 'string'
+  return isMissingPropertyId ? invalidShape(joinPath(path, PROPERTY_ID_PARAM)) : ok(undefined)
+}
+
 /** Validates the node shape, then that its type is registered. */
 export function parseNode(
   input: unknown,
@@ -125,6 +145,8 @@ export function parseNode(
   const unknownKey = Object.keys(inputValues.value).find((key) => !inputIds.has(key))
   if (unknownKey !== undefined)
     return invalidShape(joinPath(joinPath(path, 'inputValues'), unknownKey))
+  const paramsCheck = validateParams(definition, params.value, joinPath(path, 'params'))
+  if (!paramsCheck.ok) return paramsCheck
 
   return ok({
     id: asNodeId(id),

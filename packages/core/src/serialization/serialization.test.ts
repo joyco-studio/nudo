@@ -11,6 +11,7 @@ import type { Result } from '../types/result'
 import { concrete, float, generic, texture, vec2, vec3, vec4 } from '../values/port-value-factories'
 import { migrate } from './migrate'
 import type { Migration } from './migrate'
+import { DEFAULT_MIGRATIONS } from './migrations'
 import { parseGraph } from './parse-graph'
 import { serializeGraph } from './serialize-graph'
 
@@ -75,6 +76,20 @@ const everyValueType = defineNode({
     { id: 'f', label: 'F', type: concrete('texture'), default: texture() },
   ],
   outputs: [],
+  params: [
+    {
+      id: 'kind',
+      label: 'Kind',
+      kind: 'enum',
+      options: [
+        { value: 'simplex', label: 'Simplex' },
+        { value: 'perlin', label: 'Perlin' },
+      ],
+      default: 'simplex',
+    },
+    { id: 'octaves', label: 'Octaves', kind: 'number', default: 4 },
+    { id: 'wrap', label: 'Wrap', kind: 'boolean', default: false },
+  ],
   build: () => ({}),
 })
 
@@ -186,7 +201,7 @@ describe('serializeGraph and parseGraph', () => {
     expect(text).toBe(
       [
         '{',
-        '  "schemaVersion": 1,',
+        '  "schemaVersion": 2,',
         '  "nodes": {',
         '    "master": {',
         '      "id": "master",',
@@ -325,11 +340,11 @@ describe('serializeGraph and parseGraph', () => {
   })
 
   it('rejects future schemaVersion', () => {
-    const document = { ...documentOf(createGraph()), schemaVersion: 2 }
+    const document = { ...documentOf(createGraph()), schemaVersion: 3 }
 
     expect(unwrapError(parseGraph(document, registry))).toEqual({
       code: 'unsupported-version',
-      version: 2,
+      version: 3,
     })
   })
 
@@ -390,39 +405,35 @@ describe('serializeGraph and parseGraph', () => {
     })
   })
 
-  it('rejects non-empty properties', () => {
+  it('rejects a malformed property entry', () => {
     const document = { ...documentOf(createGraph()), properties: [{}] }
 
     expect(unwrapError(parseGraph(document, registry))).toEqual({
       code: 'invalid-shape',
-      path: 'properties',
+      path: 'properties.0.id',
     })
   })
 
-  it('applies chained migrations v0→v1', () => {
-    const addProperties: Migration = {
-      from: 0,
-      migrate: (input) => ({ ...input, properties: [] }),
-    }
-    const current = without(documentOf(createGraph()), 'properties')
-    const legacy = { ...current, schemaVersion: 0 }
+  it('applies chained migrations v0→v1→v2', () => {
+    const stampOnly: Migration = { from: 0, migrate: (input) => ({ ...input }) }
+    const legacy = { ...without(documentOf(createGraph()), 'properties'), schemaVersion: 0 }
 
-    const graph = unwrap(parseGraph(legacy, registry, [addProperties]))
+    const graph = unwrap(parseGraph(legacy, registry, [stampOnly, ...DEFAULT_MIGRATIONS]))
 
     expect(graph).toEqual(createGraph())
   })
 
   it('migrate stamps each step with the next version and returns a failure instead of throwing', () => {
-    const noOp: Migration = { from: 0, migrate: (input) => ({ ...input }) }
+    const noOp: Migration = { from: 1, migrate: (input) => ({ ...input }) }
     const broken: Migration = {
-      from: 0,
+      from: 1,
       migrate: () => {
         throw new Error('bad migration')
       },
     }
 
-    expect(unwrap(migrate({ schemaVersion: 0 }, [noOp]))).toEqual({ schemaVersion: 1 })
-    expect(unwrapError(migrate({ schemaVersion: 0 }, [broken]))).toEqual({
+    expect(unwrap(migrate({ schemaVersion: 1 }, [noOp]))).toEqual({ schemaVersion: 2 })
+    expect(unwrapError(migrate({ schemaVersion: 1 }, [broken]))).toEqual({
       code: 'invalid-shape',
       path: 'schemaVersion',
     })
