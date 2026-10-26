@@ -459,3 +459,77 @@ Fuente: https://github.com/joyco-studio/gltf (live: https://gltf.joyco.studio).
 - Valores por defecto de cada nodo y de los slots del Master Stack.
 - Algoritmo del hash de topología.
 - Detalles de animación y microinteracciones, dentro del sistema de joyco y respetando `prefers-reduced-motion`.
+
+## 15. Fases 2–5 en detalle (agregado 2026-10-26, después de cerrar la fase 1)
+
+El usuario pidió avanzar con todas las fases que faltan con una meta explícita: que quede **un producto increíble**. Esta sección fija el alcance. Las decisiones marcadas *(autor)* son mías; el resto viene del chat.
+
+### 15.1 Meta de calidad: el pond de lettra
+
+El agua ilustrada de `joyco-studio/lettra-landing` (`src/lib/scenes/models/water.ts`) es el **shader de referencia**. La fase 2 se considera completa cuando nudo puede recrear esa estética como grafo y el ejemplo está incluido en el repo:
+- rosetas Voronoi, lace, stamps, banda de sol, tonos posterizados, refracción por ruido animado y viñeta en screen-space;
+- material unlit;
+- sin los ripples interactivos, que son una simulación con render targets y no un shader.
+
+### 15.2 Fase 2: editor completo
+
+**Modelo** *(autor)*
+- `NodeDefinition` gana `params?: readonly ParamDefinition[]`, con tipos `enum` (opciones con label) y `boolean`. Cambiar un param recompila: ya entra en `topologyKey`.
+- `BlackboardProperty = { id, name, type: 'float'|'vec2'|'vec3'|'vec4'|'texture', widget?: 'color', value: PortValue }`.
+  - `name` es un identificador JS válido y único: es el nombre del uniform exportado.
+  - Hay un nodo por tipo de propiedad (`property/float`, `property/vec3`, …), con param `propertyId`.
+  - Live: uniform compartido por propiedad. Editar el valor solo toca `.value`.
+- `schemaVersion` pasa a **2** (`properties` tipadas), con una migración v1→v2. Es la primera migración real.
+- Texturas: los assets se guardan en IndexedDB y se identifican por SHA-256 del contenido. El runtime recibe un `resolveTexture(assetId)`.
+
+**Catálogo** (el de §7, más lo que pide el pond)
+- **Input:** Vector2/3/4, Position (param espacio: object/world/view), View Direction, Screen UV, Camera Position, propiedades del Blackboard.
+- **Math:** Subtract, Divide, Power, Cos, Abs, Fract, Floor, Min, Max, Clamp, One Minus, Remap, **Exp**, **Distance**.
+- **Interpolación:** Step, Smoothstep, **AA Step** (`fwidth`).
+- **Lógica:** **Select** (compara `a` contra `b` con un operador param, y elige entre dos valores T).
+- **Vector:** Split, Combine, Dot, Length, Normalize, **Rotate 2D**.
+- **Efectos:** Noise (simplex/perlin), Voronoi (F1, con escala y jitter), Checkerboard, Gradient (linear/radial).
+- **Texture:** Sample Texture 2D (param mip: auto/level, input level).
+- **Color:** **Color Space** (sRGB↔linear).
+- **Utilidad:** Comment/Group (marco con título; no compila).
+- **Master Stack:** param **lighting: standard | unlit**. Unlit usa `MeshBasicNodeMaterial`; los slots que no aplican se muestran deshabilitados.
+
+**Editor**
+- **Previews por nodo:**
+  - un único renderer offscreen compartido;
+  - cada nodo compila su target `port` a un material unlit sobre un quad, que se renderiza y se copia (`drawImage`) al canvas 2D del nodo;
+  - solo se re-renderizan los nodos sucios: los afectados por topología o valores aguas arriba;
+  - los nodos que dependen de Time se animan a ~20 fps y solo si están visibles en el viewport;
+  - toggle de preview por nodo.
+- **Blackboard** (panel izquierdo): crear, renombrar, editar valor y borrar propiedades. Se agregan al canvas arrastrando o con teclado (Enter: "Add to canvas").
+- **Inspector** (derecha, sobre el preview): nodo seleccionado (descripción, params, valores, toggle de preview) o, sin selección, configuración del grafo (lighting del master).
+- **Panel de código** (abajo, colapsable): TSL generado en vivo, con resaltado de sintaxis liviano y botón de copiar.
+- Paneles colapsables con atajos de teclado documentados.
+
+**Nuevo paquete `packages/codegen`:** facade que emite código, más un printer de módulos legibles:
+- un `const` por salida de nodo, con nombres derivados de los labels;
+- literales para valores inline y uniforms nombrados para las propiedades.
+
+Paridad verificada en tests importando el módulo generado contra `three/tsl` real.
+
+### 15.3 Fase 3: archivos
+
+- Export `.tsl.js` final: header con versión de three, imports, uniforms del Blackboard exportados, objeto de slots listo para el material, snippet R3F (P4) y bloque `@graph` con SHA-256 del código.
+- Import de `.tsl.js` (solo lee `@graph`; avisa si el hash no coincide), de `.tslproj` (zip con JSZip, incluye texturas) y de carpeta.
+- Compartir por URL (P2): `CompressionStream` + base64url en el hash; las texturas no viajan.
+- Thumbnail del preview dentro del `.tslproj`.
+- Menú de archivo accesible por teclado (Nuevo, Abrir, Guardar como, Exportar, Compartir).
+
+### 15.4 Fase 4: extensibilidad
+
+- **Code Node:** TSL a mano con inputs/outputs declarados. Si el grafo viene de afuera (URL, import), no se ejecuta hasta que el usuario confirme (`containsCode` en el manifest).
+- **Subgraphs:** colapsar una selección en un subgraph reutilizable, con sus inputs y outputs; se guardan en `graphs/subgraphs/`.
+- **Runtime pulido:** API `loadGraph(json, { resolveTexture })` que devuelve `{ material, uniforms }` con uniforms nombrados. La decisión de publicar en npm se toma acá.
+- **Docs:** README de cada paquete, guía para escribir nodos de la comunidad y **spec pública del formato en inglés** (`docs/format-spec.md`).
+
+### 15.5 Fase 5: comunidad e IA
+
+- **Galería de ejemplos** dentro del editor: el pond de lettra, agua simple, holograma, disolución, toon, fresnel glow. Cada uno es un `.graph.json` versionado.
+- **Presets** para artistas: los ejemplos se abren como punto de partida.
+- **Plugins de la comunidad:** registrar nodos propios con la API de `defineNode`, cargados como módulos.
+- **Servidor MCP** *(idea del usuario, ver la memoria de competidores)*: para que un agente (Claude Code) lea, cree y edite grafos con las operaciones puras de `core` y el formato JSON, y el usuario retoque visualmente. Es el diferencial frente a TSL Graph.
