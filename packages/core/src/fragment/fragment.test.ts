@@ -222,6 +222,7 @@ describe('pasteFragment', () => {
     expect(Object.keys(pasted.graph.nodes)).toHaveLength(Object.keys(graph.nodes).length + 2)
     expect(pasted.graph.nodes[MASTER_NODE_ID]).toEqual(graph.nodes[MASTER_NODE_ID])
     expect(pasted.graph.edges).toMatchObject(graph.edges)
+    expect(Object.keys(pasted.graph.edges)).toHaveLength(Object.keys(graph.edges).length + 1)
   })
 
   it('pasting the same fragment twice yields independent copies', () => {
@@ -314,6 +315,18 @@ describe('parseFragment', () => {
     expect(unwrapError(parseFragment(byType, registry))).toEqual({
       code: 'invalid-shape',
       path: 'nodes.0',
+    })
+  })
+
+  it('rejects duplicate edge ids that would hide a cycle', () => {
+    const text = fragmentJson({
+      nodes: [node('a'), node('b')],
+      edges: [edge('e1', 'a', 'b'), edge('e1', 'b', 'a')],
+    })
+
+    expect(unwrapError(parseFragment(text, registry))).toEqual({
+      code: 'invalid-shape',
+      path: 'edges.e1',
     })
   })
 

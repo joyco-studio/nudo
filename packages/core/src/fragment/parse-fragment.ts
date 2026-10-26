@@ -10,7 +10,7 @@ import { parseEdge, parseList, parseNode } from '../serialization/parse-entities
 import { CURRENT_SCHEMA_VERSION } from '../serialization/schema-version'
 import type { ParseError } from '../serialization/schema-version'
 import { validateEdgeStructure } from '../serialization/validate-structure'
-import type { GraphNode } from '../types/graph'
+import type { GraphEdge, GraphNode } from '../types/graph'
 import { MASTER_NODE_ID, MASTER_NODE_TYPE } from '../types/ids'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
@@ -25,6 +25,16 @@ function validateFragmentNodes(nodes: readonly GraphNode[]): Result<void, ParseE
     if (node.id === MASTER_NODE_ID || node.type === MASTER_NODE_TYPE) return invalidShape(path)
     if (seen.has(node.id)) return invalidShape(joinPath(path, 'id'))
     seen.add(node.id)
+  }
+  return ok(undefined)
+}
+
+/** Edge ids must be unique, otherwise a later edge would silently replace an earlier one. */
+function validateFragmentEdges(edges: readonly GraphEdge[]): Result<void, ParseError> {
+  const seen = new Set<string>()
+  for (const edge of edges) {
+    if (seen.has(edge.id)) return invalidShape(joinPath('edges', edge.id))
+    seen.add(edge.id)
   }
   return ok(undefined)
 }
@@ -54,6 +64,8 @@ export function parseFragment(
 
   const nodesCheck = validateFragmentNodes(nodes.value)
   if (!nodesCheck.ok) return nodesCheck
+  const edgesCheck = validateFragmentEdges(edges.value)
+  if (!edgesCheck.ok) return edgesCheck
   const structure = validateEdgeStructure(nodes.value, edges.value, (_edge, index) =>
     joinPath('edges', index),
   )

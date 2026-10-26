@@ -10,7 +10,8 @@ const hasCycle = (nodes: readonly GraphNode[], edges: readonly GraphEdge[]): boo
   topologicalOrder({
     schemaVersion: 1,
     nodes: Object.fromEntries(nodes.map((node) => [node.id, node])),
-    edges: Object.fromEntries(edges.map((edge) => [edge.id, edge])),
+    // Keyed by position, not id: duplicate edge ids must not hide an edge from the cycle check.
+    edges: Object.fromEntries(edges.map((edge, index) => [String(index), edge])),
     properties: [],
   }).length < nodes.length
 
