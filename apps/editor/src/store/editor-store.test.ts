@@ -1,7 +1,16 @@
-import { MASTER_NODE_ID, asEdgeId, asNodeId, createGraph, float } from '@nudo-tsl/core'
+import {
+  MASTER_NODE_ID,
+  asEdgeId,
+  asNodeId,
+  concrete,
+  createGraph,
+  defineNode,
+  float,
+} from '@nudo-tsl/core'
 import type { GraphFragment, NodeId } from '@nudo-tsl/core'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { redo, undo, useEditorStore } from './editor-store'
+import { registry } from './registry'
 
 const FLOAT_NODE = 'input/float'
 const ORIGIN = { x: 0, y: 0 }
@@ -294,6 +303,68 @@ describe('pasteFragment', () => {
     expect(getState().graph.nodes[pastedId]?.position).toEqual({ x: 45, y: 45 })
     expect(getState().selectedNodeIds).toEqual(pastedIds)
     expect(historyLength()).toBe(entriesBefore + 1)
+  })
+
+  describe('property readers', () => {
+    const READER_NODE = 'test/property-reader'
+    registry.register(
+      defineNode({
+        type: READER_NODE,
+        category: 'input',
+        label: 'Property reader',
+        description: 'Reads a property',
+        keywords: [],
+        inputs: [],
+        outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+        params: [
+          { id: 'propertyId', label: 'Property', kind: 'string', default: '', hidden: true },
+        ],
+        reads: 'property',
+        build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
+      }),
+    )
+
+    const readerFragment = (): GraphFragment => ({
+      kind: 'nudo-tsl/fragment',
+      schemaVersion: 1,
+      nodes: [
+        {
+          id: asNodeId('reader'),
+          type: READER_NODE,
+          position: ORIGIN,
+          inputValues: {},
+          params: { propertyId: 'ghost' },
+        },
+      ],
+      edges: [],
+    })
+
+    it('skips readers of missing properties and shows an info notice', () => {
+      const entriesBefore = historyLength()
+
+      const pastedIds = getState().pasteFragment(readerFragment(), ORIGIN)
+
+      expect(pastedIds).toEqual([])
+      expect(Object.keys(getState().graph.nodes)).toEqual([MASTER_NODE_ID])
+      expect(getState().notice).toEqual({
+        kind: 'info',
+        message: "Some pasted nodes referenced properties that don't exist here and were skipped.",
+      })
+      expect(historyLength()).toBe(entriesBefore)
+    })
+
+    it('shows no notice when nothing was skipped', () => {
+      const source = addNodeOrFail(FLOAT_NODE)
+      const sourceNode = getState().graph.nodes[source]
+      if (sourceNode === undefined) throw new Error('Expected source node')
+
+      getState().pasteFragment(
+        { kind: 'nudo-tsl/fragment', schemaVersion: 1, nodes: [sourceNode], edges: [] },
+        ORIGIN,
+      )
+
+      expect(getState().notice).toBeNull()
+    })
   })
 })
 

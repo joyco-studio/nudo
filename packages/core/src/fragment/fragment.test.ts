@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { addNode } from '../graph/add-node'
+import { addProperty } from '../graph/add-property'
+import { addPropertyNode } from '../graph/add-property-node'
 import { connect } from '../graph/connect'
 import { createGraph } from '../graph/create-graph'
 import { setInputValue } from '../graph/set-input-value'
@@ -7,7 +9,7 @@ import { defineNode } from '../registry/define-node'
 import { createNodeRegistry } from '../registry/node-registry'
 import { serializeGraph } from '../serialization/serialize-graph'
 import type { Graph } from '../types/graph'
-import { MASTER_NODE_ID, asEdgeId, asNodeId } from '../types/ids'
+import { MASTER_NODE_ID, asEdgeId, asNodeId, asPropertyId } from '../types/ids'
 import type { EdgeId, NodeId } from '../types/ids'
 import type { Result } from '../types/result'
 import { concrete, float, generic, vec3 } from '../values/port-value-factories'
@@ -24,6 +26,19 @@ const floatSource = defineNode({
   keywords: [],
   inputs: [],
   outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
+})
+
+const propertyReader = defineNode({
+  type: 'property/float',
+  category: 'input',
+  label: 'Float property',
+  description: 'Reads a float property',
+  keywords: [],
+  inputs: [],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  params: [{ id: 'propertyId', label: 'Property', kind: 'string', default: '', hidden: true }],
+  reads: 'property',
   build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
 })
 
@@ -52,7 +67,7 @@ const master = defineNode({
 })
 
 const registry = createNodeRegistry()
-;[floatSource, pass, master].forEach((definition) => registry.register(definition))
+;[floatSource, propertyReader, pass, master].forEach((definition) => registry.register(definition))
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -240,6 +255,96 @@ describe('pasteFragment', () => {
 
     expect(Object.keys(twice.graph.nodes)).toHaveLength(Object.keys(graph.nodes).length + 4)
     expect(Object.keys(twice.graph.edges)).toHaveLength(Object.keys(graph.edges).length + 2)
+  })
+})
+
+describe('pasteFragment with property readers', () => {
+  const speedId = asPropertyId('p-speed')
+  const speed = {
+    id: speedId,
+    label: 'Speed',
+    name: 'speed',
+    exposed: true,
+    type: 'float',
+    value: float(1),
+  } as const
+
+  /** reader -> middle -> master.baseColor, with the reader pointing at `speed`. */
+  const graphWithReader = (): Graph => {
+    let graph = unwrap(addProperty(createGraph(), speed))
+    graph = unwrap(
+      addPropertyNode(graph, registry, {
+        id: asNodeId('reader'),
+        propertyId: speedId,
+        position: { x: 0, y: 0 },
+      }),
+    )
+    graph = unwrap(
+      addNode(graph, registry, {
+        id: asNodeId('middle'),
+        type: 'test/pass',
+        position: { x: 100, y: 0 },
+      }),
+    )
+    return unwrap(
+      connect(graph, registry, {
+        id: asEdgeId('e-reader'),
+        from: { nodeId: asNodeId('reader'), portId: 'out' },
+        to: { nodeId: asNodeId('middle'), portId: 'a' },
+      }),
+    )
+  }
+
+  const pasteInto = (target: Graph, withRegistry: boolean) => {
+    const fragment = extractFragment(graphWithReader(), [nodeIdOf('reader'), nodeIdOf('middle')])
+    if (fragment === null) throw new Error('Expected a fragment')
+    return pasteFragment(target, fragment, {
+      offset: { x: 10, y: 10 },
+      createNodeId: createIdFactory('n', asNodeId),
+      createEdgeId: createIdFactory('e', asEdgeId),
+      ...(withRegistry ? { registry } : {}),
+    })
+  }
+
+  it('keeps readers whose property exists in the target graph', () => {
+    const pasted = pasteInto(graphWithReader(), true)
+
+    expect(pasted.droppedNodeIds).toEqual([])
+    expect(pasted.pastedNodeIds).toHaveLength(2)
+    expect(Object.keys(pasted.graph.edges)).toHaveLength(2)
+  })
+
+  it('drops readers of missing properties, with their edges, and reports their ids', () => {
+    const pasted = pasteInto(createGraph(), true)
+
+    expect(pasted.droppedNodeIds).toEqual(['reader'])
+    expect(pasted.pastedNodeIds).toEqual(['n-1'])
+    expect(pasted.graph.nodes[asNodeId('n-1')]?.type).toBe('test/pass')
+    expect(Object.keys(pasted.graph.nodes).sort()).toEqual(['master', 'n-1'])
+    expect(pasted.graph.edges).toEqual({})
+  })
+
+  it('without a registry drops any node carrying a propertyId the graph lacks', () => {
+    const pasted = pasteInto(createGraph(), false)
+
+    expect(pasted.droppedNodeIds).toEqual(['reader'])
+    expect(pasted.pastedNodeIds).toHaveLength(1)
+    expect(pasted.graph.edges).toEqual({})
+  })
+
+  it('without a registry keeps nodes that carry no propertyId', () => {
+    const graph = sampleGraph()
+    const fragment = extractFragment(graph, [nodeIdOf('source'), nodeIdOf('middle')])
+    if (fragment === null) throw new Error('Expected a fragment')
+
+    const pasted = pasteFragment(graph, fragment, {
+      offset: { x: 0, y: 0 },
+      createNodeId: createIdFactory('n', asNodeId),
+      createEdgeId: createIdFactory('e', asEdgeId),
+    })
+
+    expect(pasted.droppedNodeIds).toEqual([])
+    expect(pasted.pastedNodeIds).toHaveLength(2)
   })
 })
 

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { defineNode } from '../registry/define-node'
 import { createNodeRegistry } from '../registry/node-registry'
+import { extractFragment } from '../fragment/extract-fragment'
+import { pasteFragment } from '../fragment/paste-fragment'
 import { parseGraph } from '../serialization/parse-graph'
 import { serializeGraph } from '../serialization/serialize-graph'
 import type { BlackboardProperty } from '../types/blackboard-property'
 import type { Graph } from '../types/graph'
+import type { GraphFragment } from '../fragment/graph-fragment'
 import { MASTER_NODE_ID, asEdgeId, asNodeId, asPropertyId } from '../types/ids'
 import type { Result } from '../types/result'
 import { concrete, float, vec3 } from '../values/port-value-factories'
@@ -113,6 +116,14 @@ const tint: BlackboardProperty = {
 
 const node = (id: string) => asNodeId(id)
 
+const createSequentialId = <T extends string>(prefix: string, brand: (raw: string) => T) => {
+  let counter = 0
+  return () => {
+    counter += 1
+    return brand(`${prefix}-${String(counter)}`)
+  }
+}
+
 /** Every successful step maps a graph to a graph; failures are reported with their step name. */
 type Step = readonly [name: string, apply: (graph: Graph) => Result<Graph, unknown>]
 
@@ -196,6 +207,31 @@ const steps: readonly Step[] = [
   ['setPropertyLabel', (g) => setPropertyLabel(g, speedId, 'Wind speed')],
   ['setPropertyExposed', (g) => setPropertyExposed(g, tintId, false)],
   ['setPropertyValue', (g) => setPropertyValue(g, speedId, float(3))],
+  [
+    'pasteFragment (a reader of a missing property is dropped, the rest is pasted)',
+    (g) => {
+      const fragment = extractFragment(g, [node('speed-reader'), node('tint-reader'), node('pass')])
+      if (fragment === null) throw new Error('Expected a fragment')
+      const withGhostReader: GraphFragment = {
+        ...fragment,
+        nodes: fragment.nodes.map((candidate) =>
+          candidate.id === node('tint-reader')
+            ? { ...candidate, params: { propertyId: 'ghost' } }
+            : candidate,
+        ),
+      }
+      const pasted = pasteFragment(g, withGhostReader, {
+        offset: { x: 5, y: 5 },
+        registry,
+        createNodeId: createSequentialId('pasted', asNodeId),
+        createEdgeId: createSequentialId('pasted-edge', asEdgeId),
+      })
+      expect(pasted.droppedNodeIds).toEqual([node('tint-reader')])
+      expect(pasted.pastedNodeIds).toEqual([node('pasted-1'), node('pasted-2')])
+      return asOk(pasted.graph)
+    },
+  ],
+  ['removeNodes pasted pass copy', (g) => removeNodes(g, [node('pasted-1')])],
   ['disconnect', (g) => asOk(disconnect(g, [asEdgeId('e3')]))],
   ['removeProperty tint (no reader points at it anymore)', (g) => removeProperty(g, tintId)],
   ['removeProperty speed (both readers and their edges go)', (g) => removeProperty(g, speedId)],

@@ -17,6 +17,11 @@ import type { EditorSliceCreator, GraphSlice, Notice } from './store-types'
 
 const MASTER_DELETE_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
 
+const DROPPED_READERS_NOTICE: Notice = {
+  kind: 'info',
+  message: "Some pasted nodes referenced properties that don't exist here and were skipped.",
+}
+
 const CONNECT_FAILED_NOTICE: Notice = { kind: 'error', message: "Couldn't connect those ports." }
 
 /** Core `connect` re-checks the connection, so a failure here is almost always a rejection. */
@@ -110,11 +115,13 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   },
 
   pasteFragment: (fragment, offset) => {
-    const { graph, pastedNodeIds } = pasteFragment(get().graph, fragment, {
+    const { graph, pastedNodeIds, droppedNodeIds } = pasteFragment(get().graph, fragment, {
       offset,
+      registry,
       createNodeId,
       createEdgeId,
     })
+    if (droppedNodeIds.length > 0) set({ notice: DROPPED_READERS_NOTICE })
     if (pastedNodeIds.length === 0) return pastedNodeIds
     set({ graph, selectedNodeIds: pastedNodeIds })
     return pastedNodeIds
