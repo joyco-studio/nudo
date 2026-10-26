@@ -4,6 +4,7 @@ import { createLiveFacade } from './live-facade'
 
 const BUILTIN_NAMES = [
   'time',
+  'deltaTime',
   'uv',
   'normalWorld',
   'normalView',
@@ -26,6 +27,7 @@ describe('createLiveFacade', () => {
       tsl.add(a, b),
       tsl.mul(a, b),
       tsl.sin(a),
+      tsl.cos(a),
       tsl.pow(a, b),
       tsl.oneMinus(a),
       tsl.clamp(a, tsl.construct('float', [0]), tsl.construct('float', [1])),

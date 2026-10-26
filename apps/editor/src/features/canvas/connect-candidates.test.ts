@@ -62,7 +62,12 @@ describe('listConnectCandidates', () => {
   it('lists outputs when starting from an input', () => {
     const found = listConnectCandidates(graph, registry, input(SINE_ID))
 
-    expect(labels(found)).toEqual(['Time › Out · float'])
+    expect(labels(found)).toEqual([
+      'Time › Out · float',
+      'Time › Sine Time · float',
+      'Time › Cosine Time · float',
+      'Time › Delta Time · float',
+    ])
     expect(found[0]?.ref).toEqual({ nodeId: TIME_ID, portId: 'out' })
   })
 

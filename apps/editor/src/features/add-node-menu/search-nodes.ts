@@ -29,6 +29,9 @@ export interface NodeSearchGroup {
   readonly items: readonly AnyNodeDefinition[]
 }
 
+/** Property readers are added from the Blackboard, which gives them the property they read. */
+const isAddable = (definition: AnyNodeDefinition): boolean => definition.reads !== 'property'
+
 function matchesQuery(definition: AnyNodeDefinition, normalizedQuery: string): boolean {
   if (normalizedQuery === '') return true
   const haystack = [definition.label, definition.type, ...definition.keywords]
@@ -44,7 +47,9 @@ export function searchNodes(
   query: string,
 ): readonly NodeSearchGroup[] {
   const normalizedQuery = query.trim().toLowerCase()
-  const matches = definitions.filter((definition) => matchesQuery(definition, normalizedQuery))
+  const matches = definitions.filter(
+    (definition) => isAddable(definition) && matchesQuery(definition, normalizedQuery),
+  )
 
   return ADDABLE_CATEGORIES.flatMap((category) => {
     const items = matches.filter((definition) => definition.category === category)

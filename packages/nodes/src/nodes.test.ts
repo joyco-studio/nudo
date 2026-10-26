@@ -74,10 +74,12 @@ describe('default registry', () => {
       'roughness',
       'normal',
       'opacity',
+      'alphaClip',
     ])
     expect(master?.inputs.filter((input) => input.optional === true).map((i) => i.id)).toEqual([
       'position',
       'normal',
+      'alphaClip',
     ])
   })
 })
@@ -112,15 +114,14 @@ describe('fresnel', () => {
   it('builds the expected expression', () => {
     const { out } = fresnelNode.build({
       tsl: createRecordingFacade(),
-      inputs: { power: 'power' },
-      resolvedTypes: { power: 'float' },
+      inputs: { normal: 'normal', viewDir: 'viewDir', power: 'power' },
+      resolvedTypes: { normal: 'vec3', viewDir: 'vec3', power: 'float' },
       params: {},
       property: null,
     })
 
     expect(out).toBe(
-      'pow(oneMinus(clamp(dot(builtin(normalView),builtin(positionViewDirection)),' +
-        'construct(float,[0]),construct(float,[1]))),power)',
+      'pow(oneMinus(clamp(dot(normal,viewDir),construct(float,[0]),construct(float,[1]))),power)',
     )
   })
 })

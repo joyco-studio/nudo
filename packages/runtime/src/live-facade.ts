@@ -3,6 +3,8 @@ import { Node } from 'three/webgpu'
 import {
   add,
   clamp,
+  cos,
+  deltaTime,
   dot,
   float,
   mix,
@@ -40,6 +42,7 @@ const mulNodes = widen(mul)
 const powNodes = widen(pow)
 const dotNodes = widen(dot)
 const sinNode = widen(sin)
+const cosNode = widen(cos)
 const oneMinusNode = widen(oneMinus)
 const clampNodes = widen(clamp)
 const mixNodes = widen(mix)
@@ -58,6 +61,7 @@ const notImplemented = (name: string): never => {
 
 const BUILTINS: Readonly<Record<BuiltinName, () => LiveNode>> = {
   time: () => time,
+  deltaTime: () => deltaTime,
   uv: () => uv(),
   normalWorld: () => normalWorld,
   normalView: () => normalView,
@@ -85,7 +89,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     mul: (a, b) => mulNodes(a, b),
     div: () => notImplemented('div'),
     sin: (a) => sinNode(a),
-    cos: () => notImplemented('cos'),
+    cos: (a) => cosNode(a),
     abs: () => notImplemented('abs'),
     fract: () => notImplemented('fract'),
     floor: () => notImplemented('floor'),
@@ -110,6 +114,9 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     checker: () => notImplemented('checker'),
     textureSample: () => notImplemented('textureSample'),
     colorSpace: () => notImplemented('colorSpace'),
+    sceneColor: () => notImplemented('sceneColor'),
+    sceneDepthFade: () => notImplemented('sceneDepthFade'),
+    normalFromHeight: () => notImplemented('normalFromHeight'),
     builtin: (name) => BUILTINS[name](),
     construct: (type, parts) => CONSTRUCTORS[type](...parts),
     swizzle: readSwizzle,

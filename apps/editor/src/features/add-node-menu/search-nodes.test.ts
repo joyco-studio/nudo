@@ -73,6 +73,32 @@ describe('searchNodes', () => {
     ])
   })
 
+  it('leaves out property readers, which only the Blackboard can add', () => {
+    const types = searchNodes(allDefinitions, 'property').flatMap((group) =>
+      group.items.map((item) => item.type),
+    )
+
+    expect(types).toEqual([])
+  })
+
+  it('groups the new categories in menu order', () => {
+    const categories = searchNodes(allDefinitions, '').map((group) => group.category)
+
+    expect(categories).toEqual([
+      'input',
+      'math',
+      'interpolation',
+      'logic',
+      'vector',
+      'effects',
+      'texture',
+      'color',
+      'scene',
+      'normal',
+      'utility',
+    ])
+  })
+
   it('returns no groups when nothing matches', () => {
     expect(searchNodes(definitions, 'zzz-no-such-node')).toEqual([])
   })

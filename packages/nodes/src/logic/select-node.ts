@@ -1,19 +1,18 @@
 import { concrete, defineNode, float, generic } from '@nudo-tsl/core'
 import type { CompareOp } from '@nudo-tsl/core'
+import type { EnumOption } from '../shared/resolve-enum-param'
+import { resolveEnumParam } from '../shared/resolve-enum-param'
 
 const TYPE_GROUP = 'T'
 const DEFAULT_COMPARE_OP: CompareOp = 'lt'
 
-const COMPARE_OPTIONS: readonly { readonly value: CompareOp; readonly label: string }[] = [
+const COMPARE_OPTIONS: readonly EnumOption<CompareOp>[] = [
   { value: 'lt', label: '<' },
   { value: 'lte', label: '≤' },
   { value: 'gt', label: '>' },
   { value: 'gte', label: '≥' },
   { value: 'eq', label: '=' },
 ]
-
-const resolveCompareOp = (param: unknown): CompareOp =>
-  COMPARE_OPTIONS.find((option) => option.value === param)?.value ?? DEFAULT_COMPARE_OP
 
 export const selectNode = defineNode({
   type: 'logic/select',
@@ -39,7 +38,7 @@ export const selectNode = defineNode({
   ],
   build: ({ tsl, inputs, params }) => ({
     out: tsl.select(
-      resolveCompareOp(params.op),
+      resolveEnumParam(COMPARE_OPTIONS, params.op, DEFAULT_COMPARE_OP),
       inputs.a,
       inputs.b,
       inputs.whenTrue,

@@ -1,0 +1,37 @@
+import { defineNode } from '@nudo-tsl/core'
+
+const DEFAULT_TITLE = 'Comment'
+const DEFAULT_WIDTH = 320
+const MIN_WIDTH = 120
+const DEFAULT_HEIGHT = 200
+const MIN_HEIGHT = 80
+
+export const commentNode = defineNode({
+  type: 'utility/comment',
+  category: 'utility',
+  label: 'Comment',
+  description: 'A resizable note on the canvas. It does not affect the shader.',
+  keywords: ['comment', 'note', 'annotation', 'label', 'group'],
+  inputs: [],
+  outputs: [],
+  params: [
+    { id: 'title', label: 'Title', kind: 'string', default: DEFAULT_TITLE },
+    {
+      id: 'width',
+      label: 'Width',
+      kind: 'number',
+      default: DEFAULT_WIDTH,
+      min: MIN_WIDTH,
+      hidden: true,
+    },
+    {
+      id: 'height',
+      label: 'Height',
+      kind: 'number',
+      default: DEFAULT_HEIGHT,
+      min: MIN_HEIGHT,
+      hidden: true,
+    },
+  ],
+  build: () => ({}),
+})

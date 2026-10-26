@@ -20,6 +20,7 @@ type MaterialNodeProperty =
   | 'roughnessNode'
   | 'normalNode'
   | 'opacityNode'
+  | 'alphaTestNode'
 
 const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MaterialNodeProperty>> = {
   position: 'positionNode',
@@ -29,6 +30,7 @@ const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MaterialNodeProperty>> = {
   roughness: 'roughnessNode',
   normal: 'normalNode',
   opacity: 'opacityNode',
+  alphaClip: 'alphaTestNode',
 }
 
 export const OPACITY_INPUT: PortKey = portKey({ nodeId: MASTER_NODE_ID, portId: 'opacity' })

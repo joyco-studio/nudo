@@ -2,6 +2,7 @@ import type { VectorType } from './data-type'
 
 export type BuiltinName =
   | 'time'
+  | 'deltaTime'
   | 'uv'
   | 'normalWorld'
   | 'normalView'
@@ -57,6 +58,12 @@ export interface TslFacade<E> {
   /** Samples a texture: vec4. A `null` level samples with automatic mip selection. */
   textureSample(texture: E, uv: E, level: E | null): E
   colorSpace(direction: ColorSpaceDirection, color: E): E
+  /** The color rendered behind the surface at the given screen UV: vec3. */
+  sceneColor(uv: E): E
+  /** 0 at the surface and 1 once the scene behind it is `distance` further away: float. */
+  sceneDepthFade(distance: E): E
+  /** View-space normal from the screen-space derivatives of a height: vec3. */
+  normalFromHeight(height: E, strength: E): E
   builtin(name: BuiltinName): E
   construct(type: VectorType, parts: readonly (E | number)[]): E
   swizzle(value: E, components: Swizzle): E

@@ -6,7 +6,14 @@ import type { PortValue } from '../types/port-value'
 import type { TslFacade } from '../types/tsl-facade'
 
 export type MasterSlot =
-  'position' | 'baseColor' | 'emission' | 'metalness' | 'roughness' | 'normal' | 'opacity'
+  | 'position'
+  | 'baseColor'
+  | 'emission'
+  | 'metalness'
+  | 'roughness'
+  | 'normal'
+  | 'opacity'
+  | 'alphaClip'
 
 export const MASTER_SLOTS: readonly MasterSlot[] = [
   'position',
@@ -16,6 +23,7 @@ export const MASTER_SLOTS: readonly MasterSlot[] = [
   'roughness',
   'normal',
   'opacity',
+  'alphaClip',
 ]
 
 /** What a compilation targets the graph with: a concrete expression type `E` per backend. */

@@ -2,6 +2,7 @@ import type { BuiltinName } from '@nudo-tsl/core'
 
 const FALLBACK_LABELS: Readonly<Record<BuiltinName, string>> = {
   time: 'Time',
+  deltaTime: 'Delta time',
   uv: 'Mesh UV',
   normalWorld: 'World normal',
   normalView: 'View normal',

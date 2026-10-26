@@ -8,6 +8,7 @@ import {
   moveNodes,
   portKey,
   setInputValue,
+  setParam,
   vec3,
 } from '@nudo-tsl/core'
 import type { Graph, PortRef, Result } from '@nudo-tsl/core'
@@ -23,6 +24,7 @@ const DELAY_MS = 150
 const RAPID_UPDATE_GAP_MS = 50
 const ORIGIN = { x: 0, y: 0 }
 const registry = createDefaultRegistry()
+const MASTER_ID = asNodeId('master')
 const BASE_COLOR: PortRef = { nodeId: asNodeId('master'), portId: 'baseColor' }
 const OPACITY: PortRef = { nodeId: asNodeId('master'), portId: 'opacity' }
 
@@ -91,6 +93,29 @@ describe('createCompileScheduler', () => {
     vi.advanceTimersByTime(DELAY_MS * 4)
     expect(buildSpy).toHaveBeenCalledOnce()
     expect(onBuilt).toHaveBeenCalledOnce()
+  })
+
+  it('resizing a comment never rebuilds, while a structural param does', () => {
+    const { buildSpy, scheduler } = setUp()
+    const commentId = asNodeId('note')
+    const graph = withNode(createGraph(), 'note', 'utility/comment')
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    const widened = unwrap(setParam(graph, registry, { nodeId: commentId, paramId: 'width' }, 480))
+    const resized = unwrap(
+      setParam(widened, registry, { nodeId: commentId, paramId: 'height' }, 260),
+    )
+    scheduler.update(resized)
+    vi.advanceTimersByTime(DELAY_MS * 4)
+    expect(buildSpy).toHaveBeenCalledOnce()
+
+    const unlit = unwrap(
+      setParam(resized, registry, { nodeId: MASTER_ID, paramId: 'lighting' }, 'unlit'),
+    )
+    scheduler.update(unlit)
+    vi.advanceTimersByTime(DELAY_MS)
+    expect(buildSpy).toHaveBeenCalledTimes(2)
   })
 
   it('topology change rebuilds once after 150ms even with rapid updates', () => {
