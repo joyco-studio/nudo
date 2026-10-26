@@ -430,6 +430,53 @@ Behavior:
 
 ---
 
+### Task 7b: Custom color picker (user request)
+
+The native OS color picker (`<input type="color">`) is replaced everywhere by a custom picker in the joyco style. Color edits apply **live while dragging**, with no Enter needed.
+
+**Files:**
+- Create: `apps/editor/src/shared/components/color-picker/{color-picker.tsx,saturation-area.tsx,hue-slider.tsx,color-fields.tsx,color-math.ts,color-math.test.ts}`.
+- Modify: `features/canvas/inline-field.tsx` (color field), the main-preview background control, and later consumers (Blackboard/Inspector reuse it).
+
+**Interfaces (Produces):**
+
+```ts
+interface ColorPickerProps {
+  value: readonly [number, number, number]          // linear RGB 0..1 (graph space)
+  onPreview(value: readonly [number, number, number]): void   // live, every change (uses the R21 preview channel for graph inputs)
+  onCommit(value: readonly [number, number, number]): void    // once per gesture / on close → one undo step
+  onCancel(): void                                   // Escape restores the value at open
+  label: string
+}
+// color-math: srgbToHsv, hsvToSrgb, hexToSrgb, srgbToHex, linearToSrgb, srgbToLinear (pure, tested)
+```
+
+Behavior:
+- **Trigger:** a swatch button (`aria-haspopup="dialog"`) opens a Radix Popover with:
+  - a saturation/value area (2D; arrow keys move 1%, Shift 10%);
+  - a hue slider (`role="slider"`, arrows);
+  - a hex text field and R/G/B fields (0–255; quiet focus style);
+  - an eyedropper button only when `window.EyeDropper` exists.
+- **Editing:**
+  - Dragging, arrows or typing call `onPreview` immediately. The material updates live with no compile; value inputs are uniforms.
+  - Closing the popover (click outside, Enter, Tab out) calls `onCommit`, which makes one undo step. Escape calls `onCancel` and returns focus to the swatch.
+- **Style:** joyco tokens, sharp corners, mono labels. Sized to sit next to a node.
+
+- [ ] **Step 1:** Run `get-ui-principle` and `get-ux-principle` for a color picker.
+- [ ] **Step 2: Failing tests:**
+  - unit: color-math round trips (hex↔srgb↔hsv, linear↔srgb within 1/255);
+  - e2e: `dragging in the picker updates the node color and the preview without Enter` (assert `__nudoCompileCount` unchanged and the preview-apply counter rises);
+  - e2e: `keyboard-only: open picker, arrows change hue, Enter commits, one undo restores`;
+  - e2e: `Escape cancels and restores the original color`;
+  - e2e: `hex field accepts #1a2b3c`.
+- [ ] **Step 3:** Run. Expected: FAIL.
+- [ ] **Step 4:** Implement, and remove every `<input type="color">` usage.
+- [ ] **Step 5:** Run the full gate, including e2e.
+- [ ] **Step 6:** Better Design review plus keyboard audit. Screenshot `.context/phase-2/color-picker.png`.
+- [ ] **Step 7:** Commit `feat(editor): add custom live color picker`.
+
+---
+
 ### Task 8: Editor: texture assets
 
 **Files:**
