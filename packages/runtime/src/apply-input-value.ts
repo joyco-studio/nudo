@@ -39,13 +39,15 @@ export function assignUniformValue(
 /**
  * Pushes a new inline value into its live uniform in place, so nothing is recompiled.
  * `missing` means nothing in the material reads the port, so the edit has no visible effect;
- * `mismatch` means the caller must recompile.
+ * `mismatch` means the caller must recompile. A texture value always needs a recompile: texture
+ * inputs have no uniform, so the asset can only change by resolving it again.
  */
 export function applyInputValue(
   uniforms: ReadonlyMap<PortKey, LiveUniform>,
   ref: PortRef,
   value: PortValue,
 ): ApplyInputValueResult {
+  if (value.type === 'texture') return 'mismatch'
   const uniform = uniforms.get(portKey(ref))
   if (uniform === undefined) return 'missing'
   return assignUniformValue(uniform, value)

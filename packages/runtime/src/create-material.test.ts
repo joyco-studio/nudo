@@ -22,7 +22,14 @@ import {
 import type { Graph, NodeRegistry, Result } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import { DataTexture, DoubleSide, FrontSide, Vector3 } from 'three'
-import { MeshBasicNodeMaterial, MeshStandardNodeMaterial, TextureNode } from 'three/webgpu'
+import {
+  MeshBasicNodeMaterial,
+  MeshStandardNodeMaterial,
+  Node,
+  OperatorNode,
+  TextureNode,
+  VarNode,
+} from 'three/webgpu'
 import { describe, expect, it } from 'vitest'
 import { applyBuildInputValue } from './apply-build-input-value'
 import { applyInputValue } from './apply-input-value'
@@ -286,6 +293,14 @@ describe('empty registry', () => {
 
 const MASTER = asNodeId('master')
 
+/** TSL wraps constructed values in a VarNode; this reaches the expression inside it. */
+function unwrapVar(node: Node | null | undefined): Node {
+  if (node === null || node === undefined) throw new Error('Expected a node')
+  const inner: unknown = node instanceof VarNode ? Reflect.get(node, 'node') : node
+  if (!(inner instanceof Node)) throw new Error('Expected a node inside the variable')
+  return inner
+}
+
 const withMasterParam = (
   graph: Graph,
   registry: NodeRegistry,
@@ -314,18 +329,39 @@ describe('master settings', () => {
     expect(build.material?.colorNode).toBeTruthy()
   })
 
-  it('unlit adds emission to the base color and ignores metalness, roughness and normal', () => {
-    const unlit = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
-    const base = createMaterial(unlit, registry)
-    const emissive = createMaterial(
-      unwrap(setInputValue(unlit, { nodeId: MASTER, portId: 'emission' }, vec3(1, 0, 0))),
-      registry,
-    )
+  it('unlit adds emission to the base color', () => {
+    const graph = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
 
-    expect(base.material).not.toHaveProperty('metalnessNode')
-    expect(base.material).not.toHaveProperty('roughnessNode')
-    expect(base.material?.colorNode).not.toBe(emissive.material?.colorNode)
-    expect(base.material).toHaveProperty('opacityNode')
+    const { material } = createMaterial(graph, registry)
+
+    const color = unwrapVar(material?.colorNode)
+    expect(color).toBeInstanceOf(OperatorNode)
+    expect(Reflect.get(color, 'op')).toBe('+')
+  })
+
+  it('unlit ignores metalness, roughness and normal', () => {
+    const unlit = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
+    let connected = withNode(unlit, registry, 'amount', 'input/float')
+    connected = withNode(connected, registry, 'facing', 'input/normal')
+    connected = withEdge(connected, registry, ['amount', 'out'], ['master', 'metalness'])
+    connected = withEdge(connected, registry, ['amount', 'out'], ['master', 'roughness'])
+    connected = withEdge(connected, registry, ['facing', 'out'], ['master', 'normal'])
+
+    const baseline = createMaterial(unlit, registry).material
+    const { material, errors } = createMaterial(connected, registry)
+
+    expect(errors).toEqual([])
+    expect(material).toBeInstanceOf(MeshBasicNodeMaterial)
+    expect(material).not.toHaveProperty('metalnessNode')
+    expect(material).not.toHaveProperty('roughnessNode')
+    expect(material?.normalNode).toBeNull()
+    expect(material?.transparent).toBe(baseline?.transparent)
+    expect(material?.opacityNode).toBeInstanceOf(Node)
+    expect(Reflect.get(material?.opacityNode ?? {}, 'value')).toBe(
+      Reflect.get(baseline?.opacityNode ?? {}, 'value'),
+    )
+    expect(unwrapVar(material?.colorNode)).toBeInstanceOf(OperatorNode)
+    expect(Reflect.get(unwrapVar(material?.colorNode), 'op')).toBe('+')
   })
 
   it('unlit still reads position, opacity and alpha clip', () => {
@@ -423,8 +459,36 @@ describe('properties', () => {
 
     expect(errors).toEqual([])
     expect([...properties.keys()]).toEqual([propertyId])
-    expect(properties.get(propertyId)?.name).toBe('glow')
+    expect(properties.get(propertyId)?.name).toBe('nudo_glow')
     expect(properties.get(propertyId)?.value).toBe(0.25)
+  })
+
+  it.each([
+    ['vec3', 'nudo_vec3'],
+    ['sample', 'nudo_sample'],
+    ['fn', 'nudo_fn'],
+    ['my$glow', 'nudo_my_glow'],
+  ])('property %s reaches the shader as %s', (name, shaderName) => {
+    const graph = unwrap(
+      addProperty(createGraph(), {
+        id: propertyId,
+        label: name,
+        name,
+        exposed: true,
+        type: 'float',
+        value: float(1),
+      }),
+    )
+    const withReader = unwrap(
+      addPropertyNode(graph, registry, { id: asNodeId('reader'), propertyId, position: ORIGIN }),
+    )
+
+    const build = createMaterial(
+      withEdge(withReader, registry, ['reader', 'out'], ['master', 'roughness']),
+      registry,
+    )
+
+    expect(build.properties.get(propertyId)?.name).toBe(shaderName)
   })
 
   it('shares a single uniform between every reader of a property', () => {
@@ -491,6 +555,15 @@ describe('textures', () => {
     expect(build.errors).toEqual([])
     expect(build.material).not.toBeNull()
     expect(build.missingTextures).toEqual(['ghost-asset'])
+  })
+
+  it('changing the asset of an inline texture input asks for a rebuild', () => {
+    const build = createMaterial(withSampledTexture('first'), registry, {
+      resolveTexture: () => realTexture,
+    })
+
+    expect(applyInputValue(build.uniforms, SAMPLE_INPUT, texture('second'))).toBe('mismatch')
+    expect(applyBuildInputValue(build, SAMPLE_INPUT, texture(null))).toBe('mismatch')
   })
 
   it('reports a missing asset once however many readers ask for it', () => {
@@ -579,6 +652,17 @@ describe('textures', () => {
 
 describe('new catalog nodes', () => {
   const registry = createDefaultRegistry()
+
+  it.each(['perlin', 'simplex'] as const)('builds a %s noise node', (kind) => {
+    let graph = withNode(createGraph(), registry, 'noise', 'effects/noise')
+    graph = withEdge(graph, registry, ['noise', 'out'], ['master', 'emission'])
+    graph = unwrap(setParam(graph, registry, { nodeId: asNodeId('noise'), paramId: 'kind' }, kind))
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.material).toBeInstanceOf(MeshStandardNodeMaterial)
+  })
 
   it.each([
     ['effects/noise', 'out'],

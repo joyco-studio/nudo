@@ -41,6 +41,16 @@ function createUniform(value: VectorPortValue): LiveUniform {
   }
 }
 
+const SHADER_NAME_PREFIX = 'nudo_'
+
+/**
+ * The name a property's uniform carries into generated shader code. The prefix keeps a property
+ * called `vec3`, `sample` or `fn` clear of shader keywords and built-ins, and `$` (legal in a
+ * JS identifier) is not legal in WGSL or GLSL.
+ */
+const toShaderName = (propertyName: string): string =>
+  `${SHADER_NAME_PREFIX}${propertyName.replaceAll('$', '_')}`
+
 export function createLiveBackend(options?: MaterialOptions): LiveBackend {
   const uniforms = new Map<PortKey, LiveUniform>()
   const properties = new Map<PropertyId, LiveProperty>()
@@ -50,7 +60,7 @@ export function createLiveBackend(options?: MaterialOptions): LiveBackend {
     const value: PortValue = property.value
     const created =
       value.type === 'texture' ? texture(textures.resolve(value.assetId)) : createUniform(value)
-    return created.setName(property.name)
+    return created.setName(toShaderName(property.name))
   }
 
   return {

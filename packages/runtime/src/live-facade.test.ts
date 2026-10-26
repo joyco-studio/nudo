@@ -1,5 +1,5 @@
 import type { BuiltinName, CompareOp, NoiseKind, Swizzle, TslFacade } from '@nudo-tsl/core'
-import { Node, TextureNode } from 'three/webgpu'
+import { ConditionalNode, Node, OperatorNode, SplitNode, TextureNode, VarNode } from 'three/webgpu'
 import { texture } from 'three/tsl'
 import { DataTexture } from 'three'
 import { describe, expect, it } from 'vitest'
@@ -108,6 +108,19 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ]),
 ]
 
+/** TSL wraps constructed values in a VarNode; this reaches the expression inside it. */
+function unwrapVar(node: unknown): unknown {
+  return node instanceof VarNode ? Reflect.get(node, 'node') : node
+}
+
+const COMPARISON_OPERATORS = {
+  lt: '<',
+  lte: '<=',
+  gt: '>',
+  gte: '>=',
+  eq: '==',
+} as const satisfies Record<CompareOp, string>
+
 describe('createLiveFacade', () => {
   const tsl = createLiveFacade()
   const operands = createOperands(tsl)
@@ -143,5 +156,23 @@ describe('createLiveFacade', () => {
 
   it('refuses to sample something that is not a texture node', () => {
     expect(() => tsl.textureSample(operands.a, operands.vec2, null)).toThrow(/texture/i)
+  })
+
+  it.each(COMPARE_OPS)('select %s compares with the matching operator', (op) => {
+    const { a, b, vec3 } = operands
+
+    const selected = tsl.select(op, a, b, vec3, vec3)
+
+    expect(selected).toBeInstanceOf(ConditionalNode)
+    const condition = unwrapVar(Reflect.get(selected, 'condNode'))
+    if (!(condition instanceof OperatorNode)) throw new Error('Expected a comparison node')
+    expect(Reflect.get(condition, 'op')).toBe(COMPARISON_OPERATORS[op])
+  })
+
+  it.each(SWIZZLES)('swizzle %s reads exactly those components', (components) => {
+    const swizzled = tsl.swizzle(tsl.construct('vec4', [1, 2, 3, 4]), components)
+
+    expect(swizzled).toBeInstanceOf(SplitNode)
+    expect(Reflect.get(swizzled, 'components')).toBe(components)
   })
 })
