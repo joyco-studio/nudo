@@ -30,3 +30,12 @@ export async function readStoredNodes(page: Page): Promise<readonly StoredNode[]
     return node === null ? [] : [node]
   })
 }
+
+/** Counts the edges of the autosave document in localStorage (zero while nothing is saved). */
+export async function readStoredEdgeCount(page: Page): Promise<number> {
+  const rawText = await page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY)
+  if (rawText === null) return 0
+  const document: unknown = JSON.parse(rawText)
+  if (!isRecord(document) || !isRecord(document.edges)) return 0
+  return Object.keys(document.edges).length
+}
