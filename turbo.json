@@ -16,7 +16,8 @@
       "outputs": ["dist/**"]
     },
     "e2e": {
-      "cache": false
+      "cache": false,
+      "passThroughEnv": ["CI"]
     },
     "dev": {
       "cache": false,

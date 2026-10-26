@@ -1,6 +1,7 @@
 import '@fontsource-variable/public-sans'
 import '@fontsource-variable/roboto-mono'
 import './app/globals.css'
+import './app/focus-ring.css'
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

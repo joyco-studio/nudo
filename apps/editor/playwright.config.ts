@@ -9,7 +9,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCi,
   retries: isCi ? 2 : 0,
-  reporter: isCi ? 'github' : 'list',
+  // On CI the HTML report is written to playwright-report/ and uploaded when the job fails.
+  reporter: isCi ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry',

@@ -1,0 +1,25 @@
+/*
+ * nudo-tsl focus indicator (ruling R11). Loaded after the verbatim joyco tokens in globals.css.
+ *
+ * Why unlayered: Tailwind v4 emits preflight, base and utilities inside cascade layers, and
+ * unlayered declarations beat every layered one regardless of specificity or source order. This
+ * single rule therefore wins over `outline-none`, `outline-ring/50`, `ring-ring/50`,
+ * `ring-destructive/20` and anything twMerge leaves on a vendored component, without touching
+ * the tokens or the components.
+ *
+ * Why two tones (WCAG technique C40): an outer foreground outline separated from the element by a
+ * background-colored halo. Foreground and background contrast at ~15:1 or more in both themes, so
+ * against any adjacent color at least one of the two tones reaches about the square root of that
+ * ratio (above 3.8:1), clearing the 3:1 non-text contrast and focus appearance thresholds.
+ */
+:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+
+/* Full-bleed targets (the canvas landmark) would have an outer ring clipped by the viewport. */
+[data-focus-ring='inset']:focus-visible {
+  outline-offset: -4px;
+  box-shadow: inset 0 0 0 2px var(--background);
+}

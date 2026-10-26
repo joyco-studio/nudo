@@ -25,7 +25,8 @@ export function AppShell({ canvas, previewPanel, headerActions }: AppShellProps)
         id={CANVAS_ID}
         aria-label="Node canvas"
         tabIndex={-1}
-        className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground"
+        data-focus-ring="inset"
+        className="absolute inset-0"
       >
         {canvas}
       </main>
@@ -39,7 +40,7 @@ function SkipToCanvasLink() {
   return (
     <a
       href={`#${CANVAS_ID}`}
-      className="absolute top-4 left-4 z-50 flex h-8 -translate-y-16 items-center bg-primary px-3 text-sm font-medium text-primary-foreground focus:translate-y-0 focus:outline-2 focus:outline-offset-2 focus:outline-foreground"
+      className="absolute top-4 left-4 z-50 flex h-8 -translate-y-16 items-center bg-primary px-3 text-sm font-medium text-primary-foreground focus:translate-y-0"
     >
       Skip to canvas
     </a>
@@ -67,18 +68,30 @@ function AppHeader({ actions }: AppHeaderProps) {
   )
 }
 
+/**
+ * APG toggle button: the name stays "Dark theme" and `aria-pressed` carries the state, so the
+ * tooltip can describe the action without repeating the accessible name.
+ */
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
-  const label = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+  const isDark = theme === 'dark'
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="accent" size="icon-sm" aria-label={label} onClick={toggleTheme}>
-          {theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+        <Button
+          variant="accent"
+          size="icon-sm"
+          aria-label="Dark theme"
+          aria-pressed={isDark}
+          onClick={toggleTheme}
+        >
+          {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
+      <TooltipContent side="bottom">
+        {isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      </TooltipContent>
     </Tooltip>
   )
 }

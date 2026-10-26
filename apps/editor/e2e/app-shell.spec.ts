@@ -1,49 +1,131 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
-const THEME_TOGGLE_NAME = /switch to (light|dark) theme/i
+const THEME_STORAGE_KEY = 'nudo-tsl:theme'
 const MAX_TAB_PRESSES = 20
+const THEMES = ['dark', 'light'] as const
 
-async function tabUntilFocused(page: Page, name: RegExp): Promise<void> {
-  const target = page.getByRole('button', { name })
+async function tabUntilFocused(page: Page, target: Locator): Promise<void> {
   for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {
     await page.keyboard.press('Tab')
     const isFocused = await target.evaluate((element) => element === document.activeElement)
     if (isFocused) return
   }
-  throw new Error(`Could not reach the button ${String(name)} with Tab`)
+  throw new Error('Could not reach the target element with Tab')
 }
 
-// Each test gets a fresh browser context, so localStorage starts empty (default theme).
-test.beforeEach(async ({ page }) => {
-  await page.goto('/')
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+async function readThemeToken(page: Page, name: '--foreground' | '--background'): Promise<string> {
+  return page.evaluate(
+    (token) => getComputedStyle(document.documentElement).getPropertyValue(token).trim(),
+    name,
+  )
+}
+
+/** The R11 indicator: a 2px foreground outline plus a background-colored halo. */
+async function expectFocusIndicator(page: Page, target: Locator): Promise<void> {
+  const foreground = await readThemeToken(page, '--foreground')
+  const background = await readThemeToken(page, '--background')
+
+  await expect(target).toBeFocused()
+  await expect(target).toHaveCSS('outline-style', 'solid')
+  await expect(target).toHaveCSS('outline-width', '2px')
+  await expect(target).toHaveCSS('outline-color', foreground)
+  await expect(target).toHaveCSS('box-shadow', new RegExp(`${escapeRegExp(background)}.*2px`))
+}
+
+function shellControls(page: Page) {
+  return {
+    skipLink: page.getByRole('link', { name: 'Skip to canvas' }),
+    themeToggle: page.getByRole('button', { name: 'Dark theme', exact: true }),
+    previewToggle: page.getByRole('button', { name: 'Preview panel', exact: true }),
+    canvas: page.getByRole('main', { name: 'Node canvas' }),
+  }
+}
+
+test.describe('default theme', () => {
+  // Each test gets a fresh browser context, so localStorage starts empty (default theme).
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+  })
+
+  test('shell renders header and preview landmark', async ({ page }) => {
+    await expect(page.getByRole('banner')).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Main preview' })).toBeVisible()
+    await expect(shellControls(page).canvas).toBeVisible()
+  })
+
+  test('theme toggle works by keyboard', async ({ page }) => {
+    const html = page.locator('html')
+    const { themeToggle } = shellControls(page)
+    await expect(html).toHaveClass(/\bdark\b/)
+    await expect(themeToggle).toHaveAttribute('aria-pressed', 'true')
+
+    await tabUntilFocused(page, themeToggle)
+    await page.keyboard.press('Enter')
+    await expect(html).toHaveClass(/\blight\b/)
+    await expect(html).not.toHaveClass(/\bdark\b/)
+    await expect(themeToggle).toHaveAttribute('aria-pressed', 'false')
+
+    await page.reload()
+    await expect(html).toHaveClass(/\blight\b/)
+    await expect(html).not.toHaveClass(/\bdark\b/)
+  })
+
+  test('preview panel collapses with keyboard', async ({ page }) => {
+    const { previewToggle } = shellControls(page)
+    const bodyId = await previewToggle.getAttribute('aria-controls')
+    expect(bodyId).toBeTruthy()
+    const body = page.locator(`[id="${String(bodyId)}"]`)
+    await expect(previewToggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(body).toBeVisible()
+
+    await tabUntilFocused(page, previewToggle)
+    await page.keyboard.press('Enter')
+    await expect(previewToggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(body).toBeHidden()
+
+    await page.keyboard.press('Space')
+    await expect(previewToggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(body).toBeVisible()
+  })
+
+  test('skip link moves focus to the canvas', async ({ page }) => {
+    const { skipLink, canvas } = shellControls(page)
+
+    await page.keyboard.press('Tab')
+    await expect(skipLink).toBeFocused()
+    await expect(skipLink).toBeInViewport()
+
+    await page.keyboard.press('Enter')
+    await expect(canvas).toBeFocused()
+  })
 })
 
-test('shell renders header and preview landmark', async ({ page }) => {
-  await expect(page.getByRole('banner')).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Main preview' })).toBeVisible()
-  await expect(page.getByRole('main', { name: 'Node canvas' })).toBeVisible()
-})
+for (const theme of THEMES) {
+  test(`every shell control shows a high-contrast focus indicator (${theme})`, async ({ page }) => {
+    await page.addInitScript(
+      ([key, value]) => {
+        localStorage.setItem(key, value)
+      },
+      [THEME_STORAGE_KEY, theme] as const,
+    )
+    await page.goto('/')
+    await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`))
+    const { skipLink, themeToggle, previewToggle, canvas } = shellControls(page)
 
-test('theme toggle works by keyboard', async ({ page }) => {
-  const html = page.locator('html')
-  await expect(html).toHaveClass(/\bdark\b/)
+    for (const control of [skipLink, themeToggle, previewToggle]) {
+      await page.keyboard.press('Tab')
+      await expectFocusIndicator(page, control)
+    }
 
-  await tabUntilFocused(page, THEME_TOGGLE_NAME)
-  await page.keyboard.press('Enter')
-  await expect(html).not.toHaveClass(/\bdark\b/)
-
-  await page.reload()
-  await expect(html).not.toHaveClass(/\bdark\b/)
-})
-
-test('preview panel collapses with keyboard', async ({ page }) => {
-  const toggle = page.getByRole('button', { name: /preview/i })
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
-
-  await tabUntilFocused(page, /preview/i)
-  await page.keyboard.press('Enter')
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-
-  await page.keyboard.press('Space')
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
-})
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Enter')
+    await expect(canvas).toBeFocused()
+    await expect(canvas).toHaveCSS('outline-style', 'solid')
+    await expect(canvas).toHaveCSS('outline-offset', '-4px')
+  })
+}
