@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { CANVAS_ID } from '@/app/app-shell'
+import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 
 import { NoticeRegion } from './notice-region'

@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Moon, PanelRightClose, PanelRightOpen, Sun } from 'lucide-react'
 
+import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { Button } from '@/shared/ui/button'
 import { Cluster, Filler } from '@/shared/ui/cluster'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -13,8 +14,6 @@ export interface AppShellProps {
   previewPanel: ReactNode
   headerActions: ReactNode
 }
-
-export const CANVAS_ID = 'node-canvas'
 
 export function AppShell({ canvas, previewPanel, headerActions }: AppShellProps) {
   return (

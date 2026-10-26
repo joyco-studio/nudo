@@ -77,6 +77,10 @@ function ColorField({ label, value, onCommit }: ColorFieldProps) {
         onChange={(event) => {
           setPreviewHex(event.target.value)
         }}
+        // A picker closed without a `change` event must not leave the preview stuck.
+        onBlur={() => {
+          setPreviewHex(null)
+        }}
         className="nodrag size-6 shrink-0 cursor-pointer border border-border bg-transparent p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
       />
     </>

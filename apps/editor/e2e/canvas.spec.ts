@@ -5,6 +5,7 @@ const VEC3_COLOR = 'oklch(0.82 0.16 80)'
 const DRAG_OFFSET = { x: 160, y: 90 }
 const DRAG_STEPS = 8
 const MAX_TAB_PRESSES = 30
+const ANCHOR_TOLERANCE_PX = 0.5
 
 function graphNode(page: Page, name: string): Locator {
   return page.getByRole('group', { name, exact: true })
@@ -24,6 +25,53 @@ async function centerOf(locator: Locator): Promise<{ x: number; y: number }> {
   const box = await locator.boundingBox()
   if (box === null) throw new Error('Element has no bounding box')
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+}
+
+/**
+ * Where React Flow attaches an edge to a handle: the handle's vertical center on its outer edge
+ * (left edge for inputs, right edge for outputs), in viewport pixels.
+ */
+async function handleAnchor(
+  portRow: Locator,
+  side: 'input' | 'output',
+): Promise<{ x: number; y: number }> {
+  const box = await portRow.locator('.react-flow__handle').boundingBox()
+  if (box === null) throw new Error('Handle has no bounding box')
+  return { x: side === 'input' ? box.x : box.x + box.width, y: box.y + box.height / 2 }
+}
+
+/** First and last point of an SVG edge path, in viewport pixels. */
+async function edgeEndpoints(
+  path: Locator,
+): Promise<[{ x: number; y: number }, { x: number; y: number }]> {
+  return path.evaluate((element) => {
+    if (!(element instanceof SVGPathElement)) throw new Error('Not an SVG path')
+    const matrix = element.getScreenCTM()
+    if (matrix === null) throw new Error('Path is not rendered')
+    const toViewport = (point: DOMPoint) => {
+      const { x, y } = point.matrixTransform(matrix)
+      return { x, y }
+    }
+    return [
+      toViewport(element.getPointAtLength(0)),
+      toViewport(element.getPointAtLength(element.getTotalLength())),
+    ]
+  })
+}
+
+/** Reads one inline value from the autosave document in localStorage. */
+async function storedInputValue(page: Page, nodeId: string, portId: string): Promise<unknown> {
+  const rawText = await page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY)
+  if (rawText === null) return null
+  const document: unknown = JSON.parse(rawText)
+  if (!isRecord(document) || !isRecord(document.nodes)) return null
+  const node = document.nodes[nodeId]
+  if (!isRecord(node) || !isRecord(node.inputValues)) return null
+  return node.inputValues[portId] ?? null
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
 /** React Flow tracks pointer moves, so the drag needs intermediate steps. */
@@ -64,6 +112,8 @@ test.describe('seeded canvas', () => {
 
     await expect(master.getByRole('heading', { name: 'Vertex' })).toBeVisible()
     await expect(master.getByRole('heading', { name: 'Fragment' })).toBeVisible()
+    await expect(master.getByRole('group', { name: 'Fragment' })).toContainText('Base Color')
+    await expect(page.getByRole('region', { name: 'Fragment' })).toHaveCount(0)
     await expect(port(color, 'out')).toContainText('3')
     await expect(port(master, 'baseColor')).toContainText('3')
     await expect(port(master, 'roughness')).toContainText('1')
@@ -179,10 +229,31 @@ test.describe('seeded canvas', () => {
     await swatch.fill('#00ff00')
 
     await expect
-      .poll(() => page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY))
-      .toContain(
-        '"emission": {\n          "type": "vec3",\n          "value": [\n            0,\n            1,\n            0\n          ]',
-      )
+      .poll(() => storedInputValue(page, 'master', 'emission'))
+      .toEqual({ type: 'vec3', value: [0, 1, 0] })
+  })
+})
+
+test.describe('with motion enabled', () => {
+  test.use({ reducedMotion: 'no-preference' })
+
+  test('edges stay anchored to their port dots after nodes appear', async ({ page }) => {
+    await seedAutosave(page, COLOR_TO_BASE_COLOR)
+    await page.goto('/')
+    const color = graphNode(page, 'Color')
+    await waitForSettledLayout(page, color)
+
+    const [start, end] = await edgeEndpoints(page.locator('.react-flow__edge-path'))
+    const source = await handleAnchor(port(color, 'out'), 'output')
+    const target = await handleAnchor(port(graphNode(page, 'Master Stack'), 'baseColor'), 'input')
+
+    for (const [actual, expected] of [
+      [start, source],
+      [end, target],
+    ] as const) {
+      expect(Math.abs(actual.x - expected.x)).toBeLessThanOrEqual(ANCHOR_TOLERANCE_PX)
+      expect(Math.abs(actual.y - expected.y)).toBeLessThanOrEqual(ANCHOR_TOLERANCE_PX)
+    }
   })
 })
 

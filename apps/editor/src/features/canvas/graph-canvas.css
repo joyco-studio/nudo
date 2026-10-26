@@ -73,6 +73,11 @@
     fill: currentColor;
   }
 
+  /* The edge label layer ignores the pointer; the marker opts back in so its title shows. */
+  .graph-canvas .typed-edge-marker {
+    pointer-events: all;
+  }
+
   .graph-canvas .react-flow__attribution {
     font-family: var(--font-mono);
     font-size: 10px;
@@ -83,7 +88,7 @@
   }
 }
 
-/* Appear and connect transitions: opacity and transform only, at most 150 ms. */
+/* Appear and connect transitions: opacity only, at most 150 ms. */
 @media (prefers-reduced-motion: no-preference) {
   .graph-node {
     animation: graph-node-appear 150ms ease-out;
@@ -95,10 +100,13 @@
   }
 }
 
+/*
+ * Opacity only: React Flow measures handle positions once, when the node mounts, and a transform
+ * never triggers a re-measure, so a scale-in would leave edges a few pixels off the port dots.
+ */
 @keyframes graph-node-appear {
   from {
     opacity: 0;
-    transform: scale(0.98);
   }
 }
 

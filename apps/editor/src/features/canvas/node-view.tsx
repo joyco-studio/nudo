@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useId } from 'react'
 import type { DataType, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
@@ -12,7 +12,6 @@ import { PortHandle, PortTypeLabel } from './port-handle'
 import { nodeTitle } from './to-flow'
 import type { FlowNode, FlowNodeData } from './to-flow'
 
-/** Master Stack inputs that run in the vertex stage; every other input is a fragment input. */
 /**
  * The header is the drag handle, so its description waits a beat and keeps clear of the pointer:
  * a tooltip under the cursor would swallow the press that starts a drag.
@@ -20,6 +19,7 @@ import type { FlowNode, FlowNodeData } from './to-flow'
 const DESCRIPTION_DELAY_MS = 500
 const DESCRIPTION_OFFSET_PX = 8
 
+/** Master Stack inputs that run in the vertex stage; every other input is a fragment input. */
 const VERTEX_INPUT_IDS: ReadonlySet<string> = new Set(['position'])
 
 interface PortGroup {
@@ -87,21 +87,28 @@ function OutputRow({ output, dataType }: OutputRowProps) {
   )
 }
 
+/** A titled group (Master Stack "Vertex", "Fragment") is a labelled group, not a landmark. */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
+  const headingId = useId()
   if (group.inputs.length === 0) return null
+  const list = (
+    <ul>
+      {group.inputs.map((input) => (
+        <InputRow key={input.id} data={data} input={input} />
+      ))}
+    </ul>
+  )
+  if (group.title === null) return list
   return (
-    <section aria-label={group.title ?? undefined}>
-      {group.title !== null && (
-        <h3 className="px-3 pt-2 pb-0.5 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-          {group.title}
-        </h3>
-      )}
-      <ul>
-        {group.inputs.map((input) => (
-          <InputRow key={input.id} data={data} input={input} />
-        ))}
-      </ul>
-    </section>
+    <div role="group" aria-labelledby={headingId}>
+      <h3
+        id={headingId}
+        className="px-3 pt-2 pb-0.5 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase"
+      >
+        {group.title}
+      </h3>
+      {list}
+    </div>
   )
 }
 
