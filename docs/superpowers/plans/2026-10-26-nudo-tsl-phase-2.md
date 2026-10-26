@@ -107,7 +107,8 @@ type ParamDefinition =
 // NodeDefinition gains: readonly params?: readonly ParamDefinition[]; readonly reads?: 'property'
 type PropertyId = Brand<string, 'PropertyId'>; const asPropertyId: (raw: string) => PropertyId  // R1 site
 type PropertyType = 'float' | 'vec2' | 'vec3' | 'vec4' | 'texture'
-interface BlackboardProperty { readonly id: PropertyId; readonly name: string; readonly type: PropertyType; readonly widget?: 'color'; readonly value: PortValue }
+interface BlackboardProperty { readonly id: PropertyId; readonly label: string; readonly name: string; readonly exposed: boolean; readonly type: PropertyType; readonly widget?: 'color'; readonly value: PortValue }
+// label: free display text; name: JS identifier (uniform/reference name); exposed=false → codegen inlines the value as a constant
 // Graph: readonly schemaVersion: 2; readonly properties: readonly BlackboardProperty[]
 const CURRENT_SCHEMA_VERSION = 2
 const DEFAULT_MIGRATIONS: readonly Migration[]   // [{ from: 1, migrate: identity (properties stays []) }]
@@ -115,7 +116,9 @@ function isValidIdentifier(name: string): boolean  // JS identifier, not a reser
 type PropertyError = { code: 'invalid-name'; name: string } | { code: 'duplicate-name'; name: string } | { code: 'property-not-found'; id: PropertyId } | { code: 'type-mismatch' }
 function setParam(graph: Graph, registry: NodeRegistry, ref: { nodeId: NodeId; paramId: string }, value: ParamValue): Result<Graph, GraphError>
 function addProperty(graph: Graph, property: BlackboardProperty): Result<Graph, PropertyError>
-function renameProperty(graph: Graph, id: PropertyId, name: string): Result<Graph, PropertyError>
+function renameProperty(graph: Graph, id: PropertyId, name: string): Result<Graph, PropertyError>   // reference name
+function setPropertyLabel(graph: Graph, id: PropertyId, label: string): Result<Graph, PropertyError>
+function setPropertyExposed(graph: Graph, id: PropertyId, exposed: boolean): Result<Graph, PropertyError>
 function setPropertyValue(graph: Graph, id: PropertyId, value: PortValue): Result<Graph, PropertyError>
 function removeProperty(graph: Graph, id: PropertyId): Result<Graph, PropertyError>   // also removes nodes whose params.propertyId === id, and their edges
 ```
@@ -256,7 +259,14 @@ Every definition has a one-sentence `description` and `keywords` (e.g. Select: `
 | `texture/sample-texture-2d` | texture texture (default `{type:'texture', assetId:null}`), uv vec2 `(0,0)`, level float `0`; param mip auto/level | outputs rgba vec4, rgb vec3, a float |
 | `color/color-space` | in vec3 `(1,1,1)` widget color; param direction | colorSpace |
 | `utility/comment` | no ports; params `title` string (default `Comment`), hidden numbers `width` (default 320, min 120) and `height` (default 200, min 80) | build returns {} |
-| `master/stack` | adds param `lighting` enum standard/unlit (default standard) | unchanged |
+| `master/stack` | adds params `lighting` enum standard/unlit (default standard), `surface` enum auto/opaque/transparent (default auto), `twoSided` boolean (default false); adds optional float slot `alphaClip` ("Alpha Clip Threshold") | unchanged |
+| `input/time` (changed) | — | outputs time, sineTime, cosineTime (float), deltaTime (builtin `deltaTime`) |
+| `effects/fresnel` (changed) | normal vec3 fallback normalView, viewDir vec3 fallback positionViewDirection, power float `5` | same formula using the inputs |
+| `scene/scene-color` | uv vec2 fallback screenUV, offset vec2 `(0,0)` | vec3 `sceneColor(uv + offset)` |
+| `scene/depth-fade` | distance float `1` | float: clamp((sceneLinearDepth − surfaceLinearDepth) / distance, 0, 1) |
+| `normal/normal-from-height` | height float `0`, strength float `1` | vec3 view-space normal from height derivatives |
+
+New facade members for these: builtins `deltaTime`; `sceneColor(uv: E): E`; `sceneDepthFade(distance: E): E`; `normalFromHeight(height: E, strength: E): E` — add to the core facade, recording facade and runtime stubs in this task (Task 5 implements them; Task 6 emits them). New categories: `scene`, `normal` in `NodeCategory`.
 
 Unconnected UV defaults: an input whose `default` is `(0,0)` and whose definition has `widget: undefined` and id `uv` gets mesh UV. Add an `InputDefinition.fallback?: BuiltinName`: when the input is unconnected, the compiler uses `tsl.builtin(fallback)` instead of an inline uniform. The inline field shows "Mesh UV" (like "Mesh default" in phase 1). Add this to core in this task, with a compile test.
 
@@ -297,6 +307,8 @@ function createPreviewMaterial(graph: Graph, registry: NodeRegistry, ref: PortRe
 Mapping notes:
 - `noise('perlin')` → `mx_noise_float`; `noise('simplex')` → the local simplex `Fn`.
 - `voronoi` → `mx_worley_noise_vec2(p, jitter)`.
+- `sceneColor` → `viewportSharedTexture(uv)`; `sceneDepthFade` → `viewportDepthTexture` + `linearDepth`/`perspectiveDepthToViewZ` vs the fragment's view Z; `normalFromHeight` → `bumpMap`-style derivatives (`dFdx`/`dFdy`) — verify against three 0.186 source.
+- Master `surface` overrides the auto transparency (opaque → never transparent; transparent → always); `twoSided` → `side = DoubleSide`; `alphaClip` slot → `alphaTestNode`.
 - `checker` → TSL `checker`.
 - `colorSpace` → `sRGBTransferEOTF` / `sRGBTransferOETF`.
 - `fwidth` → `fwidth`.
@@ -385,6 +397,9 @@ Behavior:
 - **Panels:** collapse and expand with header buttons (`aria-expanded`) and with B/I/P/C (Global Constraints).
 - **Enum params** render as a compact select in the node body (Radix Select from shared/ui, or a native `<select>` styled with joyco tokens; keyboard operable).
 - **Master lighting = unlit:** Metalness, Roughness and Normal rows render disabled with the hint "Unlit ignores this".
+- **Property nodes** render as compact pills: one row with the label, type chip and output port, no body.
+- **Node collapse:** a chevron button in the node header (`aria-expanded`) hides unconnected ports; this is a hidden boolean param `collapsed` on every node (editor-managed; add it in core as a universal param that every definition accepts implicitly, or as UI state persisted in `params`. Decide, and keep `topologyKey` free of it so collapsing never recompiles).
+- **Main Preview backdrop:** a select None / Checker room (a floor and back wall with a checker texture) so Scene Color and Depth Fade have something behind the surface. Persist it with the panel prefs.
 - **Comment nodes:**
   - a resizable frame (React Flow `NodeResizer`) with an editable title (text input, quiet focus);
   - render behind other nodes;
@@ -396,6 +411,9 @@ Behavior:
   - `panels toggle with B/I/P/C and persist after reload`.
   - `select node op changes via keyboard and recompiles`.
   - `unlit disables metalness/roughness/normal rows`.
+  - `property node renders as a pill`.
+  - `collapsing a node hides unconnected ports and does not recompile`.
+  - `checker room backdrop renders behind the preview mesh`.
   - `comment node can be added, titled and resized by keyboard` (the resizer offers keyboard handles; otherwise width/height fields in the Inspector satisfy this in Task 10, so note that and test there).
 - [ ] **Step 3:** Run. Expected: FAIL.
 - [ ] **Step 4:** Implement.
@@ -444,7 +462,7 @@ Behavior:
 - Modify: the store (property actions wrapping the core ops, plus a combined `removeProperty` that is one history entry), and `to-flow.ts` (property node label = property name, with the type chip).
 
 Behavior:
-- **List:** each property shows name, type chip and value editor (number, vector, color, texture field).
+- **List:** each property shows its label, type chip and value editor (number, vector, color, texture field). Expanding a row (disclosure) shows Reference name, Exposed checkbox and default value, like Unity's Blackboard. Renaming the label suggests a matching reference name only while the reference is still the auto-generated default.
 - **Add:** "+" opens a menu of types; the new property gets a unique default name (`float1`, `color1`, …).
 - **Rename:** inline. Validation errors are announced and linked with `aria-describedby`; Escape reverts (Review Focus 3).
 - **Delete:** a button, plus Delete on a focused row.
@@ -513,6 +531,7 @@ Behavior:
   - A value change applies uniforms with no rebuild.
   - Time-dependent previews re-render at ≤ `fps` and only when visible (IntersectionObserver on the node canvas).
   - At most `budgetPerFrame` renders per animation frame, round-robin.
+- **Preview mode:** auto picks a sphere (3D) when the upstream subgraph uses Normal, Position, View Direction, Fresnel or Normal From Height, else a quad (2D); a per-node override (auto/2D/3D) lives in the Inspector and in the hidden param `previewMode`. Previews are drawn as circles like Unity (round mask) for 3D, squares for 2D.
 - **UI:** previews show below the node body as a 96px square (Master has none). The toggle comes from the Inspector, plus an icon button in the node header with `aria-pressed`. Errors show a hatched "No preview" state.
 
 - [ ] **Step 1: Failing tests:**

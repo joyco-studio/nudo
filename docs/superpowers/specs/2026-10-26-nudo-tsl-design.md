@@ -533,3 +533,21 @@ Paridad verificada en tests importando el módulo generado contra `three/tsl` re
 - **Presets** para artistas: los ejemplos se abren como punto de partida.
 - **Plugins de la comunidad:** registrar nodos propios con la API de `defineNode`, cargados como módulos.
 - **Servidor MCP** *(idea del usuario, ver la memoria de competidores)*: para que un agente (Claude Code) lea, cree y edite grafos con las operaciones puras de `core` y el formato JSON, y el usuario retoque visualmente. Es el diferencial frente a TSL Graph.
+
+### 15.6 Ideas tomadas de Unity Shader Graph (videos y docs que compartió el usuario, 2026-10-26)
+
+Se incorporan a la fase 2:
+- **Propiedades del Blackboard con display name y referencia:** `label` (texto libre, lo que ve el usuario) y `name` (identificador, el nombre del uniform exportado), más **`exposed`**. Las no expuestas se exportan inlineadas como constante, no como uniform.
+- **Nodos de propiedad compactos** ("pills"): una sola fila con nombre, tipo y salida, sin cuerpo.
+- **Time con varias salidas:** Time, Sine Time, Cosine Time y Delta Time.
+- **Fresnel con entradas Normal y View Dir**, que por defecto toman los builtins (mismo mecanismo `fallback` que UV).
+- **Master Stack:** se suman los params `twoSided` (boolean) y `surface` (auto / opaque / transparent), más un slot **Alpha Clip Threshold** (`alphaTestNode`, opcional).
+- **Colapsar nodo:** un chevron en el header oculta los puertos sin conectar.
+- **Preview por nodo 2D/3D:** modo auto. Es esfera si aguas arriba hay Normal, Position, View Direction o Fresnel, y quad en el resto. Se puede forzar por nodo.
+- **Nodos de escena para agua estilizada con refracción y espuma:**
+  - **Scene Color** (`viewportSharedTexture` en `screenUV`, más un offset);
+  - **Depth Fade** (diferencia de profundidad lineal entre la escena y la superficie, con distancia);
+  - **Normal From Height** (normal a partir de un valor float, vía derivadas o `bumpMap`).
+- **Main Preview con fondo de escena** (ninguno / piso y pared con checker), para que Scene Color y Depth Fade tengan algo detrás.
+
+Se dejan para después: inputs inline afuera del nodo a la izquierda (estilo Unity) y Precision por propiedad.
