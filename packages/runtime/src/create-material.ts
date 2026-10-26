@@ -31,14 +31,26 @@ const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MaterialNodeProperty>> = {
   opacity: 'opacityNode',
 }
 
-const OPACITY_INPUT = portKey({ nodeId: MASTER_NODE_ID, portId: 'opacity' })
+export const OPACITY_INPUT: PortKey = portKey({ nodeId: MASTER_NODE_ID, portId: 'opacity' })
+
+const FULLY_OPAQUE = 1
+
+/** Whether an inline opacity needs the transparent render path to show. */
+export const isTranslucent = (opacity: number): boolean => opacity < FULLY_OPAQUE
 
 const isOpacityConnected = (graph: Graph): boolean =>
   Object.values(graph.edges).some((edge) => portKey(edge.to) === OPACITY_INPUT)
 
+/** An unconnected opacity reads from a uniform; a connected one has none and is always blended. */
+function isInlineOpacityTranslucent(uniforms: ReadonlyMap<PortKey, LiveUniform>): boolean {
+  const inlineOpacity = uniforms.get(OPACITY_INPUT)?.value
+  return typeof inlineOpacity === 'number' && isTranslucent(inlineOpacity)
+}
+
 function buildMaterial(
   slots: Partial<Record<MasterSlot, LiveNode>>,
   graph: Graph,
+  uniforms: ReadonlyMap<PortKey, LiveUniform>,
 ): MeshStandardNodeMaterial {
   const material = new MeshStandardNodeMaterial()
   for (const slot of MASTER_SLOTS) {
@@ -48,7 +60,7 @@ function buildMaterial(
     // satisfied by a type-erased LiveNode (the graph's types are only known at runtime).
     Object.assign(material, { [SLOT_PROPERTIES[slot]]: expression })
   }
-  material.transparent = isOpacityConnected(graph)
+  material.transparent = isOpacityConnected(graph) || isInlineOpacityTranslucent(uniforms)
   return material
 }
 
@@ -68,7 +80,7 @@ export function createMaterial(graph: Graph, registry: NodeRegistry): MaterialBu
     return { material: null, uniforms: new Map(), errors }
   }
   return {
-    material: buildMaterial(result.output.slots, graph),
+    material: buildMaterial(result.output.slots, graph, backend.uniforms),
     uniforms: backend.uniforms,
     errors: [],
   }

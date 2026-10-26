@@ -1,7 +1,7 @@
 import { portKey, topologyKey } from '@nudo-tsl/core'
 import type { Graph, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
-import { applyInputValue } from '@nudo-tsl/runtime'
-import type { ApplyInputValueResult, LiveUniform, MaterialBuild } from '@nudo-tsl/runtime'
+import { applyBuildInputValue } from '@nudo-tsl/runtime'
+import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 
 export interface CompileSchedulerOptions {
   /** Quiet period before a topology change is compiled. */
@@ -64,7 +64,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
   /** The graph whose topology and inline values the current build reflects. */
   let builtGraph: Graph | null = null
   let builtKey: string | null = null
-  let builtUniforms: ReadonlyMap<PortKey, LiveUniform> = new Map()
+  let builtMaterial: MaterialBuild | null = null
   /**
    * True once a value could not be applied in place. The pending rebuild is then owed to the
    * material, so returning to the built topology must not cancel it.
@@ -85,7 +85,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     const build = options.build(graph)
     builtGraph = graph
     builtKey = topologyKey(graph)
-    builtUniforms = build.uniforms
+    builtMaterial = build
     options.onBuilt(build)
   }
 
@@ -93,6 +93,9 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     cancelPendingRebuild()
     pendingTimer = setTimeout(rebuild, options.delayMs)
   }
+
+  const applyToBuilt = (ref: PortRef, value: PortValue): ApplyInputValueResult =>
+    builtMaterial === null ? 'missing' : applyBuildInputValue(builtMaterial, ref, value)
 
   /**
    * Returns false when some value needs a rebuild. A value with no uniform (its node cannot
@@ -102,7 +105,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     const changes = diffInlineValues(previous, next)
     if (changes === null) return false
     // Every change is applied, even after one mismatches: the rebuild replaces them all anyway.
-    const outcomes = changes.map(({ ref, value }) => applyInputValue(builtUniforms, ref, value))
+    const outcomes = changes.map(({ ref, value }) => applyToBuilt(ref, value))
     return !outcomes.includes('mismatch')
   }
 
@@ -127,7 +130,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     },
     previewValue(ref, value) {
       if (isDisposed) return 'missing'
-      return applyInputValue(builtUniforms, ref, value)
+      return applyToBuilt(ref, value)
     },
     dispose() {
       isDisposed = true

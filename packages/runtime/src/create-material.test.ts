@@ -9,6 +9,7 @@ import {
   defineNode,
   float,
   portKey,
+  setInputValue,
   vec3,
   vec4,
 } from '@nudo-tsl/core'
@@ -16,6 +17,7 @@ import type { Graph, NodeRegistry, Result } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import { Vector3 } from 'three'
 import { describe, expect, it } from 'vitest'
+import { applyBuildInputValue } from './apply-build-input-value'
 import { applyInputValue } from './apply-input-value'
 import { createMaterial } from './create-material'
 
@@ -152,6 +154,16 @@ describe('createMaterial', () => {
     expect(build.material?.opacityNode).toBeTruthy()
   })
 
+  it('an inline opacity below 1 sets transparent, and 1 does not', () => {
+    const registry = createDefaultRegistry()
+    const opacity = { nodeId: asNodeId('master'), portId: 'opacity' }
+    const translucent = unwrap(setInputValue(createGraph(), opacity, float(0.5)))
+    const opaque = unwrap(setInputValue(createGraph(), opacity, float(1)))
+
+    expect(createMaterial(translucent, registry).material?.transparent).toBe(true)
+    expect(createMaterial(opaque, registry).material?.transparent).toBe(false)
+  })
+
   it('maps connected builtins and optional slots onto the material', () => {
     const registry = createDefaultRegistry()
     const withNormal = withEdge(
@@ -196,6 +208,61 @@ describe('createMaterial', () => {
 
     expect(build.errors).toEqual([])
     expect(build.material).not.toBeNull()
+  })
+})
+
+describe('applyBuildInputValue', () => {
+  const opacity = { nodeId: asNodeId('master'), portId: 'opacity' }
+
+  it('toggles transparent and rebuilds the pipeline only when opacity crosses 1', () => {
+    const build = createMaterial(createGraph(), createDefaultRegistry())
+    const { material } = build
+    if (material === null) throw new Error('Expected a material')
+    const versionBefore = material.version
+
+    expect(applyBuildInputValue(build, opacity, float(0.4))).toBe('applied')
+    expect(material.transparent).toBe(true)
+    expect(material.version).toBe(versionBefore + 1)
+
+    // Still translucent: nothing about the pipeline changes.
+    expect(applyBuildInputValue(build, opacity, float(0.8))).toBe('applied')
+    expect(material.transparent).toBe(true)
+    expect(material.version).toBe(versionBefore + 1)
+
+    expect(applyBuildInputValue(build, opacity, float(1))).toBe('applied')
+    expect(material.transparent).toBe(false)
+    expect(material.version).toBe(versionBefore + 2)
+    expect(build.uniforms.get(portKey(opacity))?.value).toBe(1)
+  })
+
+  it('leaves transparent alone for other inputs', () => {
+    const build = createMaterial(createGraph(), createDefaultRegistry())
+    const roughness = { nodeId: asNodeId('master'), portId: 'roughness' }
+    const versionBefore = build.material?.version
+
+    expect(applyBuildInputValue(build, roughness, float(0.1))).toBe('applied')
+    expect(build.material?.transparent).toBe(false)
+    expect(build.material?.version).toBe(versionBefore)
+  })
+
+  it('keeps a connected opacity transparent', () => {
+    const registry = createDefaultRegistry()
+    const graph = withEdge(
+      withNode(createGraph(), registry, 'alpha', 'input/float'),
+      registry,
+      ['alpha', 'out'],
+      ['master', 'opacity'],
+    )
+    const build = createMaterial(graph, registry)
+
+    expect(applyBuildInputValue(build, opacity, float(1))).toBe('missing')
+    expect(build.material?.transparent).toBe(true)
+  })
+
+  it('reports a missing uniform for a build that failed', () => {
+    const build = createMaterial(createGraph(), createNodeRegistry())
+
+    expect(applyBuildInputValue(build, opacity, float(0.5))).toBe('missing')
   })
 })
 

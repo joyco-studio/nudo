@@ -278,7 +278,7 @@ El Code Node (fase 4) es la única vía de escape:
 | Metalness | `metalnessNode` |
 | Roughness | `roughnessNode` |
 | Normal | `normalNode` |
-| Opacity | `opacityNode` (+ `transparent = true` si está conectado) |
+| Opacity | `opacityNode` (+ `transparent = true` si está conectado o si su valor inline es < 1) |
 
 - Los slots `Position` y `Normal` sin conectar no se asignan, así el material usa su default. Los demás slots tienen un valor inline (uniform), igual que en Unity.
 

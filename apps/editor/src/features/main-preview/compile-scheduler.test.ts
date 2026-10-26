@@ -24,6 +24,7 @@ const RAPID_UPDATE_GAP_MS = 50
 const ORIGIN = { x: 0, y: 0 }
 const registry = createDefaultRegistry()
 const BASE_COLOR: PortRef = { nodeId: asNodeId('master'), portId: 'baseColor' }
+const OPACITY: PortRef = { nodeId: asNodeId('master'), portId: 'opacity' }
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -207,6 +208,35 @@ describe('createCompileScheduler', () => {
     vi.advanceTimersByTime(DELAY_MS * 4)
 
     expect(buildSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('an opacity edit across 1 switches the transparent path without a rebuild', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp()
+    const graph = createGraph()
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+    const material = onBuilt.mock.calls[0]?.[0].material
+    expect(material?.transparent).toBe(false)
+
+    const translucent = unwrap(setInputValue(graph, OPACITY, float(0.3)))
+    scheduler.update(translucent)
+    expect(material?.transparent).toBe(true)
+
+    scheduler.update(unwrap(setInputValue(translucent, OPACITY, float(1))))
+    expect(material?.transparent).toBe(false)
+    vi.advanceTimersByTime(DELAY_MS * 4)
+    expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('previewing an opacity below 1 makes the material transparent at once', () => {
+    const { onBuilt, scheduler } = setUp()
+    scheduler.update(createGraph())
+    vi.advanceTimersByTime(DELAY_MS)
+    const material = onBuilt.mock.calls[0]?.[0].material
+
+    scheduler.previewValue(OPACITY, float(0.5))
+
+    expect(material?.transparent).toBe(true)
   })
 
   it('previewValue applies a value to its uniform without a rebuild or a graph change', () => {
