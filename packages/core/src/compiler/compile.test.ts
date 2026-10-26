@@ -488,4 +488,34 @@ describe('compile', () => {
 
     expect(receivedValues.get('t:map')).toEqual(storedTexture)
   })
+
+  it('a backend whose inputValue throws yields build-failed on that node', () => {
+    const registry = createRegistry()
+    const graph = withNodes(registry, [['c', 'test/color']])
+    const throwingBackend: CompileBackend<string> = {
+      tsl: stringFacade,
+      inputValue: (ref) => {
+        if (ref.nodeId === 'c') throw new Error('uniform failed')
+        return `u(${ref.nodeId}:${ref.portId})`
+      },
+    }
+
+    const result = compile(
+      unwrap(
+        connect(graph, registry, {
+          id: asEdgeId('e1'),
+          from: { nodeId: asNodeId('c'), portId: 'out' },
+          to: { nodeId: MASTER_NODE_ID, portId: 'baseColor' },
+        }),
+      ),
+      registry,
+      throwingBackend,
+      { kind: 'master' },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      errors: [{ nodeId: 'c', code: 'build-failed', message: 'uniform failed' }],
+    })
+  })
 })

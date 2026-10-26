@@ -84,11 +84,15 @@ export function compile<E>(
     input: InputDefinition<string>,
     ref: PortRef,
     inputType: DataType,
-  ): E => {
+  ): Outcome<E> => {
     const stored = node.inputValues[input.id] ?? input.default
     // Textures have no conversion: the stored value is handed to the backend as is.
     const value = inputType === 'texture' ? stored : convertValue(stored, inputType)
-    return backend.inputValue(ref, value, input.widget)
+    try {
+      return ok(backend.inputValue(ref, value, input.widget))
+    } catch (error) {
+      return fail(node.id, 'build-failed', describeError(error))
+    }
   }
 
   const resolveInput = (node: GraphNode, input: InputDefinition<string>): Outcome<E> => {
@@ -98,7 +102,7 @@ export function compile<E>(
       return fail(node.id, 'unresolved-type', `Input ${portKey(ref)} has no resolved type`)
     }
     const edge = incomingByInput.get(portKey(ref))
-    if (edge === undefined) return ok(resolveInline(node, input, ref, inputType))
+    if (edge === undefined) return resolveInline(node, input, ref, inputType)
     return resolveConnected(ref, edge, inputType)
   }
 
