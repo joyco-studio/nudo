@@ -1,23 +1,27 @@
+import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
+import { NoticeRegionContainer } from '@/features/notice/notice-region-container'
+import { useGlobalShortcuts } from '@/features/shortcuts/use-global-shortcuts'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 
 import { AppShell } from './app-shell'
 import { ThemeProvider } from './theme-provider'
 
-/** Placeholder until the node canvas lands: the dot grid it will draw on. */
-function CanvasPlaceholder() {
+function Canvas() {
   return (
-    <div
-      aria-hidden="true"
-      className="size-full bg-[radial-gradient(circle,var(--border)_1px,transparent_1px)] bg-size-[20px_20px]"
-    />
+    <>
+      <GraphCanvasContainer />
+      <NoticeRegionContainer />
+    </>
   )
 }
 
 export function App() {
+  useGlobalShortcuts()
+
   return (
     <ThemeProvider>
       <TooltipProvider>
-        <AppShell canvas={<CanvasPlaceholder />} previewPanel={null} headerActions={null} />
+        <AppShell canvas={<Canvas />} previewPanel={null} headerActions={null} />
       </TooltipProvider>
     </ThemeProvider>
   )

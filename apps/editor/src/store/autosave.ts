@@ -54,10 +54,15 @@ export function loadAutosave(storage: Storage): { graph: Graph; notice: UiSlice[
   }
 }
 
-/** Saves the graph to `storage` shortly after it stops changing. Returns the unsubscribe. */
+/**
+ * Saves the graph to `storage` shortly after it stops changing. Returns the unsubscribe.
+ * With `page`, a pending save is written at once when the page is hidden or unloaded, so the
+ * last edit survives closing the tab inside the debounce window.
+ */
 export function startAutosave(
   storage: Storage,
   delayMs: number = DEFAULT_AUTOSAVE_DELAY_MS,
+  page?: Window,
 ): () => void {
   let pendingTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -76,14 +81,28 @@ export function startAutosave(
     }
   }
 
+  const flushPendingSave = (): void => {
+    if (pendingTimer === null) return
+    clearPendingTimer()
+    save()
+  }
+
+  const flushWhenHidden = (): void => {
+    if (page?.document.visibilityState === 'hidden') flushPendingSave()
+  }
+
   const unsubscribe = useEditorStore.subscribe((state, previousState) => {
     if (state.graph === previousState.graph) return
     clearPendingTimer()
     pendingTimer = setTimeout(save, delayMs)
   })
+  page?.addEventListener('pagehide', flushPendingSave)
+  page?.document.addEventListener('visibilitychange', flushWhenHidden)
 
   return () => {
     unsubscribe()
     clearPendingTimer()
+    page?.removeEventListener('pagehide', flushPendingSave)
+    page?.document.removeEventListener('visibilitychange', flushWhenHidden)
   }
 }

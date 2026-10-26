@@ -14,7 +14,7 @@ export interface AppShellProps {
   headerActions: ReactNode
 }
 
-const CANVAS_ID = 'node-canvas'
+export const CANVAS_ID = 'node-canvas'
 
 export function AppShell({ canvas, previewPanel, headerActions }: AppShellProps) {
   return (

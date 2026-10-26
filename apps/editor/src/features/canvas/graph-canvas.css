@@ -1,0 +1,109 @@
+/*
+ * React Flow's structural CSS goes into Tailwind's `base` layer so utilities and the unlayered
+ * focus ring (focus-ring.css) still win over it. Theme values below map React Flow onto the
+ * joyco tokens: sharp corners, 1px borders, mono labels.
+ */
+@import '@xyflow/react/dist/base.css' layer(base);
+
+@layer components {
+  .graph-canvas {
+    --xy-background-color: transparent;
+    --xy-edge-stroke: var(--muted-foreground);
+    --xy-connectionline-stroke: var(--foreground);
+    --xy-connectionline-stroke-width: 2;
+    --xy-selection-background-color: color-mix(in oklab, var(--primary) 12%, transparent);
+    --xy-selection-border: 1px solid var(--primary);
+    --xy-attribution-background-color: transparent;
+    color: var(--foreground);
+  }
+
+  .graph-canvas .react-flow__handle.port-handle {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--card);
+    border-radius: 9999px;
+    top: 14px;
+  }
+
+  /* A larger invisible hit area around the small dot. */
+  .graph-canvas .react-flow__handle.port-handle::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  .graph-canvas .react-flow__handle.port-handle.connectingto.valid,
+  .graph-canvas .react-flow__handle.port-handle.connectingfrom {
+    border-color: var(--foreground);
+  }
+
+  .graph-canvas .react-flow__edge.selectable:focus-visible .typed-edge {
+    stroke-width: 4;
+  }
+
+  .graph-canvas .react-flow__controls {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    background: var(--background);
+  }
+
+  .graph-canvas .react-flow__controls-button {
+    display: flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--foreground);
+    background: var(--background);
+    border: 0;
+  }
+
+  .graph-canvas .react-flow__controls-button + .react-flow__controls-button {
+    border-top: 1px solid var(--border);
+  }
+
+  .graph-canvas .react-flow__controls-button:hover {
+    background: var(--accent);
+  }
+
+  .graph-canvas .react-flow__controls-button svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    fill: currentColor;
+  }
+
+  .graph-canvas .react-flow__attribution {
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .graph-canvas .react-flow__attribution a {
+    color: var(--muted-foreground);
+  }
+}
+
+/* Appear and connect transitions: opacity and transform only, at most 150 ms. */
+@media (prefers-reduced-motion: no-preference) {
+  .graph-node {
+    animation: graph-node-appear 150ms ease-out;
+  }
+
+  .typed-edge,
+  .typed-edge-marker {
+    animation: typed-edge-appear 150ms ease-out;
+  }
+}
+
+@keyframes graph-node-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes typed-edge-appear {
+  from {
+    opacity: 0;
+  }
+}

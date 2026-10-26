@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const THEME_STORAGE_KEY = 'nudo-tsl:theme'
-const MAX_TAB_PRESSES = 20
+const MAX_TAB_PRESSES = 40
 const THEMES = ['dark', 'light'] as const
 
 async function tabUntilFocused(page: Page, target: Locator): Promise<void> {
@@ -116,13 +116,14 @@ for (const theme of THEMES) {
     await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`))
     const { skipLink, themeToggle, previewToggle, canvas } = shellControls(page)
 
+    // The canvas (nodes and their fields) sits between the header and the preview panel in the
+    // tab order, so each control is reached by tabbing forward until it has focus.
     for (const control of [skipLink, themeToggle, previewToggle]) {
-      await page.keyboard.press('Tab')
+      await tabUntilFocused(page, control)
       await expectFocusIndicator(page, control)
     }
 
-    await page.keyboard.press('Shift+Tab')
-    await page.keyboard.press('Shift+Tab')
+    await skipLink.focus()
     await page.keyboard.press('Enter')
     await expect(canvas).toBeFocused()
     await expect(canvas).toHaveCSS('outline-style', 'solid')

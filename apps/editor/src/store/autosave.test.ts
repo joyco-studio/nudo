@@ -156,6 +156,44 @@ describe('startAutosave', () => {
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
   })
 
+  it('flushes a pending write immediately when the page is hidden', () => {
+    stopAutosave = startAutosave(localStorage, undefined, window)
+
+    useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
+    window.dispatchEvent(new Event('pagehide'))
+
+    expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
+  })
+
+  it('flushes a pending write when the document becomes hidden', () => {
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    stopAutosave = startAutosave(localStorage, undefined, window)
+
+    useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
+    document.dispatchEvent(new Event('visibilitychange'))
+    visibility.mockRestore()
+
+    expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
+  })
+
+  it('does not write on page hide when nothing is pending', () => {
+    stopAutosave = startAutosave(localStorage, undefined, window)
+
+    window.dispatchEvent(new Event('pagehide'))
+
+    expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
+  })
+
+  it('stops flushing on page hide after unsubscribing', () => {
+    const stop = startAutosave(localStorage, undefined, window)
+
+    useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
+    stop()
+    window.dispatchEvent(new Event('pagehide'))
+
+    expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
+  })
+
   it('shows an error notice instead of throwing when storage rejects the write', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('quota', 'QuotaExceededError')
