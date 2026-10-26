@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { createContext, use, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 export type Theme = 'dark' | 'light'
@@ -47,15 +47,44 @@ function applyTheme(theme: Theme): void {
   root.style.colorScheme = theme
 }
 
+/**
+ * Turns every CSS transition off for one frame. Animations are left alone: switching
+ * `animation-name` to none and back would replay the canvas's appear keyframes.
+ */
+const NO_TRANSITIONS_CSS = '*,*::before,*::after{transition:none!important}'
+
+/**
+ * Applies a theme switch at once (user ruling: no fade between themes), the next-themes
+ * `disableTransitionOnChange` technique: suspend transitions, apply, force a style recalc so the
+ * new colors land while transitions are off, then restore them on the next frame.
+ */
+function applyThemeInstantly(theme: Theme): void {
+  const suspendTransitions = document.createElement('style')
+  suspendTransitions.textContent = NO_TRANSITIONS_CSS
+  document.head.append(suspendTransitions)
+
+  applyTheme(theme)
+  // Reading a computed style flushes the recalc now, before the transitions come back.
+  window.getComputedStyle(document.body).getPropertyValue('color')
+
+  requestAnimationFrame(() => {
+    suspendTransitions.remove()
+  })
+}
+
 interface ThemeProviderProps {
   children: ReactNode
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(readStoredTheme)
+  const appliedThemeRef = useRef<Theme | null>(null)
 
   useLayoutEffect(() => {
-    applyTheme(theme)
+    // The first apply only mirrors the pre-paint script in index.html; later ones are switches.
+    if (appliedThemeRef.current === null) applyTheme(theme)
+    else if (appliedThemeRef.current !== theme) applyThemeInstantly(theme)
+    appliedThemeRef.current = theme
   }, [theme])
 
   const toggleTheme = useCallback(() => {

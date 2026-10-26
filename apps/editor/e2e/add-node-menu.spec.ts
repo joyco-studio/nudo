@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import { expectFocusRing, expectQuietFieldFocus } from './support/focus-indicators'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
@@ -16,7 +17,12 @@ function graphNode(page: Page, name: string): Locator {
 
 function addNodeMenu(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'Add node' })
-  return { dialog, search: dialog.getByRole('combobox') }
+  const search = dialog.getByRole('combobox')
+  return {
+    dialog,
+    search,
+    searchGroup: dialog.locator('[data-slot="input-group"]'),
+  }
 }
 
 async function storedPositionOf(page: Page, type: string): Promise<unknown> {
@@ -50,8 +56,7 @@ test.describe('add-node menu', () => {
     await expect(dialog).toBeHidden()
     const fresnel = graphNode(page, 'Fresnel')
     await expect(fresnel).toBeVisible()
-    await expect(fresnel).toBeFocused()
-    await expect(fresnel).toHaveCSS('outline-style', 'solid')
+    await expectFocusRing(page, fresnel)
     // Placed beside the node that had focus when Space was pressed.
     await expect
       .poll(() => storedPositionOf(page, 'effects/fresnel'))
@@ -77,8 +82,8 @@ test.describe('add-node menu', () => {
   }) => {
     await page.getByRole('button', { name: 'Add node', exact: true }).focus()
     await page.keyboard.press('Enter')
-    const { dialog, search } = addNodeMenu(page)
-    await expect(search).toBeFocused()
+    const { dialog, search, searchGroup } = addNodeMenu(page)
+    await expectQuietFieldFocus(page, search, searchGroup)
 
     await page.keyboard.press('Tab')
     await page.keyboard.press('Tab')

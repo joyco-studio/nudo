@@ -25,16 +25,41 @@
 }
 
 /*
- * Input groups (a field plus an icon or button addon, such as the add-node search) ring the whole
- * group, so the indicator wraps the addon instead of cutting through it. Same two tones as above.
+ * Text entry gets a quiet indicator instead of the ring (user ruling): no outline, no halo and no
+ * offset; the field's own border turns the foreground color, which contrasts with every surface at
+ * ~15:1 (far above the 3:1 non-text minimum). Checkboxes, radios, color swatches and sliders are
+ * not text entry, so they keep the ring above.
  */
-[data-slot='input-group']:has(> input:focus-visible) {
-  outline: 2px solid var(--foreground);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px var(--background);
+:is(
+  input:not([type='checkbox'], [type='radio'], [type='color'], [type='range']),
+  textarea,
+  [cmdk-input]
+):focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+  border-color: var(--foreground);
 }
 
-[data-slot='input-group'] > input:focus-visible {
+/* An invalid field keeps its destructive border; focus thickens it to 2px. */
+:is(input, textarea)[aria-invalid='true']:focus-visible {
+  border-color: var(--destructive);
+  box-shadow: inset 0 0 0 1px var(--destructive);
+}
+
+/*
+ * Inside an input group (the add-node search) the group's border is the field's frame. The
+ * vendored group draws a `ring-3 ring-ring/50` halo on focus; it is cleared here so only the
+ * border changes.
+ */
+[data-slot='input-group']:has(
+  > :is(
+      input:not([type='checkbox'], [type='radio'], [type='color'], [type='range']),
+      textarea,
+      [cmdk-input]
+    ):focus-visible
+) {
+  border-color: var(--foreground);
   outline: none;
   box-shadow: none;
 }

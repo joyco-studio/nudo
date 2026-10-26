@@ -1,11 +1,11 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expectFocusRing, expectQuietFieldFocus, tabUntilFocused } from './support/focus-indicators'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
 const VEC3_COLOR = 'oklch(0.82 0.16 80)'
 const DRAG_OFFSET = { x: 160, y: 90 }
 const DRAG_STEPS = 8
-const MAX_TAB_PRESSES = 30
 const ANCHOR_TOLERANCE_PX = 0.5
 
 function graphNode(page: Page, name: string): Locator {
@@ -178,16 +178,24 @@ test.describe('seeded canvas', () => {
     const master = graphNode(page, 'Master Stack')
     await expect(master).toBeVisible()
 
-    for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {
-      await page.keyboard.press('Tab')
-      const isFocused = await master.evaluate((element) => element === document.activeElement)
-      if (isFocused) break
-    }
-
-    await expect(master).toBeFocused()
-    await expect(master).toHaveCSS('outline-style', 'solid')
-    await expect(master).toHaveCSS('outline-width', '2px')
+    await tabUntilFocused(page, master)
+    await expectFocusRing(page, master)
   })
+
+  test('number fields show a quiet border on focus; the color swatch keeps the ring', async ({
+    page,
+  }) => {
+    const master = graphNode(page, 'Master Stack')
+    const roughness = master.getByRole('textbox', { name: 'Roughness' })
+    await tabUntilFocused(page, roughness)
+    await expectQuietFieldFocus(page, roughness)
+
+    const emission = master.getByLabel('Emission', { exact: true })
+    await master.focus()
+    await tabUntilFocused(page, emission)
+    await expectFocusRing(page, emission)
+  })
+
   test('dragging between ports connects them and deleting the edge disconnects', async ({
     page,
   }) => {

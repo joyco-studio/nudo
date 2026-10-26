@@ -1,40 +1,9 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+import { expectFocusRing, tabUntilFocused } from './support/focus-indicators'
 
 const THEME_STORAGE_KEY = 'nudo-tsl:theme'
-const MAX_TAB_PRESSES = 40
 const THEMES = ['dark', 'light'] as const
-
-async function tabUntilFocused(page: Page, target: Locator): Promise<void> {
-  for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {
-    await page.keyboard.press('Tab')
-    const isFocused = await target.evaluate((element) => element === document.activeElement)
-    if (isFocused) return
-  }
-  throw new Error('Could not reach the target element with Tab')
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-async function readThemeToken(page: Page, name: '--foreground' | '--background'): Promise<string> {
-  return page.evaluate(
-    (token) => getComputedStyle(document.documentElement).getPropertyValue(token).trim(),
-    name,
-  )
-}
-
-/** The R11 indicator: a 2px foreground outline plus a background-colored halo. */
-async function expectFocusIndicator(page: Page, target: Locator): Promise<void> {
-  const foreground = await readThemeToken(page, '--foreground')
-  const background = await readThemeToken(page, '--background')
-
-  await expect(target).toBeFocused()
-  await expect(target).toHaveCSS('outline-style', 'solid')
-  await expect(target).toHaveCSS('outline-width', '2px')
-  await expect(target).toHaveCSS('outline-color', foreground)
-  await expect(target).toHaveCSS('box-shadow', new RegExp(`${escapeRegExp(background)}.*2px`))
-}
 
 function shellControls(page: Page) {
   return {
@@ -44,6 +13,25 @@ function shellControls(page: Page) {
     previewToggle: page.getByRole('button', { name: 'Preview panel', exact: true }),
     canvas: page.getByRole('main', { name: 'Node canvas' }),
   }
+}
+
+/**
+ * Reads a color right after the toggle click and React's synchronous re-render (one microtask), so
+ * no frame has run yet: a fading theme would still report the old color here.
+ */
+async function backgroundRightAfterToggle(
+  page: Page,
+): Promise<{ color: string; duration: string }> {
+  return page.evaluate(async () => {
+    const toggle = document.querySelector('button[aria-label="Dark theme"]')
+    if (!(toggle instanceof HTMLButtonElement)) throw new Error('Theme toggle not found')
+    toggle.click()
+    await new Promise<void>((resolve) => {
+      queueMicrotask(resolve)
+    })
+    const style = getComputedStyle(toggle)
+    return { color: style.backgroundColor, duration: style.transitionDuration }
+  })
 }
 
 test.describe('default theme', () => {
@@ -73,6 +61,21 @@ test.describe('default theme', () => {
     await page.reload()
     await expect(html).toHaveClass(/\blight\b/)
     await expect(html).not.toHaveClass(/\bdark\b/)
+  })
+
+  test('switching theme is instant, with no color transition', async ({ page }) => {
+    const { themeToggle } = shellControls(page)
+    const darkColor = await themeToggle.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    )
+
+    const immediate = await backgroundRightAfterToggle(page)
+    await expect(page.locator('html')).toHaveClass(/\blight\b/)
+    expect(immediate.color).not.toBe(darkColor)
+    expect(immediate.duration).toBe('0s')
+    // After that frame the color stays put (nothing was animating) and transitions come back.
+    await expect(themeToggle).toHaveCSS('background-color', immediate.color)
+    await expect(themeToggle).not.toHaveCSS('transition-duration', '0s')
   })
 
   test('preview panel collapses with keyboard', async ({ page }) => {
@@ -121,7 +124,7 @@ for (const theme of THEMES) {
     // tab order, so each control is reached by tabbing forward until it has focus.
     for (const control of [skipLink, addNodeButton, themeToggle, previewToggle]) {
       await tabUntilFocused(page, control)
-      await expectFocusIndicator(page, control)
+      await expectFocusRing(page, control)
     }
 
     await skipLink.focus()
