@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>nudo-tsl</title>
+    <!-- Applies the saved theme before first paint. Key mirrors THEME_STORAGE_KEY in src/app/theme-provider.tsx. -->
+    <script>
+      try {
+        if (localStorage.getItem('nudo-tsl:theme') === 'light') {
+          document.documentElement.classList.replace('dark', 'light')
+        }
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
