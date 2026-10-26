@@ -1,0 +1,16 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalDependencies": ["eslint.config.js", "tsconfig.base.json"],
+  "tasks": {
+    "lint": {},
+    "typecheck": {},
+    "test": {},
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "e2e": {
+      "cache": false
+    }
+  }
+}
