@@ -3,6 +3,7 @@ import { ReactFlowProvider } from '@xyflow/react'
 import { AddNodeButton } from '@/features/add-node-menu/add-node-button'
 import { AddNodeMenuProvider } from '@/features/add-node-menu/add-node-menu-provider'
 import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
+import { MainPreview } from '@/features/main-preview/main-preview'
 import { NoticeRegionContainer } from '@/features/notice/notice-region-container'
 import { ShortcutsDialogProvider } from '@/features/shortcuts/shortcuts-dialog-provider'
 import { useGlobalShortcuts } from '@/features/shortcuts/use-global-shortcuts'
@@ -35,7 +36,11 @@ export function App() {
           <AddNodeMenuProvider>
             <ShortcutsDialogProvider>
               <GlobalShortcuts />
-              <AppShell canvas={<Canvas />} previewPanel={null} headerActions={<AddNodeButton />} />
+              <AppShell
+                canvas={<Canvas />}
+                previewPanel={<MainPreview />}
+                headerActions={<AddNodeButton />}
+              />
             </ShortcutsDialogProvider>
           </AddNodeMenuProvider>
         </ReactFlowProvider>

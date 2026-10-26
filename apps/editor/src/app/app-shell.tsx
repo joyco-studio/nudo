@@ -135,7 +135,7 @@ function PreviewPanel({ children }: PreviewPanelProps) {
           <TooltipContent side="left">{toggleHint}</TooltipContent>
         </Tooltip>
       </div>
-      <div id={bodyId} hidden={!isExpanded} className="aspect-square border-t">
+      <div id={bodyId} hidden={!isExpanded} className="border-t">
         {children}
       </div>
     </section>
