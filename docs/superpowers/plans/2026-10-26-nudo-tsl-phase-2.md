@@ -110,6 +110,8 @@ type PropertyType = 'float' | 'vec2' | 'vec3' | 'vec4' | 'texture'
 interface BlackboardProperty { readonly id: PropertyId; readonly label: string; readonly name: string; readonly exposed: boolean; readonly type: PropertyType; readonly widget?: 'color'; readonly value: PortValue }
 // label: free display text; name: JS identifier (uniform/reference name); exposed=false → codegen inlines the value as a constant
 // Graph: readonly schemaVersion: 2; readonly properties: readonly BlackboardProperty[]
+/** Editor-managed params every node accepts implicitly; never part of topologyKey (toggling them never recompiles). */
+const UNIVERSAL_PARAMS: readonly ParamDefinition[]   // collapsed: boolean (false); previewMode: enum auto|2d|3d (auto)
 const CURRENT_SCHEMA_VERSION = 2
 const DEFAULT_MIGRATIONS: readonly Migration[]   // [{ from: 1, migrate: identity (properties stays []) }]
 function isValidIdentifier(name: string): boolean  // JS identifier, not a reserved word, ≤ 64 chars
@@ -126,7 +128,8 @@ function removeProperty(graph: Graph, id: PropertyId): Result<Graph, PropertyErr
 - [ ] **Step 1: Failing tests.** Every assertion uses exact values:
   - `isValidIdentifier`: accepts `waveSpeed` and `_a1`; rejects `2x`, `my var`, `class` and `''`.
   - `addNode` fills enum and boolean param defaults.
-  - `setParam` rejects an unknown param and an enum value outside its options.
+  - `setParam` rejects an unknown param and an enum value outside its options; it accepts the universal params `collapsed` and `previewMode` on any node.
+  - `topologyKey` ignores universal params.
   - `renameProperty` rejects a duplicate and an invalid name, and leaves the graph unchanged.
   - `removeProperty` removes the property nodes and their edges (Review Focus 2).
   - `setPropertyValue` rejects a value of the wrong type.
@@ -398,7 +401,7 @@ Behavior:
 - **Enum params** render as a compact select in the node body (Radix Select from shared/ui, or a native `<select>` styled with joyco tokens; keyboard operable).
 - **Master lighting = unlit:** Metalness, Roughness and Normal rows render disabled with the hint "Unlit ignores this".
 - **Property nodes** render as compact pills: one row with the label, type chip and output port, no body.
-- **Node collapse:** a chevron button in the node header (`aria-expanded`) hides unconnected ports; this is a hidden boolean param `collapsed` on every node (editor-managed; add it in core as a universal param that every definition accepts implicitly, or as UI state persisted in `params`. Decide, and keep `topologyKey` free of it so collapsing never recompiles).
+- **Node collapse:** a chevron button in the node header (`aria-expanded`) hides unconnected ports; this is the universal param `collapsed` from Task 1 (`UNIVERSAL_PARAMS`, excluded from `topologyKey`).
 - **Main Preview backdrop:** a select None / Checker room (a floor and back wall with a checker texture) so Scene Color and Depth Fade have something behind the surface. Persist it with the panel prefs.
 - **Comment nodes:**
   - a resizable frame (React Flow `NodeResizer`) with an editable title (text input, quiet focus);
@@ -531,7 +534,7 @@ Behavior:
   - A value change applies uniforms with no rebuild.
   - Time-dependent previews re-render at ≤ `fps` and only when visible (IntersectionObserver on the node canvas).
   - At most `budgetPerFrame` renders per animation frame, round-robin.
-- **Preview mode:** auto picks a sphere (3D) when the upstream subgraph uses Normal, Position, View Direction, Fresnel or Normal From Height, else a quad (2D); a per-node override (auto/2D/3D) lives in the Inspector and in the hidden param `previewMode`. Previews are drawn as circles like Unity (round mask) for 3D, squares for 2D.
+- **Preview mode:** auto picks a sphere (3D) when the upstream subgraph uses Normal, Position, View Direction, Fresnel or Normal From Height, else a quad (2D); a per-node override (auto/2D/3D) lives in the Inspector and in the universal param `previewMode` (Task 1). Previews are drawn as circles like Unity (round mask) for 3D, squares for 2D.
 - **UI:** previews show below the node body as a 96px square (Master has none). The toggle comes from the Inspector, plus an icon button in the node header with `aria-pressed`. Errors show a hatched "No preview" state.
 
 - [ ] **Step 1: Failing tests:**
