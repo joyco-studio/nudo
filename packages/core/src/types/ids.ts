@@ -15,3 +15,5 @@ export const asEdgeId = (raw: string): EdgeId =>
   raw as EdgeId
 
 export const MASTER_NODE_ID: NodeId = asNodeId('master')
+/** Type of the single, undeletable master node. */
+export const MASTER_NODE_TYPE = 'master/stack'

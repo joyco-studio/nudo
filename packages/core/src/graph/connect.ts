@@ -1,5 +1,5 @@
 import type { NodeRegistry } from '../registry/node-registry'
-import type { Graph, PortRef } from '../types/graph'
+import type { Graph, GraphEdge, PortRef } from '../types/graph'
 import type { EdgeId } from '../types/ids'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
@@ -21,9 +21,13 @@ export function connect(
   const check = checkConnection(graph, registry, input.from, input.to)
   if (!check.ok) return err({ code: 'invalid-connection', reason: check.reason })
 
-  const keptEdges = Object.values(graph.edges).filter(
-    (edge) => !(edge.to.nodeId === input.to.nodeId && edge.to.portId === input.to.portId),
-  )
+  const isReplaced = (edge: GraphEdge): boolean =>
+    edge.to.nodeId === input.to.nodeId && edge.to.portId === input.to.portId
+  const keptEdges = Object.values(graph.edges).filter((edge) => !isReplaced(edge))
+  if (keptEdges.some((edge) => edge.id === input.id)) {
+    return err({ code: 'duplicate-id', id: input.id })
+  }
+
   const newEdge = { id: input.id, from: input.from, to: input.to }
   return ok({
     ...graph,

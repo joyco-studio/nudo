@@ -143,19 +143,6 @@ describe('checkConnection', () => {
     })
   })
 
-  it('allows a connection that only looks cyclic through the edge it replaces', () => {
-    const graph = graphOf(
-      [node('a', 'test/pass'), node('b', 'test/pass'), node('src', 'test/float-source')],
-      [edge('e1', ref('a', 'out'), ref('b', 'a'))],
-    )
-
-    // b.a currently comes from a. Replacing it with src leaves no path from b back to a.
-    expect(checkConnection(graph, registry, ref('src', 'out'), ref('b', 'a'))).toEqual({
-      ok: true,
-      conversion: null,
-    })
-  })
-
   it('rejects texture into vec3', () => {
     const graph = graphOf([node('tex', 'test/texture-source'), node('master', 'master/stack')])
 

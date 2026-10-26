@@ -3,7 +3,7 @@ import { defineNode } from '../registry/define-node'
 import { createNodeRegistry } from '../registry/node-registry'
 import type { Graph, PortRef } from '../types/graph'
 import type { Result } from '../types/result'
-import { MASTER_NODE_ID, asEdgeId, asNodeId } from '../types/ids'
+import { MASTER_NODE_ID, MASTER_NODE_TYPE, asEdgeId, asNodeId } from '../types/ids'
 import { concrete, float, generic, vec3 } from '../values/port-value-factories'
 import { addNode } from './add-node'
 import { connect } from './connect'
@@ -121,6 +121,16 @@ describe('addNode', () => {
       ok: false,
       error: { code: 'unknown-node-type', type: 'test/missing' },
     })
+  })
+
+  it('rejects a second master node', () => {
+    const result = addNode(createGraph(), registry, {
+      id: asNodeId('second-master'),
+      type: MASTER_NODE_TYPE,
+      position,
+    })
+
+    expect(result).toEqual({ ok: false, error: { code: 'duplicate-id', id: 'master' } })
   })
 
   it('rejects a duplicate id', () => {
@@ -244,7 +254,7 @@ describe('connect', () => {
     })
   })
 
-  it('allows a replacement that would only cycle through the replaced edge', () => {
+  it('rejects an edge id that already belongs to another edge', () => {
     const connected = unwrap(
       connect(withNodes(), registry, {
         id: asEdgeId('e1'),
@@ -254,12 +264,30 @@ describe('connect', () => {
     )
 
     const result = connect(connected, registry, {
-      id: asEdgeId('e2'),
+      id: asEdgeId('e1'),
+      from: ref('src', 'out'),
+      to: ref('master', 'baseColor'),
+    })
+
+    expect(result).toEqual({ ok: false, error: { code: 'duplicate-id', id: 'e1' } })
+  })
+
+  it('allows reusing the id of the edge being replaced', () => {
+    const connected = unwrap(
+      connect(withNodes(), registry, {
+        id: asEdgeId('e1'),
+        from: ref('src', 'out'),
+        to: ref('p', 'a'),
+      }),
+    )
+
+    const result = connect(connected, registry, {
+      id: asEdgeId('e1'),
       from: ref('src', 'out'),
       to: ref('p', 'a'),
     })
 
-    expect(Object.keys(unwrap(result).edges)).toEqual(['e2'])
+    expect(Object.keys(unwrap(result).edges)).toEqual(['e1'])
   })
 })
 

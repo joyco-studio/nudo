@@ -14,14 +14,6 @@ export type ConnectionCheck =
 
 const reject = (reason: ConnectionRejection): ConnectionCheck => ({ ok: false, reason })
 
-/** The graph as it would be once any edge already feeding `to` has been replaced. */
-function withoutEdgesInto(graph: Graph, to: PortRef): Graph {
-  const keptEdges = Object.values(graph.edges).filter(
-    (edge) => !(edge.to.nodeId === to.nodeId && edge.to.portId === to.portId),
-  )
-  return { ...graph, edges: Object.fromEntries(keptEdges.map((edge) => [edge.id, edge])) }
-}
-
 function findPortSpecs(
   graph: Graph,
   registry: NodeRegistry,
@@ -49,7 +41,7 @@ export function checkConnection(
   const specs = findPortSpecs(graph, registry, from, to)
   if (!specs) return reject('unknown-port')
 
-  if (wouldCreateCycle(withoutEdgesInto(graph, to), from, to)) return reject('cycle')
+  if (wouldCreateCycle(graph, from, to)) return reject('cycle')
 
   const sourceType = resolvePortTypes(graph, registry).outputs.get(portKey(from))
   if (sourceType === undefined) return reject('unknown-port')
