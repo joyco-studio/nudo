@@ -1,5 +1,6 @@
 import eslint from '@eslint/js'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import reactHooks from 'eslint-plugin-react-hooks'
 import tseslint from 'typescript-eslint'
 
 const UI_FRAMEWORK_PACKAGES = ['react', 'react-dom', '@xyflow/*']
@@ -44,6 +45,11 @@ export default defineConfig(
     // Plain JS tooling files (including this one) are not part of any tsconfig project.
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
     extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    name: 'react-hooks/editor',
+    files: ['apps/editor/**/*.{ts,tsx}'],
+    extends: [reactHooks.configs.flat.recommended],
   },
   {
     name: 'boundaries/core',

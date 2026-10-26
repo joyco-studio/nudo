@@ -1,0 +1,35 @@
+import { create } from 'zustand'
+import { temporal } from 'zundo'
+import { createCompileSlice } from './compile-slice'
+import { createGraphSlice } from './graph-slice'
+import type { EditorState } from './store-types'
+import { createUiSlice } from './ui-slice'
+
+const HISTORY_LIMIT = 100
+
+/**
+ * One store, three slices. Only `graph` is tracked by the undo history, and it is compared by
+ * reference, so selection, drafts, notices and compile errors never create history entries.
+ */
+export const useEditorStore = create<EditorState>()(
+  temporal(
+    (...args) => ({
+      ...createGraphSlice(...args),
+      ...createUiSlice(...args),
+      ...createCompileSlice(...args),
+    }),
+    {
+      partialize: (state) => ({ graph: state.graph }),
+      equality: (past, current) => past.graph === current.graph,
+      limit: HISTORY_LIMIT,
+    },
+  ),
+)
+
+export function undo(): void {
+  useEditorStore.temporal.getState().undo()
+}
+
+export function redo(): void {
+  useEditorStore.temporal.getState().redo()
+}
