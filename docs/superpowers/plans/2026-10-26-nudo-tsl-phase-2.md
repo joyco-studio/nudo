@@ -402,6 +402,8 @@ Behavior:
 - **Master lighting = unlit:** Metalness, Roughness and Normal rows render disabled with the hint "Unlit ignores this".
 - **Property nodes** render as compact pills: one row with the label, type chip and output port, no body.
 - **Node collapse:** a chevron button in the node header (`aria-expanded`) hides unconnected ports; this is the universal param `collapsed` from Task 1 (`UNIVERSAL_PARAMS`, excluded from `topologyKey`).
+- **New graph (user request):** a header button "New graph" (and `Ctrl/⌘+Alt+N`) resets to `createGraph()` as one undo step, after a confirm dialog when the graph has more than the master; the Blackboard is cleared too.
+- **Preview layout modes (user request):** the preview header offers Docked (current floating panel) / Split (canvas and preview side by side, 50/50, draggable divider operable with arrow keys) / Full (preview fills the workspace; Escape or the same control returns). Shortcut `Shift+P` cycles modes. Persist the mode with the panel prefs.
 - **Main Preview backdrop:** a select None / Checker room (a floor and back wall with a checker texture) so Scene Color and Depth Fade have something behind the surface. Persist it with the panel prefs.
 - **Comment nodes:**
   - a resizable frame (React Flow `NodeResizer`) with an editable title (text input, quiet focus);
@@ -417,6 +419,8 @@ Behavior:
   - `property node renders as a pill`.
   - `collapsing a node hides unconnected ports and does not recompile`.
   - `checker room backdrop renders behind the preview mesh`.
+  - `new graph resets to master only after confirm, and undo restores`.
+  - `preview layout cycles docked → split → full with Shift+P; Escape leaves full; divider resizes with arrow keys`.
   - `comment node can be added, titled and resized by keyboard` (the resizer offers keyboard handles; otherwise width/height fields in the Inspector satisfy this in Task 10, so note that and test there).
 - [ ] **Step 3:** Run. Expected: FAIL.
 - [ ] **Step 4:** Implement.
