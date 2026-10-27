@@ -4,6 +4,7 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
+import { IconSwap } from '@/shared/components/icon-swap'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -145,6 +146,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
       <TooltipTrigger asChild>
         {/* -ml-2 against the header's 12px: 4px from the left edge, as from the top (32 - 24) / 2. */}
         <Button
+          static
           variant="ghost"
           size="icon-xs"
           aria-label="Unconnected ports"
@@ -154,7 +156,9 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           }}
           className="nodrag -ml-2 text-muted-foreground hover:text-foreground"
         >
-          {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+          <IconSwap swapKey={isCollapsed ? 'collapsed' : 'expanded'}>
+            {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+          </IconSwap>
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">{portsToggleLabel(isCollapsed)}</TooltipContent>

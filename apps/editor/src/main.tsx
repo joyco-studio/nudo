@@ -17,7 +17,9 @@ if (rootElement === null) {
 
 // Restore the last session before the first render, so the canvas fits the restored graph.
 bootstrapEditor(window.localStorage, window)
-// Focus styling tells a keyboard move from a click or a programmatic focus (focus-ring.css).
+// Focus styling tells a keyboard move from a click or a programmatic focus (focus-ring.css), and
+// motion stays still for what a key started. Before the first render, so it listens ahead of every
+// shortcut.
 trackInputModality(document)
 
 createRoot(rootElement).render(

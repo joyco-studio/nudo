@@ -13,6 +13,7 @@ import {
   PREVIEW_PANEL_ID,
   useSplitLayout,
 } from '@/features/panels/use-split-layout'
+import { IconSwap } from '@/shared/components/icon-swap'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useMediaQuery } from '@/shared/lib/use-media-query'
 import { cn } from '@/shared/lib/utils'
@@ -238,7 +239,9 @@ function ThemeToggle() {
           onPressedChange={toggleTheme}
           className="size-8 min-w-8 rounded-none bg-accent p-0 text-accent-foreground hover:bg-accent/80 hover:text-accent-foreground aria-pressed:bg-accent data-[state=on]:bg-accent"
         >
-          {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+          <IconSwap swapKey={theme}>
+            {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+          </IconSwap>
         </Toggle>
       </TooltipTrigger>
       <TooltipContent side="bottom">

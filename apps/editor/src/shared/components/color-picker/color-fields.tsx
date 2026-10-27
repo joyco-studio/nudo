@@ -178,6 +178,7 @@ function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          static
           variant="ghost"
           size="icon-xs"
           aria-label={PICK_FROM_SCREEN}

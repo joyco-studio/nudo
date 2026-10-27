@@ -1,8 +1,10 @@
 import * as React from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 import { Slot } from 'radix-ui'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/shared/lib/utils'
+import { PRESS_FEEDBACK } from '@/shared/motion/motion-presets'
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-[color,background-color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md",
@@ -38,27 +40,42 @@ const buttonVariants = cva(
   },
 )
 
+const MotionSlot = motion.create(Slot.Root)
+
+// nudo-tsl: motion/react owns the inline style and the drag and animation-start handlers.
+type ButtonProps = Omit<
+  React.ComponentProps<'button'>,
+  'style' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart'
+> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+    /** No press scale: for canvas-dense controls and toolbar icon buttons, where motion distracts. */
+    static?: boolean
+  }
+
+// nudo-tsl: better-ui scale on press (0.96) through motion/react, off under reduced motion.
 function Button({
   className,
   variant = 'default',
   size = 'default',
   asChild = false,
+  static: isStatic = false,
   ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot.Root : 'button'
+}: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion() === true
+  const slotProps = {
+    'data-slot': 'button',
+    'data-variant': variant,
+    'data-size': size,
+    className: cn(buttonVariants({ variant, size, className })),
+  }
 
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+  if (isStatic || prefersReducedMotion) {
+    const Comp = asChild ? Slot.Root : 'button'
+    return <Comp {...slotProps} {...props} />
+  }
+  if (asChild) return <MotionSlot {...slotProps} {...PRESS_FEEDBACK} {...props} />
+  return <motion.button {...slotProps} {...PRESS_FEEDBACK} {...props} />
 }
 
 export { Button, buttonVariants }
