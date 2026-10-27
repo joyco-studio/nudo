@@ -26,8 +26,9 @@ export function trackInputModality(doc: Document): () => void {
     }
   }
   const onPointerDown = (event: Event): void => {
-    // A real press always has a pointer type. Script fires presses without one: motion/react's
-    // press on Enter, the overlay coordinator dismissing a menu. Those don't change the modality.
+    // A real press always has a pointer type. Script fires presses without one (the overlay
+    // coordinator dismissing a menu, motion/react's tap gesture on Enter). Those don't change the
+    // modality.
     if ('pointerType' in event && event.pointerType === '') return
     root.setAttribute(INPUT_MODALITY_ATTRIBUTE, 'pointer')
   }

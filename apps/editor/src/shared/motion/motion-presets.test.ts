@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  PRESS_FEEDBACK,
   iconSwapStates,
   listRowStates,
+  pressFeedback,
   staggerDelayMs,
   surfaceStates,
   switchThumbTransition,
@@ -148,11 +148,10 @@ describe('list rows', () => {
 })
 
 describe('press feedback and the switch thumb', () => {
-  it('presses buttons to 0.96 in 150ms ease-out', () => {
-    expect(PRESS_FEEDBACK).toEqual({
-      whileTap: { transform: 'scale(0.96)' },
-      transition: { duration: 0.15, ease: EASE.out },
-    })
+  it('presses buttons to 0.96 in 150ms ease-out and releases them back to full size', () => {
+    const transition = { duration: 0.15, ease: EASE.out }
+    expect(pressFeedback(true)).toEqual({ animate: { scale: 0.96 }, transition })
+    expect(pressFeedback(false)).toEqual({ animate: { scale: 1 }, transition })
   })
 
   it('moves the switch thumb with the reference 27 overshoot, instantly without full motion', () => {
