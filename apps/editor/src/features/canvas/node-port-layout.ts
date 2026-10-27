@@ -1,5 +1,5 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
-import type { InputDefinition, OutputDefinition } from '@nudo-tsl/core'
+import type { GraphNode, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
 
 import type { FlowNodeData } from './to-flow'
 
@@ -34,8 +34,8 @@ export function portsToggleLabel(isCollapsed: boolean): string {
   return isCollapsed ? 'Show unconnected ports' : 'Hide unconnected ports'
 }
 
-function isUnlitMaster(data: FlowNodeData): boolean {
-  return data.node.id === MASTER_NODE_ID && data.node.params.lighting === 'unlit'
+function isUnlitMaster(node: GraphNode): boolean {
+  return node.id === MASTER_NODE_ID && node.params.lighting === 'unlit'
 }
 
 function visibleInputs(data: FlowNodeData): readonly InputDefinition<string>[] {
@@ -52,12 +52,20 @@ export function visibleOutputs(data: FlowNodeData): readonly OutputDefinition<st
 
 /** The input rows to draw, grouped like the Master Stack (Vertex, Fragment) or in one list. */
 export function inputGroups(data: FlowNodeData): readonly PortGroup[] {
-  const isUnlit = isUnlitMaster(data)
-  const rows = visibleInputs(data).map((input) => ({
+  return groupInputs(data.node, visibleInputs(data))
+}
+
+/** Groups the given inputs of a node into rows, each with why it has no effect right now. */
+export function groupInputs(
+  node: GraphNode,
+  inputs: readonly InputDefinition<string>[],
+): readonly PortGroup[] {
+  const isUnlit = isUnlitMaster(node)
+  const rows = inputs.map((input) => ({
     input,
     disabledHint: isUnlit && UNLIT_IGNORED_INPUT_IDS.has(input.id) ? UNLIT_IGNORED_HINT : null,
   }))
-  if (data.node.id !== MASTER_NODE_ID) return [{ title: null, rows }]
+  if (node.id !== MASTER_NODE_ID) return [{ title: null, rows }]
   return [
     { title: 'Vertex', rows: rows.filter((row) => VERTEX_INPUT_IDS.has(row.input.id)) },
     { title: 'Fragment', rows: rows.filter((row) => !VERTEX_INPUT_IDS.has(row.input.id)) },

@@ -44,3 +44,12 @@ export function resizedFrame(frame: ResizableFrame, delta: Size): NodeFrame {
     height: Math.max(frame.minHeight, frame.height + delta.height),
   }
 }
+
+/** The frame at a typed width and/or height, kept at or above its minimum size. */
+export function sizedFrame(frame: ResizableFrame, size: Partial<Size>): NodeFrame {
+  return {
+    position: frame.position,
+    width: Math.max(frame.minWidth, size.width ?? frame.width),
+    height: Math.max(frame.minHeight, size.height ?? frame.height),
+  }
+}

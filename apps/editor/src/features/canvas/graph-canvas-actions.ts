@@ -1,27 +1,22 @@
 import { createContext, use } from 'react'
-import type { EdgeId, ParamRef, ParamValue, PortRef, PortValue } from '@nudo-tsl/core'
+import type { EdgeId, PortRef } from '@nudo-tsl/core'
 
 import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
+import type { NodeFieldActions } from './node-field-actions'
 
 /**
  * Store actions node views need. Provided by the canvas container so views stay store-agnostic.
  * Actions that also run from the keyboard or the palette (copy, duplicate, delete, select all,
- * fit view) are registry commands instead.
+ * fit view) are registry commands instead. Field edits come from `NodeFieldActions`, which the
+ * Inspector provides as well.
  */
-export interface GraphCanvasActions {
-  setInputValue: (ref: PortRef, value: PortValue) => void
-  /** Shows a value live while a scrub or a color pick is in progress, without committing it. */
-  previewInputValue: (ref: PortRef, value: PortValue) => void
-  /** Ends the live preview; the final value is committed with `setInputValue`. */
-  endInputPreview: () => void
+export interface GraphCanvasActions extends NodeFieldActions {
   /** Every port the origin can be connected to, read from the graph as it is right now. */
   listConnectCandidates: (origin: ConnectOrigin) => readonly ConnectCandidate[]
   /** Connects the origin to a port on the other side (outputs feed inputs). */
   connectPorts: (origin: ConnectOrigin, target: PortRef) => void
   /** Removes every edge attached to the origin port. */
   disconnectPort: (origin: ConnectOrigin) => void
-  /** Sets a node param (an enum, a toggle, the collapsed state, a comment title). */
-  setParam: (ref: ParamRef, value: ParamValue) => void
   deleteEdge: (edgeId: EdgeId) => void
   /** Pastes nudo-tsl nodes from the clipboard with their top-left corner at a screen point. */
   pasteAt: (clientPoint: ClientPoint) => void

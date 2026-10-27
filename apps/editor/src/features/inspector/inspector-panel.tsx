@@ -1,46 +1,70 @@
-import type { Graph, NodeId } from '@nudo-tsl/core'
+import type { Graph, ResolvedTypes } from '@nudo-tsl/core'
+import { Trash2 } from 'lucide-react'
 
-import { nodeTitle } from '@/features/canvas/to-flow'
-import { Empty, EmptyDescription } from '@/shared/ui/empty'
-import { useEditorStore } from '@/store/editor-store'
-import { registry } from '@/store/registry'
+import { Button } from '@/shared/ui/button'
 
-interface InspectedNode {
-  readonly title: string
-  readonly description: string
+import { GraphInspector } from './graph-inspector'
+import type { InspectorSubject } from './inspector-model'
+import { InspectorHeader } from './inspector-section'
+import { NodeInspector } from './node-inspector'
+import type { ResizeFrame } from './node-inspector'
+
+export interface InspectorPanelProps {
+  subject: InspectorSubject
+  graph: Graph
+  types: ResolvedTypes
+  onResizeFrame: ResizeFrame
+  onDeleteSelection: () => void
 }
 
-function inspectedNode(graph: Graph, selectedNodeIds: readonly NodeId[]): InspectedNode | null {
-  const [onlyId] = selectedNodeIds
-  if (selectedNodeIds.length !== 1 || onlyId === undefined) return null
-  const node = graph.nodes[onlyId]
-  const definition = node === undefined ? undefined : registry.get(node.type)
-  if (node === undefined || definition === undefined) return null
-  return {
-    title: nodeTitle(node, definition, graph.properties),
-    description: definition.description,
-  }
+interface SelectionSummaryProps {
+  count: number
+  onDelete: () => void
 }
 
-/** The Inspector's body for now: the selected node's name and what it does. */
-export function InspectorPanel() {
-  const graph = useEditorStore((state) => state.graph)
-  const selectedNodeIds = useEditorStore((state) => state.selectedNodeIds)
-  const node = inspectedNode(graph, selectedNodeIds)
-
-  if (node !== null) {
-    return (
-      <div className="flex flex-col gap-1 p-3 text-xs">
-        <h3 className="font-heading text-xs font-semibold tracking-wide uppercase">{node.title}</h3>
-        <p className="text-muted-foreground">{node.description}</p>
-      </div>
-    )
-  }
-  const count = selectedNodeIds.length
-  const message = count > 1 ? `${String(count)} nodes selected` : 'Nothing selected'
+/** Several nodes have nothing to edit together; they can be deleted together. */
+function SelectionSummary({ count, onDelete }: SelectionSummaryProps) {
   return (
-    <Empty className="items-start p-3 text-left">
-      <EmptyDescription className="text-xs">{message}</EmptyDescription>
-    </Empty>
+    <div className="pb-3">
+      <InspectorHeader title={`${String(count)} nodes selected`}>
+        <p className="text-xs text-pretty text-muted-foreground">
+          Select one node to edit its values.
+        </p>
+      </InspectorHeader>
+      <div className="px-3">
+        <Button variant="outline" size="sm" className="rounded-none" onClick={onDelete}>
+          <Trash2 aria-hidden="true" />
+          Delete selected nodes
+        </Button>
+      </div>
+    </div>
   )
+}
+
+/** The Inspector's body: the selected node, a multi-selection summary, or the graph settings. */
+export function InspectorPanel({
+  subject,
+  graph,
+  types,
+  onResizeFrame,
+  onDeleteSelection,
+}: InspectorPanelProps) {
+  switch (subject.kind) {
+    case 'node':
+      return (
+        <NodeInspector
+          // A fresh view per node, so no half-typed draft carries over to the next selection.
+          key={subject.node.id}
+          graph={graph}
+          node={subject.node}
+          definition={subject.definition}
+          types={types}
+          onResizeFrame={onResizeFrame}
+        />
+      )
+    case 'selection':
+      return <SelectionSummary count={subject.count} onDelete={onDeleteSelection} />
+    case 'graph':
+      return <GraphInspector graph={graph} types={types} />
+  }
 }

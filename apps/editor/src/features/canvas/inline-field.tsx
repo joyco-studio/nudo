@@ -9,10 +9,13 @@ import type {
 
 import { ColorPicker } from '@/shared/components/color-picker/color-picker'
 import type { Rgb } from '@/shared/components/color-picker/color-math'
+import { cn } from '@/shared/lib/utils'
 
 import { fallbackLabel } from './fallback-label'
-import { useGraphCanvasActions } from './graph-canvas-actions'
+import { useFieldSize } from './field-size'
+import type { FieldSize } from './field-size'
 import { inlineValue, textureAssetId, valueComponents, withComponent } from './inline-value'
+import { useNodeFieldActions } from './node-field-actions'
 import { NumberField } from './number-field'
 import { PortLabel } from './port-label'
 import { TextureField } from './texture-field'
@@ -22,8 +25,27 @@ const OPTIONAL_HINT = 'Mesh default'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
 const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
 
+const HINT_TEXT: Readonly<Record<FieldSize, string>> = {
+  compact: 'text-micro',
+  comfortable: 'text-xs',
+}
+const SWATCH_SIZE: Readonly<Record<FieldSize, string>> = {
+  compact: 'size-6',
+  comfortable: 'size-7',
+}
+/** On a node, vector components indent past the port handle; the Inspector has no handles. */
+const VECTOR_ROW: Readonly<Record<FieldSize, string>> = {
+  compact: 'pb-1.5 pl-3.5',
+  comfortable: 'pb-2',
+}
+
 export function MutedHint({ children }: { children: string }) {
-  return <span className="shrink-0 font-mono text-micro text-muted-foreground">{children}</span>
+  const size = useFieldSize()
+  return (
+    <span className={cn('shrink-0 font-mono text-muted-foreground', HINT_TEXT[size])}>
+      {children}
+    </span>
+  )
 }
 
 interface ColorFieldProps {
@@ -41,13 +63,14 @@ const isSameRgb = (a: Rgb, b: Rgb): boolean => a.every((channel, index) => chann
  * picker commits once when it closes, so one pick is one undo step.
  */
 function ColorField({ label, value, onCommit, onPreview, onPreviewEnd }: ColorFieldProps) {
+  const size = useFieldSize()
   return (
     <>
       <PortLabel label={label} />
       <ColorPicker
         label={label}
         value={value.value}
-        className="nodrag"
+        className={cn('nodrag', SWATCH_SIZE[size])}
         onPreview={(next) => {
           onPreview(vec3(...next))
         }}
@@ -79,10 +102,11 @@ function VectorField({
   onScrubPreview,
   onScrubPreviewEnd,
 }: VectorFieldProps) {
+  const size = useFieldSize()
   return (
     <>
       <PortLabel label={label} />
-      <div className="flex basis-full gap-1 pb-1.5 pl-3.5">
+      <div className={cn('flex basis-full gap-1', VECTOR_ROW[size])}>
         {valueComponents(value).map((component, index) => {
           const componentLabel = COMPONENT_LABELS[index] ?? String(index)
           return (
@@ -116,7 +140,7 @@ export interface InlineFieldProps {
 
 /** The label and editor of an unconnected input, picked by widget and resolved type. */
 export function InlineField({ node, input, dataType }: InlineFieldProps) {
-  const { setInputValue, previewInputValue, endInputPreview } = useGraphCanvasActions()
+  const { setInputValue, previewInputValue, endInputPreview } = useNodeFieldActions()
   if (input.optional === true) {
     return (
       <>
