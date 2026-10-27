@@ -77,7 +77,8 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Node       | `Esc`                              | Leave a field and return to the node                 |
 | Node       | `Tab` or `Shift` `Tab`             | Next or previous port and field                      |
 | Node       | `Shift` `F10` or `Menu`            | Open its menu: copy, duplicate, preview mode, delete |
-| Comment    | `Enter`                            | Edit its title                                       |
+| Comment    | `Enter`                            | Write in its note                                    |
+| Comment    | `Tab`                              | Edit its title                                       |
 | Comment    | `Alt` `Arrow keys`                 | Resize the frame 20 px                               |
 | Port       | `Enter`                            | Connect to another port                              |
 | Port       | `Delete`                           | Remove its connections                               |

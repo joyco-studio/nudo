@@ -1,4 +1,13 @@
-import { compile, createGraph, addNode, asNodeId } from '@nudo-tsl/core'
+import {
+  addNode,
+  asNodeId,
+  compile,
+  createGraph,
+  parseGraph,
+  serializeGraph,
+  setParam,
+  topologyKey,
+} from '@nudo-tsl/core'
 import type {
   AnyNodeDefinition,
   CompileBackend,
@@ -312,12 +321,46 @@ describe('comment node', () => {
     expect(buildWith(commentNode)).toEqual({})
   })
 
-  it('hides the title and the size: the editor edits them, and they never recompile', () => {
+  it('hides the title, the size and the body text: the editor edits them, and they never recompile', () => {
     expect(commentNode.params).toEqual([
       { id: 'title', label: 'Title', kind: 'string', default: 'Comment', hidden: true },
       { id: 'width', label: 'Width', kind: 'number', default: 320, min: 120, hidden: true },
       { id: 'height', label: 'Height', kind: 'number', default: 200, min: 80, hidden: true },
+      { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true },
     ])
+  })
+
+  describe('body text', () => {
+    const noteId = asNodeId('note')
+    const withComment = (): Graph =>
+      unwrap(
+        addNode(createGraph(), registry, {
+          id: noteId,
+          type: 'utility/comment',
+          position: { x: 0, y: 0 },
+        }),
+      )
+
+    it('editing the body leaves the topology key alone, so it never recompiles', () => {
+      const graph = withComment()
+      const edited = unwrap(
+        setParam(graph, registry, { nodeId: noteId, paramId: 'body' }, 'Line one\nLine two'),
+      )
+
+      expect(edited.nodes[noteId]?.params['body']).toBe('Line one\nLine two')
+      expect(topologyKey(edited, registry)).toBe(topologyKey(graph, registry))
+    })
+
+    it('a saved comment without body text still loads, and its body round-trips', () => {
+      const saved = serializeGraph(withComment())
+      expect(unwrap(parseGraph(saved, registry)).nodes[noteId]?.params['body']).toBeUndefined()
+
+      const edited = unwrap(
+        setParam(withComment(), registry, { nodeId: noteId, paramId: 'body' }, 'Keep me'),
+      )
+      const reloaded = unwrap(parseGraph(serializeGraph(edited), registry))
+      expect(reloaded.nodes[noteId]?.params['body']).toBe('Keep me')
+    })
   })
 })
 

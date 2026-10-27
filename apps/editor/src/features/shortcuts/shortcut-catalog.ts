@@ -104,7 +104,8 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
   {
     title: 'Comment',
     entries: [
-      key('Edit its title', [['Enter']]),
+      key('Write in its note', [['Enter']]),
+      key('Edit its title', [['Tab']]),
       key('Resize the frame 20 px', [['Alt', 'Arrow keys']]),
     ],
   },
