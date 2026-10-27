@@ -4,9 +4,8 @@ import type { NodeId } from '@nudo-tsl/core'
 
 import { Input } from '@/shared/ui/input'
 
+import { COMMENT_TITLE_PARAM } from './comment-params'
 import { useNodeFieldActions } from './node-field-actions'
-
-const COMMENT_TITLE_PARAM = 'title'
 
 export interface CommentTitleFieldProps {
   nodeId: NodeId

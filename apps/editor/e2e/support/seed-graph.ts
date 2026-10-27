@@ -142,3 +142,21 @@ export async function seedAutosave(page: Page, rawText: string): Promise<void> {
     [AUTOSAVE_KEY, rawText] as const,
   )
 }
+
+/** sessionStorage flag that marks the tab as seeded; it survives reloads, unlike page state. */
+const SEEDED_FLAG = 'nudo-tsl:e2e-seeded'
+
+/**
+ * Like `seedAutosave`, but only on the first load of the tab: a reload keeps what the editor
+ * saved since, so a test can check that an edit survives it.
+ */
+export async function seedAutosaveOnce(page: Page, rawText: string): Promise<void> {
+  await page.addInitScript(
+    ([key, value, flag]) => {
+      if (sessionStorage.getItem(flag) !== null) return
+      sessionStorage.setItem(flag, 'true')
+      localStorage.setItem(key, value)
+    },
+    [AUTOSAVE_KEY, rawText, SEEDED_FLAG] as const,
+  )
+}

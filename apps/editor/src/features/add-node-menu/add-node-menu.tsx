@@ -40,6 +40,8 @@ export function AddNodeMenu({ open, onOpenChange, onPick, restoreFocus }: AddNod
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
+        // Opened many times a day: one fast fade from the pointer, nothing from Space.
+        motionPreset="quickFade"
         className="top-[20%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-md"
         onCloseAutoFocus={(event) => {
           event.preventDefault()

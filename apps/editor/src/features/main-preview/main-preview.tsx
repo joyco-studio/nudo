@@ -284,6 +284,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
           </div>
           <div className="flex items-center gap-1">
             <Button
+              static
               variant="ghost"
               size="icon-sm"
               aria-label="Zoom preview out"
@@ -294,6 +295,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
               <ZoomOut aria-hidden="true" />
             </Button>
             <Button
+              static
               variant="ghost"
               size="icon-sm"
               aria-label="Zoom preview in"

@@ -117,6 +117,8 @@ test.describe('shadcn primitives', () => {
     await expect(highlighted).not.toHaveCSS('background-color', listBackground)
     await page.keyboard.press('Escape')
     // Escape closes an open list and gives focus back to the trigger.
+    await expect(listbox).toBeHidden()
+    await expect(lighting).toBeFocused()
     await page.keyboard.press('Enter')
     await expect(listbox).toBeVisible()
     await page.keyboard.press('Escape')

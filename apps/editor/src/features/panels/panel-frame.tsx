@@ -10,6 +10,7 @@ import {
   PanelRightOpen,
 } from 'lucide-react'
 
+import { IconSwap } from '@/shared/components/icon-swap'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/ui/collapsible'
@@ -135,12 +136,15 @@ export function PanelFrame({
               {/* The collapsible trigger wires aria-expanded and aria-controls to the body. */}
               <CollapsibleTrigger asChild>
                 <Button
+                  static
                   variant="ghost"
                   size="icon-sm"
                   aria-label={`${title} panel`}
                   aria-keyshortcuts={PANEL_SHORTCUT_KEYS[panel]}
                 >
-                  <Icon aria-hidden="true" />
+                  <IconSwap swapKey={isOpen ? 'open' : 'closed'}>
+                    <Icon aria-hidden="true" />
+                  </IconSwap>
                 </Button>
               </CollapsibleTrigger>
             </TooltipTrigger>

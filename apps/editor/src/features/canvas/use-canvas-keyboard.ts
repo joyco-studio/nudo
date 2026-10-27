@@ -9,6 +9,7 @@ import { registry } from '@/store/registry'
 
 import {
   FLOW_NODE_SELECTOR,
+  NODE_ENTRY_ATTRIBUTE,
   PORT_BUTTON_ATTRIBUTE,
   canvasKeyIntent,
   classifyKeyTarget,
@@ -23,6 +24,7 @@ import { openContextMenuFor } from './open-context-menu'
 const FIRST_FIELD_SELECTOR =
   'input:not([type="hidden"]), textarea, select, [role="combobox"], [role="switch"]'
 const FIRST_PORT_SELECTOR = `[${PORT_BUTTON_ATTRIBUTE}]`
+const NODE_ENTRY_SELECTOR = `[${NODE_ENTRY_ATTRIBUTE}]`
 
 const getStore = () => useEditorStore.getState()
 
@@ -78,15 +80,23 @@ function deleteFromKeyboard(event: KeyboardEvent, selectedEdgeIds: readonly stri
   refocusCanvasIfRemoved(target)
 }
 
-/** Steps into a node: its first field, or its first port when it has no inline fields. */
+/**
+ * Steps into a node: the field it marks as its entry (a comment's note), else its first field, or
+ * its first port when it has no inline fields.
+ */
 function focusFirstEntry(event: KeyboardEvent): void {
   if (!(event.target instanceof HTMLElement)) return
   const entry =
+    event.target.querySelector<HTMLElement>(NODE_ENTRY_SELECTOR) ??
     event.target.querySelector<HTMLElement>(FIRST_FIELD_SELECTOR) ??
     event.target.querySelector<HTMLElement>(FIRST_PORT_SELECTOR)
   if (entry === null) return
   event.preventDefault()
   entry.focus()
+  // A note is continued, not rewritten: the caret goes after its last character.
+  if (entry instanceof HTMLTextAreaElement) {
+    entry.setSelectionRange(entry.value.length, entry.value.length)
+  }
 }
 
 function focusOwningNode(event: KeyboardEvent): void {

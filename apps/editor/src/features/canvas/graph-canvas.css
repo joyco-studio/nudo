@@ -99,12 +99,12 @@
 /* Appear and connect transitions: opacity only, at most 150 ms. */
 @media (prefers-reduced-motion: no-preference) {
   .graph-node {
-    animation: graph-node-appear 150ms ease-out;
+    animation: graph-node-appear var(--duration-quick) var(--ease-out);
   }
 
   .typed-edge,
   .typed-edge-marker {
-    animation: typed-edge-appear 150ms ease-out;
+    animation: typed-edge-appear var(--duration-quick) var(--ease-out);
   }
 }
 
