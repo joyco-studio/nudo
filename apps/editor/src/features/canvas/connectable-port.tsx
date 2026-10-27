@@ -3,6 +3,7 @@ import type { DataType } from '@nudo-tsl/core'
 
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { KeyboardConnectList } from './keyboard-connect-list'
+import type { PortExplanation } from './node-explanation'
 import { PortHandle } from './port-handle'
 import type { ConnectOrigin, PortSide } from './connect-candidates'
 
@@ -14,6 +15,7 @@ export interface ConnectablePortProps {
   nodeTitle: string
   portLabel: string
   isConnected: boolean
+  explanation: PortExplanation
 }
 
 function accessibleNameOf(props: ConnectablePortProps): string {
@@ -43,6 +45,7 @@ export function ConnectablePort(props: ConnectablePortProps) {
         side={side}
         dataType={dataType}
         accessibleName={accessibleNameOf(props)}
+        explanation={props.explanation}
         buttonRef={buttonRef}
         onActivate={() => {
           setIsListOpen(true)

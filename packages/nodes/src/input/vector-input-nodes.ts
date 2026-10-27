@@ -15,10 +15,20 @@ function defineVectorInput(type: VectorInputType) {
     type: typeId,
     category: 'input',
     label,
-    description: `A constant ${type} you can edit and feed into other nodes.`,
+    description: `A fixed ${type} you type in and feed into other nodes, such as an offset or a direction.`,
     keywords: ['vector', type, 'constant', 'value', 'xyz'],
-    inputs: [{ id: 'value', label: 'Value', type: concrete(type), default: splat(type, 0) }],
-    outputs: [{ id: 'out', label: 'Out', type: concrete(type) }],
+    inputs: [
+      {
+        id: 'value',
+        label: 'Value',
+        type: concrete(type),
+        default: splat(type, 0),
+        description: 'The vector to output.',
+      },
+    ],
+    outputs: [
+      { id: 'out', label: 'Out', type: concrete(type), description: 'The vector you set.' },
+    ],
     build: ({ inputs }) => ({ out: inputs.value }),
   })
 }

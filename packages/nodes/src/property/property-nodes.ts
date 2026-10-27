@@ -15,10 +15,17 @@ function definePropertyNode(type: PropertyType) {
     type: `property/${type}`,
     category: 'input',
     label: PROPERTY_LABELS[type],
-    description: `Reads a ${type} property from the Blackboard.`,
+    description: `Reads a ${type} property from the Properties panel, so one value can feed many nodes.`,
     keywords: ['property', 'blackboard', 'parameter', 'uniform', type],
     inputs: [],
-    outputs: [{ id: 'out', label: 'Out', type: concrete(type) }],
+    outputs: [
+      {
+        id: 'out',
+        label: 'Out',
+        type: concrete(type),
+        description: "The property's current value; editing it never recompiles the shader.",
+      },
+    ],
     params: [
       { id: PROPERTY_ID_PARAM, label: 'Property', kind: 'string', default: '', hidden: true },
     ],

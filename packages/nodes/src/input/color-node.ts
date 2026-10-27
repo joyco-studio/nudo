@@ -10,11 +10,19 @@ export const colorNode = defineNode({
     {
       id: 'color',
       label: 'Color',
+      description: 'The color to output.',
       type: concrete('vec3'),
       default: vec3(1, 1, 1),
       widget: 'color',
     },
   ],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('vec3') }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('vec3'),
+      description: 'The color you picked, as red, green and blue.',
+    },
+  ],
   build: ({ inputs }) => ({ out: inputs.color }),
 })
