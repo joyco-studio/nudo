@@ -3,3 +3,6 @@ docs
 .superpowers
 .context
 .husky/_
+
+# Generated modules are snapshots of codegen output, not hand-formatted code.
+packages/codegen/src/__snapshots__

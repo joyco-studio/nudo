@@ -1,0 +1,22 @@
+{
+  "name": "@nudo-tsl/codegen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@nudo-tsl/core": "workspace:*",
+    "@nudo-tsl/nodes": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0",
+    "three": "0.186.1"
+  }
+}

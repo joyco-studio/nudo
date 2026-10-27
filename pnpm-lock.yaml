@@ -142,6 +142,22 @@ importers:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@26.6.5)(jiti@2.7.0)
 
+  packages/codegen:
+    dependencies:
+      '@nudo-tsl/core':
+        specifier: workspace:*
+        version: link:../core
+      '@nudo-tsl/nodes':
+        specifier: workspace:*
+        version: link:../nodes
+    devDependencies:
+      '@types/three':
+        specifier: 0.186.0
+        version: 0.186.0
+      three:
+        specifier: 0.186.1
+        version: 0.186.1
+
   packages/core: {}
 
   packages/nodes:

@@ -1,0 +1,76 @@
+import { TSL_HELPERS } from './tsl-helpers'
+
+/** Top-level names every module owns. */
+const MODULE_EXPORT_NAMES = ['uniforms', 'textures', 'nodes', 'materialSettings'] as const
+
+/** `three` constants the module may import for `materialSettings`. */
+const THREE_CONSTANT_NAMES = ['DoubleSide', 'FrontSide'] as const
+
+/** Top-level names the helper sources declare besides the helpers themselves. */
+const HELPER_INTERNAL_NAMES = ['mod289', 'permute', 'integerQuotient', 'taylorInverseSqrt'] as const
+
+/**
+ * Every `three/tsl` export the code facade can print. Node names always end in a counter, so only
+ * names that end in a digit could ever collide (`vec3`); the rest are listed for completeness.
+ */
+export const TSL_IMPORT_NAMES = [
+  'abs',
+  'cameraPosition',
+  'checker',
+  'clamp',
+  'color',
+  'cos',
+  'deltaTime',
+  'distance',
+  'dot',
+  'equal',
+  'exp',
+  'float',
+  'floor',
+  'fract',
+  'fwidth',
+  'greaterThan',
+  'greaterThanEqual',
+  'length',
+  'lessThan',
+  'lessThanEqual',
+  'max',
+  'min',
+  'mix',
+  'mx_noise_float',
+  'mx_worley_noise_vec2',
+  'normalize',
+  'normalView',
+  'normalWorld',
+  'oneMinus',
+  'positionLocal',
+  'positionView',
+  'positionViewDirection',
+  'positionWorld',
+  'pow',
+  'remap',
+  'screenUV',
+  'select',
+  'sin',
+  'smoothstep',
+  'sRGBTransferEOTF',
+  'sRGBTransferOETF',
+  'step',
+  'texture',
+  'time',
+  'uniform',
+  'uv',
+  'vec2',
+  'vec3',
+  'vec4',
+  'viewportSharedTexture',
+] as const
+
+/** Names no generated identifier may take. */
+export const RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
+  ...MODULE_EXPORT_NAMES,
+  ...THREE_CONSTANT_NAMES,
+  ...HELPER_INTERNAL_NAMES,
+  ...TSL_IMPORT_NAMES,
+  ...Object.keys(TSL_HELPERS),
+])

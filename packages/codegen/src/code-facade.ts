@@ -1,0 +1,110 @@
+import type {
+  ColorSpaceDirection,
+  CompareOp,
+  NoiseKind,
+  Swizzle,
+  TslFacade,
+  VectorType,
+} from '@nudo-tsl/core'
+import { compose } from './code-expression'
+import type { CodeExpression, HelperName } from './code-expression'
+import { formatNumber } from './literals'
+
+/** The `three/tsl` export each comparison is printed with. */
+const COMPARISONS: Readonly<Record<CompareOp, string>> = {
+  lt: 'lessThan',
+  lte: 'lessThanEqual',
+  gt: 'greaterThan',
+  gte: 'greaterThanEqual',
+  eq: 'equal',
+}
+
+const PERLIN_NOISE = 'mx_noise_float'
+const SIMPLEX_NOISE: HelperName = 'simplexNoise3'
+const WORLEY_NOISE = 'mx_worley_noise_vec2'
+
+const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, string>> = {
+  'srgb-to-linear': 'sRGBTransferEOTF',
+  'linear-to-srgb': 'sRGBTransferOETF',
+}
+
+const joinCodes = (args: readonly CodeExpression[]): string =>
+  args.map((arg) => arg.code).join(', ')
+
+/** `name(a, b)`, importing `name` from `three/tsl`. */
+const call = (name: string, args: readonly CodeExpression[]): CodeExpression =>
+  compose(`${name}(${joinCodes(args)})`, args, { imports: [name] })
+
+/** `receiver.name`: a swizzle such as `.xyz`. */
+const member = (receiver: CodeExpression, name: string): CodeExpression =>
+  compose(`${receiver.code}.${name}`, [receiver])
+
+/** `receiver.method(a, b)`: the receiver is always a call, a member or an identifier. */
+const method = (
+  receiver: CodeExpression,
+  name: string,
+  args: readonly CodeExpression[],
+): CodeExpression => compose(`${receiver.code}.${name}(${joinCodes(args)})`, [receiver, ...args])
+
+/** A call to a helper the module declares itself. */
+const callHelper = (name: HelperName, args: readonly CodeExpression[]): CodeExpression =>
+  compose(`${name}(${joinCodes(args)})`, args, { helpers: [name] })
+
+const printPart = (part: CodeExpression | number): CodeExpression =>
+  typeof part === 'number' ? compose(formatNumber(part), []) : part
+
+function construct(type: VectorType, parts: readonly (CodeExpression | number)[]): CodeExpression {
+  const printed = parts.map(printPart)
+  return compose(`${type}(${joinCodes(printed)})`, printed, { imports: [type] })
+}
+
+/**
+ * Prints each facade call as TSL source: arithmetic as method chains (`a.mul(b)`), everything else
+ * as a call to the `three/tsl` export. Semantically it matches the live facade call for call.
+ */
+export function createCodeFacade(): TslFacade<CodeExpression> {
+  return {
+    add: (a, b) => method(a, 'add', [b]),
+    sub: (a, b) => method(a, 'sub', [b]),
+    mul: (a, b) => method(a, 'mul', [b]),
+    div: (a, b) => method(a, 'div', [b]),
+    sin: (a) => call('sin', [a]),
+    cos: (a) => call('cos', [a]),
+    abs: (a) => call('abs', [a]),
+    fract: (a) => call('fract', [a]),
+    floor: (a) => call('floor', [a]),
+    min: (a, b) => call('min', [a, b]),
+    max: (a, b) => call('max', [a, b]),
+    exp: (a) => call('exp', [a]),
+    pow: (a, b) => call('pow', [a, b]),
+    oneMinus: (a) => call('oneMinus', [a]),
+    clamp: (x, low, high) => call('clamp', [x, low, high]),
+    dot: (a, b) => call('dot', [a, b]),
+    length: (a) => call('length', [a]),
+    normalize: (a) => call('normalize', [a]),
+    distance: (a, b) => call('distance', [a, b]),
+    mix: (a, b, t) => call('mix', [a, b, t]),
+    step: (edge, x) => call('step', [edge, x]),
+    smoothstep: (edge0, edge1, x) => call('smoothstep', [edge0, edge1, x]),
+    fwidth: (x) => call('fwidth', [x]),
+    remap: (x, inLow, inHigh, outLow, outHigh) =>
+      call('remap', [x, inLow, inHigh, outLow, outHigh]),
+    select: (op, a, b, whenTrue, whenFalse) =>
+      call('select', [call(COMPARISONS[op], [a, b]), whenTrue, whenFalse]),
+    noise: (kind: NoiseKind, p) =>
+      kind === 'perlin' ? call(PERLIN_NOISE, [p]) : callHelper(SIMPLEX_NOISE, [p]),
+    voronoi: (p, jitter) => call(WORLEY_NOISE, [p, jitter]),
+    checker: (uv) => call('checker', [uv]),
+    textureSample: (texture, uv, level) => {
+      const sampled = method(texture, 'sample', [uv])
+      return level === null ? sampled : method(sampled, 'level', [level])
+    },
+    colorSpace: (direction, color) => call(COLOR_SPACE_CONVERSIONS[direction], [color]),
+    sceneColor: (uv) => member(call('viewportSharedTexture', [uv]), 'xyz'),
+    sceneDepthFade: (distance) => callHelper('sceneDepthFade', [distance]),
+    normalFromHeight: (height, strength) => callHelper('normalFromHeight', [height, strength]),
+    builtin: (name) => compose(name === 'uv' ? 'uv()' : name, [], { imports: [name] }),
+    construct,
+    swizzle: (value, components: Swizzle) => member(value, components),
+  }
+}

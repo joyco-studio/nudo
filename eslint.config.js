@@ -88,6 +88,32 @@ export default defineConfig(
     }),
   },
   {
+    name: 'boundaries/codegen',
+    files: ['packages/codegen/**/*.{ts,tsx}'],
+    rules: restrictImports({
+      packages: [...UI_FRAMEWORK_PACKAGES, ...THREE_PACKAGES],
+      allowedInternal: ['core', 'nodes'],
+      reason: {
+        internal: '@nudo-tsl/codegen may only import @nudo-tsl/core and @nudo-tsl/nodes.',
+        external:
+          '@nudo-tsl/codegen must not depend on react, react-dom, three or @xyflow/*; it only prints code.',
+      },
+    }),
+  },
+  {
+    // The parity test imports the generated module, so it needs three (a devDependency).
+    name: 'boundaries/codegen-tests',
+    files: ['packages/codegen/**/*.test.ts'],
+    rules: restrictImports({
+      packages: UI_FRAMEWORK_PACKAGES,
+      allowedInternal: ['core', 'nodes'],
+      reason: {
+        internal: '@nudo-tsl/codegen may only import @nudo-tsl/core and @nudo-tsl/nodes.',
+        external: '@nudo-tsl/codegen must not depend on react, react-dom or @xyflow/*.',
+      },
+    }),
+  },
+  {
     // R5: vendored shadcn/joyco UI code is not held to the assertion and strict-type rules.
     name: 'vendored-ui',
     files: ['apps/editor/src/shared/ui/**'],
