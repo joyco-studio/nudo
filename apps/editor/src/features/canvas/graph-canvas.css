@@ -14,7 +14,16 @@
     --xy-selection-background-color: color-mix(in oklab, var(--primary) 12%, transparent);
     --xy-selection-border: 1px solid var(--primary);
     --xy-attribution-background-color: transparent;
+    --xy-resize-background-color: var(--primary);
     color: var(--foreground);
+  }
+
+  /* Comment frame resizer: square primary handles with a card-colored edge, like the port dots. */
+  .graph-canvas .react-flow__resize-control.handle.comment-resize-handle {
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--card);
+    border-radius: 0;
   }
 
   .graph-canvas .react-flow__handle.port-handle {

@@ -4,6 +4,8 @@ import { useReactFlow } from '@xyflow/react'
 
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { fitViewOptionsFor } from '@/features/canvas/fit-view-options'
+import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
+import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { redo, undo, useEditorStore } from '@/store/editor-store'
 
@@ -11,13 +13,6 @@ import { copySelection, pasteFromClipboard } from './clipboard'
 import { globalShortcutAction } from './shortcut-action'
 import type { GlobalShortcutAction } from './shortcut-action'
 import { useOpenShortcutsDialog } from './shortcuts-dialog-context'
-
-const OVERLAY_SELECTOR = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]'
-
-/** Dialogs and popovers own the keyboard while they are open. */
-function isInsideOverlay(target: EventTarget | null): boolean {
-  return target instanceof Element && target.closest(OVERLAY_SELECTOR) !== null
-}
 
 function hasSelectedText(): boolean {
   return (window.getSelection()?.toString() ?? '') !== ''
@@ -35,12 +30,13 @@ function copyTargetNodes(target: EventTarget | null): readonly NodeId[] {
 }
 
 /**
- * Editor-wide keyboard shortcuts: undo and redo, copy and paste, select all, fit view and the
- * shortcuts dialog. Mounted once, inside the React Flow provider.
+ * Editor-wide keyboard shortcuts: undo and redo, copy and paste, select all, fit view, new graph
+ * and the shortcuts dialog. Mounted once, inside the React Flow provider.
  */
 export function useGlobalShortcuts(): void {
   const { fitView } = useReactFlow()
   const openShortcutsDialog = useOpenShortcutsDialog()
+  const requestNewGraph = useRequestNewGraph()
 
   useEffect(() => {
     const run = (action: GlobalShortcutAction, event: KeyboardEvent): void => {
@@ -66,6 +62,9 @@ export function useGlobalShortcuts(): void {
         case 'show-shortcuts':
           openShortcutsDialog(event.target instanceof HTMLElement ? event.target : null)
           return
+        case 'new-graph':
+          requestNewGraph(event.target instanceof HTMLElement ? event.target : null)
+          return
       }
     }
 
@@ -85,5 +84,5 @@ export function useGlobalShortcuts(): void {
     return () => {
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [fitView, openShortcutsDialog])
+  }, [fitView, openShortcutsDialog, requestNewGraph])
 }

@@ -43,6 +43,20 @@ function toPortRefs(connection: FlowConnection): { from: PortRef; to: PortRef } 
 
 const getStore = () => useEditorStore.getState()
 
+function withoutKeys<T>(record: Readonly<Record<string, T>>, keys: readonly string[]) {
+  return Object.fromEntries(Object.entries(record).filter(([key]) => !keys.includes(key)))
+}
+
+/** A resize ends with the final size; the position is the draft the resize left behind. */
+function commitEndedResizes(endedResizes: Readonly<Record<string, Dimensions>>): void {
+  const store = getStore()
+  for (const [id, size] of Object.entries(endedResizes)) {
+    const nodeId = asNodeId(id)
+    const position = store.draftPositions[nodeId] ?? store.graph.nodes[nodeId]?.position
+    if (position !== undefined) store.commitResize(nodeId, { position, ...size })
+  }
+}
+
 /** Connects the store to the presentational canvas. React Flow state is derived, never owned. */
 export function GraphCanvasContainer() {
   const graph = useEditorStore((state) => state.graph)
@@ -52,6 +66,8 @@ export function GraphCanvasContainer() {
   // React Flow view state: measured sizes keep handles and edges placed between renders.
   const [measured, setMeasured] = useState<Readonly<Record<string, Dimensions>>>({})
   const [selectedEdgeIds, setSelectedEdgeIds] = useState<readonly string[]>([])
+  // Live sizes while a comment frame's resizer is dragged; the store gets the final one.
+  const [draftSizes, setDraftSizes] = useState<Readonly<Record<string, Dimensions>>>({})
 
   const types = useMemo(() => resolvePortTypes(graph, registry), [graph])
   const flow = useMemo(
@@ -62,9 +78,11 @@ export function GraphCanvasContainer() {
     () =>
       flow.nodes.map((node) => {
         const size = measured[node.id]
-        return size === undefined ? node : { ...node, measured: size }
+        const draftSize = draftSizes[node.id]
+        const sized = draftSize === undefined ? node : { ...node, ...draftSize }
+        return size === undefined ? sized : { ...sized, measured: size }
       }),
-    [flow.nodes, measured],
+    [flow.nodes, measured, draftSizes],
   )
   const edges = useMemo(
     () =>
@@ -80,8 +98,15 @@ export function GraphCanvasContainer() {
     if (Object.keys(intent.dimensions).length > 0) {
       setMeasured((current) => ({ ...current, ...intent.dimensions }))
     }
+    if (Object.keys(intent.draftSizes).length > 0) {
+      setDraftSizes((current) => ({ ...current, ...intent.draftSizes }))
+    }
     if (intent.draftPositions !== null) store.setDraftPositions(intent.draftPositions)
     if (intent.committedPositions !== null) store.commitMove(intent.committedPositions)
+    commitEndedResizes(intent.endedResizes)
+    if (Object.keys(intent.endedResizes).length > 0) {
+      setDraftSizes((current) => withoutKeys(current, Object.keys(intent.endedResizes)))
+    }
     if (intent.selection !== null) store.setSelection(intent.selection)
   }, [])
 
@@ -135,6 +160,9 @@ export function GraphCanvasContainer() {
       },
       disconnectPort: (origin) => {
         getStore().disconnect(edgesAttachedTo(getStore().graph, origin))
+      },
+      setParam: (ref, value) => {
+        getStore().setParam(ref, value)
       },
     }),
     [],

@@ -5,11 +5,15 @@ import { RotateCcw, Upload, ZoomIn, ZoomOut } from 'lucide-react'
 import type { Group } from 'three'
 import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
+import { effectivePreviewLayout } from '@/features/panels/panel-state'
+import type { PreviewBackdrop } from '@/features/panels/panel-state'
+import { cn } from '@/shared/lib/utils'
 import { useEditorStore } from '@/store/editor-store'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
+import { BackdropField } from './backdrop-field'
 import { createRenderer } from './create-renderer'
 import type { RendererBackend } from './create-renderer'
 import { disposeModel, loadGlbModel } from './glb-model'
@@ -44,6 +48,7 @@ interface ViewportProps {
   shape: PreviewShape
   model: Group | null
   backgroundColor: string
+  backdrop: PreviewBackdrop
   orbitRef: RefObject<OrbitView | null>
   onBackend: (backend: RendererBackend) => void
   onMaterialStatus: (rejection: string | null) => void
@@ -237,6 +242,9 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   const [rejection, setRejection] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const { backgroundColor, setCustomColor } = useBackgroundColor()
+  const backdrop = useEditorStore((state) => state.panels.backdrop)
+  // Docked, the viewport is a square; split and full give it all the height the panel has.
+  const isFilling = useEditorStore((state) => effectivePreviewLayout(state.panels) !== 'docked')
   const orbitRef = useRef<OrbitView | null>(null)
 
   useEffect(() => {
@@ -255,13 +263,14 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="relative aspect-square">
+    <div className={cn('flex flex-col', isFilling && 'min-h-0 flex-1')}>
+      <div className={cn('relative', isFilling ? 'min-h-0 flex-1' : 'aspect-square')}>
         <Viewport
           candidate={candidate}
           shape={shape}
           model={model}
           backgroundColor={backgroundColor}
+          backdrop={backdrop}
           orbitRef={orbitRef}
           onBackend={setBackend}
           onMaterialStatus={setRejection}
@@ -318,7 +327,10 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
             </Button>
           </div>
         </div>
-        <BackgroundColorField value={backgroundColor} onChange={setCustomColor} />
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <BackdropField />
+          <BackgroundColorField value={backgroundColor} onChange={setCustomColor} />
+        </div>
       </div>
       {/* The live region stays mounted so a message that appears later is announced. */}
       <div aria-live="polite">

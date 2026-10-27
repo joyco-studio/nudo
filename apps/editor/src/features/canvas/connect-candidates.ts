@@ -35,8 +35,11 @@ interface NodeEntry {
 }
 
 /** Node titles, numbered "Sine (1)", "Sine (2)" only where two nodes would read the same. */
-function uniqueTitles(entries: readonly Omit<NodeEntry, 'title'>[]): readonly NodeEntry[] {
-  const titles = entries.map((entry) => nodeTitle(entry.node, entry.definition))
+function uniqueTitles(
+  entries: readonly Omit<NodeEntry, 'title'>[],
+  properties: Graph['properties'],
+): readonly NodeEntry[] {
+  const titles = entries.map((entry) => nodeTitle(entry.node, entry.definition, properties))
   const seen = new Map<string, number>()
   return entries.map((entry, index) => {
     const title = titles[index] ?? entry.definition.label
@@ -52,7 +55,7 @@ function nodeEntries(graph: Graph, registry: NodeRegistry): readonly NodeEntry[]
     const definition = registry.get(node.type)
     return definition === undefined ? [] : [{ node, definition }]
   })
-  return uniqueTitles(known)
+  return uniqueTitles(known, graph.properties)
 }
 
 function candidatesOf(

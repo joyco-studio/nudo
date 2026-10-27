@@ -6,11 +6,28 @@ import type {
   GraphFragment,
   NodeId,
   NodeTypeId,
+  ParamRef,
+  ParamValue,
   PortRef,
   PortValue,
   XY,
 } from '@nudo-tsl/core'
 import type { StateCreator } from 'zustand'
+
+import type {
+  NonFullPreviewLayout,
+  PanelId,
+  PanelPrefs,
+  PreviewBackdrop,
+  PreviewLayout,
+} from '@/features/panels/panel-state'
+
+/** Where a resizable node (a comment frame) ends up after a resize. */
+export interface NodeFrame {
+  readonly position: XY
+  readonly width: number
+  readonly height: number
+}
 
 export interface GraphSlice {
   graph: Graph
@@ -27,6 +44,12 @@ export interface GraphSlice {
   connect(from: PortRef, to: PortRef): ConnectionCheck
   disconnect(edgeIds: readonly EdgeId[]): void
   pasteFragment(fragment: GraphFragment, offset: XY): readonly NodeId[]
+  /** One history entry; does nothing when the value the node shows would not change. */
+  setParam(ref: ParamRef, value: ParamValue): void
+  /** Commits a resize (position, `width` and `height` params) as one history entry. */
+  commitResize(nodeId: NodeId, frame: NodeFrame): void
+  /** Replaces the graph with a fresh one (master only, no properties) as one history entry. */
+  resetGraph(): void
 }
 
 export interface Notice {
@@ -50,12 +73,23 @@ export interface UiSlice {
    */
   inputPreview: InputPreview | null
   notice: Notice | null
+  /** Panel layout preferences, persisted to `nudo-tsl:panels`. */
+  panels: PanelPrefs
+  /** The layout Escape returns to when leaving the full preview. */
+  layoutBeforeFull: NonFullPreviewLayout
   setSelection(ids: readonly NodeId[]): void
   setDraftPositions(positions: UiSlice['draftPositions']): void
   previewInputValue(ref: PortRef, value: PortValue): void
   clearInputPreview(): void
   showNotice(notice: Notice): void
   dismissNotice(): void
+  togglePanel(id: PanelId): void
+  /** Also expands a collapsed preview, so the chosen layout shows. */
+  setPreviewLayout(layout: PreviewLayout): void
+  cyclePreviewLayout(): void
+  exitFullPreview(): void
+  setSplitPercent(percent: number): void
+  setPreviewBackdrop(backdrop: PreviewBackdrop): void
 }
 
 export interface CompileSlice {

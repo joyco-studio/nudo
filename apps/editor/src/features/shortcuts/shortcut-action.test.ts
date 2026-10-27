@@ -9,8 +9,9 @@ const plain = {
   altKey: false,
   repeat: false,
 }
-const press = (key: string, modifiers: Partial<typeof plain> = {}) => ({
+const press = (key: string, modifiers: Partial<typeof plain> & { code?: string } = {}) => ({
   key,
+  code: '',
   ...plain,
   ...modifiers,
 })
@@ -51,6 +52,21 @@ describe('globalShortcutAction', () => {
     expect(globalShortcutAction(press('c', { ctrlKey: true, shiftKey: true }))).toBeNull()
     expect(globalShortcutAction(press('x', { ctrlKey: true }))).toBeNull()
     expect(globalShortcutAction(press('q'))).toBeNull()
+  })
+
+  it('starts a new graph with Ctrl or Cmd + Alt + N, whatever character Alt types', () => {
+    expect(globalShortcutAction(press('n', { ctrlKey: true, altKey: true, code: 'KeyN' }))).toBe(
+      'new-graph',
+    )
+    // On a Mac, Option+N types a dead key; the physical key still says N.
+    expect(globalShortcutAction(press('Dead', { metaKey: true, altKey: true, code: 'KeyN' }))).toBe(
+      'new-graph',
+    )
+    expect(globalShortcutAction(press('n', { altKey: true, code: 'KeyN' }))).toBeNull()
+    expect(globalShortcutAction(press('n', { ctrlKey: true, code: 'KeyN' }))).toBeNull()
+    expect(
+      globalShortcutAction(press('n', { ctrlKey: true, altKey: true, code: 'KeyN', repeat: true })),
+    ).toBeNull()
   })
 
   it('repeats only undo and redo while a key is held', () => {

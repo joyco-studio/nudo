@@ -31,7 +31,26 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
       { action: 'Paste nodes', chords: [[MOD, 'V']] },
       { action: 'Select all nodes', chords: [[MOD, 'A']] },
       { action: 'Fit all nodes in view', chords: [['F']] },
+      { action: 'Start a new graph', chords: [[MOD, 'Alt', 'N']] },
       { action: 'Show these shortcuts', chords: [['?']] },
+    ],
+  },
+  {
+    title: 'Panels (canvas, node or panel header)',
+    entries: [
+      { action: 'Show or hide the Blackboard', chords: [['B']] },
+      { action: 'Show or hide the Inspector', chords: [['I']] },
+      { action: 'Show or hide the Preview', chords: [['P']] },
+      { action: 'Show or hide the Code panel', chords: [['C']] },
+      { action: 'Next preview layout: docked, split, full', chords: [['Shift', 'P']] },
+    ],
+  },
+  {
+    title: 'Preview layout',
+    entries: [
+      { action: 'Leave the full preview', chords: [['Esc']] },
+      { action: 'Move the split divider 5%', chords: [['Arrow keys']] },
+      { action: 'Smallest or largest canvas in split', chords: [['Home'], ['End']] },
     ],
   },
   {
@@ -52,6 +71,13 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
       { action: 'Edit its first field', chords: [['Enter']] },
       { action: 'Leave a field and return to the node', chords: [['Esc']] },
       { action: 'Next or previous port and field', chords: [['Tab'], ['Shift', 'Tab']] },
+    ],
+  },
+  {
+    title: 'Comment',
+    entries: [
+      { action: 'Edit its title', chords: [['Enter']] },
+      { action: 'Resize the frame 20 px', chords: [['Alt', 'Arrow keys']] },
     ],
   },
   {

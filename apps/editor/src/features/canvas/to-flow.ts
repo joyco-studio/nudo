@@ -1,6 +1,7 @@
-import { MASTER_NODE_ID, getConversion, portKey } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, PROPERTY_ID_PARAM, getConversion, portKey } from '@nudo-tsl/core'
 import type {
   AnyNodeDefinition,
+  BlackboardProperty,
   Conversion,
   DataType,
   Graph,
@@ -12,14 +13,25 @@ import type {
 } from '@nudo-tsl/core'
 import type { Edge, Node } from '@xyflow/react'
 import type { CompileSlice, UiSlice } from '../../store/store-types'
+import { frameOf } from './node-frame'
 
 export const GRAPH_NODE_TYPE = 'graph-node'
+export const COMMENT_NODE_TYPE = 'comment'
 export const TYPED_EDGE_TYPE = 'typed'
 const MASTER_TITLE = 'Master Stack'
+const COMMENT_TYPE = 'utility/comment'
+const COMMENT_TITLE_PARAM = 'title'
+/**
+ * Comment frames sit behind every other node, even while selected: React Flow lifts a selected
+ * node by 1000, which still leaves the frame below unselected nodes at 0.
+ */
+const COMMENT_Z_INDEX = -2000
 
 export type FlowNodeData = {
   definition: AnyNodeDefinition
   node: GraphNode
+  /** The name the node shows and announces (see `nodeTitle`). */
+  title: string
   inputTypes: Record<string, DataType>
   outputTypes: Record<string, DataType>
   connectedInputs: ReadonlySet<string>
@@ -34,12 +46,34 @@ export type FlowEdgeData = {
   conversion: Conversion | null
 }
 
-export type FlowNode = Node<FlowNodeData, typeof GRAPH_NODE_TYPE>
+export type FlowNode = Node<FlowNodeData, typeof GRAPH_NODE_TYPE | typeof COMMENT_NODE_TYPE>
 export type FlowEdge = Edge<FlowEdgeData, typeof TYPED_EDGE_TYPE>
 
-/** The name a node shows in its header and announces to assistive technology. */
-export function nodeTitle(node: GraphNode, definition: AnyNodeDefinition): string {
-  return node.id === MASTER_NODE_ID ? MASTER_TITLE : definition.label
+function stringParam(node: GraphNode, paramId: string): string | null {
+  const value = node.params[paramId]
+  return typeof value === 'string' ? value : null
+}
+
+/**
+ * The name a node shows in its header and announces to assistive technology: the master's fixed
+ * title, a comment's own title, a property reader's property label, or the definition label.
+ */
+export function nodeTitle(
+  node: GraphNode,
+  definition: AnyNodeDefinition,
+  properties: readonly BlackboardProperty[],
+): string {
+  if (node.id === MASTER_NODE_ID) return MASTER_TITLE
+  if (node.type === COMMENT_TYPE) {
+    const title = stringParam(node, COMMENT_TITLE_PARAM)?.trim() ?? ''
+    return title === '' ? definition.label : title
+  }
+  if (definition.reads === 'property') {
+    const propertyId = stringParam(node, PROPERTY_ID_PARAM)
+    const property = properties.find((candidate) => candidate.id === propertyId)
+    return property?.label ?? definition.label
+  }
+  return definition.label
 }
 
 /** Id of the visually hidden element that holds a node's description for `aria-describedby`. */
@@ -78,6 +112,7 @@ function portTypes(
 interface NodeEntry {
   readonly node: GraphNode
   readonly definition: AnyNodeDefinition
+  readonly title: string
 }
 
 function portLabel(entry: NodeEntry, portId: string, side: 'inputs' | 'outputs'): string {
@@ -97,8 +132,8 @@ function toFlowEdge(
   if (!from || !to || sourceType === undefined || targetType === undefined) return null
 
   const conversion = getConversion(sourceType, targetType)
-  const fromName = `${nodeTitle(from.node, from.definition)} ${portLabel(from, edge.from.portId, 'outputs')}`
-  const toName = `${nodeTitle(to.node, to.definition)} ${portLabel(to, edge.to.portId, 'inputs')}`
+  const fromName = `${from.title} ${portLabel(from, edge.from.portId, 'outputs')}`
+  const toName = `${to.title} ${portLabel(to, edge.to.portId, 'inputs')}`
   return {
     id: edge.id,
     type: TYPED_EDGE_TYPE,
@@ -109,6 +144,16 @@ function toFlowEdge(
     ariaLabel: `${fromName} to ${toName}`,
     data: { sourceType, conversion: conversion.ok ? conversion.conversion : null },
   }
+}
+
+/** A comment's stored size and its place behind the other nodes; nothing for other nodes. */
+function frameAttributes(
+  node: GraphNode,
+  definition: AnyNodeDefinition,
+): Pick<FlowNode, 'width' | 'height' | 'zIndex'> {
+  const frame = frameOf(node, definition)
+  if (frame === null) return {}
+  return { width: frame.width, height: frame.height, zIndex: COMMENT_Z_INDEX }
 }
 
 /** Derives the React Flow view of the graph. Pure: the store stays the single source of truth. */
@@ -129,18 +174,21 @@ export function toFlow(
   for (const node of Object.values(graph.nodes)) {
     const definition = registry.get(node.type)
     if (definition === undefined) continue
-    entries.set(node.id, { node, definition })
+    const title = nodeTitle(node, definition, graph.properties)
+    entries.set(node.id, { node, definition, title })
     nodes.push({
       id: node.id,
-      type: GRAPH_NODE_TYPE,
+      type: node.type === COMMENT_TYPE ? COMMENT_NODE_TYPE : GRAPH_NODE_TYPE,
       position: draft[node.id] ?? node.position,
       selected: selectedIds.has(node.id),
       deletable: node.id !== MASTER_NODE_ID,
-      ariaLabel: nodeTitle(node, definition),
+      ariaLabel: title,
       domAttributes: { 'aria-describedby': nodeDescriptionId(node.id) },
+      ...frameAttributes(node, definition),
       data: {
         definition,
         node,
+        title,
         inputTypes: portTypes(node.id, definition.inputs, types.inputs),
         outputTypes: portTypes(node.id, definition.outputs, types.outputs),
         connectedInputs: connectedInputs.get(node.id) ?? new Set<string>(),

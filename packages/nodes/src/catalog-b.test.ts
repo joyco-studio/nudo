@@ -312,9 +312,9 @@ describe('comment node', () => {
     expect(buildWith(commentNode)).toEqual({})
   })
 
-  it('keeps the title editable and the size hidden', () => {
+  it('hides the title and the size: the editor edits them, and they never recompile', () => {
     expect(commentNode.params).toEqual([
-      { id: 'title', label: 'Title', kind: 'string', default: 'Comment' },
+      { id: 'title', label: 'Title', kind: 'string', default: 'Comment', hidden: true },
       { id: 'width', label: 'Width', kind: 'number', default: 320, min: 120, hidden: true },
       { id: 'height', label: 'Height', kind: 'number', default: 200, min: 80, hidden: true },
     ])

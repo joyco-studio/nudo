@@ -3,6 +3,9 @@ import type { RefObject } from 'react'
 import type { Group } from 'three'
 import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
+import type { PreviewBackdrop } from '@/features/panels/panel-state'
+
+import { CheckerRoom } from './checker-room'
 import type { OrbitView } from './orbit-view'
 import { PreviewMesh } from './preview-mesh'
 import type { PreviewShape } from './preview-shape'
@@ -23,6 +26,7 @@ export interface PreviewSceneProps {
   shape: PreviewShape
   model: Group | null
   backgroundColor: string
+  backdrop: PreviewBackdrop
   orbitRef: RefObject<OrbitView | null>
   onMaterialStatus: MaterialStatusHandler
 }
@@ -33,6 +37,7 @@ export function PreviewScene({
   shape,
   model,
   backgroundColor,
+  backdrop,
   orbitRef,
   onMaterialStatus,
 }: PreviewSceneProps) {
@@ -43,6 +48,7 @@ export function PreviewScene({
       <color attach="background" args={[backgroundColor]} />
       <hemisphereLight args={[SKY_COLOR, GROUND_COLOR, FILL_LIGHT_INTENSITY]} />
       <directionalLight position={KEY_LIGHT_POSITION} intensity={KEY_LIGHT_INTENSITY} />
+      {backdrop === 'checker-room' && <CheckerRoom />}
       {material !== null && <PreviewMesh shape={shape} material={material} model={model} />}
       <OrbitControls
         ref={orbitRef}

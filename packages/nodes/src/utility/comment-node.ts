@@ -15,7 +15,8 @@ export const commentNode = defineNode({
   inputs: [],
   outputs: [],
   params: [
-    { id: 'title', label: 'Title', kind: 'string', default: DEFAULT_TITLE },
+    // Edited in the frame header (ruling P2-R8): editor state that never recompiles.
+    { id: 'title', label: 'Title', kind: 'string', default: DEFAULT_TITLE, hidden: true },
     {
       id: 'width',
       label: 'Width',

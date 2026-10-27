@@ -1,16 +1,20 @@
 import { memo, useId } from 'react'
-import type { DataType, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
+import type { DataType, OutputDefinition } from '@nudo-tsl/core'
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
-import { TriangleAlert } from 'lucide-react'
+import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { InlineField, PortLabel } from './inline-field'
+import { InlineField, MutedHint, PortLabel } from './inline-field'
 import { ConnectablePort } from './connectable-port'
+import { useGraphCanvasActions } from './graph-canvas-actions'
+import { inputGroups, isNodeCollapsed, visibleOutputs } from './node-port-layout'
+import type { InputRowModel, PortGroup } from './node-port-layout'
+import { ParamFields, bodyParams } from './param-field'
 import { PortTypeLabel } from './port-handle'
-import { nodeDescriptionId, nodeTitle } from './to-flow'
+import { nodeDescriptionId } from './to-flow'
 import type { FlowNode, FlowNodeData } from './to-flow'
 
 /**
@@ -19,23 +23,7 @@ import type { FlowNode, FlowNodeData } from './to-flow'
  */
 const DESCRIPTION_DELAY_MS = 500
 const DESCRIPTION_OFFSET_PX = 8
-
-/** Master Stack inputs that run in the vertex stage; every other input is a fragment input. */
-const VERTEX_INPUT_IDS: ReadonlySet<string> = new Set(['position'])
-
-interface PortGroup {
-  readonly title: string | null
-  readonly inputs: readonly InputDefinition<string>[]
-}
-
-function inputGroups(data: FlowNodeData): readonly PortGroup[] {
-  const { inputs } = data.definition
-  if (data.node.id !== MASTER_NODE_ID) return [{ title: null, inputs }]
-  return [
-    { title: 'Vertex', inputs: inputs.filter((input) => VERTEX_INPUT_IDS.has(input.id)) },
-    { title: 'Fragment', inputs: inputs.filter((input) => !VERTEX_INPUT_IDS.has(input.id)) },
-  ]
-}
+const COLLAPSED_PARAM = 'collapsed'
 
 /** Screen reader text for the port type, after the visible label. */
 function TypeForAssistiveTech({ dataType }: { dataType: DataType }) {
@@ -44,17 +32,20 @@ function TypeForAssistiveTech({ dataType }: { dataType: DataType }) {
 
 interface InputRowProps {
   data: FlowNodeData
-  input: InputDefinition<string>
+  row: InputRowModel
 }
 
-function InputRow({ data, input }: InputRowProps) {
+function InputRow({ data, row }: InputRowProps) {
+  const { input, disabledHint } = row
   const dataType = data.inputTypes[input.id]
   if (dataType === undefined) return null
   const isConnected = data.connectedInputs.has(input.id)
+  const isDisabled = disabledHint !== null
 
   return (
     <li
       data-port-id={input.id}
+      data-disabled={isDisabled}
       className="relative flex min-h-7 flex-wrap items-center gap-x-1.5 pr-2 pl-3"
     >
       <ConnectablePort
@@ -62,12 +53,17 @@ function InputRow({ data, input }: InputRowProps) {
         portId={input.id}
         side="input"
         dataType={dataType}
-        nodeTitle={nodeTitle(data.node, data.definition)}
+        nodeTitle={data.title}
         portLabel={input.label}
         isConnected={isConnected}
       />
       <PortTypeLabel dataType={dataType} />
-      {isConnected ? (
+      {isDisabled ? (
+        <>
+          <PortLabel label={input.label} isMuted />
+          <MutedHint>{disabledHint}</MutedHint>
+        </>
+      ) : isConnected ? (
         <PortLabel label={input.label} />
       ) : (
         <InlineField node={data.node} input={input} dataType={dataType} />
@@ -97,7 +93,7 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
         portId={output.id}
         side="output"
         dataType={dataType}
-        nodeTitle={nodeTitle(data.node, data.definition)}
+        nodeTitle={data.title}
         portLabel={output.label}
         isConnected={data.connectedOutputs.has(output.id)}
       />
@@ -108,11 +104,11 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
 /** A titled group (Master Stack "Vertex", "Fragment") is a labelled group, not a landmark. */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
   const headingId = useId()
-  if (group.inputs.length === 0) return null
+  if (group.rows.length === 0) return null
   const list = (
     <ul>
-      {group.inputs.map((input) => (
-        <InputRow key={input.id} data={data} input={input} />
+      {group.rows.map((row) => (
+        <InputRow key={row.input.id} data={data} row={row} />
       ))}
     </ul>
   )
@@ -130,44 +126,139 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
   )
 }
 
-/** A graph node: header, outputs on the right, inputs (with inline fields) on the left. */
+/** Disclosure for the unconnected ports: the universal `collapsed` param, which never recompiles. */
+function CollapseToggle({ data }: { data: FlowNodeData }) {
+  const { setParam } = useGraphCanvasActions()
+  const isCollapsed = isNodeCollapsed(data)
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label="Unconnected ports"
+          aria-expanded={!isCollapsed}
+          onClick={() => {
+            setParam({ nodeId: data.node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
+          }}
+          className="nodrag -ml-1.5 flex size-6 shrink-0 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          {isCollapsed ? (
+            <ChevronRight aria-hidden="true" className="size-3.5" />
+          ) : (
+            <ChevronDown aria-hidden="true" className="size-3.5" />
+          )}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top">
+        {isCollapsed ? 'Show unconnected ports' : 'Hide unconnected ports'}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+function NodeHeader({ data }: { data: FlowNodeData }) {
+  const { definition } = data
+  const hasPorts = definition.inputs.length + definition.outputs.length > 0
+
+  return (
+    <header className="flex h-8 items-center gap-1 border-b bg-muted/50 px-3">
+      {hasPorts && <CollapseToggle data={data} />}
+      <Tooltip delayDuration={DESCRIPTION_DELAY_MS}>
+        <TooltipTrigger asChild>
+          <h2 className="truncate font-heading text-xs font-semibold tracking-wide uppercase">
+            {data.title}
+          </h2>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          sideOffset={DESCRIPTION_OFFSET_PX}
+          className="pointer-events-none"
+        >
+          {definition.description}
+        </TooltipContent>
+      </Tooltip>
+    </header>
+  )
+}
+
+function NodeError({ message }: { message: string }) {
+  return (
+    <p className="flex items-start gap-1.5 border-t border-destructive px-3 py-2 text-xs text-destructive">
+      <TriangleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
+      <span>{message}</span>
+    </p>
+  )
+}
+
+function nodeFrameClass(data: FlowNodeData, selected: boolean): string {
+  return cn(
+    'graph-node flex flex-col border bg-card text-card-foreground',
+    selected && 'border-primary shadow-[0_0_0_1px_var(--primary)]',
+    data.error !== undefined && 'border-destructive',
+  )
+}
+
+/** A Blackboard property reader: one row with the property label, its type and the output. */
+function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolean }) {
+  const [output] = data.definition.outputs
+  const dataType = output === undefined ? undefined : data.outputTypes[output.id]
+  if (output === undefined || dataType === undefined) return null
+
+  return (
+    <div
+      data-error={data.error !== undefined}
+      className={cn(nodeFrameClass(data, selected), 'w-44')}
+    >
+      <p id={nodeDescriptionId(data.node.id)} className="sr-only">
+        {data.definition.description}
+      </p>
+      <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
+        <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
+        <span
+          data-type-chip
+          className="shrink-0 border px-1 font-mono text-[10px] leading-4 text-muted-foreground"
+        >
+          {dataType}
+        </span>
+        <ConnectablePort
+          nodeId={data.node.id}
+          portId={output.id}
+          side="output"
+          dataType={dataType}
+          nodeTitle={data.title}
+          portLabel={output.label}
+          isConnected={data.connectedOutputs.has(output.id)}
+        />
+      </div>
+      {data.error !== undefined && <NodeError message={data.error} />}
+    </div>
+  )
+}
+
+/** A graph node: header, params, outputs on the right, inputs (with inline fields) on the left. */
 function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const { definition, node, outputTypes, error } = data
-  const title = nodeTitle(node, definition)
-  const isMaster = node.id === MASTER_NODE_ID
+  if (definition.reads === 'property') return <PropertyPill data={data} selected={selected} />
+
+  const params = bodyParams(definition.params)
+  const outputs = visibleOutputs(data)
+  const groups = inputGroups(data)
+  const hasInputs = groups.some((group) => group.rows.length > 0)
 
   return (
     <div
       data-error={error !== undefined}
-      className={cn(
-        'graph-node flex flex-col border bg-card text-card-foreground',
-        isMaster ? 'w-64' : 'w-56',
-        selected && 'border-primary shadow-[0_0_0_1px_var(--primary)]',
-        error !== undefined && 'border-destructive',
-      )}
+      className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
     >
       <p id={nodeDescriptionId(node.id)} className="sr-only">
         {definition.description}
       </p>
-      <header className="flex h-8 items-center border-b bg-muted/50 px-3">
-        <Tooltip delayDuration={DESCRIPTION_DELAY_MS}>
-          <TooltipTrigger asChild>
-            <h2 className="truncate font-heading text-xs font-semibold tracking-wide uppercase">
-              {title}
-            </h2>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            sideOffset={DESCRIPTION_OFFSET_PX}
-            className="pointer-events-none"
-          >
-            {definition.description}
-          </TooltipContent>
-        </Tooltip>
-      </header>
-      {definition.outputs.length > 0 && (
+      <NodeHeader data={data} />
+      {params.length > 0 && <ParamFields node={node} params={params} />}
+      {outputs.length > 0 && (
         <ul className="py-1">
-          {definition.outputs.map((output) => {
+          {outputs.map((output) => {
             const dataType = outputTypes[output.id]
             return dataType === undefined ? null : (
               <OutputRow key={output.id} data={data} output={output} dataType={dataType} />
@@ -175,19 +266,14 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           })}
         </ul>
       )}
-      {definition.inputs.length > 0 && (
-        <div className={cn('pb-1', definition.outputs.length > 0 && 'border-t pt-1')}>
-          {inputGroups(data).map((group) => (
+      {hasInputs && (
+        <div className={cn('pb-1', outputs.length > 0 && 'border-t pt-1')}>
+          {groups.map((group) => (
             <PortGroupList key={group.title ?? 'inputs'} group={group} data={data} />
           ))}
         </div>
       )}
-      {error !== undefined && (
-        <p className="flex items-start gap-1.5 border-t border-destructive px-3 py-2 text-xs text-destructive">
-          <TriangleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
-          <span>{error}</span>
-        </p>
-      )}
+      {error !== undefined && <NodeError message={error} />}
     </div>
   )
 }

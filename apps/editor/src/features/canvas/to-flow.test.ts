@@ -1,16 +1,21 @@
 import {
   MASTER_NODE_ID,
   addNode,
+  addProperty,
+  addPropertyNode,
   asEdgeId,
   asNodeId,
+  asPropertyId,
   connect,
   createGraph,
+  float,
   resolvePortTypes,
+  setParam,
 } from '@nudo-tsl/core'
 import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import { registry } from '../../store/registry'
-import { nodeDescriptionId, toFlow } from './to-flow'
+import { COMMENT_NODE_TYPE, nodeDescriptionId, toFlow } from './to-flow'
 
 const COLOR_ID = asNodeId('color')
 const TIME_ID = asNodeId('time')
@@ -147,5 +152,45 @@ describe('toFlow', () => {
     }
 
     expect(flowFor(graph).nodes.map((node) => node.id)).toEqual([MASTER_NODE_ID])
+  })
+})
+
+describe('toFlow titles and frames', () => {
+  it('titles a comment by its title param and puts it behind the other nodes at its size', () => {
+    const commentId = asNodeId('comment')
+    let graph = withNode(createGraph(), commentId, 'utility/comment')
+    graph = unwrap(setParam(graph, registry, { nodeId: commentId, paramId: 'title' }, 'Waves'))
+    graph = unwrap(setParam(graph, registry, { nodeId: commentId, paramId: 'width' }, 400))
+
+    const comment = flowFor(graph).nodes.find((node) => node.id === commentId)
+
+    expect(comment?.type).toBe(COMMENT_NODE_TYPE)
+    expect(comment?.ariaLabel).toBe('Waves')
+    expect(comment?.width).toBe(400)
+    expect(comment?.height).toBe(200)
+    expect(comment?.zIndex).toBeLessThan(-1000)
+  })
+
+  it('titles a property reader by its property label', () => {
+    const readerId = asNodeId('reader')
+    const propertyId = asPropertyId('wave-speed')
+    let graph = unwrap(
+      addProperty(createGraph(), {
+        id: propertyId,
+        label: 'Wave speed',
+        name: 'waveSpeed',
+        exposed: true,
+        type: 'float',
+        value: float(0.4),
+      }),
+    )
+    graph = unwrap(
+      addPropertyNode(graph, registry, { id: readerId, propertyId, position: { x: 0, y: 0 } }),
+    )
+
+    const reader = flowFor(graph).nodes.find((node) => node.id === readerId)
+
+    expect(reader?.ariaLabel).toBe('Wave speed')
+    expect(reader?.data.title).toBe('Wave speed')
   })
 })

@@ -8,7 +8,10 @@ const MIN_NARROW_FIT_ZOOM = 0.75
 /** Below this width the preview panel covers the canvas top instead of a right-hand column. */
 const WIDE_VIEWPORT_PX = 768
 
-/** Keeps fitted nodes clear of the floating header (top) and, when wide, the preview panel. */
+/**
+ * Keeps fitted nodes clear of the floating header (top) and, when wide, of the floating panels:
+ * the Blackboard on the left and the Inspector and Preview column on the right.
+ */
 export function fitViewOptionsFor(viewportWidth: number): FitViewOptions<FlowNode> {
   if (viewportWidth < WIDE_VIEWPORT_PX) {
     // On a phone, keep fields legible and let the person pan rather than shrink everything.
@@ -16,6 +19,6 @@ export function fitViewOptionsFor(viewportWidth: number): FitViewOptions<FlowNod
   }
   return {
     maxZoom: MAX_FIT_ZOOM,
-    padding: { top: '80px', right: '360px', bottom: '48px', left: '48px' },
+    padding: { top: '80px', right: '360px', bottom: '48px', left: '280px' },
   }
 }

@@ -1,10 +1,20 @@
 export type GlobalShortcutAction =
-  'undo' | 'redo' | 'copy' | 'paste' | 'select-all' | 'fit-view' | 'show-shortcuts'
+  'undo' | 'redo' | 'copy' | 'paste' | 'select-all' | 'fit-view' | 'show-shortcuts' | 'new-graph'
 
 type ShortcutPress = Pick<
   KeyboardEvent,
-  'key' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey' | 'repeat'
+  'key' | 'code' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey' | 'repeat'
 >
+
+/**
+ * Ctrl/Cmd + Alt + N. Matched on the physical key: on a Mac, Option changes the character `key`
+ * reports (a dead key), and plain Ctrl/Cmd + N belongs to the browser.
+ */
+function isNewGraphChord(press: ShortcutPress): boolean {
+  return (
+    (press.ctrlKey || press.metaKey) && press.altKey && !press.shiftKey && press.code === 'KeyN'
+  )
+}
 
 /** Letter shortcuts that need Ctrl (Cmd on a Mac) and no Shift or Alt. */
 const COMMAND_ACTIONS: Readonly<Record<string, GlobalShortcutAction>> = {
@@ -33,6 +43,7 @@ function plainShortcutAction(press: ShortcutPress): GlobalShortcutAction | null 
  * caller's decision.
  */
 export function globalShortcutAction(press: ShortcutPress): GlobalShortcutAction | null {
+  if (isNewGraphChord(press)) return press.repeat ? null : 'new-graph'
   const hasCommandModifier = press.ctrlKey || press.metaKey
   const action = hasCommandModifier ? commandShortcutAction(press) : plainShortcutAction(press)
   if (action === null || press.altKey) return null

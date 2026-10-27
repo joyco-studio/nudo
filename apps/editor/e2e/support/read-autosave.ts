@@ -7,6 +7,7 @@ export interface StoredNode {
   readonly type: unknown
   readonly position: unknown
   readonly inputValues: Readonly<Record<string, unknown>>
+  readonly params: Readonly<Record<string, unknown>>
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -16,7 +17,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function toStoredNode(id: string, value: unknown): StoredNode | null {
   if (!isRecord(value)) return null
   const inputValues = isRecord(value.inputValues) ? value.inputValues : {}
-  return { id, type: value.type, position: value.position, inputValues }
+  const params = isRecord(value.params) ? value.params : {}
+  return { id, type: value.type, position: value.position, inputValues, params }
 }
 
 /** Reads the nodes of the autosave document in localStorage (empty while nothing is saved). */

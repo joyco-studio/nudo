@@ -1,5 +1,5 @@
 import { createContext, use } from 'react'
-import type { PortRef, PortValue } from '@nudo-tsl/core'
+import type { ParamRef, ParamValue, PortRef, PortValue } from '@nudo-tsl/core'
 
 import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
 
@@ -16,6 +16,8 @@ export interface GraphCanvasActions {
   connectPorts: (origin: ConnectOrigin, target: PortRef) => void
   /** Removes every edge attached to the origin port. */
   disconnectPort: (origin: ConnectOrigin) => void
+  /** Sets a node param (an enum, a toggle, the collapsed state, a comment title). */
+  setParam: (ref: ParamRef, value: ParamValue) => void
 }
 
 export const GraphCanvasActionsContext = createContext<GraphCanvasActions | null>(null)

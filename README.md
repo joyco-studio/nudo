@@ -41,7 +41,7 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 
 ## Keyboard shortcuts
 
-`Ctrl/⌘` means Ctrl on Windows and Linux, and Command on macOS. Press `?` in the editor for the same list.
+`Ctrl/⌘` means Ctrl on Windows and Linux, and Command on macOS. Press `?` in the editor for the same list. Panel keys work while the canvas, a node or a panel header has focus.
 
 | Where    | Shortcut                           | Action                                    |
 | -------- | ---------------------------------- | ----------------------------------------- |
@@ -51,7 +51,16 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Anywhere | `Ctrl/⌘` `V`                       | Paste nodes                               |
 | Anywhere | `Ctrl/⌘` `A`                       | Select all nodes                          |
 | Anywhere | `F`                                | Fit all nodes in view                     |
+| Anywhere | `Ctrl/⌘` `Alt` `N`                 | Start a new graph                         |
 | Anywhere | `?`                                | Show the shortcuts                        |
+| Panels   | `B`                                | Show or hide the Blackboard               |
+| Panels   | `I`                                | Show or hide the Inspector                |
+| Panels   | `P`                                | Show or hide the Preview                  |
+| Panels   | `C`                                | Show or hide the Code panel               |
+| Panels   | `Shift` `P`                        | Next preview layout: docked, split, full  |
+| Preview  | `Esc`                              | Leave the full preview                    |
+| Preview  | `Arrow keys`                       | Move the split divider 5%                 |
+| Preview  | `Home` or `End`                    | Smallest or largest canvas in split       |
 | Canvas   | `Space`                            | Add a node                                |
 | Canvas   | `Arrow keys`                       | Pan the view 40 px                        |
 | Canvas   | `Shift` `Arrow keys`               | Pan the view 160 px                       |
@@ -62,6 +71,8 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Node     | `Enter`                            | Edit its first field                      |
 | Node     | `Esc`                              | Leave a field and return to the node      |
 | Node     | `Tab` or `Shift` `Tab`             | Next or previous port and field           |
+| Comment  | `Enter`                            | Edit its title                            |
+| Comment  | `Alt` `Arrow keys`                 | Resize the frame 20 px                    |
 | Port     | `Enter`                            | Connect to another port                   |
 | Port     | `Delete`                           | Remove its connections                    |
 

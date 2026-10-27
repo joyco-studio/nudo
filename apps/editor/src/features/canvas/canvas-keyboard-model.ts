@@ -10,6 +10,8 @@ const NODE_STEP_SHIFT_PX = 50
 /** Pixels the view pans per arrow press when the canvas itself has focus, and with Shift held. */
 const PAN_STEP_PX = 40
 const PAN_STEP_SHIFT_PX = 160
+/** Pixels Alt + an arrow key grows or shrinks a resizable node (a comment frame). */
+const RESIZE_STEP_PX = 20
 
 export const FLOW_NODE_SELECTOR = '.react-flow__node'
 export const FLOW_EDGE_SELECTOR = '.react-flow__edge'
@@ -27,6 +29,13 @@ export type CanvasKeyIntent =
   | { readonly kind: 'delete' }
   | { readonly kind: 'edit-fields' }
   | { readonly kind: 'leave-field' }
+  /** Right and Down grow the node; Left and Up shrink it. */
+  | { readonly kind: 'resize-node'; readonly delta: Size }
+
+export interface Size {
+  readonly width: number
+  readonly height: number
+}
 
 type KeyPress = Pick<KeyboardEvent, 'key' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey'>
 
@@ -49,9 +58,16 @@ function isDeletable(target: KeyTargetKind): boolean {
 
 /** Maps a key press on a given kind of target to what the canvas should do, if anything. */
 export function canvasKeyIntent(press: KeyPress, target: KeyTargetKind): CanvasKeyIntent | null {
-  if (press.ctrlKey || press.metaKey || press.altKey) return null
-
+  if (press.ctrlKey || press.metaKey) return null
   const direction = ARROW_DIRECTIONS[press.key]
+  if (press.altKey) {
+    if (direction === undefined || target !== 'node') return null
+    return {
+      kind: 'resize-node',
+      delta: { width: direction.x * RESIZE_STEP_PX, height: direction.y * RESIZE_STEP_PX },
+    }
+  }
+
   if (direction !== undefined) {
     if (target === 'node') {
       return {

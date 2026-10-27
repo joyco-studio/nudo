@@ -5,15 +5,25 @@ import {
   connect,
   createGraph,
   disconnect,
+  findParamDefinition,
   moveNodes,
   pasteFragment,
   removeNodes,
   setInputValue,
+  setParam,
 } from '@nudo-tsl/core'
-import type { ConnectionRejection, Graph, GraphError, NodeId, XY } from '@nudo-tsl/core'
+import type {
+  ConnectionRejection,
+  Graph,
+  GraphError,
+  NodeId,
+  ParamRef,
+  ParamValue,
+  XY,
+} from '@nudo-tsl/core'
 import { createEdgeId, createNodeId } from './ids'
 import { registry } from './registry'
-import type { EditorSliceCreator, GraphSlice, Notice } from './store-types'
+import type { EditorSliceCreator, GraphSlice, NodeFrame, Notice } from './store-types'
 
 const MASTER_DELETE_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
 
@@ -42,6 +52,39 @@ function hasGraphChanged(before: Graph, after: Graph): boolean {
   return (
     Object.keys(before.nodes).length !== Object.keys(after.nodes).length ||
     Object.keys(before.edges).length !== Object.keys(after.edges).length
+  )
+}
+
+/** The value a param has on the node: the stored one, or its definition's default. */
+function effectiveParamValue(graph: Graph, ref: ParamRef): ParamValue | undefined {
+  const node = graph.nodes[ref.nodeId]
+  const definition = node === undefined ? undefined : registry.get(node.type)
+  if (node === undefined || definition === undefined) return undefined
+  return node.params[ref.paramId] ?? findParamDefinition(definition, ref.paramId)?.default
+}
+
+/** Sets each param in turn; null when any of them is rejected. */
+function setParams(
+  graph: Graph,
+  nodeId: NodeId,
+  values: Readonly<Record<string, ParamValue>>,
+): Graph | null {
+  let next = graph
+  for (const [paramId, value] of Object.entries(values)) {
+    const result = setParam(next, registry, { nodeId, paramId }, value)
+    if (!result.ok) return null
+    next = result.value
+  }
+  return next
+}
+
+function isSameFrame(graph: Graph, nodeId: NodeId, frame: NodeFrame): boolean {
+  const { position } = graph.nodes[nodeId] ?? {}
+  return (
+    position?.x === frame.position.x &&
+    position.y === frame.position.y &&
+    effectiveParamValue(graph, { nodeId, paramId: 'width' }) === frame.width &&
+    effectiveParamValue(graph, { nodeId, paramId: 'height' }) === frame.height
   )
 }
 
@@ -125,5 +168,35 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     if (pastedNodeIds.length === 0) return pastedNodeIds
     set({ graph, selectedNodeIds: pastedNodeIds })
     return pastedNodeIds
+  },
+
+  setParam: (ref, value) => {
+    const { graph } = get()
+    if (effectiveParamValue(graph, ref) === value) return
+    const result = setParam(graph, registry, ref, value)
+    if (!result.ok) return
+    set({ graph: result.value })
+  },
+
+  commitResize: (nodeId, frame) => {
+    const { graph, draftPositions } = get()
+    const otherDrafts = Object.fromEntries(
+      Object.entries(draftPositions).filter(([id]) => id !== nodeId),
+    )
+    if (graph.nodes[nodeId] === undefined || isSameFrame(graph, nodeId, frame)) {
+      set({ draftPositions: otherDrafts })
+      return
+    }
+    const moved = moveNodes(graph, { [nodeId]: frame.position })
+    const resized = setParams(moved, nodeId, { width: frame.width, height: frame.height })
+    if (resized === null) {
+      set({ draftPositions: otherDrafts })
+      return
+    }
+    set({ graph: resized, draftPositions: otherDrafts })
+  },
+
+  resetGraph: () => {
+    set({ graph: createGraph(), selectedNodeIds: [], draftPositions: {}, inputPreview: null })
   },
 })

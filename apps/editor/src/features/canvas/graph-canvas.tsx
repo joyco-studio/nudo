@@ -11,15 +11,16 @@ import type {
 } from '@xyflow/react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 
+import { CommentNodeView } from './comment-node-view'
 import { fitViewOptionsFor } from './fit-view-options'
 import { NodeView } from './node-view'
 import { TypedEdge } from './typed-edge'
-import { GRAPH_NODE_TYPE, TYPED_EDGE_TYPE } from './to-flow'
+import { COMMENT_NODE_TYPE, GRAPH_NODE_TYPE, TYPED_EDGE_TYPE } from './to-flow'
 import type { FlowEdge, FlowNode } from './to-flow'
 
 import './graph-canvas.css'
 
-const NODE_TYPES: NodeTypes = { [GRAPH_NODE_TYPE]: NodeView }
+const NODE_TYPES: NodeTypes = { [GRAPH_NODE_TYPE]: NodeView, [COMMENT_NODE_TYPE]: CommentNodeView }
 const EDGE_TYPES: EdgeTypes = { [TYPED_EDGE_TYPE]: TypedEdge }
 const GRID_GAP = 20
 

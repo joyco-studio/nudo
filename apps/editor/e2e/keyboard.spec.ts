@@ -185,8 +185,8 @@ test.describe('node keyboard model', () => {
     await master.focus()
 
     await page.keyboard.press('Enter')
-    const field = master.locator('input:focus')
-    await expect(field).toBeFocused()
+    // The master's first field is its Lighting setting.
+    await expect(master.getByRole('combobox', { name: 'Lighting' })).toBeFocused()
 
     await page.keyboard.press('Escape')
     await expect(master).toBeFocused()

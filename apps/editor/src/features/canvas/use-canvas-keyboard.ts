@@ -5,6 +5,7 @@ import { useReactFlow } from '@xyflow/react'
 
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
+import { registry } from '@/store/registry'
 
 import {
   FLOW_NODE_SELECTOR,
@@ -15,9 +16,10 @@ import {
   nudgePositions,
   resolveActionNodeIds,
 } from './canvas-keyboard-model'
-import type { CanvasKeyIntent } from './canvas-keyboard-model'
+import type { CanvasKeyIntent, Size } from './canvas-keyboard-model'
+import { frameOf, resizedFrame } from './node-frame'
 
-const FIRST_FIELD_SELECTOR = 'input:not([type="hidden"]), textarea'
+const FIRST_FIELD_SELECTOR = 'input:not([type="hidden"]), textarea, select'
 const FIRST_PORT_SELECTOR = `[${PORT_BUTTON_ATTRIBUTE}]`
 
 const getStore = () => useEditorStore.getState()
@@ -30,6 +32,18 @@ function moveFocusedNodes(event: KeyboardEvent, delta: XY): void {
     ...draftPositions,
     ...nudgePositions(graph.nodes, draftPositions, ids, delta),
   })
+}
+
+/** Alt + arrow on a resizable node (a comment frame): one history entry per press. */
+function resizeFocusedNode(event: KeyboardEvent, delta: Size): void {
+  const store = getStore()
+  const nodeId = flowNodeIdOf(event.target)
+  const node = nodeId === null ? undefined : store.graph.nodes[nodeId]
+  const definition = node === undefined ? undefined : registry.get(node.type)
+  if (node === undefined || definition === undefined) return
+  const frame = frameOf(node, definition)
+  if (frame === null) return
+  store.commitResize(node.id, resizedFrame(frame, delta))
 }
 
 /** Keeps focus on the canvas when the element that had it was deleted. */
@@ -119,6 +133,12 @@ export function useCanvasKeyboard(selectedEdgeIds: readonly string[]): void {
         return
       case 'leave-field':
         focusOwningNode(event)
+        return
+      case 'resize-node':
+        // React Flow would also move the node on an arrow key, as a second history entry.
+        event.preventDefault()
+        event.stopPropagation()
+        resizeFocusedNode(event, intent.delta)
         return
     }
   })

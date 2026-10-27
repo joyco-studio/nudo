@@ -15,6 +15,10 @@ export interface NodeChangeIntent {
   readonly selection: readonly NodeId[] | null
   /** Sizes React Flow measured, keyed by node id. */
   readonly dimensions: Readonly<Record<string, Dimensions>>
+  /** Live sizes of nodes being resized (a comment frame's resizer). */
+  readonly draftSizes: Readonly<Record<string, Dimensions>>
+  /** Final sizes of resizes that ended, to commit with the node's draft position. */
+  readonly endedResizes: Readonly<Record<string, Dimensions>>
 }
 
 type CurrentUi = Pick<UiSlice, 'draftPositions' | 'selectedNodeIds'>
@@ -38,9 +42,19 @@ function nextSelection(
   return [...selected]
 }
 
+/** Ids of the nodes a resizer is resizing in this batch of changes. */
+function resizingIds(changes: readonly NodeChange<FlowNode>[]): ReadonlySet<string> {
+  return new Set(
+    changes.flatMap((change) =>
+      change.type === 'dimensions' && change.resizing === true ? [change.id] : [],
+    ),
+  )
+}
+
 /**
  * Translates React Flow node changes into store intents. A position change while dragging is a
- * draft; one with `dragging: false` (drag end, keyboard nudge) commits every draft at once.
+ * draft; one with `dragging: false` (drag end, keyboard nudge) commits every draft at once. A
+ * resizer's position change is a draft too: the resize commits once, when it ends.
  * Removals are ignored here: deletion goes through `planDeletion` so it happens once.
  */
 export function interpretNodeChanges(
@@ -50,13 +64,18 @@ export function interpretNodeChanges(
   const drafts: Record<string, XY> = {}
   const finals: Record<string, XY> = {}
   const dimensions: Record<string, Dimensions> = {}
+  const draftSizes: Record<string, Dimensions> = {}
+  const endedResizes: Record<string, Dimensions> = {}
+  const resizing = resizingIds(changes)
 
   for (const change of changes) {
     if (change.type === 'dimensions' && change.dimensions !== undefined) {
       dimensions[change.id] = change.dimensions
+      if (change.resizing === true) draftSizes[change.id] = change.dimensions
+      if (change.resizing === false) endedResizes[change.id] = change.dimensions
     }
     if (change.type !== 'position' || change.position === undefined) continue
-    if (change.dragging === true) drafts[change.id] = change.position
+    if (change.dragging === true || resizing.has(change.id)) drafts[change.id] = change.position
     else finals[change.id] = change.position
   }
 
@@ -69,6 +88,8 @@ export function interpretNodeChanges(
     committedPositions: hasFinals ? { ...current.draftPositions, ...drafts, ...finals } : null,
     selection: hasSameMembers(selection, current.selectedNodeIds) ? null : selection,
     dimensions,
+    draftSizes,
+    endedResizes,
   }
 }
 

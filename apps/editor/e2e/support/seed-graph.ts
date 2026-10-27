@@ -15,6 +15,16 @@ interface SeedNode {
   type: string
   position: { x: number; y: number }
   inputValues?: Record<string, SeedValue>
+  params?: Record<string, string | number | boolean>
+}
+
+interface SeedProperty {
+  id: string
+  label: string
+  name: string
+  exposed: boolean
+  type: SeedValue['type']
+  value: SeedValue
 }
 
 interface SeedEdge {
@@ -25,17 +35,12 @@ interface SeedEdge {
 
 export const MASTER_POSITION = { x: 600, y: 0 }
 
-/**
- * Builds a phase-1 autosave document (schema version 1) the editor restores on start. It stays at
- * v1 on purpose: every e2e that seeds it also exercises the v1 to v2 migration.
- */
-export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEdge[]): string {
+function documentBody(nodes: readonly SeedNode[], edges: readonly SeedEdge[]) {
   const allNodes: SeedNode[] = [
     { id: 'master', type: 'master/stack', position: MASTER_POSITION },
     ...nodes,
   ]
-  return JSON.stringify({
-    schemaVersion: 1,
+  return {
     nodes: Object.fromEntries(
       allNodes.map((node) => [
         node.id,
@@ -44,7 +49,7 @@ export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEd
           type: node.type,
           position: node.position,
           inputValues: node.inputValues ?? {},
-          params: {},
+          params: node.params ?? {},
         },
       ]),
     ),
@@ -58,8 +63,24 @@ export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEd
         },
       ]),
     ),
-    properties: [],
-  })
+  }
+}
+
+/**
+ * Builds a phase-1 autosave document (schema version 1) the editor restores on start. It stays at
+ * v1 on purpose: every e2e that seeds it also exercises the v1 to v2 migration.
+ */
+export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEdge[]): string {
+  return JSON.stringify({ schemaVersion: 1, ...documentBody(nodes, edges), properties: [] })
+}
+
+/** A schema version 2 document, for graphs that need Blackboard properties. */
+export function graphDocumentV2(
+  nodes: readonly SeedNode[],
+  edges: readonly SeedEdge[],
+  properties: readonly SeedProperty[],
+): string {
+  return JSON.stringify({ schemaVersion: 2, ...documentBody(nodes, edges), properties })
 }
 
 /** A Color node feeding the master's Base Color. */

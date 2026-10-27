@@ -8,6 +8,8 @@ import type {
   VectorPortValue,
 } from '@nudo-tsl/core'
 
+import { cn } from '@/shared/lib/utils'
+
 import { fallbackLabel } from './fallback-label'
 import { linearToSrgbHex, srgbHexToLinear } from './color-space'
 import { useGraphCanvasActions } from './graph-canvas-actions'
@@ -16,17 +18,25 @@ import { NumberField } from './number-field'
 
 const COMPONENT_LABELS = ['X', 'Y', 'Z', 'W'] as const
 const OPTIONAL_HINT = 'Mesh default'
+/** Optional inputs whose absence means "off" rather than a mesh value. */
+const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
 const TEXTURE_HINT = 'No texture'
 
 interface PortLabelProps {
   label: string
+  /** For a row that has no effect right now. */
+  isMuted?: boolean
 }
 
-export function PortLabel({ label }: PortLabelProps) {
-  return <span className="min-w-0 flex-1 truncate text-xs">{label}</span>
+export function PortLabel({ label, isMuted = false }: PortLabelProps) {
+  return (
+    <span className={cn('min-w-0 flex-1 truncate text-xs', isMuted && 'text-muted-foreground')}>
+      {label}
+    </span>
+  )
 }
 
-function MutedHint({ children }: { children: string }) {
+export function MutedHint({ children }: { children: string }) {
   return <span className="shrink-0 font-mono text-[10px] text-muted-foreground">{children}</span>
 }
 
@@ -148,7 +158,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
     return (
       <>
         <PortLabel label={input.label} />
-        <MutedHint>{OPTIONAL_HINT}</MutedHint>
+        <MutedHint>{OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT}</MutedHint>
       </>
     )
   }

@@ -38,6 +38,37 @@ describe('interpretNodeChanges', () => {
     expect(intent.draftPositions).toBeNull()
   })
 
+  it('keeps a resize live: its position change is a draft and its size a draft size', () => {
+    const changes: NodeChange<FlowNode>[] = [
+      { type: 'position', id: 'a', position: { x: -20, y: 0 } },
+      {
+        type: 'dimensions',
+        id: 'a',
+        resizing: true,
+        setAttributes: true,
+        dimensions: { width: 340, height: 200 },
+      },
+    ]
+
+    const intent = interpretNodeChanges(changes, NO_UI)
+
+    expect(intent.draftPositions).toEqual({ [A]: { x: -20, y: 0 } })
+    expect(intent.committedPositions).toBeNull()
+    expect(intent.draftSizes).toEqual({ [A]: { width: 340, height: 200 } })
+    expect(intent.endedResizes).toEqual({})
+  })
+
+  it('reports the final size when a resize ends', () => {
+    const changes: NodeChange<FlowNode>[] = [
+      { type: 'dimensions', id: 'a', resizing: false, dimensions: { width: 340, height: 220 } },
+    ]
+
+    const intent = interpretNodeChanges(changes, NO_UI)
+
+    expect(intent.endedResizes).toEqual({ [A]: { width: 340, height: 220 } })
+    expect(intent.draftSizes).toEqual({})
+  })
+
   it('applies select changes to the current selection', () => {
     const changes: NodeChange<FlowNode>[] = [
       { type: 'select', id: 'a', selected: false },

@@ -1,5 +1,10 @@
 import { createGraph, serializeGraph } from '@nudo-tsl/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  DEFAULT_PANEL_PREFS,
+  PANELS_STORAGE_KEY,
+  parsePanelPrefs,
+} from '../features/panels/panel-state'
 import { AUTOSAVE_KEY } from '../store/autosave'
 import { useEditorStore } from '../store/editor-store'
 import { bootstrapEditor } from './bootstrap-editor'
@@ -59,5 +64,35 @@ describe('bootstrapEditor', () => {
     window.dispatchEvent(new Event('pagehide'))
 
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
+  })
+})
+
+describe('bootstrapEditor panel preferences', () => {
+  let stop: (() => void) | null = null
+
+  beforeEach(() => {
+    localStorage.clear()
+    useEditorStore.setState({ panels: DEFAULT_PANEL_PREFS })
+  })
+  afterEach(() => {
+    stop?.()
+    stop = null
+  })
+
+  it('restores the stored panel layout and saves every change', () => {
+    const stored = {
+      ...DEFAULT_PANEL_PREFS,
+      layout: 'split' as const,
+      backdrop: 'checker-room' as const,
+    }
+    localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(stored))
+
+    stop = bootstrapEditor(localStorage, window)
+    expect(useEditorStore.getState().panels).toEqual(stored)
+
+    useEditorStore.getState().togglePanel('code')
+    expect(parsePanelPrefs(localStorage.getItem(PANELS_STORAGE_KEY)).open.code).toBe(
+      !stored.open.code,
+    )
   })
 })

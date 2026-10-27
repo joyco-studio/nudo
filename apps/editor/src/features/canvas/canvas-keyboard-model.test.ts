@@ -65,6 +65,18 @@ describe('canvasKeyIntent', () => {
     expect(canvasKeyIntent(press('Enter'), 'field')).toBeNull()
   })
 
+  it('resizes the focused node 20 px with Alt and the arrow keys', () => {
+    expect(canvasKeyIntent(press('ArrowRight', { altKey: true }), 'node')).toEqual({
+      kind: 'resize-node',
+      delta: { width: 20, height: 0 },
+    })
+    expect(canvasKeyIntent(press('ArrowUp', { altKey: true }), 'node')).toEqual({
+      kind: 'resize-node',
+      delta: { width: 0, height: -20 },
+    })
+    expect(canvasKeyIntent(press('ArrowUp', { altKey: true, ctrlKey: true }), 'node')).toBeNull()
+  })
+
   it('does nothing when Ctrl, Cmd or Alt is held', () => {
     expect(canvasKeyIntent(press('ArrowRight', { ctrlKey: true }), 'node')).toBeNull()
     expect(canvasKeyIntent(press('Delete', { metaKey: true }), 'node')).toBeNull()
