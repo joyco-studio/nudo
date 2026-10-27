@@ -1,26 +1,30 @@
 import { useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import type { GraphNode } from '@nudo-tsl/core'
+import type { NodeId } from '@nudo-tsl/core'
 
 import { cn } from '@/shared/lib/utils'
 import { Textarea } from '@/shared/ui/textarea'
 
 import { NODE_ENTRY_ATTRIBUTE } from './canvas-keyboard-model'
-import { useGraphCanvasActions } from './graph-canvas-actions'
-import type { FlowNodeData } from './to-flow'
+import { COMMENT_BODY_PARAM } from './comment-params'
+import { useNodeFieldActions } from './node-field-actions'
 import { useScrollOverflow } from './use-scroll-overflow'
 
-const BODY_PARAM = 'body'
 /** Enter on the frame steps into the note rather than the title. */
 const NODE_ENTRY_PROPS = { [NODE_ENTRY_ATTRIBUTE]: '' }
 
-function storedBody(node: GraphNode): string {
-  const value = node.params[BODY_PARAM]
-  return typeof value === 'string' ? value : ''
-}
+/** The frame's own quiet note: no box, filling the body and scrolling inside it. */
+const ON_FRAME_CLASS =
+  'nodrag min-h-0 flex-1 cursor-text resize-none overflow-y-auto rounded-none border-transparent bg-transparent p-[7px] text-base shadow-none field-sizing-fixed focus-visible:border-transparent md:text-xs dark:bg-transparent'
 
 interface CommentBodyFieldProps {
-  data: FlowNodeData
+  nodeId: NodeId
+  /** The note the frame holds now. */
+  body: string
+  /** Ties the field to a visible `<Label htmlFor>` (the Inspector); the frame names it itself. */
+  id?: string
+  /** Replaces the on-frame look (the Inspector draws a boxed field). */
+  className?: string
 }
 
 /**
@@ -29,11 +33,10 @@ interface CommentBodyFieldProps {
  * frame). Enter is a newline. Dragging inside selects text instead of moving the frame, and the
  * wheel scrolls a long note instead of zooming the canvas.
  */
-export function CommentBodyField({ data }: CommentBodyFieldProps) {
-  const { setParam } = useGraphCanvasActions()
+export function CommentBodyField({ nodeId, body, id, className }: CommentBodyFieldProps) {
+  const { setParam } = useNodeFieldActions()
   const [draft, setDraft] = useState<string | null>(null)
   const fieldRef = useRef<HTMLTextAreaElement>(null)
-  const body = storedBody(data.node)
   const value = draft ?? body
   const overflows = useScrollOverflow(fieldRef, value)
 
@@ -41,7 +44,7 @@ export function CommentBodyField({ data }: CommentBodyFieldProps) {
     if (draft === null) return
     setDraft(null)
     if (draft === body) return
-    setParam({ nodeId: data.node.id, paramId: BODY_PARAM }, draft)
+    setParam({ nodeId, paramId: COMMENT_BODY_PARAM }, draft)
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -51,7 +54,8 @@ export function CommentBodyField({ data }: CommentBodyFieldProps) {
   return (
     <Textarea
       ref={fieldRef}
-      aria-label="Comment text"
+      id={id}
+      aria-label={id === undefined ? 'Comment text' : undefined}
       placeholder="Write a note…"
       value={value}
       onChange={(event) => {
@@ -60,12 +64,9 @@ export function CommentBodyField({ data }: CommentBodyFieldProps) {
       onBlur={commitDraft}
       onKeyDown={onKeyDown}
       {...NODE_ENTRY_PROPS}
-      // Fills the body and scrolls inside it. Its 8px text inset (1px border + 7px padding) on
-      // every side matches the title's, and only the quiet focus border shows while editing.
-      className={cn(
-        'nodrag min-h-0 flex-1 cursor-text resize-none overflow-y-auto rounded-none border-transparent bg-transparent p-[7px] text-base shadow-none field-sizing-fixed focus-visible:border-transparent md:text-xs dark:bg-transparent',
-        overflows && 'nowheel',
-      )}
+      // On the frame its 8px text inset (1px border + 7px padding) on every side matches the
+      // title's, and only the quiet focus border shows while editing.
+      className={cn(className ?? ON_FRAME_CLASS, overflows && 'nowheel')}
     />
   )
 }

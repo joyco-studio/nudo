@@ -86,7 +86,7 @@ test.describe('panels', () => {
     await expect(page.getByRole('region', { name: 'Properties' })).toContainText(
       'No properties yet.',
     )
-    await expect(page.getByRole('region', { name: 'Inspector' })).toContainText('Nothing selected')
+    await expect(page.getByRole('region', { name: 'Inspector' })).toContainText('Graph settings')
 
     await focusCanvas(page)
     await page.keyboard.press('b')
@@ -133,8 +133,7 @@ test.describe('panels', () => {
     await page.goto('/')
     await page.getByRole('group', { name: 'Sine', exact: true }).click()
     const inspector = page.getByRole('region', { name: 'Inspector' })
-    await expect(inspector).toContainText('Sine')
-    await expect(inspector).not.toContainText('Nothing selected')
+    await expect(inspector.getByRole('heading', { name: 'Sine', level: 3 })).toBeVisible()
   })
 })
 

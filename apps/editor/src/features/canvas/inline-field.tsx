@@ -1,10 +1,14 @@
 import { float, texture } from '@nudo-tsl/core'
 import type { DataType, GraphNode, InputDefinition, PortValue } from '@nudo-tsl/core'
 
+import { cn } from '@/shared/lib/utils'
+
 import { ColorField } from './color-field'
 import { fallbackLabel } from './fallback-label'
-import { useGraphCanvasActions } from './graph-canvas-actions'
+import { useFieldSize } from './field-size'
+import type { FieldSize } from './field-size'
 import { inlineValue, textureAssetId } from './inline-value'
+import { useNodeFieldActions } from './node-field-actions'
 import { NumberField } from './number-field'
 import { PortLabel } from './port-label'
 import { TextureField } from './texture-field'
@@ -14,8 +18,17 @@ const OPTIONAL_HINT = 'Mesh default'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
 const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
 
+const HINT_TEXT: Readonly<Record<FieldSize, string>> = {
+  compact: 'text-micro',
+  comfortable: 'text-xs',
+}
 export function MutedHint({ children }: { children: string }) {
-  return <span className="shrink-0 font-mono text-micro text-muted-foreground">{children}</span>
+  const size = useFieldSize()
+  return (
+    <span className={cn('shrink-0 font-mono text-muted-foreground', HINT_TEXT[size])}>
+      {children}
+    </span>
+  )
 }
 
 export interface InlineFieldProps {
@@ -26,7 +39,7 @@ export interface InlineFieldProps {
 
 /** The label and editor of an unconnected input, picked by widget and resolved type. */
 export function InlineField({ node, input, dataType }: InlineFieldProps) {
-  const { setInputValue, previewInputValue, endInputPreview } = useGraphCanvasActions()
+  const { setInputValue, previewInputValue, endInputPreview } = useNodeFieldActions()
   if (input.optional === true) {
     return (
       <>

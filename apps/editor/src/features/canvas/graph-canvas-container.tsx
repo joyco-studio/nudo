@@ -25,6 +25,8 @@ import { focusFlowNode } from './focus-flow-node'
 import { GraphCanvas } from './graph-canvas'
 import { GraphCanvasActionsContext } from './graph-canvas-actions'
 import type { GraphCanvasActions } from './graph-canvas-actions'
+import { NodeFieldActionsContext } from './node-field-actions'
+import { storeFieldActions } from './store-field-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
 import { COMMENT_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
@@ -160,15 +162,7 @@ export function GraphCanvasContainer() {
 
   const actions = useMemo<GraphCanvasActions>(
     () => ({
-      setInputValue: (ref, value) => {
-        getStore().setInputValue(ref, value)
-      },
-      previewInputValue: (ref, value) => {
-        getStore().previewInputValue(ref, value)
-      },
-      endInputPreview: () => {
-        getStore().clearInputPreview()
-      },
+      ...storeFieldActions,
       listConnectCandidates: (origin) => listConnectCandidates(getStore().graph, registry, origin),
       connectPorts: (origin, target) => {
         const [from, to] = origin.side === 'output' ? [origin.ref, target] : [target, origin.ref]
@@ -176,9 +170,6 @@ export function GraphCanvasContainer() {
       },
       disconnectPort: (origin) => {
         getStore().disconnect(edgesAttachedTo(getStore().graph, origin))
-      },
-      setParam: (ref, value) => {
-        getStore().setParam(ref, value)
       },
       deleteEdge: (edgeId) => {
         getStore().removeSelection([], [edgeId])
@@ -204,17 +195,19 @@ export function GraphCanvasContainer() {
 
   return (
     <GraphCanvasActionsContext value={actions}>
-      <GraphCanvas
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDelete={onDelete}
-        isValidConnection={isValidConnection}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-      />
+      <NodeFieldActionsContext value={actions}>
+        <GraphCanvas
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDelete={onDelete}
+          isValidConnection={isValidConnection}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+        />
+      </NodeFieldActionsContext>
     </GraphCanvasActionsContext>
   )
 }

@@ -15,6 +15,7 @@ import type { Edge, Node } from '@xyflow/react'
 
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import type { CompileSlice, UiSlice } from '../../store/store-types'
+import { COMMENT_TITLE_PARAM } from './comment-params'
 import { frameOf } from './node-frame'
 
 export const GRAPH_NODE_TYPE = 'graph-node'
@@ -22,7 +23,6 @@ export const COMMENT_NODE_TYPE = 'comment'
 export const TYPED_EDGE_TYPE = 'typed'
 const MASTER_TITLE = 'Master Stack'
 export const COMMENT_TYPE = 'utility/comment'
-const COMMENT_TITLE_PARAM = 'title'
 /**
  * Comment frames sit behind every other node, even while selected: React Flow lifts a selected
  * node by 1000, which still leaves the frame below unselected nodes at 0.

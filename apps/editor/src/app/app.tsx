@@ -11,7 +11,7 @@ import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
 import { CodePanel } from '@/features/code-panel/code-panel'
 import { CommandPaletteButton } from '@/features/command-palette/command-palette-button'
 import { CommandPaletteProvider } from '@/features/command-palette/command-palette-provider'
-import { InspectorPanel } from '@/features/inspector/inspector-panel'
+import { InspectorContainer } from '@/features/inspector/inspector-container'
 import { MainPreview } from '@/features/main-preview/main-preview'
 import { NewGraphButton } from '@/features/new-graph/new-graph-button'
 import { NewGraphProvider } from '@/features/new-graph/new-graph-provider'
@@ -68,7 +68,7 @@ export function App() {
                     canvas={<GraphCanvasContainer />}
                     blackboard={<BlackboardContainer />}
                     blackboardActions={<AddPropertyMenuContainer />}
-                    inspector={<InspectorPanel />}
+                    inspector={<InspectorContainer />}
                     previewPanel={<MainPreview />}
                     codePanel={<CodePanel />}
                     headerActions={<HeaderActions />}

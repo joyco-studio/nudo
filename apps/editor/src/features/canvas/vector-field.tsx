@@ -2,11 +2,18 @@ import type { PortValue, VectorPortValue } from '@nudo-tsl/core'
 
 import { cn } from '@/shared/lib/utils'
 
+import { useFieldSize } from './field-size'
+import type { FieldSize } from './field-size'
 import { valueComponents, withComponent } from './inline-value'
 import { NumberField } from './number-field'
 import { PortLabel } from './port-label'
 
 const COMPONENT_LABELS = ['X', 'Y', 'Z', 'W'] as const
+/** On a node, vector components indent past the port handle; the Inspector has no handles. */
+const VECTOR_ROW: Readonly<Record<FieldSize, string>> = {
+  compact: 'pb-1.5 pl-3.5',
+  comfortable: 'pb-2',
+}
 
 export interface VectorFieldProps {
   label: string
@@ -32,10 +39,11 @@ export function VectorField({
   onScrubPreviewEnd,
   componentsClassName,
 }: VectorFieldProps) {
+  const size = useFieldSize()
   return (
     <>
       <PortLabel label={label} />
-      <div className={cn('flex basis-full gap-1 pb-1.5 pl-3.5', componentsClassName)}>
+      <div className={cn('flex basis-full gap-1', VECTOR_ROW[size], componentsClassName)}>
         {valueComponents(value).map((component, index) => {
           const componentLabel = COMPONENT_LABELS[index] ?? String(index)
           return (

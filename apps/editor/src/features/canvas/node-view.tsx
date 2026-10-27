@@ -37,7 +37,7 @@ const DESCRIPTION_DELAY_MS = 500
 const DESCRIPTION_OFFSET_PX = 8
 
 /** Screen reader text for the port type, after the visible label. */
-function TypeForAssistiveTech({ dataType }: { dataType: DataType }) {
+export function TypeForAssistiveTech({ dataType }: { dataType: DataType }) {
   return <span className="sr-only">, {dataType}</span>
 }
 
