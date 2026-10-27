@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 
+import { htmlElementOf } from '@/shared/lib/html-element-of'
+
 import { addNodeShortcutOrigin } from './add-node-shortcut'
 import type { OpenAddNodeMenu } from './add-node-menu-context'
 
@@ -14,7 +16,7 @@ export function useAddNodeShortcut(openMenu: OpenAddNodeMenu): void {
       if (origin === null) return
       event.preventDefault()
       event.stopPropagation()
-      openMenu(origin, event.target instanceof HTMLElement ? event.target : null)
+      openMenu(origin, htmlElementOf(event.target))
     }
     window.addEventListener('keydown', onKeyDown, { capture: true })
     return () => {

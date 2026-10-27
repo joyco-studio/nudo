@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
+import { invocationFrom } from '@/features/command-palette/command-registry'
+import { htmlElementOf } from '@/shared/lib/html-element-of'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { isTextEntry } from '@/shared/lib/is-text-entry'
 
@@ -29,7 +31,7 @@ export function useGlobalShortcuts(): void {
       // Let the browser copy selected page text; there is nothing for us to copy then.
       if (action === 'copy' && hasSelectedText()) return
       event.preventDefault()
-      runCommand(action, event.target instanceof HTMLElement ? event.target : null)
+      runCommand(action, invocationFrom(htmlElementOf(event.target)))
     }
     window.addEventListener('keydown', onKeyDown)
     return () => {

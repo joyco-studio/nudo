@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { asNodeId } from '@nudo-tsl/core'
+import type { NodeId } from '@nudo-tsl/core'
+import { beforeEach, describe, expect, it } from 'vitest'
 
+import { useEditorStore } from '@/store/editor-store'
 import { PANEL_IDS } from '@/features/panels/panel-state'
 import { PANEL_SHORTCUT_KEYS } from '@/features/panels/panel-shortcut-action'
 import {
@@ -12,10 +15,13 @@ import { GLOBAL_SHORTCUT_ACTIONS } from '@/features/shortcuts/shortcut-action'
 import {
   COMMANDS,
   PALETTE_COMMANDS,
+  UNTARGETED,
   findCommand,
+  invocationFrom,
   panelCommandId,
-  searchCommands,
+  placementNear,
 } from './command-registry'
+import type { CommandServices } from './command-registry'
 
 function idsOf(commands: readonly { readonly id: string }[]): readonly string[] {
   return commands.map((command) => command.id)
@@ -72,26 +78,64 @@ describe('command registry', () => {
   })
 })
 
-describe('searchCommands', () => {
-  it('lists every palette command for an empty query', () => {
-    expect(idsOf(searchCommands(PALETTE_COMMANDS, '  '))).toEqual(idsOf(PALETTE_COMMANDS))
+const NO_SERVICES: CommandServices = {
+  fitView: () => undefined,
+  toggleTheme: () => undefined,
+  openShortcutsDialog: () => undefined,
+  requestNewGraph: () => undefined,
+  openAddNodeMenu: () => undefined,
+  addNode: () => null,
+  openCommandPalette: () => undefined,
+}
+
+function addSine(x: number): NodeId {
+  const nodeId = useEditorStore.getState().addNode('math/sin', { x, y: 0 })
+  if (nodeId === null) throw new Error('Could not add a Sine node')
+  return nodeId
+}
+
+function nodeIdsInGraph(): readonly string[] {
+  return Object.keys(useEditorStore.getState().graph.nodes)
+}
+
+describe('node targets', () => {
+  beforeEach(() => {
+    useEditorStore.getState().resetGraph()
   })
 
-  it('puts the split layout first for "split"', () => {
-    expect(idsOf(searchCommands(PALETTE_COMMANDS, 'split'))[0]).toBe('preview-split')
+  it('reads the node from an element inside a canvas node, and none from elsewhere', () => {
+    document.body.innerHTML = `
+      <div class="react-flow__node" data-id="sine"><input aria-label="In" /></div>
+      <button type="button">Elsewhere</button>
+    `
+    const input = document.querySelector('input')
+    const button = document.querySelector('button')
+    expect(invocationFrom(input).nodeId).toBe('sine')
+    expect(invocationFrom(button)).toEqual({ opener: button, nodeId: null })
+    expect(invocationFrom(null)).toEqual(UNTARGETED)
+    document.body.innerHTML = ''
   })
 
-  it('matches keywords and every word of the query, ignoring case', () => {
-    expect(idsOf(searchCommands(PALETTE_COMMANDS, 'DARK'))).toEqual(['toggle-theme'])
-    expect(idsOf(searchCommands(PALETTE_COMMANDS, 'hide code'))).toEqual(['toggle-code'])
+  it('acts on the named node only, when the selection does not hold it', () => {
+    const selected = addSine(0)
+    const named = addSine(300)
+    useEditorStore.getState().setSelection([selected])
+    findCommand('delete')?.run({ opener: null, nodeId: named, services: NO_SERVICES })
+    expect(nodeIdsInGraph()).toContain(selected)
+    expect(nodeIdsInGraph()).not.toContain(named)
   })
 
-  it('matches the start of words, not the middle, and ignores punctuation', () => {
-    expect(searchCommands(PALETTE_COMMANDS, 'ide')).toEqual([])
-    expect(idsOf(searchCommands(PALETTE_COMMANDS, 'layout: full'))[0]).toBe('preview-full')
+  it('acts on the whole selection when it holds the named node', () => {
+    const first = addSine(0)
+    const second = addSine(300)
+    useEditorStore.getState().setSelection([first, second])
+    findCommand('delete')?.run({ opener: null, nodeId: first, services: NO_SERVICES })
+    expect(nodeIdsInGraph()).not.toContain(first)
+    expect(nodeIdsInGraph()).not.toContain(second)
   })
 
-  it('returns nothing when no command matches', () => {
-    expect(searchCommands(PALETTE_COMMANDS, 'zzz-no-such-command')).toEqual([])
+  it('places new nodes beside the named node, or in the middle of the view', () => {
+    expect(placementNear(asNodeId('sine'))).toEqual({ kind: 'beside-node', nodeId: 'sine' })
+    expect(placementNear(null)).toEqual({ kind: 'viewport-center' })
   })
 })

@@ -62,8 +62,19 @@ describe('paletteResults', () => {
     ])
   })
 
-  it('finds graph nodes by the start of a word, so "ine" does not find Sine', () => {
-    expect(search('ine').some((group) => group.id === 'nodes-in-graph')).toBe(false)
+  it('matches nodes in the graph and nodes to add the same way: "ine" finds Sine in both', () => {
+    const groups = search('ine')
+    const keysOf = (id: string) => groups.find((group) => group.id === id)?.items.map((i) => i.key)
+    expect(keysOf('nodes-in-graph')).toEqual(['node:sine'])
+    expect(keysOf('add-node')).toContain('add:math/sin')
+  })
+
+  it('finds nodes in the graph by keyword and type id too, like the add-node search', () => {
+    // "annotation" is a Comment keyword; "math/sin" is Sine's type id.
+    const inGraph = (query: string) =>
+      summarize(search(query)).find((group) => group.group === 'nodes-in-graph')?.keys
+    expect(inGraph('annotation')).toEqual(['node:note'])
+    expect(inGraph('math/sin')).toEqual(['node:sine'])
   })
 
   it('lists the master as a node to jump to, never as one to add', () => {

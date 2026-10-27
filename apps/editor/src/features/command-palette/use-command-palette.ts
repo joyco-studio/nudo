@@ -2,6 +2,7 @@ import { useCallback, useEffect, useEffectEvent, useId, useRef, useState } from 
 
 import { isCommandPaletteChord } from '@/features/shortcuts/shortcut-action'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
+import { htmlElementOf } from '@/shared/lib/html-element-of'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import {
   claimOverlay,
@@ -31,7 +32,8 @@ export interface CommandPaletteState {
 
 /** Nothing focused reports the body, which can't take focus back: the canvas gets it instead. */
 function openerOf(target: EventTarget | null): HTMLElement | null {
-  return target instanceof HTMLElement && target !== document.body ? target : null
+  const element = htmlElementOf(target)
+  return element === document.body ? null : element
 }
 
 /**

@@ -46,13 +46,29 @@ export interface CommandServices {
   openCommandPalette: (opener: HTMLElement | null) => void
 }
 
-export interface CommandContext {
+/** Where a command was asked for. */
+export interface CommandInvocation {
   /**
-   * The element that had focus when the command was asked for: a key's target, the palette's
-   * opener or a context menu's node. Node commands act on its node (or the selection holding
-   * it), and a dialog the command opens gives focus back to it.
+   * The element that had focus: a key's target or the palette's opener. A dialog the command
+   * opens gives focus back to it. Null from a menu, which restores focus itself.
    */
   readonly opener: HTMLElement | null
+  /**
+   * The node a node command acts on (with the rest of the selection when the selection holds
+   * it), and that new nodes land beside. Null: the selection, and the middle of the view.
+   */
+  readonly nodeId: NodeId | null
+}
+
+/** No element and no node: the command acts on the selection and returns focus to the canvas. */
+export const UNTARGETED: CommandInvocation = { opener: null, nodeId: null }
+
+/** An invocation from a focused element: its node, if it is (or is inside) a canvas node. */
+export function invocationFrom(opener: HTMLElement | null): CommandInvocation {
+  return { opener, nodeId: flowNodeIdOf(opener) }
+}
+
+export interface CommandContext extends CommandInvocation {
   readonly services: CommandServices
 }
 
@@ -68,25 +84,24 @@ export interface Command {
   /** Alternative chords that run the command; empty when no key does. */
   readonly shortcut: readonly KeyChord[]
   /** False while there is nothing to act on; the palette leaves the command out then. */
-  readonly isAvailable?: (opener: HTMLElement | null) => boolean
+  readonly isAvailable?: (nodeId: NodeId | null) => boolean
   readonly run: (context: CommandContext) => void
 }
 
 const getStore = () => useEditorStore.getState()
 
-/** The nodes a node command applies to: the opener's node, or the selection when it holds it. */
-function nodeTargets(opener: HTMLElement | null): readonly NodeId[] {
-  return resolveActionNodeIds(flowNodeIdOf(opener), getStore().selectedNodeIds)
+/** The nodes a node command applies to: the node, or the selection when it holds the node. */
+function nodeTargets(nodeId: NodeId | null): readonly NodeId[] {
+  return resolveActionNodeIds(nodeId, getStore().selectedNodeIds)
 }
 
 /** The master can't be copied, duplicated or deleted, so it alone gives such commands nothing. */
-function hasRemovableTargets(opener: HTMLElement | null): boolean {
-  return nodeTargets(opener).some((id) => id !== MASTER_NODE_ID)
+function hasRemovableTargets(nodeId: NodeId | null): boolean {
+  return nodeTargets(nodeId).some((id) => id !== MASTER_NODE_ID)
 }
 
-/** New nodes land beside the opener's node, or in the middle of the view. */
-export function placementNear(opener: HTMLElement | null): PlacementOrigin {
-  const nodeId = flowNodeIdOf(opener)
+/** New nodes land beside the target node, or in the middle of the view. */
+export function placementNear(nodeId: NodeId | null): PlacementOrigin {
   return nodeId === null ? { kind: 'viewport-center' } : { kind: 'beside-node', nodeId }
 }
 
@@ -171,8 +186,8 @@ const ACTION_COMMANDS: readonly Command[] = [
     menuLabel: 'Add node…',
     keywords: ['insert', 'create', 'new node', 'browse'],
     shortcut: [['Space']],
-    run: ({ opener, services }) => {
-      services.openAddNodeMenu(placementNear(opener), opener)
+    run: ({ opener, nodeId, services }) => {
+      services.openAddNodeMenu(placementNear(nodeId), opener)
     },
   },
   {
@@ -182,9 +197,9 @@ const ACTION_COMMANDS: readonly Command[] = [
     menuLabel: 'Add comment',
     keywords: ['note', 'frame', 'annotation', 'group'],
     shortcut: [],
-    run: ({ opener, services }) => {
-      const nodeId = services.addNode(COMMENT_TYPE, placementNear(opener))
-      if (nodeId !== null) focusFlowNode(nodeId)
+    run: ({ nodeId, services }) => {
+      const commentId = services.addNode(COMMENT_TYPE, placementNear(nodeId))
+      if (commentId !== null) focusFlowNode(commentId)
     },
   },
   {
@@ -195,8 +210,8 @@ const ACTION_COMMANDS: readonly Command[] = [
     keywords: ['clipboard'],
     shortcut: [[MOD, 'C']],
     isAvailable: hasRemovableTargets,
-    run: ({ opener }) => {
-      void copySelection(nodeTargets(opener))
+    run: ({ nodeId }) => {
+      void copySelection(nodeTargets(nodeId))
     },
   },
   {
@@ -218,8 +233,8 @@ const ACTION_COMMANDS: readonly Command[] = [
     keywords: ['clone', 'copy'],
     shortcut: [],
     isAvailable: hasRemovableTargets,
-    run: ({ opener }) => {
-      const [firstCopy] = duplicateNodes(nodeTargets(opener))
+    run: ({ nodeId }) => {
+      const [firstCopy] = duplicateNodes(nodeTargets(nodeId))
       if (firstCopy !== undefined) focusFlowNode(firstCopy)
     },
   },
@@ -241,8 +256,8 @@ const ACTION_COMMANDS: readonly Command[] = [
     // The Delete key is handled by the canvas, which also deletes selected connections.
     shortcut: [],
     isAvailable: hasRemovableTargets,
-    run: ({ opener }) => {
-      getStore().removeSelection(nodeTargets(opener), [])
+    run: ({ nodeId }) => {
+      getStore().removeSelection(nodeTargets(nodeId), [])
       focusOpenerOrCanvas(null)
     },
   },
@@ -338,37 +353,4 @@ export const PALETTE_COMMANDS: readonly Command[] = COMMANDS.filter(
 /** The command each panel key runs: B, I, P and C toggle a panel; Shift+P cycles the layout. */
 export function panelCommandId(action: PanelShortcutAction): CommandId {
   return action.kind === 'toggle' ? `toggle-${action.panel}` : 'cycle-preview-layout'
-}
-
-/** Anything but letters, digits and `?` separates words ("layout:", "Ctrl/⌘"). */
-const WORD_SEPARATOR = /[^\p{L}\p{N}?]+/u
-
-/** The lowercase words of a text or a search query. */
-export function wordsOf(text: string): readonly string[] {
-  return text
-    .toLowerCase()
-    .split(WORD_SEPARATOR)
-    .filter((word) => word !== '')
-}
-
-/**
- * Whether every query word starts a word of `text`, in any order: "spl" finds "Split", but "ine"
- * doesn't find "Sine", so short queries don't match the middle of unrelated words.
- */
-export function startsWordsFor(text: string, queryWordList: readonly string[]): boolean {
-  const textWords = wordsOf(text)
-  return queryWordList.every((queryWord) =>
-    textWords.some((textWord) => textWord.startsWith(queryWord)),
-  )
-}
-
-/**
- * Case-insensitive search over labels and keywords (see `startsWordsFor`). Keeps registry order;
- * an empty query keeps every command.
- */
-export function searchCommands(commands: readonly Command[], query: string): readonly Command[] {
-  const queryWordList = wordsOf(query)
-  return commands.filter((command) =>
-    startsWordsFor([command.label, ...command.keywords].join(' '), queryWordList),
-  )
 }

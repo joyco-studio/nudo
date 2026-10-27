@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { ReactElement } from 'react'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
+import { UNTARGETED } from '@/features/command-palette/command-registry'
 import {
   ContextMenu,
   ContextMenuItem,
@@ -95,14 +96,14 @@ export function PaneContextMenu({ children }: PaneContextMenuProps) {
         <ContextMenuSeparator />
         <ContextMenuItem
           onSelect={() => {
-            runCommand('select-all', null)
+            runCommand('select-all', UNTARGETED)
           }}
         >
           <CommandMenuLabel commandId="select-all" />
         </ContextMenuItem>
         <ContextMenuItem
           onSelect={() => {
-            runCommand('fit-view', null)
+            runCommand('fit-view', UNTARGETED)
           }}
         >
           <CommandMenuLabel commandId="fit-view" />

@@ -47,10 +47,20 @@ export interface NodeSearchGroup {
 /** Property readers are added from the Blackboard, which gives them the property they read. */
 const isAddable = (definition: AnyNodeDefinition): boolean => definition.reads !== 'property'
 
-function matchesQuery(definition: AnyNodeDefinition, normalizedQuery: string): boolean {
+/**
+ * The node matcher the add-node menu and the command palette share: the query, trimmed and
+ * case-insensitive, appears anywhere in the node's label (or a node's own title), type id or a
+ * keyword. Node names are short, so "ine" finding Sine and Cosine is what people expect.
+ */
+export function matchesNodeQuery(
+  definition: AnyNodeDefinition,
+  query: string,
+  extraTexts: readonly string[] = [],
+): boolean {
+  const normalizedQuery = query.trim().toLowerCase()
   if (normalizedQuery === '') return true
-  const haystack = [definition.label, definition.type, ...definition.keywords]
-  return haystack.some((text) => text.toLowerCase().includes(normalizedQuery))
+  const texts = [...extraTexts, definition.label, definition.type, ...definition.keywords]
+  return texts.some((text) => text.toLowerCase().includes(normalizedQuery))
 }
 
 /**
@@ -61,9 +71,8 @@ export function searchNodes(
   definitions: readonly AnyNodeDefinition[],
   query: string,
 ): readonly NodeSearchGroup[] {
-  const normalizedQuery = query.trim().toLowerCase()
   const matches = definitions.filter(
-    (definition) => isAddable(definition) && matchesQuery(definition, normalizedQuery),
+    (definition) => isAddable(definition) && matchesNodeQuery(definition, query),
   )
 
   return ADDABLE_CATEGORIES.flatMap((category) => {

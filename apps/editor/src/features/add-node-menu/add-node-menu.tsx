@@ -99,7 +99,7 @@ function NodeSearch({ onPick }: NodeSearchProps) {
       />
       {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
       <CommandList label="Nodes" className="max-h-[min(23rem,50dvh)]">
-        <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
+        <CommandEmpty className="text-muted-foreground">
           No nodes match "{query.trim()}". Try another word, like mix or time.
         </CommandEmpty>
         {groups.map((group) => (

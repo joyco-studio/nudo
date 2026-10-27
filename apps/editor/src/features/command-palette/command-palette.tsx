@@ -16,7 +16,7 @@ import { Kbd, KbdGroup } from '@/shared/ui/kbd'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
-import { PALETTE_COMMANDS } from './command-registry'
+import { PALETTE_COMMANDS, invocationFrom } from './command-registry'
 import { paletteResults } from './palette-results'
 import type { PaletteGroupId, PaletteItem } from './palette-results'
 import './command-palette.css'
@@ -83,10 +83,10 @@ function PaletteSearch({ opener, onRun }: PaletteSearchProps) {
   const [query, setQuery] = useState('')
   const graph = useEditorStore((state) => state.graph)
   // Commands with nothing to act on (Undo with no history, Copy with no node) are left out.
-  const commands = useMemo(
-    () => PALETTE_COMMANDS.filter((command) => command.isAvailable?.(opener) ?? true),
-    [opener],
-  )
+  const commands = useMemo(() => {
+    const { nodeId } = invocationFrom(opener)
+    return PALETTE_COMMANDS.filter((command) => command.isAvailable?.(nodeId) ?? true)
+  }, [opener])
   const groups = paletteResults({ query, graph, registry, commands })
 
   return (
@@ -100,7 +100,7 @@ function PaletteSearch({ opener, onRun }: PaletteSearchProps) {
       />
       {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
       <CommandList label="Commands and nodes" className="max-h-[min(23rem,50dvh)]">
-        <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
+        <CommandEmpty className="text-muted-foreground">
           Nothing matches "{query.trim()}". Try a command like split, or a node like time.
         </CommandEmpty>
         {groups.map((group) => (
@@ -140,8 +140,6 @@ function PaletteRow({ item, onRun }: PaletteRowProps) {
   return (
     <CommandItem
       value={item.key}
-      // Equal padding on every side (user preference).
-      className="p-2"
       onSelect={() => {
         onRun(item)
       }}

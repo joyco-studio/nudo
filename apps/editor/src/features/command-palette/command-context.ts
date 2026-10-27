@@ -1,12 +1,12 @@
 import { createContext, use } from 'react'
 
-import type { CommandId } from './command-registry'
+import type { CommandId, CommandInvocation } from './command-registry'
 
 /**
- * Runs a registry command. `opener` is the element that had focus when it was asked for: node
- * commands act on its node, and a dialog the command opens gives focus back to it.
+ * Runs a registry command. The invocation names the element that had focus (a dialog the command
+ * opens gives focus back to it) and the node a node command acts on.
  */
-export type RunCommand = (id: CommandId, opener: HTMLElement | null) => void
+export type RunCommand = (id: CommandId, invocation: CommandInvocation) => void
 
 /** Opens the command palette. `opener` gets focus back when it closes. */
 export type OpenCommandPalette = (opener: HTMLElement | null) => void

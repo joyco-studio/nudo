@@ -2,7 +2,12 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { expectFocusRing, expectQuietFieldFocus } from './support/focus-indicators'
 import { readStoredNodes } from './support/read-autosave'
-import { COLOR_TO_BASE_COLOR, TIME_AND_SINE, seedAutosave } from './support/seed-graph'
+import {
+  COLOR_TO_BASE_COLOR,
+  TIME_AND_SINE,
+  graphDocument,
+  seedAutosave,
+} from './support/seed-graph'
 
 /** Ctrl+K on Windows and Linux, ⌘K on a Mac. */
 const PALETTE_CHORD = 'ControlOrMeta+k'
@@ -33,6 +38,21 @@ async function openCanvas(page: Page, document: string): Promise<void> {
   await seedAutosave(page, document)
   await page.goto('/')
   await expect(page.locator('.react-flow__node').first()).toBeVisible()
+}
+
+/** A Sine node far from the master, outside the first fitted view. */
+const FAR_SINE = graphDocument(
+  [{ id: 'far', type: 'math/sin', position: { x: 5000, y: 5000 } }],
+  [],
+)
+
+/** USER rule: the same padding on all four sides. */
+async function expectEqualPadding(target: Locator): Promise<void> {
+  const padding = await target.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return [style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft]
+  })
+  expect(new Set(padding).size, padding.join(' ')).toBe(1)
 }
 
 /** Running animations on the palette and its overlay right after it opens. */
@@ -118,6 +138,51 @@ test.describe('command palette', () => {
     await expect(sine).toHaveClass(/selected/)
     // Nothing was added: the jump only moves focus and the view.
     await expect(page.locator('.react-flow__node')).toHaveCount(3)
+  })
+
+  test('jump to a node far outside the view brings it into view and focuses it', async ({
+    page,
+  }) => {
+    await openCanvas(page, FAR_SINE)
+    const far = flowNode(page, 'far')
+    await expect(far).not.toBeInViewport()
+    await page.getByRole('main', { name: 'Node canvas' }).focus()
+
+    await page.keyboard.press(PALETTE_CHORD)
+    await page.keyboard.type('sine')
+    const { dialog, group } = palette(page)
+    await expect(group('Nodes in graph').getByRole('option', { name: /Sine/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await page.keyboard.press('Enter')
+
+    await expect(dialog).toBeHidden()
+    await expectFocusRing(page, far)
+    await expect(far).toBeInViewport()
+  })
+
+  test('rows show the pointer cursor and every surface has equal padding', async ({ page }) => {
+    await openCanvas(page, TIME_AND_SINE)
+    await page.getByRole('main', { name: 'Node canvas' }).focus()
+
+    await page.keyboard.press(PALETTE_CHORD)
+    const { dialog } = palette(page)
+    const row = dialog.getByRole('option').first()
+    await expect(row).toHaveCSS('cursor', 'pointer')
+    await expectEqualPadding(row)
+    await expectEqualPadding(dialog.locator('[cmdk-group-heading]').first())
+    await expectEqualPadding(dialog.locator('footer'))
+    await page.keyboard.type('zzz-no-such-thing')
+    await expectEqualPadding(dialog.locator('[cmdk-empty]'))
+    await page.keyboard.press('Escape')
+
+    // The add-node menu shares the same rows.
+    await page.getByRole('main', { name: 'Node canvas' }).focus()
+    await page.keyboard.press('Space')
+    const addNodeRow = page.getByRole('dialog', { name: 'Add node' }).getByRole('option').first()
+    await expect(addNodeRow).toHaveCSS('cursor', 'pointer')
+    await expectEqualPadding(addNodeRow)
   })
 
   test('add node from palette', async ({ page }) => {

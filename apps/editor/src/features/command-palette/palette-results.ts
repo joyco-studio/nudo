@@ -1,10 +1,15 @@
 import type { Graph, NodeId, NodeRegistry, NodeTypeId } from '@nudo-tsl/core'
 
-import { CATEGORY_HEADINGS, searchNodes } from '@/features/add-node-menu/search-nodes'
+import {
+  CATEGORY_HEADINGS,
+  matchesNodeQuery,
+  searchNodes,
+} from '@/features/add-node-menu/search-nodes'
 import { nodeTitle } from '@/features/canvas/to-flow'
 
-import { PALETTE_COMMANDS, searchCommands, startsWordsFor, wordsOf } from './command-registry'
+import { PALETTE_COMMANDS } from './command-registry'
 import type { Command, CommandGroupId } from './command-registry'
+import { searchCommands } from './command-search'
 
 /**
  * Palette groups, in palette order: the few commands first, then the nodes in the graph, then
@@ -51,17 +56,18 @@ function commandGroup(commands: readonly Command[], id: CommandGroupId): readonl
   return items.length === 0 ? [] : [{ id, items }]
 }
 
-/** Nodes whose title or kind contains every word of the query, in graph order. */
+/** Graph nodes the add-node matcher accepts (title included), in graph order. */
 function graphNodeItems(
   graph: Graph,
   registry: NodeRegistry,
-  words: readonly string[],
+  query: string,
 ): readonly PaletteItem[] {
   return Object.values(graph.nodes).flatMap((node): PaletteItem[] => {
     const definition = registry.get(node.type)
     if (definition === undefined) return []
     const label = nodeTitle(node, definition, graph.properties)
-    if (!startsWordsFor(`${label} ${definition.label}`, words)) return []
+    // The add-node search's matcher, plus the title the node shows (a comment's own title).
+    if (!matchesNodeQuery(definition, query, [label])) return []
     const key = `node:${node.id}`
     return label === definition.label
       ? [{ kind: 'jump', key, nodeId: node.id, label }]
@@ -87,7 +93,8 @@ function nodeGroup(id: PaletteGroupId, items: readonly PaletteItem[]): readonly 
 
 /**
  * Everything the palette shows for a query, grouped and without empty groups. Before anything is
- * typed it lists only the commands; nodes join once there is a word to look for.
+ * typed it lists only the commands; nodes join once there is a word to look for. Commands match
+ * at word starts (`command-search.ts`); both node groups use the add-node menu's matcher.
  */
 export function paletteResults({
   query,
@@ -97,11 +104,10 @@ export function paletteResults({
 }: PaletteQuery): readonly PaletteGroup[] {
   const matches = searchCommands(commands, query)
   const commandGroups = [...commandGroup(matches, 'actions'), ...commandGroup(matches, 'view')]
-  const words = wordsOf(query)
-  if (words.length === 0) return commandGroups
+  if (query.trim() === '') return commandGroups
   return [
     ...commandGroups,
-    ...nodeGroup('nodes-in-graph', graphNodeItems(graph, registry, words)),
+    ...nodeGroup('nodes-in-graph', graphNodeItems(graph, registry, query)),
     ...nodeGroup('add-node', addNodeItems(registry, query)),
   ]
 }

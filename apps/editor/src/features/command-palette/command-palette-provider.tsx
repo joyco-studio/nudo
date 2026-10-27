@@ -14,7 +14,7 @@ import { useEditorStore } from '@/store/editor-store'
 import { CommandsContext } from './command-context'
 import type { CommandsApi, RunCommand } from './command-context'
 import { CommandPalette } from './command-palette'
-import { findCommand, placementNear } from './command-registry'
+import { findCommand, invocationFrom, placementNear } from './command-registry'
 import type { CommandServices } from './command-registry'
 import type { PaletteItem } from './palette-results'
 import { useCommandPalette } from './use-command-palette'
@@ -62,8 +62,8 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
   )
 
   const runCommand = useCallback<RunCommand>(
-    (id, opener) => {
-      findCommand(id)?.run({ opener, services })
+    (id, invocation) => {
+      findCommand(id)?.run({ ...invocation, services })
     },
     [services],
   )
@@ -88,12 +88,13 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
   const runItem = useCallback(
     (item: PaletteItem) => {
       closeThenRun((opener) => {
+        const invocation = invocationFrom(opener)
         if (item.kind === 'command') {
-          item.command.run({ opener, services })
+          item.command.run({ ...invocation, services })
         } else if (item.kind === 'jump') {
           revealNode(item.nodeId)
         } else {
-          const nodeId = addNodeAt(item.type, placementNear(opener))
+          const nodeId = addNodeAt(item.type, placementNear(invocation.nodeId))
           if (nodeId !== null) focusFlowNode(nodeId)
         }
       })

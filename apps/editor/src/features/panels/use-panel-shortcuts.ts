@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
-import { panelCommandId } from '@/features/command-palette/command-registry'
+import { invocationFrom, panelCommandId } from '@/features/command-palette/command-registry'
+import { htmlElementOf } from '@/shared/lib/html-element-of'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { useEditorStore } from '@/store/editor-store'
@@ -42,7 +43,7 @@ export function usePanelShortcuts(): void {
       const action = panelShortcutAction(event)
       if (action === null) return
       event.preventDefault()
-      runCommand(panelCommandId(action), event.target instanceof HTMLElement ? event.target : null)
+      runCommand(panelCommandId(action), invocationFrom(htmlElementOf(event.target)))
     }
     window.addEventListener('keydown', onKeyDownCapture, { capture: true })
     window.addEventListener('keydown', onKeyDown)

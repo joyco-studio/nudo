@@ -1,8 +1,8 @@
-import { useRef } from 'react'
 import type { ReactElement } from 'react'
 import { MASTER_NODE_ID, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
+import type { CommandInvocation } from '@/features/command-palette/command-registry'
 import {
   ContextMenu,
   ContextMenuItem,
@@ -63,14 +63,16 @@ interface NodeContextMenuProps {
 /**
  * A node's right-click menu: Copy, Duplicate, collapse its ports, its preview mode and Delete. The
  * ContextMenu key or Shift+F10 on the focused node opens it too (see the canvas keyboard model).
- * Copy, Duplicate and Delete run the registry commands with the node as the opener, so they act
- * on the node, or on the selection when it holds the node.
+ * Copy, Duplicate and Delete run the registry commands on this node, so they act on the node, or
+ * on the selection when it holds the node.
  */
 export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
   const actions = useGraphCanvasActions()
   const runCommand = useRunCommand()
   const menu = useCanvasMenu()
-  const triggerRef = useRef<HTMLElement | null>(null)
+  // The menu's own node, named explicitly: the commands act on it, or on the selection holding it.
+  // No opener: the menu restores focus itself.
+  const target: CommandInvocation = { opener: null, nodeId: data.node.id }
   const { node } = data
   const model = nodeMenuModel(data)
   const isCollapsed = isNodeCollapsed(data)
@@ -84,10 +86,6 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
         asChild
         {...CONTEXT_MENU_TRIGGER_PROPS}
         onContextMenuCapture={ignoreForeignContextMenu}
-        onContextMenu={(event) => {
-          triggerRef.current =
-            event.currentTarget instanceof HTMLElement ? event.currentTarget : null
-        }}
       >
         {children}
       </ContextMenuTrigger>
@@ -96,7 +94,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
           <>
             <ContextMenuItem
               onSelect={() => {
-                runCommand('copy', triggerRef.current)
+                runCommand('copy', target)
               }}
             >
               <CommandMenuLabel commandId="copy" />
@@ -104,7 +102,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
             <ContextMenuItem
               onSelect={() => {
                 menu.runAfterClose(() => {
-                  runCommand('duplicate', triggerRef.current)
+                  runCommand('duplicate', target)
                 })
               }}
             >
@@ -147,7 +145,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
               variant="destructive"
               onSelect={() => {
                 menu.runAfterClose(() => {
-                  runCommand('delete', triggerRef.current)
+                  runCommand('delete', target)
                 })
               }}
             >
