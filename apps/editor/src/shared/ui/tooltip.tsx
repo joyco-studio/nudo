@@ -1,10 +1,18 @@
 import * as React from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useIsAnyOverlayOpen } from '@/shared/lib/overlay-coordinator'
 import { cn } from '@/shared/lib/utils'
+import { DURATION_MS } from '@/shared/motion/tokens'
+import { useOverlayMotion } from '@/shared/motion/use-motion-preset'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
+// nudo-tsl: the content animates its exit with motion/react, so it needs the open state itself.
+const TooltipOpenContext = React.createContext(false)
+
+// nudo-tsl: reference 17's intent delay (`--duration-micro`), so a passing pointer shows nothing.
+// Keyboard focus opens at once, and moving between triggers skips the delay.
 function TooltipProvider({
-  delayDuration = 0,
+  delayDuration = DURATION_MS.micro,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
@@ -32,19 +40,22 @@ function Tooltip({
     setWasOverlayOpen(isOverlayOpen)
     if (isOverlayOpen) setIsOpen(false)
   }
+  const isShown = (open ?? isOpen) && !isOverlayOpen
   return (
-    <TooltipPrimitive.Root
-      data-slot="tooltip"
-      open={(open ?? isOpen) && !isOverlayOpen}
-      onOpenChange={(next) => {
-        // A hover under an open overlay is ignored: Radix never reports the leave (the controlled
-        // value is already false), so remembering it would show a ghost tooltip later.
-        if (next && isOverlayOpen) return
-        setIsOpen(next)
-        onOpenChange?.(next)
-      }}
-      {...props}
-    />
+    <TooltipOpenContext value={isShown}>
+      <TooltipPrimitive.Root
+        data-slot="tooltip"
+        open={isShown}
+        onOpenChange={(next) => {
+          // A hover under an open overlay is ignored: Radix never reports the leave (the controlled
+          // value is already false), so remembering it would show a ghost tooltip later.
+          if (next && isOverlayOpen) return
+          setIsOpen(next)
+          onOpenChange?.(next)
+        }}
+        {...props}
+      />
+    </TooltipOpenContext>
   )
 }
 
@@ -59,22 +70,34 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  const isOpen = React.useContext(TooltipOpenContext)
+  const { presence, element, presenceKey } = useOverlayMotion('tooltip', isOpen)
   return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
-        data-slot="tooltip-content"
-        sideOffset={sideOffset}
-        collisionPadding={collisionPadding}
-        className={cn(
-          'pointer-events-none z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground p-1.5 text-xs text-background has-data-[slot=kbd]:py-1 has-data-[slot=kbd]:pr-1 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-        <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" />
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
+    <AnimatePresence key={presenceKey} {...presence}>
+      {isOpen && (
+        <TooltipPrimitive.Portal forceMount key="tooltip">
+          <TooltipPrimitive.Content
+            data-slot="tooltip-content"
+            sideOffset={sideOffset}
+            collisionPadding={collisionPadding}
+            {...props}
+            forceMount
+            asChild
+          >
+            <motion.div
+              {...element}
+              className={cn(
+                'pointer-events-none z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground p-1.5 text-xs text-background has-data-[slot=kbd]:py-1 has-data-[slot=kbd]:pr-1 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm',
+                className,
+              )}
+            >
+              {children}
+              <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" />
+            </motion.div>
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      )}
+    </AnimatePresence>
   )
 }
 

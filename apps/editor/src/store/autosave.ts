@@ -12,10 +12,12 @@ const RESTORE_FAILED_NOTICE: Notice = {
   kind: 'error',
   message:
     "Couldn't restore your last session, so we started a new graph. The previous data was kept.",
+  persistent: true,
 }
 const RESTORE_FAILED_DATA_LOST_NOTICE: Notice = {
   kind: 'error',
   message: "Couldn't restore your last session, so we started a new graph.",
+  persistent: true,
 }
 const SAVE_FAILED_NOTICE: Notice = {
   kind: 'error',

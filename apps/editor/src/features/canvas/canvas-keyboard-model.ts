@@ -18,6 +18,8 @@ export const FLOW_EDGE_SELECTOR = '.react-flow__edge'
 export const FLOW_PANE_SELECTOR = '.react-flow__pane'
 /** Marks the native button inside a port handle. */
 export const PORT_BUTTON_ATTRIBUTE = 'data-port-button'
+/** Marks the field Enter steps into ahead of the node's first one (a comment's note). */
+export const NODE_ENTRY_ATTRIBUTE = 'data-node-entry'
 
 /** What has keyboard focus, as far as the canvas keyboard model cares. */
 export type KeyTargetKind = 'node' | 'edge' | 'canvas' | 'field' | 'port' | 'other'

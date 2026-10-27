@@ -160,7 +160,8 @@ test('comment node can be added, titled and resized by keyboard', async ({ page 
 
   const frame = graphNode(page, 'Comment')
   await expect(frame).toBeFocused()
-  await page.keyboard.press('Enter')
+  // Enter writes in the note; the title is the first stop inside the frame.
+  await page.keyboard.press('Tab')
   const title = frame.getByRole('textbox', { name: 'Comment title' })
   await expect(title).toBeFocused()
   await page.keyboard.press('ControlOrMeta+a')

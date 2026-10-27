@@ -6,6 +6,7 @@ import type { NodeProps } from '@xyflow/react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/ui/input'
 
+import { CommentBodyField } from './comment-body-field'
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { NodeContextMenu } from './node-context-menu'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
@@ -56,14 +57,15 @@ function CommentTitleField({ data }: CommentTitleFieldProps) {
       onBlur={commitDraft}
       onKeyDown={onKeyDown}
       // Quiet inline title: no box of its own, only the quiet focus border while editing. Its 8px
-      // text inset (1px border + 7px padding) matches the inset from the header's top.
-      className="nodrag h-full min-w-0 flex-1 rounded-none border-transparent bg-transparent px-[7px] py-0 font-heading text-base font-semibold tracking-wide uppercase shadow-none md:text-xs dark:bg-transparent"
+      // text inset (1px border + 7px padding) matches the inset from the header's top. It is as
+      // wide as its text, so the rest of the header stays a handle that drags the frame.
+      className="nodrag h-full w-auto max-w-full min-w-0 field-sizing-content rounded-none border-transparent bg-transparent px-[7px] py-0 font-heading text-base font-semibold tracking-wide uppercase shadow-none md:text-xs dark:bg-transparent"
     />
   )
 }
 
 /**
- * A comment frame: a resizable, titled area behind the nodes. It doesn't own the nodes on it, so
+ * A comment frame: a resizable, titled note behind the nodes. It doesn't own the nodes on it, so
  * selecting or dragging the frame never touches them. The resize handles show while it is
  * selected; with the keyboard, Alt + arrow keys resize it (see the canvas keyboard model).
  */
@@ -91,9 +93,10 @@ function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           <p id={nodeDescriptionId(data.node.id)} className="sr-only">
             {data.definition.description}
           </p>
-          <header className="flex h-8 shrink-0 items-stretch border-b border-inherit">
+          <header className="flex h-8 shrink-0 items-stretch border-b border-inherit pr-8">
             <CommentTitleField data={data} />
           </header>
+          <CommentBodyField data={data} />
         </div>
       </NodeContextMenu>
     </>

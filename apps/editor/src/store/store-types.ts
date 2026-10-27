@@ -81,6 +81,11 @@ export interface PropertySlice {
 export interface Notice {
   kind: 'info' | 'error'
   message: string
+  /**
+   * The person has to acknowledge it: its toast never closes by itself and offers a Dismiss
+   * action instead of a close button.
+   */
+  persistent?: boolean
 }
 
 /** A value being scrubbed that is shown live but not yet part of the graph. */

@@ -51,6 +51,7 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
       command('new-graph'),
       command('open-command-palette'),
       command('show-shortcuts'),
+      key('Move focus to the notifications', [['Alt', 'T']]),
     ],
   },
   {
@@ -69,6 +70,13 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
       key('Leave the full preview', [['Esc']]),
       key('Move the split handle 5%', [['Arrow keys']]),
       key('Smallest or largest canvas in split', [['Home'], ['End']]),
+    ],
+  },
+  {
+    title: 'Notifications',
+    entries: [
+      key('Move between the notification and its button', [['Tab'], ['Shift', 'Tab']]),
+      key('Close the notifications and return', [['Esc']]),
     ],
   },
   {
@@ -96,7 +104,8 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
   {
     title: 'Comment',
     entries: [
-      key('Edit its title', [['Enter']]),
+      key('Write in its note', [['Enter']]),
+      key('Edit its title', [['Tab']]),
       key('Resize the frame 20 px', [['Alt', 'Arrow keys']]),
     ],
   },

@@ -159,6 +159,14 @@ describe('generateModule', () => {
     expect(code).not.toContain('uv()')
   })
 
+  it('leaves comment frames out, title and body text included', () => {
+    let graph = withNode(createGraph(), 'note', 'utility/comment')
+    graph = withParam(graph, 'note', 'title', 'Ripple notes')
+    graph = withParam(graph, 'note', 'body', 'Tune the foam\nbefore shipping')
+
+    expect(generate(graph)).toBe(generate(createGraph()))
+  })
+
   it('writes inline values as literals, and colors as hex', () => {
     const graph = withInput(createGraph(), port('master', 'baseColor'), vec3(0.5, 0.25, 0.125))
     const code = generate(graph)

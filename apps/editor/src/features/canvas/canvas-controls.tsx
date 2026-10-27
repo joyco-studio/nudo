@@ -21,6 +21,7 @@ function ControlButton({ label, icon: Icon, shortcut, onClick }: ControlButtonPr
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          static
           variant="outline"
           size="icon-sm"
           aria-label={label}

@@ -33,6 +33,8 @@ export const commentNode = defineNode({
       min: MIN_HEIGHT,
       hidden: true,
     },
+    // The note written in the frame body: editor state too, so it never recompiles either.
+    { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true },
   ],
   build: () => ({}),
 })

@@ -96,6 +96,7 @@ export function TextureSlot({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          static
           ref={ref}
           type="button"
           variant="ghost"

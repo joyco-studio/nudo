@@ -39,6 +39,7 @@ export function AddPropertyMenu({ onAdd }: AddPropertyMenuProps) {
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
             <Button
+              static
               variant="ghost"
               size="icon-sm"
               aria-label={ADD_PROPERTY_LABEL}

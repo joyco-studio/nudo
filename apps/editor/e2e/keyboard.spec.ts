@@ -8,6 +8,7 @@ import {
   TIME_TO_SINE,
   seedAutosave,
 } from './support/seed-graph'
+import { toasts } from './support/toasts'
 
 const NOT_NUDO_NOTICE = "Clipboard doesn't contain nudo-tsl nodes"
 const ARROW_PRESSES = 3
@@ -31,7 +32,7 @@ function edges(page: Page): Locator {
 }
 
 function notice(page: Page): Locator {
-  return page.getByRole('status')
+  return toasts(page)
 }
 
 async function openCanvas(page: Page, document: string): Promise<void> {

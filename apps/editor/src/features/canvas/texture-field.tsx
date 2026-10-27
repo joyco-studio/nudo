@@ -111,6 +111,7 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                static
                 type="button"
                 variant="ghost"
                 size="icon-xs"

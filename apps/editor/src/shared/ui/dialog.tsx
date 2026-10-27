@@ -1,14 +1,36 @@
 'use client'
 
 import * as React from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/shared/lib/utils'
+import { useControllableOpen } from '@/shared/lib/use-controllable-open'
+import { useMotionPreset, useOverlayMotion } from '@/shared/motion/use-motion-preset'
 import { Dialog as DialogPrimitive } from 'radix-ui'
 
 import { Button } from '@/shared/ui/button'
 import { XIcon } from 'lucide-react'
 
-function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+// nudo-tsl: the content animates its exit with motion/react, so it needs the open state itself.
+const DialogOpenContext = React.createContext(false)
+
+/**
+ * `dialog` scales from 0.96 around the center; `quickFade` is the one fast fade for surfaces opened
+ * many times a day (the add-node menu). Either way a dialog opened from the keyboard is instant.
+ */
+type DialogMotion = 'dialog' | 'quickFade'
+
+function Dialog({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  const [isOpen, setOpen] = useControllableOpen({ open, defaultOpen, onOpenChange })
+  return (
+    <DialogOpenContext value={isOpen}>
+      <DialogPrimitive.Root data-slot="dialog" open={isOpen} onOpenChange={setOpen} {...props} />
+    </DialogOpenContext>
+  )
 }
 
 function DialogTrigger({ ...props }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
@@ -23,19 +45,25 @@ function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.C
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
+// nudo-tsl: rendered by DialogContent inside its AnimatePresence; opacity only.
 function DialogOverlay({
   className,
+  motionPreset = 'backdrop',
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+}: React.ComponentProps<typeof DialogPrimitive.Overlay> & {
+  motionPreset?: 'backdrop' | 'quickFade'
+}) {
+  const { element } = useMotionPreset(motionPreset)
   return (
-    <DialogPrimitive.Overlay
-      data-slot="dialog-overlay"
-      className={cn(
-        'fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
-        className,
-      )}
-      {...props}
-    />
+    <DialogPrimitive.Overlay data-slot="dialog-overlay" {...props} forceMount asChild>
+      <motion.div
+        {...element}
+        className={cn(
+          'fixed inset-0 isolate z-50 bg-black/10 data-closed:pointer-events-none supports-backdrop-filter:backdrop-blur-xs',
+          className,
+        )}
+      />
+    </DialogPrimitive.Overlay>
   )
 }
 
@@ -43,32 +71,41 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  motionPreset = 'dialog',
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  motionPreset?: DialogMotion
 }) {
+  const isOpen = React.useContext(DialogOpenContext)
+  const { presence, element, presenceKey } = useOverlayMotion(motionPreset, isOpen)
   return (
-    <DialogPortal>
-      <DialogOverlay />
-      <DialogPrimitive.Content
-        data-slot="dialog-content"
-        className={cn(
-          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-        {showCloseButton && (
-          <DialogPrimitive.Close data-slot="dialog-close" asChild>
-            <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
-              <XIcon />
-              <span className="sr-only">Close</span>
-            </Button>
-          </DialogPrimitive.Close>
-        )}
-      </DialogPrimitive.Content>
-    </DialogPortal>
+    <AnimatePresence key={presenceKey} {...presence}>
+      {isOpen && (
+        <DialogPortal forceMount key="dialog">
+          <DialogOverlay motionPreset={motionPreset === 'dialog' ? 'backdrop' : 'quickFade'} />
+          <DialogPrimitive.Content data-slot="dialog-content" {...props} forceMount asChild>
+            <motion.div
+              {...element}
+              className={cn(
+                'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none data-closed:pointer-events-none sm:max-w-sm',
+                className,
+              )}
+            >
+              {children}
+              {showCloseButton && (
+                <DialogPrimitive.Close data-slot="dialog-close" asChild>
+                  <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
+                    <XIcon />
+                    <span className="sr-only">Close</span>
+                  </Button>
+                </DialogPrimitive.Close>
+              )}
+            </motion.div>
+          </DialogPrimitive.Content>
+        </DialogPortal>
+      )}
+    </AnimatePresence>
   )
 }
 

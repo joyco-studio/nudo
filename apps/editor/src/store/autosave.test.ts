@@ -7,6 +7,7 @@ const RESTORE_FAILED_NOTICE = {
   kind: 'error',
   message:
     "Couldn't restore your last session, so we started a new graph. The previous data was kept.",
+  persistent: true,
 } as const
 
 function documentWith(overrides: Record<string, unknown>): string {
@@ -93,6 +94,7 @@ describe('loadAutosave', () => {
     expect(result.notice).toEqual({
       kind: 'error',
       message: "Couldn't restore your last session, so we started a new graph.",
+      persistent: true,
     })
     expect(localStorage.getItem(AUTOSAVE_CORRUPT_KEY)).toBeNull()
   })
