@@ -224,9 +224,15 @@ test.describe('seeded canvas', () => {
   })
 
   test('picking a color stores the linear value', async ({ page }) => {
-    const swatch = graphNode(page, 'Master Stack').getByLabel('Emission', { exact: true })
+    const swatch = graphNode(page, 'Master Stack').getByRole('button', {
+      name: 'Emission',
+      exact: true,
+    })
 
-    await swatch.fill('#00ff00')
+    await swatch.click()
+    const hex = page.getByRole('dialog', { name: 'Emission' }).getByRole('textbox', { name: 'Hex' })
+    await hex.fill('#00ff00')
+    await hex.press('Enter')
 
     await expect
       .poll(() => storedInputValue(page, 'master', 'emission'))

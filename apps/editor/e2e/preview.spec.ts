@@ -87,10 +87,13 @@ test.describe('main preview', () => {
     await page.waitForTimeout(PAST_DEBOUNCE_MS)
     const before = await compileCount(page)
 
-    const swatch = page.getByRole('group', { name: 'Color', exact: true }).getByLabel('Color', {
-      exact: true,
-    })
-    await swatch.fill('#00ff00')
+    const swatch = page
+      .getByRole('group', { name: 'Color', exact: true })
+      .getByRole('button', { name: 'Color', exact: true })
+    await swatch.click()
+    const hex = page.getByRole('dialog', { name: 'Color' }).getByRole('textbox', { name: 'Hex' })
+    await hex.fill('#00ff00')
+    await hex.press('Enter')
     await expect
       .poll(async () => {
         const color = (await readStoredNodes(page)).find((node) => node.id === 'color')
@@ -168,10 +171,29 @@ test.describe('main preview', () => {
     await page.keyboard.press('Enter')
     await expect(resetView).toBeFocused()
 
-    const background = preview(page).getByLabel('Background color')
-    await expect(background).toHaveValue(/^#[0-9a-f]{6}$/)
-    await background.fill('#336699')
-    await expect(background).toHaveValue('#336699')
+    // While the picker is open (a modal dialog) the rest of the page is hidden from the a11y tree.
+    const background = page
+      .getByRole('region', { name: 'Main preview', includeHidden: true })
+      .getByRole('button', { name: 'Background color', includeHidden: true })
+    await expect(background).toHaveAccessibleDescription(/^#[0-9a-f]{6}$/)
+    await background.focus()
+    await page.keyboard.press('Enter')
+    const hex = page
+      .getByRole('dialog', { name: 'Background color' })
+      .getByRole('textbox', { name: 'Hex' })
+    await expect(page.getByRole('slider', { name: 'Saturation and brightness' })).toBeFocused()
+    await hex.fill('#336699')
+    // The preview takes the color while typing, before the picker closes.
+    await expect(background).toHaveAccessibleDescription('#336699')
+    await page.keyboard.press('Escape')
+    await expect(background).not.toHaveAccessibleDescription('#336699')
+    await expect(background).toBeFocused()
+
+    await page.keyboard.press('Enter')
+    await hex.fill('#336699')
+    await hex.press('Enter')
+    await expect(background).toHaveAccessibleDescription('#336699')
+    await expect(background).toBeFocused()
   })
 
   test('loading a GLB model adds it to the mesh picker', async ({ page }) => {

@@ -1,4 +1,3 @@
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { float, vec3 } from '@nudo-tsl/core'
 import type {
   DataType,
@@ -8,10 +7,11 @@ import type {
   VectorPortValue,
 } from '@nudo-tsl/core'
 
+import { ColorPicker } from '@/shared/components/color-picker/color-picker'
+import type { Rgb } from '@/shared/components/color-picker/color-math'
 import { cn } from '@/shared/lib/utils'
 
 import { fallbackLabel } from './fallback-label'
-import { linearToSrgbHex, srgbHexToLinear } from './color-space'
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { inlineValue, valueComponents, withComponent } from './inline-value'
 import { NumberField } from './number-field'
@@ -44,55 +44,32 @@ interface ColorFieldProps {
   label: string
   value: Extract<VectorPortValue, { type: 'vec3' }>
   onCommit: (value: PortValue) => void
+  onPreview: (value: PortValue) => void
+  onPreviewEnd: () => void
 }
 
+const isSameRgb = (a: Rgb, b: Rgb): boolean => a.every((channel, index) => channel === b[index])
+
 /**
- * Native color picker. It speaks sRGB hex; the stored vec3 is linear. The swatch previews while
- * the picker is open and commits once, on the native `change` event, so one pick is one undo step.
+ * The custom color picker. Every edit reaches the material live through the preview channel; the
+ * picker commits once when it closes, so one pick is one undo step.
  */
-function ColorField({ label, value, onCommit }: ColorFieldProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [previewHex, setPreviewHex] = useState<string | null>(null)
-  const hex = previewHex ?? linearToSrgbHex(value.value)
-
-  const commitPickedColor = useEffectEvent((pickedHex: string) => {
-    setPreviewHex(null)
-    const linear = srgbHexToLinear(pickedHex)
-    if (linear === null || pickedHex === linearToSrgbHex(value.value)) return
-    onCommit(vec3(...linear))
-  })
-
-  useEffect(() => {
-    const input = inputRef.current
-    if (input === null) return
-    const onChange = (): void => {
-      commitPickedColor(input.value)
-    }
-    input.addEventListener('change', onChange)
-    return () => {
-      input.removeEventListener('change', onChange)
-    }
-  }, [])
-
+function ColorField({ label, value, onCommit, onPreview, onPreviewEnd }: ColorFieldProps) {
   return (
     <>
       <PortLabel label={label} />
-      <span aria-hidden="true" className="font-mono text-[11px] text-muted-foreground uppercase">
-        {hex}
-      </span>
-      <input
-        ref={inputRef}
-        type="color"
-        aria-label={label}
-        value={hex}
-        onChange={(event) => {
-          setPreviewHex(event.target.value)
+      <ColorPicker
+        label={label}
+        value={value.value}
+        className="nodrag"
+        onPreview={(next) => {
+          onPreview(vec3(...next))
         }}
-        // A picker closed without a `change` event must not leave the preview stuck.
-        onBlur={() => {
-          setPreviewHex(null)
+        onCommit={(next) => {
+          if (!isSameRgb(next, value.value)) onCommit(vec3(...next))
+          onPreviewEnd()
         }}
-        className="nodrag size-6 shrink-0 cursor-pointer border border-border bg-transparent p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
+        onCancel={onPreviewEnd}
       />
     </>
   )
@@ -192,7 +169,15 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
   }
 
   if (input.widget === 'color' && value.type === 'vec3') {
-    return <ColorField label={input.label} value={value} onCommit={commit} />
+    return (
+      <ColorField
+        label={input.label}
+        value={value}
+        onCommit={commit}
+        onPreview={preview}
+        onPreviewEnd={endInputPreview}
+      />
+    )
   }
   if (value.type === 'float') {
     return (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { RotateCcw, Upload, ZoomIn, ZoomOut } from 'lucide-react'
@@ -14,6 +14,7 @@ import { Button } from '@/shared/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 import { BackdropField } from './backdrop-field'
+import { BackgroundColorField, useBackgroundColor } from './background-color-field'
 import { createRenderer } from './create-renderer'
 import type { RendererBackend } from './create-renderer'
 import { disposeModel, loadGlbModel } from './glb-model'
@@ -24,7 +25,6 @@ import { PreviewScene } from './preview-scene'
 import { DEFAULT_SHAPE, PRIMITIVE_SHAPES, SHAPE_LABELS, isPreviewShape } from './preview-shape'
 import type { PreviewShape } from './preview-shape'
 import { RendererUnavailableError } from './renderer-unavailable-error'
-import { getThemeBackgroundHex, subscribeToThemeBackground } from './theme-background'
 import { useLiveMaterial } from './use-live-material'
 
 const BACKEND_LABELS: Readonly<Record<RendererBackend, string>> = {
@@ -196,39 +196,6 @@ function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
   )
 }
 
-interface BackgroundColorFieldProps {
-  value: string
-  onChange: (hex: string) => void
-}
-
-function BackgroundColorField({ value, onChange }: BackgroundColorFieldProps) {
-  const inputId = useId()
-  return (
-    <div className="flex items-center gap-2">
-      <label htmlFor={inputId} className="text-xs text-muted-foreground">
-        Background
-      </label>
-      <input
-        id={inputId}
-        type="color"
-        aria-label="Background color"
-        value={value}
-        onChange={(event) => {
-          onChange(event.target.value)
-        }}
-        className="size-6 shrink-0 cursor-pointer border border-border bg-transparent p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
-      />
-    </div>
-  )
-}
-
-/** The theme's background, until the user picks their own color. */
-function useBackgroundColor() {
-  const themeColor = useSyncExternalStore(subscribeToThemeBackground, getThemeBackgroundHex)
-  const [customColor, setCustomColor] = useState<string | null>(null)
-  return { backgroundColor: customColor ?? themeColor, setCustomColor }
-}
-
 interface PreviewWorkspaceProps {
   candidate: RuntimeMaterial | null
   buildFailed: boolean
@@ -241,7 +208,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   const [backend, setBackend] = useState<RendererBackend | null>(null)
   const [rejection, setRejection] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const { backgroundColor, setCustomColor } = useBackgroundColor()
+  const backgroundColor = useBackgroundColor()
   const backdrop = useEditorStore((state) => state.panels.backdrop)
   // Docked, the viewport is a square; split and full give it all the height the panel has.
   const isFilling = useEditorStore((state) => effectivePreviewLayout(state.panels) !== 'docked')
@@ -269,7 +236,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
           candidate={candidate}
           shape={shape}
           model={model}
-          backgroundColor={backgroundColor}
+          backgroundColor={backgroundColor.shown}
           backdrop={backdrop}
           orbitRef={orbitRef}
           onBackend={setBackend}
@@ -329,7 +296,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
         </div>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <BackdropField />
-          <BackgroundColorField value={backgroundColor} onChange={setCustomColor} />
+          <BackgroundColorField color={backgroundColor} />
         </div>
       </div>
       {/* The live region stays mounted so a message that appears later is announced. */}

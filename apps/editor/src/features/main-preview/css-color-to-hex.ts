@@ -3,7 +3,7 @@ const HEX_RADIX = 16
 
 /**
  * Converts any CSS color the browser understands (the theme tokens are `oklch()`) to `#rrggbb`,
- * the only format `<input type="color">` accepts. Returns null when no 2D canvas is available.
+ * the format the color picker reads. Returns null when no 2D canvas is available.
  */
 export function cssColorToHex(cssColor: string): string | null {
   const surface = document.createElement('canvas')

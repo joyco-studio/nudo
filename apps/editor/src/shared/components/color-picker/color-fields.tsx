@@ -1,0 +1,214 @@
+import { useEffect, useId, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
+import { Pipette } from 'lucide-react'
+
+import { cn } from '@/shared/lib/utils'
+
+import { fromByte, hexToSrgb, srgbToHex, toByte } from './color-math'
+import type { Rgb } from './color-math'
+import { hasEyeDropper, pickScreenColor } from './eye-dropper'
+
+const BYTE_MAX = 255
+const BYTE_PATTERN = /^\d{1,3}$/
+const ARROW_STEP = 1
+const SHIFT_ARROW_STEP = 10
+
+const CHANNELS = [
+  { label: 'R', name: 'Red' },
+  { label: 'G', name: 'Green' },
+  { label: 'B', name: 'Blue' },
+] as const
+
+const FIELD_CLASS =
+  'h-6 min-w-0 border border-border bg-background px-1 font-mono text-[11px] tabular-nums text-foreground hover:border-muted-foreground'
+const INVALID_FIELD_CLASS = 'border-destructive text-destructive hover:border-destructive'
+const LABEL_CLASS = 'shrink-0 font-mono text-[10px] text-muted-foreground uppercase'
+
+function parseByte(text: string): number | null {
+  const trimmed = text.trim()
+  if (!BYTE_PATTERN.test(trimmed)) return null
+  const byte = Number(trimmed)
+  return byte <= BYTE_MAX ? byte : null
+}
+
+/** `#` is optional while typing. */
+function parseHex(text: string): Rgb | null {
+  const trimmed = text.trim()
+  return hexToSrgb(trimmed.startsWith('#') ? trimmed : `#${trimmed}`)
+}
+
+const withChannel = (srgb: Rgb, index: number, channel: number): Rgb => [
+  index === 0 ? channel : srgb[0],
+  index === 1 ? channel : srgb[1],
+  index === 2 ? channel : srgb[2],
+]
+
+interface DraftTextField {
+  text: string
+  isInvalid: boolean
+  onTextChange: (text: string) => void
+  /** Drops the draft, so the field shows the color again (text that did not parse reverts). */
+  reset: () => void
+}
+
+/** A text field that edits live: every draft that parses is applied as it is typed. */
+function useDraftText<T>(
+  shownText: string,
+  parse: (text: string) => T | null,
+  apply: (value: T) => void,
+): DraftTextField {
+  const [draftText, setDraftText] = useState<string | null>(null)
+  return {
+    text: draftText ?? shownText,
+    isInvalid: draftText !== null && parse(draftText) === null,
+    onTextChange: (text) => {
+      setDraftText(text)
+      const parsed = parse(text)
+      if (parsed !== null) apply(parsed)
+    },
+    reset: () => {
+      setDraftText(null)
+    },
+  }
+}
+
+interface HexFieldProps {
+  srgb: Rgb
+  onChange: (srgb: Rgb) => void
+}
+
+function HexField({ srgb, onChange }: HexFieldProps) {
+  const inputId = useId()
+  const field = useDraftText(srgbToHex(srgb), parseHex, onChange)
+
+  return (
+    <div className="flex items-center gap-2">
+      <label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-6')}>
+        Hex
+      </label>
+      <input
+        id={inputId}
+        type="text"
+        autoComplete="off"
+        spellCheck={false}
+        aria-label="Hex"
+        aria-invalid={field.isInvalid}
+        value={field.text}
+        onChange={(event) => {
+          field.onTextChange(event.target.value)
+        }}
+        onBlur={field.reset}
+        className={cn(FIELD_CLASS, 'flex-1', field.isInvalid && INVALID_FIELD_CLASS)}
+      />
+    </div>
+  )
+}
+
+interface ChannelFieldProps {
+  label: string
+  name: string
+  byte: number
+  onChange: (byte: number) => void
+}
+
+/** One 0..255 channel. ArrowUp/Down step by 1 (Shift: 10). */
+function ChannelField({ label, name, byte, onChange }: ChannelFieldProps) {
+  const inputId = useId()
+  const field = useDraftText(String(byte), parseByte, onChange)
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+    event.preventDefault()
+    const step =
+      (event.shiftKey ? SHIFT_ARROW_STEP : ARROW_STEP) * (event.key === 'ArrowUp' ? 1 : -1)
+    field.reset()
+    onChange(Math.min(BYTE_MAX, Math.max(0, byte + step)))
+  }
+
+  return (
+    <div className="flex min-w-0 flex-1 basis-0 items-center gap-1">
+      <label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-2.5')}>
+        {label}
+      </label>
+      <input
+        id={inputId}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        spellCheck={false}
+        aria-label={name}
+        aria-invalid={field.isInvalid}
+        value={field.text}
+        onChange={(event) => {
+          field.onTextChange(event.target.value)
+        }}
+        onBlur={field.reset}
+        onKeyDown={onKeyDown}
+        className={cn(FIELD_CLASS, 'w-full text-right', field.isInvalid && INVALID_FIELD_CLASS)}
+      />
+    </div>
+  )
+}
+
+function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
+  const isMountedRef = useRef(false)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  const pick = async (): Promise<void> => {
+    const hex = await pickScreenColor()
+    // The picker may have closed while the eyedropper was open.
+    if (hex === null || !isMountedRef.current) return
+    const srgb = hexToSrgb(hex)
+    if (srgb !== null) onPick(srgb)
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label="Pick a color from the screen"
+      title="Pick a color from the screen"
+      onClick={() => {
+        void pick()
+      }}
+      className="flex size-6 shrink-0 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground"
+    >
+      <Pipette aria-hidden="true" className="size-3.5" />
+    </button>
+  )
+}
+
+interface ColorFieldsProps {
+  srgb: Rgb
+  onChange: (srgb: Rgb) => void
+}
+
+/** Exact entry: the hex code, the three 0..255 channels and, where supported, an eyedropper. */
+export function ColorFields({ srgb, onChange }: ColorFieldsProps) {
+  const [canPickFromScreen] = useState(hasEyeDropper)
+
+  return (
+    <div className="flex flex-col gap-2">
+      <HexField srgb={srgb} onChange={onChange} />
+      <div className="flex items-center gap-2">
+        {CHANNELS.map((channel, index) => (
+          <ChannelField
+            key={channel.name}
+            label={channel.label}
+            name={channel.name}
+            byte={toByte(srgb[index] ?? 0)}
+            onChange={(byte) => {
+              onChange(withChannel(srgb, index, fromByte(byte)))
+            }}
+          />
+        ))}
+        {canPickFromScreen && <EyeDropperButton onPick={onChange} />}
+      </div>
+    </div>
+  )
+}

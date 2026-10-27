@@ -6,9 +6,9 @@ import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
 /** Store actions node views need. Provided by the canvas container so views stay store-agnostic. */
 export interface GraphCanvasActions {
   setInputValue: (ref: PortRef, value: PortValue) => void
-  /** Shows a value live while a scrub is in progress, without committing it to the graph. */
+  /** Shows a value live while a scrub or a color pick is in progress, without committing it. */
   previewInputValue: (ref: PortRef, value: PortValue) => void
-  /** Ends the live preview; the scrub's final value is committed with `setInputValue`. */
+  /** Ends the live preview; the final value is committed with `setInputValue`. */
   endInputPreview: () => void
   /** Every port the origin can be connected to, read from the graph as it is right now. */
   listConnectCandidates: (origin: ConnectOrigin) => readonly ConnectCandidate[]
