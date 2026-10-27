@@ -63,8 +63,9 @@ export function useLiveMaterial(): LiveMaterial {
         recordPreviewApply()
       }
     })
-    const unsubscribeTextures = textureCache.subscribe((assetId) => {
-      scheduler.textureLoaded(assetId)
+    const unsubscribeTextures = textureCache.subscribe((assetId, state) => {
+      // An asset that turned out missing changes nothing on the material.
+      if (state === 'ready') scheduler.textureLoaded(assetId)
     })
     return () => {
       unsubscribe()

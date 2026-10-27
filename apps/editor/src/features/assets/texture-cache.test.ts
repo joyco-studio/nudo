@@ -97,9 +97,9 @@ describe('texture cache', () => {
     expect(cache.getSnapshot('a').state).toBe('ready')
   })
 
-  it('notifies listeners when an asset becomes ready or missing, with the asset id', async () => {
+  it('notifies listeners when an asset becomes ready or missing, with its id and state', async () => {
     const { cache } = setUp({ a: PNG })
-    const listener = vi.fn<(assetId: string) => void>()
+    const listener = vi.fn<(assetId: string, state: 'ready' | 'missing') => void>()
     const unsubscribe = cache.subscribe(listener)
 
     await cache.load('a')
@@ -107,7 +107,27 @@ describe('texture cache', () => {
     unsubscribe()
     await cache.reload('a')
 
-    expect(listener.mock.calls).toEqual([['a'], ['ghost']])
+    expect(listener.mock.calls).toEqual([
+      ['a', 'ready'],
+      ['ghost', 'missing'],
+    ])
+  })
+
+  it('a listener that throws neither rejects the load nor starves the other listeners', async () => {
+    const { cache } = setUp({ a: PNG })
+    const reached = vi.fn()
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    cache.subscribe(() => {
+      throw new Error('listener failed')
+    })
+    cache.subscribe(reached)
+
+    await expect(cache.load('a')).resolves.toBeUndefined()
+
+    expect(cache.getSnapshot('a').state).toBe('ready')
+    expect(reached).toHaveBeenCalledOnce()
+    expect(error).toHaveBeenCalledOnce()
+    error.mockRestore()
   })
 
   it('keeps one stable snapshot object per state, for useSyncExternalStore', async () => {

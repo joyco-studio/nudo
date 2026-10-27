@@ -88,7 +88,8 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
   let builtKey: string | null = null
   let builtMaterial: MaterialBuild | null = null
   /**
-   * True once a value could not be applied in place. The pending rebuild is then owed to the
+   * True once a value could not be applied in place, or a texture the build stood in for arrived.
+   * The pending rebuild is then owed to the
    * material, so returning to the built topology must not cancel it.
    */
   let isRebuildOwed = false
@@ -160,6 +161,8 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     textureLoaded(assetId) {
       if (isDisposed || builtMaterial === null) return
       if (!builtMaterial.missingTextures.includes(assetId)) return
+      // Owed like an unappliable value: an update on the built topology must not cancel it.
+      isRebuildOwed = true
       scheduleRebuild()
     },
     dispose() {

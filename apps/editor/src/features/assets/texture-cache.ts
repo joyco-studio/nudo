@@ -7,8 +7,10 @@ export type TextureSnapshot =
   | { readonly state: 'empty' | 'loading' | 'missing'; readonly texture: null }
   | { readonly state: 'ready'; readonly texture: Texture }
 
-/** Called with the id of every asset that finished loading, whether it became ready or missing. */
-export type TextureCacheListener = (assetId: string) => void
+export type SettledTextureState = 'ready' | 'missing'
+
+/** Called with the id of every asset that finished loading, and whether it became ready or missing. */
+export type TextureCacheListener = (assetId: string, state: SettledTextureState) => void
 
 export interface TextureCache {
   /**
@@ -40,6 +42,9 @@ interface CacheEntry {
   loaded: Promise<void>
 }
 
+// TODO: textures are cached for the page lifetime. There is no eviction and the object URL behind
+// each decoded image (see decode-image-blob.ts) is never revoked. Add reference counting from the
+// texture fields and the live material when many or large assets make that matter.
 export function createTextureCache(sources: TextureCacheSources): TextureCache {
   const entries = new Map<string, CacheEntry>()
   const listeners = new Set<TextureCacheListener>()
@@ -48,7 +53,15 @@ export function createTextureCache(sources: TextureCacheSources): TextureCache {
     const entry = entries.get(assetId)
     if (entry === undefined) return
     entry.snapshot = snapshot
-    for (const listener of listeners) listener(assetId)
+    const state: SettledTextureState = snapshot.state === 'ready' ? 'ready' : 'missing'
+    for (const listener of listeners) {
+      // One failing subscriber must not reject the load or hide the result from the others.
+      try {
+        listener(assetId, state)
+      } catch (error) {
+        console.error(`A texture cache listener failed for ${assetId}:`, error)
+      }
+    }
   }
 
   const fetchTexture = async (assetId: string): Promise<TextureSnapshot> => {

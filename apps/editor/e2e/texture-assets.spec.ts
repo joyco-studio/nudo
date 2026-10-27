@@ -120,6 +120,27 @@ test.describe('texture assets', () => {
     expect(await storedTextureValue(page)).toBeUndefined()
   })
 
+  test('an image that cannot be decoded gets its own notice and is not committed', async ({
+    page,
+  }) => {
+    await seedAutosave(page, SAMPLE_TEXTURE_TO_BASE_COLOR)
+    await page.goto('/')
+    // The live region exists before any text appears in it.
+    await expect(sampleNode(page).getByRole('status')).toHaveText('')
+
+    await sampleNode(page)
+      .locator('input[type="file"]')
+      .setInputFiles({
+        name: 'broken.png',
+        mimeType: 'image/png',
+        buffer: Buffer.from('this is not a png'),
+      })
+
+    await expect(sampleNode(page).getByRole('alert')).toHaveText("Couldn't read this image.")
+    await expect(sampleNode(page).getByText('Missing texture')).toHaveCount(0)
+    expect(await storedTextureValue(page)).toBeUndefined()
+  })
+
   test('the image is chosen with the keyboard alone', async ({ page }) => {
     await seedAutosave(page, SAMPLE_TEXTURE_TO_BASE_COLOR)
     await page.goto('/')

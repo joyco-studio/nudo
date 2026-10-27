@@ -378,8 +378,38 @@ describe('texture assets', () => {
     )
   }
 
+  const FLOAT_PROPERTY_ID = asPropertyId('glow')
+  const loadedAssets = new Map<string, DataTexture>()
+
+  const floatPropertyGraph = (value: number): Graph => {
+    const withProperty = unwrap(
+      addProperty(createGraph(), {
+        id: FLOAT_PROPERTY_ID,
+        label: 'Glow',
+        name: 'glow',
+        exposed: true,
+        type: 'float',
+        value: float(value),
+      }),
+    )
+    const withReader = unwrap(
+      addPropertyNode(withProperty, registry, {
+        id: asNodeId('glow-reader'),
+        propertyId: FLOAT_PROPERTY_ID,
+        position: ORIGIN,
+      }),
+    )
+    return connectEdge(
+      withReader,
+      'glow-to-roughness',
+      { nodeId: asNodeId('glow-reader'), portId: 'out' },
+      { nodeId: MASTER_ID, portId: 'roughness' },
+    )
+  }
+
   beforeEach(() => {
     vi.useFakeTimers()
+    loadedAssets.clear()
   })
 
   afterEach(() => {
@@ -448,6 +478,41 @@ describe('texture assets', () => {
     vi.advanceTimersByTime(DELAY_MS * 4)
 
     expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('a texture that loaded still rebuilds after a same-topology update inside the debounce', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp((graph) =>
+      createMaterial(graph, registry, {
+        resolveTexture: (assetId) => loadedAssets.get(assetId) ?? null,
+      }),
+    )
+    const graph = sampleGraph('slow')
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+    expect(onBuilt.mock.calls[0]?.[0].missingTextures).toEqual(['slow'])
+
+    loadedAssets.set('slow', new DataTexture())
+    scheduler.textureLoaded('slow')
+    // A node drag or a value scrub arrives before the debounce is over.
+    vi.advanceTimersByTime(DELAY_MS / 2)
+    scheduler.update(moveNodes(graph, { [asNodeId('sample')]: { x: 10, y: 10 } }))
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+    expect(onBuilt.mock.calls[1]?.[0].missingTextures).toEqual([])
+  })
+
+  it('a float property edit applies in place and never rebuilds', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp()
+    const graph = floatPropertyGraph(0.25)
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    scheduler.update(unwrap(setPropertyValue(graph, FLOAT_PROPERTY_ID, float(0.75))))
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
+    expect(onBuilt.mock.calls[0]?.[0].properties.get(FLOAT_PROPERTY_ID)?.value).toBe(0.75)
   })
 
   it('textureLoaded does nothing after dispose', () => {

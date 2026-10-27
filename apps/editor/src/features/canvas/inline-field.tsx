@@ -9,32 +9,18 @@ import type {
 
 import { ColorPicker } from '@/shared/components/color-picker/color-picker'
 import type { Rgb } from '@/shared/components/color-picker/color-math'
-import { cn } from '@/shared/lib/utils'
 
 import { fallbackLabel } from './fallback-label'
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { inlineValue, textureAssetId, valueComponents, withComponent } from './inline-value'
 import { NumberField } from './number-field'
+import { PortLabel } from './port-label'
 import { TextureField } from './texture-field'
 
 const COMPONENT_LABELS = ['X', 'Y', 'Z', 'W'] as const
 const OPTIONAL_HINT = 'Mesh default'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
 const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
-
-interface PortLabelProps {
-  label: string
-  /** For a row that has no effect right now. */
-  isMuted?: boolean
-}
-
-export function PortLabel({ label, isMuted = false }: PortLabelProps) {
-  return (
-    <span className={cn('min-w-0 flex-1 truncate text-xs', isMuted && 'text-muted-foreground')}>
-      {label}
-    </span>
-  )
-}
 
 export function MutedHint({ children }: { children: string }) {
   return <span className="shrink-0 font-mono text-micro text-muted-foreground">{children}</span>

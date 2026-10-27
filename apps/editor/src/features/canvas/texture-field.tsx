@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { ImageOff, ImagePlus, TriangleAlert } from 'lucide-react'
 
@@ -14,9 +14,10 @@ import { useTexture } from '@/features/assets/use-texture'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 
-import { PortLabel } from './inline-field'
+import { PortLabel } from './port-label'
 
 const SAVE_FAILED_HINT = 'Could not save this image.'
+const UNREADABLE_HINT = "Couldn't read this image."
 
 export interface TextureFieldProps {
   label: string
@@ -48,6 +49,11 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [problem, setProblem] = useState<string | null>(null)
   const texture = useTexture(assetId)
+  // The asset can change while an image is being stored, so saveImage reads it through a ref.
+  const currentAssetId = useRef(assetId)
+  useEffect(() => {
+    currentAssetId.current = assetId
+  }, [assetId])
 
   const isMissing = texture.state === 'missing'
   const buttonText = assetId === null || isMissing ? 'Choose image' : 'Change image'
@@ -58,7 +64,12 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
       const chosenId = await putAsset(file)
       // Decoded before the graph changes, so the preview builds once with the image in place.
       await textureCache.reload(chosenId)
-      if (chosenId !== assetId) onChange(chosenId)
+      // The bytes are stored, so an image that did not load could not be decoded: keep the old one.
+      if (textureCache.getSnapshot(chosenId).state !== 'ready') {
+        setProblem(UNREADABLE_HINT)
+        return
+      }
+      if (chosenId !== currentAssetId.current) onChange(chosenId)
     } catch (error) {
       console.warn('Could not store the chosen image:', error)
       setProblem(SAVE_FAILED_HINT)
@@ -98,16 +109,15 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
             <ImagePlus aria-hidden="true" className="size-3" />
             {buttonText}
           </Button>
-          {isMissing && (
-            <Badge
-              variant="destructive"
-              role="status"
-              className="h-6 gap-1 border-destructive/40 px-2"
-            >
-              <TriangleAlert aria-hidden="true" />
-              Missing texture
-            </Badge>
-          )}
+          {/* The live region is always mounted, so the badge is announced when it appears. */}
+          <span role="status" className="inline-flex">
+            {isMissing && (
+              <Badge variant="destructive" className="h-6 gap-1 border-destructive/40 px-2">
+                <TriangleAlert aria-hidden="true" />
+                Missing texture
+              </Badge>
+            )}
+          </span>
           {problem !== null && (
             <span role="alert" className="text-micro text-destructive">
               {problem}
