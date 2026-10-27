@@ -513,7 +513,24 @@ Changes:
 
 ### Task 7f: Motion with motion/react (user request)
 
-The user asked for **every UI animation to use `motion/react`**, following the `animate` and `better-ui` skills. Implementers load both skills with the Skill tool, and their exact values are binding.
+The user asked for **every UI animation to use `motion/react`**, following four skills: `animate`, `better-ui`, `transitions-dev` and `transitions-polish`. Implementers load all four with the Skill tool and read the transitions-dev reference files they apply: 05 menu-dropdown, 06 modal, 07 panel-reveal, 09 icon-swap, 17 tooltip, 21 accordion, 33 text-morph, 25 checkbox and 27 toggle.
+
+**Ruling P2-R12 (reconciling the skills):**
+- **Values:** the **transitions.dev motion-token scale is the single source of values** (durations, easings, distances, scales, blur, and the open/close asymmetry rules from transitions-polish).
+- **Implementation:** `motion/react` variants built from a typed `shared/motion/tokens.ts` that mirrors `_root.css` exactly. Also import the skill's `_root.css` token block, so any remaining CSS transition can use `var(--…)`.
+- **From `animate`:** the frequency gate. No animation on keyboard-initiated or high-frequency surfaces.
+- **From `better-ui`:** press scale 0.96, AnimatePresence `initial={false}`, the theme-switch suppression, and naming transitioned properties. Where `better-ui`'s icon-swap values differ from transitions-dev 09, **transitions-dev wins**, so one token system rules.
+- **Concrete values that follow from this (override any conflicting line below):**
+  - **Dropdown / select / popover / context menu:** open `--duration-fast` 250ms, `--ease-smooth-out` `[0.22, 1, 0.36, 1]`, from `--scale-medium` 0.97. Close `--duration-quick` 150ms to `--scale-tiny` 0.99. Origin from the trigger.
+  - **Tooltip:** intent delay `--duration-micro` 80ms. Appear `--duration-quick` 150ms, `ease-out`, from `--scale-small` 0.98. Out per reference 17.
+  - **Dialog / AlertDialog:** open 250ms from `--scale-large` 0.96, close 150ms back to 0.96, centered.
+  - **Panel reveal** (pointer-initiated only): open `--duration-slow` 400ms, close `--duration-medium` 350ms, `--blur-small` 2px.
+  - **Icon swap:** symmetric 250ms `ease-in-out`, `--blur-small` 2px, scale per reference 09.
+  - **Accordion:** symmetric 250ms.
+  - **Copy → Copied:** text morph (33).
+  - **Stagger:** `--duration-stagger` 40ms, total under 300ms.
+  - **Never** bounce a close and never delay a close.
+
 
 **Rules (copied from those skills; use the exact values):**
 - **Gate first: no open/close animation on keyboard-initiated or very frequent surfaces.**
