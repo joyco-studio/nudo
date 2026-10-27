@@ -1,8 +1,9 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, MouseEvent, Ref } from 'react'
 import type { BlackboardProperty } from '@nudo-tsl/core'
-import { ChevronDown, ChevronRight, GripVertical, SquarePlus, Trash2 } from 'lucide-react'
+import { GripVertical, SquarePlus, Trash2 } from 'lucide-react'
 
+import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
 import { Button } from '@/shared/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/ui/collapsible'
@@ -145,7 +146,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                 aria-label={DETAILS_LABEL}
                 className="text-muted-foreground hover:text-foreground"
               >
-                {isOpen ? <ChevronDown aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}
+                <DisclosureChevron isOpen={isOpen} />
               </Button>
             </CollapsibleTrigger>
             {isRenaming ? (

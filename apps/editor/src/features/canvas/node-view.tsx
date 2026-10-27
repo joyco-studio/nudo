@@ -2,9 +2,9 @@ import { memo, useId } from 'react'
 import type { DataType, OutputDefinition } from '@nudo-tsl/core'
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
-import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 
-import { IconSwap } from '@/shared/components/icon-swap'
+import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -157,9 +157,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           }}
           className="nodrag -ml-2 text-muted-foreground hover:text-foreground"
         >
-          <IconSwap swapKey={isCollapsed ? 'collapsed' : 'expanded'}>
-            {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
-          </IconSwap>
+          <DisclosureChevron isOpen={!isCollapsed} />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">{portsToggleLabel(isCollapsed)}</TooltipContent>

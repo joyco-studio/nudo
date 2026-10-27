@@ -11,7 +11,7 @@ export interface IconSwapProps {
 }
 
 /**
- * Reference 09: icons sharing one slot (sun and moon, a collapse chevron) cross-fade with scale
+ * Reference 09: icons sharing one slot (sun and moon, a panel's open and close) cross-fade with scale
  * and blur, both in one grid cell while they swap. Instant when the change came from a key.
  */
 export function IconSwap({ swapKey, children }: IconSwapProps) {
