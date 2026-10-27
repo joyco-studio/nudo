@@ -26,11 +26,20 @@ function Tooltip({
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen)
   const isOverlayOpen = useIsAnyOverlayOpen()
+  // An overlay opening drops whatever tooltip was showing, so it can't come back once it closes.
+  const [wasOverlayOpen, setWasOverlayOpen] = React.useState(isOverlayOpen)
+  if (wasOverlayOpen !== isOverlayOpen) {
+    setWasOverlayOpen(isOverlayOpen)
+    if (isOverlayOpen) setIsOpen(false)
+  }
   return (
     <TooltipPrimitive.Root
       data-slot="tooltip"
       open={(open ?? isOpen) && !isOverlayOpen}
       onOpenChange={(next) => {
+        // A hover under an open overlay is ignored: Radix never reports the leave (the controlled
+        // value is already false), so remembering it would show a ghost tooltip later.
+        if (next && isOverlayOpen) return
         setIsOpen(next)
         onOpenChange?.(next)
       }}

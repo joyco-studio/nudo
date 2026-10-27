@@ -638,3 +638,56 @@ test.describe('focus across the app', () => {
     await expect(row).not.toHaveCSS('cursor', 'not-allowed')
   })
 })
+
+test.describe('fix round 2', () => {
+  test('a tooltip hovered while an overlay was open does not appear after it closes', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const spot = await emptyPanePoint(page)
+    await page.mouse.click(spot.x, spot.y, { button: 'right' })
+    await expect(contextMenu(page)).toBeVisible()
+
+    // Hover the Master Stack chevron while the menu is open, then leave it.
+    const chevron = page
+      .getByRole('group', { name: 'Master Stack', exact: true, includeHidden: true })
+      .getByRole('button', { name: 'Unconnected ports', includeHidden: true })
+    const box = await boxOf(chevron)
+    await page.mouse.move(box.x + box.w / 2, box.y + box.h / 2, { steps: 3 })
+    await page.waitForTimeout(200)
+    await page.mouse.move(spot.x, spot.y, { steps: 3 })
+    await page.keyboard.press('Escape')
+    await expect(contextMenu(page)).toHaveCount(0)
+
+    await page.waitForTimeout(300)
+    await expect(page.locator('[data-slot="tooltip-content"]')).toHaveCount(0)
+  })
+
+  test('text fields focused with the mouse keep their resting border', async ({ page }) => {
+    await page.goto('/')
+    const roughness = graphNode(page, 'Master Stack').getByRole('textbox', {
+      name: 'Roughness',
+      exact: true,
+    })
+    const resting = await roughness.evaluate((el) => getComputedStyle(el).borderTopColor)
+    await roughness.click()
+    await expect(roughness).toBeFocused()
+    // Off the field, so its hover border doesn't count.
+    const spot = await emptyPanePoint(page)
+    await page.mouse.move(spot.x, spot.y)
+    await expect(roughness).toHaveCSS('border-top-color', resting)
+
+    await page.mouse.click(spot.x, spot.y, { button: 'right' })
+    await contextMenu(page).getByRole('menuitem', { name: 'Add comment' }).click()
+    const title = page.getByRole('textbox', { name: 'Comment title' })
+    await title.click()
+    await expect(title).toBeFocused()
+    await expect(title).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)')
+
+    // From the keyboard, the quiet foreground border shows.
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Tab')
+    await expect(title).toBeFocused()
+    await expect(title).not.toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)')
+  })
+})
