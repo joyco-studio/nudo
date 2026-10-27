@@ -130,7 +130,8 @@ for (const theme of THEMES) {
     await skipLink.focus()
     await page.keyboard.press('Enter')
     await expect(canvas).toBeFocused()
-    await expect(canvas).toHaveCSS('outline-style', 'solid')
-    await expect(canvas).toHaveCSS('outline-offset', '-4px')
+    // A full-bleed region gets a quiet 1px inset line from the keyboard, never the big ring.
+    await expect(canvas).toHaveCSS('outline-style', 'none')
+    await expect(canvas).toHaveCSS('box-shadow', /inset/)
   })
 }

@@ -38,6 +38,23 @@ export async function expectFocusRing(page: Page, target: Locator): Promise<void
 }
 
 /**
+ * A box-shadow that draws nothing: `none`, or the stack Tailwind leaves on a component whose ring
+ * variables were cleared (every layer fully transparent).
+ */
+export function isInvisibleShadow(shadow: string): boolean {
+  if (shadow === 'none') return true
+  return shadow.split(/,(?![^(]*\))/).every((layer) => layer.trim().startsWith('rgba(0, 0, 0, 0)'))
+}
+
+export async function expectNoRingShadow(target: Locator): Promise<void> {
+  await expect
+    .poll(async () =>
+      isInvisibleShadow(await target.evaluate((el) => getComputedStyle(el).boxShadow)),
+    )
+    .toBe(true)
+}
+
+/**
  * The quiet indicator for text entry: no ring or halo; the field's border (or, inside an input
  * group, the group's border) turns the foreground color. `frame` is the element that owns the
  * border: the field itself, or its input group.
@@ -51,7 +68,7 @@ export async function expectQuietFieldFocus(
 
   await expect(field).toBeFocused()
   await expect(field).toHaveCSS('outline-style', 'none')
-  await expect(field).toHaveCSS('box-shadow', 'none')
+  await expectNoRingShadow(field)
   for (const side of ['top', 'right', 'bottom', 'left'] as const) {
     await expect(frame).toHaveCSS(`border-${side}-color`, foreground)
   }

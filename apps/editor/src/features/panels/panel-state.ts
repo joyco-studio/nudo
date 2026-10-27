@@ -20,6 +20,8 @@ export interface PanelPrefs {
   readonly backdrop: PreviewBackdrop
 }
 
+/** The whole workspace width, as a percentage. */
+export const FULL_PERCENT = 100
 export const SPLIT_PERCENT_MIN = 25
 export const SPLIT_PERCENT_MAX = 75
 /** How far one arrow key press moves the split divider. */

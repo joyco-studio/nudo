@@ -55,7 +55,9 @@ function CommentTitleField({ data }: CommentTitleFieldProps) {
       }}
       onBlur={commitDraft}
       onKeyDown={onKeyDown}
-      className="nodrag h-6 min-w-0 flex-1 border-transparent bg-transparent px-1 py-0 font-heading text-base font-semibold tracking-wide uppercase hover:border-border md:text-xs dark:bg-transparent"
+      // Quiet inline title: no box of its own, only the quiet focus border while editing. Its 8px
+      // text inset (1px border + 7px padding) matches the inset from the header's top.
+      className="nodrag h-full min-w-0 flex-1 rounded-none border-transparent bg-transparent px-[7px] py-0 font-heading text-base font-semibold tracking-wide uppercase shadow-none md:text-xs dark:bg-transparent"
     />
   )
 }
@@ -89,7 +91,7 @@ function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           <p id={nodeDescriptionId(data.node.id)} className="sr-only">
             {data.definition.description}
           </p>
-          <header className="flex h-8 shrink-0 items-center border-b border-inherit px-1.5">
+          <header className="flex h-8 shrink-0 items-stretch border-b border-inherit">
             <CommentTitleField data={data} />
           </header>
         </div>

@@ -7,7 +7,7 @@ import { registry } from '@/store/registry'
 import type { Notice } from '@/store/store-types'
 
 /** Where pasted and duplicated nodes land relative to the nodes they were copied from. */
-const PASTE_OFFSET: XY = { x: 40, y: 40 }
+export const PASTE_OFFSET: XY = { x: 40, y: 40 }
 
 const NOT_NUDO_NOTICE: Notice = {
   kind: 'info',
@@ -47,16 +47,6 @@ function offsetToPlace(fragment: GraphFragment, at: XY): XY {
   const ys = fragment.nodes.map((node) => node.position.y)
   if (xs.length === 0) return PASTE_OFFSET
   return { x: at.x - Math.min(...xs), y: at.y - Math.min(...ys) }
-}
-
-/**
- * Copies nodes, and the edges between them, beside the originals without touching the clipboard
- * (one undo step), and selects the copies. Returns their ids; the master alone gives none.
- */
-export function duplicateNodes(nodeIds: readonly NodeId[]): readonly NodeId[] {
-  const store = getStore()
-  const fragment = extractFragment(store.graph, nodeIds)
-  return fragment === null ? [] : store.pasteFragment(fragment, PASTE_OFFSET)
 }
 
 /**

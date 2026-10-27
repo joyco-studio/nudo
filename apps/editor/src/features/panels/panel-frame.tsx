@@ -152,6 +152,8 @@ export function PanelFrame({
         {/* Kept mounted while collapsed, so the preview's renderer survives a collapse. */}
         <CollapsibleContent
           forceMount
+          // A scrolling body can take keyboard focus (Chrome); it gets the quiet inset line.
+          data-focus-ring="inset"
           hidden={!isOpen}
           className={cn('min-h-0 border-t', bodyClassName)}
         >

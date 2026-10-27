@@ -12,7 +12,7 @@ import type {
 import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
-import { copySelection, duplicateNodes, pasteFromClipboard } from '@/features/shortcuts/clipboard'
+import { copySelection, pasteFromClipboard } from '@/features/shortcuts/clipboard'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
@@ -21,6 +21,7 @@ import { resolveActionNodeIds } from './canvas-keyboard-model'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
 import { fitViewOptionsFor } from './fit-view-options'
 import { focusFlowNode } from './focus-flow-node'
+import { duplicateNodes, selectAllNodes } from './node-commands'
 import { GraphCanvas } from './graph-canvas'
 import { GraphCanvasActionsContext } from './graph-canvas-actions'
 import type { GraphCanvasActions } from './graph-canvas-actions'
@@ -189,6 +190,7 @@ export function GraphCanvasContainer() {
         store.setSelection([nodeId])
         focusFlowNode(nodeId)
       },
+      selectAll: selectAllNodes,
       openAddNodeMenuAt: (point) => {
         openAddNodeMenu({ kind: 'cursor', ...point }, null)
       },

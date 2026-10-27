@@ -1,6 +1,13 @@
 import { useEffect, useEffectEvent, useId, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
+import {
+  EXCLUSIVE_TRIGGER_PROPS,
+  claimOverlay,
+  isOverlayReplaced,
+  releaseOverlay,
+  useCloseWhenReplaced,
+} from '@/shared/lib/overlay-coordinator'
 import { cn } from '@/shared/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 
@@ -63,6 +70,7 @@ export function ColorPicker({
 }: ColorPickerProps) {
   const titleId = useId()
   const hexId = useId()
+  const overlayId = useId()
   const [session, setSession] = useState<PickerSession | null>(null)
   const shownColor = session?.color ?? colorOfLinear(value)
   const shownHex = srgbToHex(shownColor.srgb)
@@ -72,15 +80,22 @@ export function ColorPicker({
     onPreview(srgbToLinear(color.srgb))
   }
 
+  const open = (): void => {
+    claimOverlay(overlayId)
+    setSession({ color: colorOfLinear(value), isEdited: false })
+  }
+
   const commit = (): void => {
     if (session === null) return
     setSession(null)
+    releaseOverlay(overlayId)
     onCommit(session.isEdited ? srgbToLinear(session.color.srgb) : value)
   }
 
   const cancel = (): void => {
     if (session === null) return
     setSession(null)
+    releaseOverlay(overlayId)
     if (session.isEdited) onPreview(value)
     onCancel()
   }
@@ -94,6 +109,9 @@ export function ColorPicker({
     },
     [],
   )
+
+  // Another overlay opening (a select, say) ends the session like a press outside: it commits.
+  useCloseWhenReplaced(overlayId, session !== null, commit)
 
   const onContentKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     // The picker is portalled out of its owner (a canvas node, say), but React still bubbles its
@@ -115,7 +133,7 @@ export function ColorPicker({
         modal
         open={session !== null}
         onOpenChange={(isOpen) => {
-          if (isOpen) setSession({ color: colorOfLinear(value), isEdited: false })
+          if (isOpen) open()
           else commit()
         }}
       >
@@ -123,6 +141,7 @@ export function ColorPicker({
           <button
             id={id}
             type="button"
+            {...EXCLUSIVE_TRIGGER_PROPS}
             aria-label={label}
             aria-describedby={hexId}
             className={cn('size-6 shrink-0 border border-border', className)}
@@ -135,6 +154,10 @@ export function ColorPicker({
           sideOffset={8}
           aria-labelledby={titleId}
           className="w-56 gap-2 p-3"
+          onCloseAutoFocus={(event) => {
+            // Replaced by another overlay: focus belongs to that one now.
+            if (isOverlayReplaced(overlayId)) event.preventDefault()
+          }}
           onEscapeKeyDown={(event) => {
             event.preventDefault()
             cancel()

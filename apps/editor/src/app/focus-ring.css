@@ -2,43 +2,66 @@
  * nudo-tsl focus indicator (ruling R11). Loaded after the verbatim joyco tokens in globals.css.
  *
  * Why unlayered: Tailwind v4 emits preflight, base and utilities inside cascade layers, and
- * unlayered declarations beat every layered one regardless of specificity or source order. This
- * single rule therefore wins over `outline-none`, `outline-ring/50`, `ring-ring/50`,
+ * unlayered declarations beat every layered one regardless of specificity or source order. These
+ * rules therefore win over `outline-none`, `outline-ring/50`, `ring-ring/50`,
  * `ring-destructive/20` and anything twMerge leaves on a vendored component, without touching
  * the tokens or the components.
+ *
+ * Why keyboard only (user ruling): the ring is for people driving with the keyboard. After a
+ * click, a tap or focus that script puts back (Radix restoring a select trigger, a dialog closing),
+ * nothing wears a ring, even where the browser reports :focus-visible. input-modality.ts sets
+ * `data-input-modality` on <html> from the last key or pointer press.
  *
  * Why two tones (WCAG technique C40): an outer foreground outline separated from the element by a
  * background-colored halo. Foreground and background contrast at ~15:1 or more in both themes, so
  * against any adjacent color at least one of the two tones reaches about the square root of that
  * ratio (above 3.8:1), clearing the 3:1 non-text contrast and focus appearance thresholds.
  */
+
+/*
+ * Every mode: no outline, and the vendored components' own Tailwind focus rings are cleared
+ * through their ring variables (not box-shadow, so elevation shadows on focused surfaces such as
+ * an open menu survive).
+ */
 :focus-visible {
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+/*
+ * The ring, from the keyboard, on controls. Not on:
+ * - listbox and menu rows, which take real focus as the highlight moves (APG): the highlighted
+ *   background is their indicator, and a ring around every row would read as a second selection;
+ * - containers that take focus by script or a link (tabindex=-1: landmarks, dialogs, menus);
+ * - full-bleed regions (data-focus-ring='inset') and text entry, which get the quieter indicators
+ *   below.
+ */
+html[data-input-modality='keyboard']
+  :focus-visible:not(
+    [role='option'],
+    [role^='menuitem'],
+    [cmdk-item],
+    [data-slot='select-item'],
+    [data-slot='context-menu-item'],
+    [data-slot='dropdown-menu-item'],
+    [tabindex='-1'],
+    [data-focus-ring='inset'],
+    input:not([type='checkbox'], [type='radio'], [type='range']),
+    textarea,
+    [cmdk-input]
+  ) {
   outline: 2px solid var(--foreground);
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--background);
 }
 
 /*
- * Listbox and menu rows take real focus as the highlight moves (APG listbox and menu patterns).
- * Their active row shows through the highlighted background instead; a ring around every row
- * would read as a second selection. Their triggers keep the ring.
+ * Full-bleed regions (the canvas, the preview viewport, scroll areas) would have an outer ring
+ * clipped by the viewport or framing the whole app: they get a quiet 1px inset line instead.
  */
-:is(
-  [role='option'],
-  [role^='menuitem'],
-  [cmdk-item],
-  [data-slot='select-item'],
-  [data-slot='context-menu-item'],
-  [data-slot='dropdown-menu-item']
-):focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
-/* Full-bleed targets (the canvas landmark) would have an outer ring clipped by the viewport. */
-[data-focus-ring='inset']:focus-visible {
-  outline-offset: -4px;
-  box-shadow: inset 0 0 0 2px var(--background);
+html[data-input-modality='keyboard'] [data-focus-ring='inset']:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--muted-foreground);
 }
 
 /*
@@ -47,27 +70,25 @@
  * ~15:1 (far above the 3:1 non-text minimum). Checkboxes, radios and sliders are not text
  * entry, so they keep the ring above.
  */
-:is(
-  input:not([type='checkbox'], [type='radio'], [type='range']),
-  textarea,
-  [cmdk-input]
-):focus-visible {
-  outline: none;
-  outline-offset: 0;
-  box-shadow: none;
+html[data-input-modality='keyboard']
+  :is(
+    input:not([type='checkbox'], [type='radio'], [type='range']),
+    textarea,
+    [cmdk-input]
+  ):focus-visible {
   border-color: var(--foreground);
 }
 
 /* An invalid field keeps its destructive border; focus thickens it to 2px. */
-:is(input, textarea)[aria-invalid='true']:focus-visible {
+html[data-input-modality='keyboard'] :is(input, textarea)[aria-invalid='true']:focus-visible {
   border-color: var(--destructive);
   box-shadow: inset 0 0 0 1px var(--destructive);
 }
 
 /*
  * Inside an input group (the add-node search) the group's border is the field's frame. The
- * vendored group draws a `ring-3 ring-ring/50` halo on focus; it is cleared here so only the
- * border changes.
+ * vendored group draws a `ring-3 ring-ring/50` halo on focus; it is cleared here in every mode,
+ * and from the keyboard only the border changes.
  */
 [data-slot='input-group']:has(
   > :is(
@@ -76,7 +97,17 @@
       [cmdk-input]
     ):focus-visible
 ) {
-  border-color: var(--foreground);
   outline: none;
   box-shadow: none;
+}
+
+html[data-input-modality='keyboard']
+  [data-slot='input-group']:has(
+    > :is(
+        input:not([type='checkbox'], [type='radio'], [type='range']),
+        textarea,
+        [cmdk-input]
+      ):focus-visible
+  ) {
+  border-color: var(--foreground);
 }

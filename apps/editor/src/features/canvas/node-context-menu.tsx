@@ -1,9 +1,7 @@
 import type { ReactElement } from 'react'
 import { MASTER_NODE_ID, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
-import type { ParamDefinition } from '@nudo-tsl/core'
 
 import { MOD } from '@/features/shortcuts/shortcut-catalog'
-import { isTextEntry } from '@/shared/lib/is-text-entry'
 import {
   ContextMenu,
   ContextMenuItem,
@@ -25,16 +23,11 @@ import {
   isNodeCollapsed,
   portsToggleLabel,
 } from './node-port-layout'
-import { CONTEXT_MENU_TRIGGER_PROPS } from './open-context-menu'
+import { isEnumParam } from './param-kinds'
+import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-context-menu'
 import { COMMENT_TYPE } from './to-flow'
 import type { FlowNodeData } from './to-flow'
-import { useAfterMenuClose } from './use-after-menu-close'
-
-type EnumParam = Extract<ParamDefinition, { kind: 'enum' }>
-
-function isEnumParam(param: ParamDefinition | undefined): param is EnumParam {
-  return param?.kind === 'enum'
-}
+import { useCanvasMenu } from './use-canvas-menu'
 
 /** Auto / 2D / 3D, read from the universal param so the menu and the graph never disagree. */
 const PREVIEW_MODE = UNIVERSAL_PARAMS.find((param) => param.id === PREVIEW_MODE_PARAM)
@@ -68,11 +61,10 @@ interface NodeContextMenuProps {
 /**
  * A node's right-click menu: Copy, Duplicate, collapse its ports, its preview mode and Delete. The
  * ContextMenu key or Shift+F10 on the focused node opens it too (see the canvas keyboard model).
- * A right-click in a text field keeps the browser's menu, for its own cut, copy and paste.
  */
 export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
   const actions = useGraphCanvasActions()
-  const afterClose = useAfterMenuClose()
+  const menu = useCanvasMenu()
   const { node } = data
   const model = nodeMenuModel(data)
   const isCollapsed = isNodeCollapsed(data)
@@ -81,17 +73,15 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
     typeof storedMode === 'string' ? storedMode : (PREVIEW_MODE_PARAM_DEFINITION?.default ?? '')
 
   return (
-    <ContextMenu>
+    <ContextMenu onOpenChange={menu.onOpenChange}>
       <ContextMenuTrigger
         asChild
         {...CONTEXT_MENU_TRIGGER_PROPS}
-        onContextMenuCapture={(event) => {
-          if (isTextEntry(event.target)) event.stopPropagation()
-        }}
+        onContextMenuCapture={ignoreForeignContextMenu}
       >
         {children}
       </ContextMenuTrigger>
-      <CanvasMenuContent onCloseAutoFocus={afterClose.onCloseAutoFocus}>
+      <CanvasMenuContent onCloseAutoFocus={menu.onCloseAutoFocus}>
         {model.canCopyOrRemove && (
           <>
             <ContextMenuItem
@@ -105,7 +95,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
             <ContextMenuItem
               onSelect={() => {
                 const targets = actions.commandTargets(node.id)
-                afterClose.runAfterClose(() => {
+                menu.runAfterClose(() => {
                   actions.duplicateNodes(targets)
                 })
               }}
@@ -149,7 +139,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
               variant="destructive"
               onSelect={() => {
                 const targets = actions.commandTargets(node.id)
-                afterClose.runAfterClose(() => {
+                menu.runAfterClose(() => {
                   actions.deleteNodes(targets)
                 })
               }}

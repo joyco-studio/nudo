@@ -71,7 +71,7 @@ export function GraphCanvas({
           size={1}
           color="var(--border)"
         />
-        <CanvasControls fitViewOptions={fitViewOptions} />
+        <CanvasControls />
       </ReactFlow>
     </PaneContextMenu>
   )

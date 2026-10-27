@@ -53,7 +53,7 @@ function InputRow({ data, row }: InputRowProps) {
   return (
     <li
       data-port-id={input.id}
-      data-disabled={isDisabled}
+      data-disabled={isDisabled || undefined}
       className="relative flex min-h-7 flex-wrap items-center gap-x-1.5 pr-2 pl-3"
     >
       <ConnectablePort
@@ -142,6 +142,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
+        {/* -ml-2 against the header's 12px: 4px from the left edge, as from the top (32 - 24) / 2. */}
         <Button
           variant="ghost"
           size="icon-xs"
@@ -150,7 +151,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           onClick={() => {
             setParam({ nodeId: data.node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
           }}
-          className="nodrag -ml-1.5 text-muted-foreground hover:text-foreground"
+          className="nodrag -ml-2 text-muted-foreground hover:text-foreground"
         >
           {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
         </Button>

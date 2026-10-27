@@ -8,6 +8,7 @@ import { createRoot } from 'react-dom/client'
 
 import { App } from './app/app'
 import { bootstrapEditor } from './app/bootstrap-editor'
+import { trackInputModality } from './shared/lib/input-modality'
 
 const rootElement = document.getElementById('root')
 if (rootElement === null) {
@@ -16,6 +17,8 @@ if (rootElement === null) {
 
 // Restore the last session before the first render, so the canvas fits the restored graph.
 bootstrapEditor(window.localStorage, window)
+// Focus styling tells a keyboard move from a click or a programmatic focus (focus-ring.css).
+trackInputModality(document)
 
 createRoot(rootElement).render(
   <StrictMode>

@@ -4,6 +4,7 @@ import { useReactFlow } from '@xyflow/react'
 
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { fitViewOptionsFor } from '@/features/canvas/fit-view-options'
+import { selectAllNodes } from '@/features/canvas/node-commands'
 import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { isTextEntry } from '@/shared/lib/is-text-entry'
@@ -19,11 +20,6 @@ function hasSelectedText(): boolean {
 }
 
 const getStore = () => useEditorStore.getState()
-
-function selectAllNodes(): void {
-  const store = getStore()
-  store.setSelection(Object.values(store.graph.nodes).map((node) => node.id))
-}
 
 function copyTargetNodes(target: EventTarget | null): readonly NodeId[] {
   return resolveActionNodeIds(flowNodeIdOf(target), getStore().selectedNodeIds)

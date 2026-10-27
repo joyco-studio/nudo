@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
-import { copySelection, duplicateNodes, pasteFromClipboard } from './clipboard'
+import { copySelection, pasteFromClipboard } from './clipboard'
 
 const FLOAT_NODE = 'input/float'
 const SINE_NODE = 'math/sin'
@@ -162,26 +162,5 @@ describe('pasteFromClipboard', () => {
 
     expect(getState().notice).toEqual({ kind: 'error', message: "Couldn't read the clipboard" })
     expect(getState().graph).toBe(graphBefore)
-  })
-})
-
-describe('duplicateNodes', () => {
-  it('copies nodes and their edges beside them as one undo step, without the clipboard', () => {
-    const { source, target } = selectConnectedPair()
-    const entriesBefore = historyLength()
-
-    const duplicated = duplicateNodes([source, target])
-
-    const graph = getState().graph
-    expect(duplicated).toHaveLength(2)
-    expect(Object.keys(graph.edges)).toHaveLength(2)
-    expect(historyLength()).toBe(entriesBefore + 1)
-    expect(getState().selectedNodeIds).toEqual(duplicated)
-    expect(duplicated.map((id) => graph.nodes[id]?.position)).toContainEqual({ x: 50, y: 60 })
-    expect(writeText).not.toHaveBeenCalled()
-  })
-
-  it('duplicates nothing for the master alone', () => {
-    expect(duplicateNodes([MASTER_NODE_ID])).toEqual([])
   })
 })

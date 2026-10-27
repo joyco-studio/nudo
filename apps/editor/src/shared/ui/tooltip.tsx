@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useIsAnyOverlayOpen } from '@/shared/lib/overlay-coordinator'
 import { cn } from '@/shared/lib/utils'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
@@ -15,8 +16,27 @@ function TooltipProvider({
   )
 }
 
-function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+// nudo-tsl: no tooltip opens over an open menu, select or popover (React Flow nodes keep taking
+// the pointer while one is open), so Escape always reaches that overlay first.
+function Tooltip({
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  const [isOpen, setIsOpen] = React.useState(defaultOpen)
+  const isOverlayOpen = useIsAnyOverlayOpen()
+  return (
+    <TooltipPrimitive.Root
+      data-slot="tooltip"
+      open={(open ?? isOpen) && !isOverlayOpen}
+      onOpenChange={(next) => {
+        setIsOpen(next)
+        onOpenChange?.(next)
+      }}
+      {...props}
+    />
+  )
 }
 
 function TooltipTrigger({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
@@ -37,7 +57,7 @@ function TooltipContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={cn(
-          'pointer-events-none z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground px-2.5 py-1.5 text-xs text-background has-data-[slot=kbd]:py-1 has-data-[slot=kbd]:pr-1 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          'pointer-events-none z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground p-1.5 text-xs text-background has-data-[slot=kbd]:py-1 has-data-[slot=kbd]:pr-1 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className,
         )}
         {...props}

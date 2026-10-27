@@ -15,7 +15,7 @@ const RESIZE_STEP_PX = 20
 
 export const FLOW_NODE_SELECTOR = '.react-flow__node'
 export const FLOW_EDGE_SELECTOR = '.react-flow__edge'
-const FLOW_PANE_SELECTOR = '.react-flow__pane'
+export const FLOW_PANE_SELECTOR = '.react-flow__pane'
 /** Marks the native button inside a port handle. */
 export const PORT_BUTTON_ATTRIBUTE = 'data-port-button'
 

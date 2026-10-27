@@ -173,16 +173,16 @@
   ) {
     cursor: pointer;
   }
-  :is(:disabled, [aria-disabled='true'], [data-disabled]) {
+  :is(:disabled, [aria-disabled='true'], [data-disabled]:not([data-disabled='false'])) {
     cursor: not-allowed;
   }
   /*
    * One overlay at a time: an open select, menu or popover makes the rest of the page inert to
-   * the pointer (Radix sets pointer-events: none on the body), so pressing another select would
-   * only close the first. Select triggers stay pressable: the press closes the open overlay (an
-   * outside press) and opens this one.
+   * the pointer (Radix sets pointer-events: none on the body). Select triggers and color swatches
+   * stay pressable: the overlay coordinator closes whatever was open and opens the pressed one, so
+   * there is never a second overlay or a focus trap left behind.
    */
-  body[style*='pointer-events: none'] [data-slot='select-trigger'] {
+  body[style*='pointer-events: none'] [data-exclusive-trigger] {
     pointer-events: auto;
   }
   /*

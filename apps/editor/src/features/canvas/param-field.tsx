@@ -8,9 +8,8 @@ import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 
 import { useGraphCanvasActions } from './graph-canvas-actions'
+import type { BooleanParam, EnumParam } from './param-kinds'
 
-type EnumParam = Extract<ParamDefinition, { kind: 'enum' }>
-type BooleanParam = Extract<ParamDefinition, { kind: 'boolean' }>
 /** The params a node body edits. String and number params are only ever hidden for now. */
 type BodyParam = EnumParam | BooleanParam
 

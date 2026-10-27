@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { Moon, Sun } from 'lucide-react'
 
 import { PanelFrame } from '@/features/panels/panel-frame'
-import { effectivePreviewLayout } from '@/features/panels/panel-state'
+import { FULL_PERCENT, effectivePreviewLayout } from '@/features/panels/panel-state'
 import type { PreviewLayout } from '@/features/panels/panel-state'
 import { PreviewLayoutPicker } from '@/features/panels/preview-layout-picker'
 import { SplitHandle } from '@/features/panels/split-handle'
@@ -29,7 +29,6 @@ import { useTheme } from './theme-provider'
 const WIDE_QUERY = '(min-width: 768px)'
 /** The smallest grab area of the split handle, in pixels, for a mouse and for a finger. */
 const SPLIT_HANDLE_TARGET = { fine: 12, coarse: 24 } as const
-const PERCENT = 100
 
 export interface AppShellProps {
   canvas: ReactNode
@@ -56,7 +55,7 @@ const RIGHT_COLUMN_CLASSES: Readonly<Record<PreviewLayout, string>> = {
 /** The code drawer stays over the canvas: clear of the docked column, or of the split preview. */
 function codePanelStyle(layout: PreviewLayout, splitPercent: number): CSSProperties | undefined {
   if (layout !== 'split') return undefined
-  return { right: `calc(${String(PERCENT - splitPercent)}% + 1rem)` }
+  return { right: `calc(${String(FULL_PERCENT - splitPercent)}% + 1rem)` }
 }
 
 export function AppShell({

@@ -1,7 +1,7 @@
 import { ResizableHandle } from '@/shared/ui/resizable'
 import { useEditorStore } from '@/store/editor-store'
 
-const PERCENT = 100
+import { FULL_PERCENT } from './panel-state'
 
 /**
  * The window splitter between the canvas and the preview (shadcn Resizable, APG window
@@ -15,7 +15,7 @@ export function SplitHandle() {
     <ResizableHandle
       withHandle
       aria-label="Resize preview"
-      aria-valuetext={`Canvas ${String(percent)}%, preview ${String(PERCENT - percent)}%`}
+      aria-valuetext={`Canvas ${String(percent)}%, preview ${String(FULL_PERCENT - percent)}%`}
       className="z-20 data-[separator=active]:bg-primary data-[separator=hover]:bg-muted-foreground"
     />
   )

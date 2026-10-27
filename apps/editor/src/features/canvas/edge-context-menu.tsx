@@ -10,8 +10,8 @@ import {
 
 import { CanvasMenuContent } from './canvas-menu-content'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import { CONTEXT_MENU_TRIGGER_PROPS } from './open-context-menu'
-import { useAfterMenuClose } from './use-after-menu-close'
+import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-context-menu'
+import { useCanvasMenu } from './use-canvas-menu'
 
 interface EdgeContextMenuProps {
   edgeId: string
@@ -22,18 +22,22 @@ interface EdgeContextMenuProps {
 /** A connection's right-click menu (also the ContextMenu key or Shift+F10 on a focused edge). */
 export function EdgeContextMenu({ edgeId, children }: EdgeContextMenuProps) {
   const { deleteEdge } = useGraphCanvasActions()
-  const afterClose = useAfterMenuClose()
+  const menu = useCanvasMenu()
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild {...CONTEXT_MENU_TRIGGER_PROPS}>
+    <ContextMenu onOpenChange={menu.onOpenChange}>
+      <ContextMenuTrigger
+        asChild
+        {...CONTEXT_MENU_TRIGGER_PROPS}
+        onContextMenuCapture={ignoreForeignContextMenu}
+      >
         {children}
       </ContextMenuTrigger>
-      <CanvasMenuContent onCloseAutoFocus={afterClose.onCloseAutoFocus}>
+      <CanvasMenuContent onCloseAutoFocus={menu.onCloseAutoFocus}>
         <ContextMenuItem
           variant="destructive"
           onSelect={() => {
-            afterClose.runAfterClose(() => {
+            menu.runAfterClose(() => {
               deleteEdge(asEdgeId(edgeId))
             })
           }}

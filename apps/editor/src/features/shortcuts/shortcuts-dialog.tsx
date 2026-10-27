@@ -110,6 +110,7 @@ export function ShortcutsDialog({ open, onOpenChange, restoreFocus }: ShortcutsD
           tabIndex={0}
           role="region"
           aria-label="All shortcuts"
+          data-focus-ring="inset"
           className="-mx-1 overflow-y-auto px-1 pb-1"
         >
           <Table className="border-collapse">

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { NodeId, NodeTypeId, XY } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
@@ -8,6 +8,12 @@ import { COMMENT_NODE_TYPE } from '@/features/canvas/to-flow'
 import type { FlowNode } from '@/features/canvas/to-flow'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
+import {
+  claimOverlay,
+  isOverlayReplaced,
+  releaseOverlay,
+  useCloseWhenReplaced,
+} from '@/shared/lib/overlay-coordinator'
 import { useEditorStore } from '@/store/editor-store'
 
 import { AddNodeMenu } from './add-node-menu'
@@ -55,7 +61,20 @@ interface AddNodeMenuProviderProps {
  */
 export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
   const { screenToFlowPosition, getNodes } = useReactFlow<FlowNode>()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpenState] = useState(false)
+  const overlayId = useId()
+  // One overlay at a time: opening the menu closes any other, and another one opening closes it.
+  const setIsOpen = useCallback(
+    (open: boolean) => {
+      setIsOpenState(open)
+      if (open) claimOverlay(overlayId)
+      else releaseOverlay(overlayId)
+    },
+    [overlayId],
+  )
+  useCloseWhenReplaced(overlayId, isOpen, () => {
+    setIsOpenState(false)
+  })
   const placementRef = useRef<XY>({ x: 0, y: 0 })
   const focusOnCloseRef = useRef<FocusOnClose>({ kind: 'opener', element: null })
 
@@ -82,24 +101,28 @@ export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
       focusOnCloseRef.current = { kind: 'opener', element: opener }
       setIsOpen(true)
     },
-    [resolvePlacement],
+    [resolvePlacement, setIsOpen],
   )
 
-  const pick = useCallback((type: NodeTypeId) => {
-    const store = useEditorStore.getState()
-    const nodeId = store.addNode(type, placementRef.current)
-    if (nodeId !== null) {
-      store.setSelection([nodeId])
-      focusOnCloseRef.current = { kind: 'new-node', nodeId }
-    }
-    setIsOpen(false)
-  }, [])
+  const pick = useCallback(
+    (type: NodeTypeId) => {
+      const store = useEditorStore.getState()
+      const nodeId = store.addNode(type, placementRef.current)
+      if (nodeId !== null) {
+        store.setSelection([nodeId])
+        focusOnCloseRef.current = { kind: 'new-node', nodeId }
+      }
+      setIsOpen(false)
+    },
+    [setIsOpen],
+  )
 
   const restoreFocus = useCallback(() => {
+    if (isOverlayReplaced(overlayId)) return
     const target = focusOnCloseRef.current
     if (target.kind === 'new-node') focusFlowNode(target.nodeId)
     else focusOpenerOrCanvas(target.element)
-  }, [])
+  }, [overlayId])
 
   useAddNodeShortcut(openMenu)
 

@@ -1,6 +1,11 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { expectFocusRing } from './support/focus-indicators'
+import {
+  expectFocusRing,
+  expectNoRingShadow,
+  isInvisibleShadow,
+  tabUntilFocused,
+} from './support/focus-indicators'
 import { readStoredEdgeCount, readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
 
@@ -108,7 +113,7 @@ test.describe('shadcn primitives', () => {
     const highlighted = listbox.getByRole('option', { name: 'Unlit' })
     await expect(highlighted).toBeFocused()
     await expect(highlighted).toHaveCSS('outline-style', 'none')
-    await expect(highlighted).toHaveCSS('box-shadow', 'none')
+    await expectNoRingShadow(highlighted)
     await expect(highlighted).not.toHaveCSS('background-color', listBackground)
     await page.keyboard.press('Escape')
     // Escape closes an open list and gives focus back to the trigger.
@@ -289,6 +294,7 @@ test.describe('context menus', () => {
       /^Add node…/,
       /^Paste/,
       'Add comment',
+      /^Select all/,
       /^Fit view/,
     ])
     await menu.getByRole('menuitem', { name: 'Add comment' }).click()
@@ -432,5 +438,203 @@ test.describe('layout polish', () => {
       clientWidth: element.clientWidth,
     }))
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth)
+  })
+})
+
+test.describe('one overlay at a time', () => {
+  function hiddenAware(page: Page, name: string): Locator {
+    // An open overlay hides the rest of the page from assistive tech.
+    return page.getByRole('group', { name, exact: true, includeHidden: true })
+  }
+
+  async function focusIsInside(page: Page, selector: string): Promise<boolean> {
+    return page.evaluate((within) => document.activeElement?.closest(within) !== null, selector)
+  }
+
+  test('opening a select closes an open color picker', async ({ page }) => {
+    await page.goto('/')
+    const master = graphNode(page, 'Master Stack')
+    await master.getByRole('button', { name: 'Base Color', exact: true }).click()
+    const picker = page.getByRole('dialog', { name: 'Base Color' })
+    await expect(picker).toBeVisible()
+
+    await hiddenAware(page, 'Master Stack')
+      .getByRole('combobox', { name: 'Lighting', includeHidden: true })
+      .click()
+    await expect(page.getByRole('listbox')).toHaveCount(1)
+    await expect(picker).toBeHidden()
+    expect(await focusIsInside(page, '[role="listbox"]')).toBe(true)
+  })
+
+  test('opening a select closes an open context menu', async ({ page }) => {
+    await seedAutosave(page, TIME_TO_SINE)
+    await page.goto('/')
+    await graphNode(page, 'Sine').locator('header').click({ button: 'right' })
+    await expect(contextMenu(page)).toBeVisible()
+
+    const lighting = hiddenAware(page, 'Master Stack').getByRole('combobox', {
+      name: 'Lighting',
+      includeHidden: true,
+    })
+    await lighting.click()
+    await expect(page.getByRole('listbox')).toHaveCount(1)
+    await expect(contextMenu(page)).toHaveCount(0)
+    expect(await focusIsInside(page, '[role="listbox"]')).toBe(true)
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await expect(lighting).toBeFocused()
+  })
+
+  test('a right-click inside a node color picker opens no node menu', async ({ page }) => {
+    await page.goto('/')
+    await graphNode(page, 'Master Stack')
+      .getByRole('button', { name: 'Base Color', exact: true })
+      .click()
+    const picker = page.getByRole('dialog', { name: 'Base Color' })
+    await picker.getByRole('slider', { name: 'Hue' }).click({ button: 'right' })
+    await expect(contextMenu(page)).toHaveCount(0)
+    await expect(picker).toBeVisible()
+  })
+})
+
+test.describe('equal padding', () => {
+  test('tooltip, node header chevron and comment title sit as far from the side as from the top', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Dark theme', exact: true }).hover()
+    const tooltip = page.locator('[data-slot="tooltip-content"]')
+    await expect(tooltip).toBeVisible()
+    const padding = await tooltip.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return { top: parseFloat(style.paddingTop), left: parseFloat(style.paddingLeft) }
+    })
+    expect(Math.abs(padding.left - padding.top)).toBeLessThanOrEqual(PX_TOLERANCE)
+
+    const header = graphNode(page, 'Master Stack').locator('header')
+    const chevron = header.getByRole('button', { name: 'Unconnected ports' })
+    const headerBox = await boxOf(header)
+    const chevronBox = await boxOf(chevron)
+    const chevronInsetX = chevronBox.x - headerBox.x
+    const chevronInsetY = chevronBox.y - headerBox.y
+    expect(Math.abs(chevronInsetX - chevronInsetY)).toBeLessThanOrEqual(PX_TOLERANCE)
+
+    const spot = await emptyPanePoint(page)
+    await page.mouse.click(spot.x, spot.y, { button: 'right' })
+    await contextMenu(page).getByRole('menuitem', { name: 'Add comment' }).click()
+    const title = page.getByRole('textbox', { name: 'Comment title' })
+    await expect(title).toBeVisible()
+    const inset = await title.evaluate((element) => {
+      const header = element.closest('header')
+      if (header === null) throw new Error('Comment title is outside its header')
+      const style = getComputedStyle(element)
+      const box = element.getBoundingClientRect()
+      const headerBox = header.getBoundingClientRect()
+      const lineHeight = parseFloat(style.lineHeight)
+      const contentHeight = box.height - parseFloat(style.borderTopWidth) * 2
+      return {
+        x:
+          box.left -
+          headerBox.left +
+          parseFloat(style.borderLeftWidth) +
+          parseFloat(style.paddingLeft),
+        y:
+          box.top -
+          headerBox.top +
+          parseFloat(style.borderTopWidth) +
+          (contentHeight - lineHeight) / 2,
+        background: style.backgroundColor,
+        borderColor: style.borderTopColor,
+      }
+    })
+    expect(Math.abs(inset.x - inset.y)).toBeLessThanOrEqual(PX_TOLERANCE)
+    // A quiet inline title: no box of its own while it isn't being edited.
+    expect(inset.background).toBe('rgba(0, 0, 0, 0)')
+    expect(inset.borderColor).toBe('rgba(0, 0, 0, 0)')
+  })
+})
+
+test.describe('focus across the app', () => {
+  async function ringOnActiveElement(page: Page): Promise<{ outline: string; shadow: string }> {
+    return page
+      .evaluate(() => {
+        const element = document.activeElement
+        if (element === null) return { outline: 'none', shadow: 'none' }
+        const style = getComputedStyle(element)
+        return { outline: style.outlineStyle, shadow: style.boxShadow }
+      })
+      .then(({ outline, shadow }) => ({
+        outline,
+        shadow: isInvisibleShadow(shadow) ? 'none' : shadow,
+      }))
+  }
+
+  test('closing the new-graph dialog with the mouse leaves no ring anywhere', async ({ page }) => {
+    await seedAutosave(page, TIME_TO_SINE)
+    await page.goto('/')
+    await page.getByRole('button', { name: 'New graph', exact: true }).click()
+    const dialog = page.getByRole('alertdialog', { name: 'Start a new graph?' })
+    await dialog.getByRole('button', { name: 'Cancel' }).click()
+    await expect(dialog).toBeHidden()
+    expect(await ringOnActiveElement(page)).toEqual({ outline: 'none', shadow: 'none' })
+    const canvasMain = page.getByRole('main', { name: 'Node canvas' })
+    await expect(canvasMain).toHaveCSS('outline-style', 'none')
+  })
+
+  test('a click on the canvas shows no frame', async ({ page }) => {
+    await page.goto('/')
+    const spot = await emptyPanePoint(page)
+    await page.mouse.click(spot.x, spot.y)
+    const canvasMain = page.getByRole('main', { name: 'Node canvas' })
+    await expect(canvasMain).toHaveCSS('outline-style', 'none')
+    await expectNoRingShadow(canvasMain)
+    expect((await ringOnActiveElement(page)).outline).toBe('none')
+  })
+
+  test('Tab to a control shows the ring; a click on it does not', async ({ page }) => {
+    await page.goto('/')
+    const newGraph = page.getByRole('button', { name: 'New graph', exact: true })
+    await tabUntilFocused(page, newGraph)
+    await expectFocusRing(page, newGraph)
+
+    const addNode = page.getByRole('button', { name: 'Add node', exact: true })
+    await page.getByRole('button', { name: 'Dark theme', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Dark theme', exact: true })).toHaveCSS(
+      'outline-style',
+      'none',
+    )
+    await expect(addNode).toHaveCSS('outline-style', 'none')
+  })
+
+  test('a select used with the mouse shows no ring; Tab and keyboard use do', async ({ page }) => {
+    await page.goto('/')
+    const master = graphNode(page, 'Master Stack')
+    const lighting = master.getByRole('combobox', { name: 'Lighting' })
+    await lighting.click()
+    await page.getByRole('option', { name: 'Unlit' }).click()
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await expect(lighting).toBeFocused()
+    await expect(lighting).toHaveCSS('outline-style', 'none')
+    await expectNoRingShadow(lighting)
+    expect(await ringOnActiveElement(page)).toEqual({ outline: 'none', shadow: 'none' })
+
+    // Tab from there: the next control wears the ring.
+    await page.keyboard.press('Tab')
+    await expectFocusRing(page, master.getByRole('combobox', { name: 'Surface' }))
+
+    // Keyboard only: open, close, and the trigger keeps the ring.
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await expectFocusRing(page, lighting)
+  })
+
+  test('an enabled input row keeps the default cursor', async ({ page }) => {
+    await page.goto('/')
+    const row = graphNode(page, 'Master Stack').locator('[data-port-id="roughness"]')
+    await expect(row).not.toHaveAttribute('data-disabled')
+    await expect(row).not.toHaveCSS('cursor', 'not-allowed')
   })
 })

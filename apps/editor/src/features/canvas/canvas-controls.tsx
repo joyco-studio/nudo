@@ -1,12 +1,13 @@
 import type { LucideIcon } from 'lucide-react'
 import { Maximize, Minus, Plus } from 'lucide-react'
 import { Panel, useReactFlow } from '@xyflow/react'
-import type { FitViewOptions } from '@xyflow/react'
 
 import { Button } from '@/shared/ui/button'
 import { ButtonGroup } from '@/shared/ui/button-group'
 import { Kbd } from '@/shared/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+
+import { fitViewOptionsFor } from './fit-view-options'
 
 interface ControlButtonProps {
   label: string
@@ -38,12 +39,8 @@ function ControlButton({ label, icon: Icon, shortcut, onClick }: ControlButtonPr
   )
 }
 
-export interface CanvasControlsProps {
-  fitViewOptions: FitViewOptions
-}
-
 /** Zoom and fit for the node canvas, named apart from the preview's own zoom buttons. */
-export function CanvasControls({ fitViewOptions }: CanvasControlsProps) {
+export function CanvasControls() {
   const { zoomIn, zoomOut, fitView } = useReactFlow()
 
   return (
@@ -68,7 +65,8 @@ export function CanvasControls({ fitViewOptions }: CanvasControlsProps) {
           icon={Maximize}
           shortcut="F"
           onClick={() => {
-            void fitView(fitViewOptions)
+            // Same fit as the F key and the canvas menu, for the window as it is now.
+            void fitView(fitViewOptionsFor(window.innerWidth))
           }}
         />
       </ButtonGroup>

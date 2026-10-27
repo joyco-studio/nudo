@@ -4,12 +4,10 @@ import type { GroupImperativeHandle, Layout, LayoutChangedMeta } from 'react-res
 
 import { useEditorStore } from '@/store/editor-store'
 
-import { SPLIT_PERCENT_MAX, SPLIT_PERCENT_MIN } from './panel-state'
+import { FULL_PERCENT, SPLIT_PERCENT_MAX, SPLIT_PERCENT_MIN } from './panel-state'
 
 export const CANVAS_PANEL_ID = 'canvas'
 export const PREVIEW_PANEL_ID = 'preview'
-
-const WHOLE = 100
 
 /** Panel limits as percentages of the workspace (unitless strings, in the library's terms). */
 export interface PanelLimits {
@@ -22,13 +20,16 @@ const SPLIT_LIMITS: PanelLimits = {
   maxSize: String(SPLIT_PERCENT_MAX),
 }
 /** Outside split the canvas takes the whole row and the preview panel has no width. */
-const CANVAS_ONLY_LIMITS: PanelLimits = { minSize: String(WHOLE), maxSize: String(WHOLE) }
+const CANVAS_ONLY_LIMITS: PanelLimits = {
+  minSize: String(FULL_PERCENT),
+  maxSize: String(FULL_PERCENT),
+}
 const COLLAPSED_LIMITS: PanelLimits = { minSize: '0', maxSize: '0' }
 
 function layoutFor(isSplit: boolean, canvasPercent: number): Layout {
   return isSplit
-    ? { [CANVAS_PANEL_ID]: canvasPercent, [PREVIEW_PANEL_ID]: WHOLE - canvasPercent }
-    : { [CANVAS_PANEL_ID]: WHOLE, [PREVIEW_PANEL_ID]: 0 }
+    ? { [CANVAS_PANEL_ID]: canvasPercent, [PREVIEW_PANEL_ID]: FULL_PERCENT - canvasPercent }
+    : { [CANVAS_PANEL_ID]: FULL_PERCENT, [PREVIEW_PANEL_ID]: 0 }
 }
 
 export interface SplitLayout {

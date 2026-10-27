@@ -29,6 +29,7 @@ export interface GraphCanvasActions {
   /** Pastes nudo-tsl nodes from the clipboard with their top-left corner at a screen point. */
   pasteAt: (clientPoint: ClientPoint) => void
   addCommentAt: (clientPoint: ClientPoint) => void
+  selectAll: () => void
   /** Opens the add-node menu; the picked node lands at the screen point. */
   openAddNodeMenuAt: (clientPoint: ClientPoint) => void
   fitView: () => void
