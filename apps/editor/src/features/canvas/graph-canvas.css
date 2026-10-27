@@ -66,6 +66,26 @@
     pointer-events: all;
   }
 
+  /*
+   * The transparency grid under a texture thumbnail: 0.25rem squares of a translucent neutral over
+   * the node card, black in light mode and white in dark, so it follows the card in both themes.
+   */
+  .texture-checkerboard {
+    --checkerboard-tile: oklch(0 0 0 / 0.1);
+    background-color: transparent;
+    background-image: conic-gradient(
+      var(--checkerboard-tile) 25%,
+      transparent 0 50%,
+      var(--checkerboard-tile) 0 75%,
+      transparent 0
+    );
+    background-size: 0.5rem 0.5rem;
+  }
+
+  .dark .texture-checkerboard {
+    --checkerboard-tile: oklch(1 0 0 / 0.1);
+  }
+
   .graph-canvas .react-flow__attribution {
     font-family: var(--font-mono);
     font-size: 10px;

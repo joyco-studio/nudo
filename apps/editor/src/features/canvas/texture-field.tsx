@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { ImageOff, ImagePlus, TriangleAlert } from 'lucide-react'
+import { X } from 'lucide-react'
 
 import {
   ACCEPTED_IMAGES_HINT,
@@ -9,44 +9,37 @@ import {
 } from '@/features/assets/accepted-images'
 import { putAsset } from '@/features/assets/asset-store'
 import { textureCache } from '@/features/assets/texture-cache'
-import { textureThumbnailSource } from '@/features/assets/texture-thumbnail-source'
+import {
+  textureImageSize,
+  textureThumbnailSource,
+} from '@/features/assets/texture-thumbnail-source'
 import { useTexture } from '@/features/assets/use-texture'
-import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { PortLabel } from './port-label'
+import { TextureSlot } from './texture-slot'
 
 const SAVE_FAILED_HINT = 'Could not save this image.'
 const UNREADABLE_HINT = "Couldn't read this image."
+const REMOVE_LABEL = 'Remove image'
 
 export interface TextureFieldProps {
   label: string
   /** The chosen asset, or `null` while no image is chosen. */
   assetId: string | null
-  /** Called with the id of the image the person just chose. */
-  onChange: (assetId: string) => void
-}
-
-/** A decorative 32px preview; the state is also said in text next to it. */
-function Thumbnail({ source }: { source: string | null }) {
-  return (
-    <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted text-muted-foreground">
-      {source === null ? (
-        <ImageOff aria-hidden="true" className="size-3.5" />
-      ) : (
-        <img src={source} alt="" className="size-full object-cover" />
-      )}
-    </span>
-  )
+  /** Called with the id of the image the person just chose, or `null` when they removed it. */
+  onChange: (assetId: string | null) => void
 }
 
 /**
- * Picks the image of an unconnected texture input. The file is stored in IndexedDB under the hash
- * of its bytes, so the graph only carries that id. The visually hidden file input is opened by the
- * button, which is the only tab stop.
+ * Picks the image of an unconnected texture input, on the same row as its label: a thumbnail slot
+ * that opens the file chooser or takes a dropped file, and a remove button once an image is set.
+ * The file is stored in IndexedDB under the hash of its bytes, so the graph only carries that id.
  */
 export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const slotRef = useRef<HTMLButtonElement>(null)
   const [problem, setProblem] = useState<string | null>(null)
   const texture = useTexture(assetId)
   // The asset can change while an image is being stored, so saveImage reads it through a ref.
@@ -56,8 +49,8 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
   }, [assetId])
 
   const isMissing = texture.state === 'missing'
-  const buttonText = assetId === null || isMissing ? 'Choose image' : 'Change image'
-  const thumbnailSource = texture.texture === null ? null : textureThumbnailSource(texture.texture)
+  const source = texture.texture === null ? null : textureThumbnailSource(texture.texture)
+  const size = texture.texture === null ? null : textureImageSize(texture.texture)
 
   const saveImage = async (file: Blob): Promise<void> => {
     try {
@@ -76,11 +69,7 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
     }
   }
 
-  const onFileChosen = (event: ChangeEvent<HTMLInputElement>): void => {
-    const input = event.currentTarget
-    const [file] = input.files ?? []
-    // Cleared so choosing the same file again still fires `change`.
-    input.value = ''
+  const takeFile = (file: File | undefined): void => {
     if (file === undefined) return
     if (!isAcceptedImage(file)) {
       setProblem(ACCEPTED_IMAGES_HINT)
@@ -90,40 +79,62 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
     void saveImage(file)
   }
 
+  const onFileChosen = (event: ChangeEvent<HTMLInputElement>): void => {
+    const input = event.currentTarget
+    const [file] = input.files ?? []
+    // Cleared so choosing the same file again still fires `change`.
+    input.value = ''
+    takeFile(file)
+  }
+
+  const removeImage = (): void => {
+    setProblem(null)
+    onChange(null)
+    // The remove button unmounts with the image, so focus stays in the row on the slot.
+    slotRef.current?.focus()
+  }
+
   return (
     <>
       <PortLabel label={label} />
-      <div className="nodrag flex basis-full items-center gap-2 pb-1.5 pl-3.5">
-        <Thumbnail source={thumbnailSource} />
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-6 gap-1 px-2 text-field has-[>svg]:px-2"
-            aria-label={`${buttonText} for ${label}`}
-            onClick={() => {
-              fileInputRef.current?.click()
-            }}
-          >
-            <ImagePlus aria-hidden="true" className="size-3" />
-            {buttonText}
-          </Button>
-          {/* The live region is always mounted, so the badge is announced when it appears. */}
-          <span role="status" className="inline-flex">
-            {isMissing && (
-              <Badge variant="destructive" className="h-6 gap-1 border-destructive/40 px-2">
-                <TriangleAlert aria-hidden="true" />
-                Missing texture
-              </Badge>
-            )}
-          </span>
-          {problem !== null && (
-            <span role="alert" className="text-micro text-destructive">
-              {problem}
-            </span>
+      <span className="nodrag flex shrink-0 items-center gap-1">
+        {/* Always mounted, so "Missing texture" is announced when it appears. */}
+        <span role="status" className="font-mono text-micro text-destructive">
+          {isMissing && (
+            <>
+              <span>Missing</span>
+              <span className="sr-only"> texture</span>
+            </>
           )}
-        </div>
+        </span>
+        {assetId !== null && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={`${REMOVE_LABEL} from ${label}`}
+                className="text-muted-foreground hover:text-foreground"
+                onClick={removeImage}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">{REMOVE_LABEL}</TooltipContent>
+          </Tooltip>
+        )}
+        <TextureSlot
+          ref={slotRef}
+          label={label}
+          state={texture.state}
+          source={source}
+          size={size}
+          onChoose={() => {
+            fileInputRef.current?.click()
+          }}
+          onDropFile={takeFile}
+        />
         <input
           ref={fileInputRef}
           type="file"
@@ -133,7 +144,12 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
           className="sr-only"
           onChange={onFileChosen}
         />
-      </div>
+      </span>
+      {problem !== null && (
+        <span role="alert" className="basis-full pb-1.5 pl-3.5 text-micro text-destructive">
+          {problem}
+        </span>
+      )}
     </>
   )
 }
