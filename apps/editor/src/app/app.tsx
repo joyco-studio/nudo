@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ReactFlowProvider } from '@xyflow/react'
 
 import { AddNodeButton } from '@/features/add-node-menu/add-node-button'
@@ -5,6 +6,8 @@ import { AddNodeMenuProvider } from '@/features/add-node-menu/add-node-menu-prov
 import { BlackboardPanel } from '@/features/blackboard/blackboard-panel'
 import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
 import { CodePanel } from '@/features/code-panel/code-panel'
+import { CommandPaletteButton } from '@/features/command-palette/command-palette-button'
+import { CommandPaletteProvider } from '@/features/command-palette/command-palette-provider'
 import { InspectorPanel } from '@/features/inspector/inspector-panel'
 import { MainPreview } from '@/features/main-preview/main-preview'
 import { NewGraphButton } from '@/features/new-graph/new-graph-button'
@@ -16,7 +19,7 @@ import { useGlobalShortcuts } from '@/features/shortcuts/use-global-shortcuts'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 
 import { AppShell } from './app-shell'
-import { ThemeProvider } from './theme-provider'
+import { ThemeProvider, useTheme } from './theme-provider'
 
 function Canvas() {
   return (
@@ -27,10 +30,7 @@ function Canvas() {
   )
 }
 
-/**
- * Mounts the editor-wide and panel shortcuts; they need the React Flow, shortcuts-dialog and
- * new-graph providers.
- */
+/** Mounts the editor-wide and panel shortcuts; they run commands from the command provider. */
 function GlobalShortcuts() {
   useGlobalShortcuts()
   usePanelShortcuts()
@@ -40,10 +40,21 @@ function GlobalShortcuts() {
 function HeaderActions() {
   return (
     <>
+      <CommandPaletteButton />
       <NewGraphButton />
       <AddNodeButton />
     </>
   )
+}
+
+interface EditorCommandsProps {
+  children: ReactNode
+}
+
+/** The command provider, handed the theme switch from the theme provider above it. */
+function EditorCommands({ children }: EditorCommandsProps) {
+  const { toggleTheme } = useTheme()
+  return <CommandPaletteProvider toggleTheme={toggleTheme}>{children}</CommandPaletteProvider>
 }
 
 export function App() {
@@ -56,15 +67,17 @@ export function App() {
           <AddNodeMenuProvider>
             <ShortcutsDialogProvider>
               <NewGraphProvider>
-                <GlobalShortcuts />
-                <AppShell
-                  canvas={<Canvas />}
-                  blackboard={<BlackboardPanel />}
-                  inspector={<InspectorPanel />}
-                  previewPanel={<MainPreview />}
-                  codePanel={<CodePanel />}
-                  headerActions={<HeaderActions />}
-                />
+                <EditorCommands>
+                  <GlobalShortcuts />
+                  <AppShell
+                    canvas={<Canvas />}
+                    blackboard={<BlackboardPanel />}
+                    inspector={<InspectorPanel />}
+                    previewPanel={<MainPreview />}
+                    codePanel={<CodePanel />}
+                    headerActions={<HeaderActions />}
+                  />
+                </EditorCommands>
               </NewGraphProvider>
             </ShortcutsDialogProvider>
           </AddNodeMenuProvider>

@@ -1,10 +1,35 @@
-export type GlobalShortcutAction =
-  'undo' | 'redo' | 'copy' | 'paste' | 'select-all' | 'fit-view' | 'show-shortcuts' | 'new-graph'
+/** Editor-wide keys. Each one runs the registry command with the same id. */
+export const GLOBAL_SHORTCUT_ACTIONS = [
+  'undo',
+  'redo',
+  'copy',
+  'paste',
+  'select-all',
+  'fit-view',
+  'show-shortcuts',
+  'new-graph',
+] as const
+export type GlobalShortcutAction = (typeof GLOBAL_SHORTCUT_ACTIONS)[number]
 
 type ShortcutPress = Pick<
   KeyboardEvent,
   'key' | 'code' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey' | 'repeat'
 >
+
+const LATIN_LETTER = /^[a-z]$/
+
+/**
+ * Ctrl/Cmd + K opens or closes the command palette. The character decides on Latin layouts
+ * (Dvorak's K is where QWERTY has V); a layout that types another script falls back to the
+ * physical K key. It is not a global shortcut: it also works while typing in a field.
+ */
+export function isCommandPaletteChord(press: ShortcutPress): boolean {
+  const hasCommandModifier = press.ctrlKey || press.metaKey
+  if (!hasCommandModifier || press.altKey || press.shiftKey || press.repeat) return false
+  const key = press.key.toLowerCase()
+  if (key === 'k') return true
+  return !LATIN_LETTER.test(key) && press.code === 'KeyK'
+}
 
 /**
  * Ctrl/Cmd + Alt + N. Matched on the physical key: on a Mac, Option changes the character `key`

@@ -12,16 +12,13 @@ import type {
 import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
-import { copySelection, pasteFromClipboard } from '@/features/shortcuts/clipboard'
+import { pasteFromClipboard } from '@/features/shortcuts/clipboard'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
-import { resolveActionNodeIds } from './canvas-keyboard-model'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
-import { fitViewOptionsFor } from './fit-view-options'
 import { focusFlowNode } from './focus-flow-node'
-import { duplicateNodes, selectAllNodes } from './node-commands'
 import { GraphCanvas } from './graph-canvas'
 import { GraphCanvasActionsContext } from './graph-canvas-actions'
 import type { GraphCanvasActions } from './graph-canvas-actions'
@@ -137,7 +134,7 @@ export function GraphCanvasContainer() {
   }, [])
 
   const openAddNodeMenu = useOpenAddNodeMenu()
-  const { screenToFlowPosition, fitView } = useReactFlow<FlowNode, FlowEdge>()
+  const { screenToFlowPosition } = useReactFlow<FlowNode, FlowEdge>()
 
   useCanvasKeyboard(selectedEdgeIds)
 
@@ -163,18 +160,6 @@ export function GraphCanvasContainer() {
       setParam: (ref, value) => {
         getStore().setParam(ref, value)
       },
-      commandTargets: (nodeId) => resolveActionNodeIds(nodeId, getStore().selectedNodeIds),
-      copyNodes: (nodeIds) => {
-        void copySelection(nodeIds)
-      },
-      duplicateNodes: (nodeIds) => {
-        const [firstCopy] = duplicateNodes(nodeIds)
-        if (firstCopy !== undefined) focusFlowNode(firstCopy)
-      },
-      deleteNodes: (nodeIds) => {
-        getStore().removeSelection(nodeIds, [])
-        focusOpenerOrCanvas(null)
-      },
       deleteEdge: (edgeId) => {
         getStore().removeSelection([], [edgeId])
         focusOpenerOrCanvas(null)
@@ -190,15 +175,11 @@ export function GraphCanvasContainer() {
         store.setSelection([nodeId])
         focusFlowNode(nodeId)
       },
-      selectAll: selectAllNodes,
       openAddNodeMenuAt: (point) => {
         openAddNodeMenu({ kind: 'cursor', ...point }, null)
       },
-      fitView: () => {
-        void fitView(fitViewOptionsFor(window.innerWidth))
-      },
     }),
-    [screenToFlowPosition, fitView, openAddNodeMenu],
+    [screenToFlowPosition, openAddNodeMenu],
   )
 
   return (

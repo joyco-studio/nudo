@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { globalShortcutAction } from './shortcut-action'
+import { globalShortcutAction, isCommandPaletteChord } from './shortcut-action'
 
 const plain = {
   shiftKey: false,
@@ -73,5 +73,31 @@ describe('globalShortcutAction', () => {
     expect(globalShortcutAction(press('z', { ctrlKey: true, repeat: true }))).toBe('undo')
     expect(globalShortcutAction(press('v', { ctrlKey: true, repeat: true }))).toBeNull()
     expect(globalShortcutAction(press('f', { repeat: true }))).toBeNull()
+  })
+})
+
+describe('isCommandPaletteChord', () => {
+  it('opens the palette with Ctrl or Cmd + K, on any layout', () => {
+    expect(isCommandPaletteChord(press('k', { ctrlKey: true, code: 'KeyK' }))).toBe(true)
+    expect(isCommandPaletteChord(press('K', { metaKey: true, code: 'KeyK' }))).toBe(true)
+    // A non-Latin layout reports another character; the physical key still says K.
+    expect(isCommandPaletteChord(press('л', { ctrlKey: true, code: 'KeyK' }))).toBe(true)
+  })
+
+  it('ignores plain K, other modifiers and key repeat', () => {
+    expect(isCommandPaletteChord(press('k', { code: 'KeyK' }))).toBe(false)
+    expect(isCommandPaletteChord(press('k', { ctrlKey: true, shiftKey: true, code: 'KeyK' }))).toBe(
+      false,
+    )
+    expect(isCommandPaletteChord(press('k', { metaKey: true, altKey: true, code: 'KeyK' }))).toBe(
+      false,
+    )
+    expect(isCommandPaletteChord(press('k', { ctrlKey: true, code: 'KeyK', repeat: true }))).toBe(
+      false,
+    )
+  })
+
+  it('is not an editor-wide shortcut, so it is free to work inside text fields', () => {
+    expect(globalShortcutAction(press('k', { ctrlKey: true, code: 'KeyK' }))).toBeNull()
   })
 })

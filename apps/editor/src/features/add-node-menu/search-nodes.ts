@@ -24,6 +24,21 @@ export const ADDABLE_CATEGORIES = exhaustiveOrder([
   'utility',
 ])
 
+/** How the add-node menu and the command palette name each category. */
+export const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
+  input: 'Input',
+  math: 'Math',
+  interpolation: 'Interpolation',
+  logic: 'Logic',
+  vector: 'Vector',
+  effects: 'Effects',
+  texture: 'Texture',
+  color: 'Color',
+  scene: 'Scene',
+  normal: 'Normal',
+  utility: 'Utility',
+}
+
 export interface NodeSearchGroup {
   readonly category: AddableCategory
   readonly items: readonly AnyNodeDefinition[]

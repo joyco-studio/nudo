@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState } from 'react'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { NodeId, NodeTypeId, XY } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
@@ -18,7 +18,7 @@ import { useEditorStore } from '@/store/editor-store'
 
 import { AddNodeMenu } from './add-node-menu'
 import { AddNodeMenuContext } from './add-node-menu-context'
-import type { OpenAddNodeMenu } from './add-node-menu-context'
+import type { AddNodeAt, AddNodeMenuApi, OpenAddNodeMenu } from './add-node-menu-context'
 import { NEW_NODE_SIZE, besideNode, findFreeSpot, rectCenter } from './add-node-placement'
 import type { FlowRect, PlacementOrigin } from './add-node-placement'
 import { useAddNodeShortcut } from './use-add-node-shortcut'
@@ -49,6 +49,14 @@ function occupiedRects(nodes: readonly FlowNode[]): FlowRect[] {
       width: node.measured?.width ?? NEW_NODE_SIZE.width,
       height: node.measured?.height ?? NEW_NODE_SIZE.height,
     }))
+}
+
+/** Adds a node (one history entry) and selects it. */
+function addAndSelect(type: NodeTypeId, position: XY): NodeId | null {
+  const store = useEditorStore.getState()
+  const nodeId = store.addNode(type, position)
+  if (nodeId !== null) store.setSelection([nodeId])
+  return nodeId
 }
 
 interface AddNodeMenuProviderProps {
@@ -106,15 +114,16 @@ export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
 
   const pick = useCallback(
     (type: NodeTypeId) => {
-      const store = useEditorStore.getState()
-      const nodeId = store.addNode(type, placementRef.current)
-      if (nodeId !== null) {
-        store.setSelection([nodeId])
-        focusOnCloseRef.current = { kind: 'new-node', nodeId }
-      }
+      const nodeId = addAndSelect(type, placementRef.current)
+      if (nodeId !== null) focusOnCloseRef.current = { kind: 'new-node', nodeId }
       setIsOpen(false)
     },
     [setIsOpen],
+  )
+
+  const addNodeAt = useCallback<AddNodeAt>(
+    (type, origin) => addAndSelect(type, resolvePlacement(origin)),
+    [resolvePlacement],
   )
 
   const restoreFocus = useCallback(() => {
@@ -126,8 +135,10 @@ export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
 
   useAddNodeShortcut(openMenu)
 
+  const api = useMemo<AddNodeMenuApi>(() => ({ openMenu, addNodeAt }), [openMenu, addNodeAt])
+
   return (
-    <AddNodeMenuContext value={openMenu}>
+    <AddNodeMenuContext value={api}>
       {children}
       <AddNodeMenu
         open={isOpen}
