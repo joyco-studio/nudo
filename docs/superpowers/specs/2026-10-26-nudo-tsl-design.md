@@ -551,3 +551,11 @@ Se incorporan a la fase 2:
 - **Main Preview con fondo de escena** (ninguno / piso y pared con checker), para que Scene Color y Depth Fade tengan algo detrás.
 
 Se dejan para después: inputs inline afuera del nodo a la izquierda (estilo Unity) y Precision por propiedad.
+
+### 15.7 Pedidos del usuario durante la fase 2 (2026-10-26, noche)
+
+- **shadcn en todo:** priorizar los componentes de shadcn para cada primitivo de UI (Select, Dialog, Resizable, Context Menu, Label, Popover, Toggle Group, Breadcrumb, Kbd, Command, Dropdown Menu). Los controles nativos o hechos a mano se usan solo si no hay equivalente.
+- **Command palette (⌘K) con todo:** cada acción del editor, saltar a nodos, agregar nodos y propiedades, vistas y ejemplos. Hay un registro único de comandos que comparten la paleta, los atajos y los menús contextuales.
+- **Idiomas:** la UI se puede usar en **inglés y español**, incluidos los nombres y descripciones de los nodos. El código generado sigue en inglés.
+- **"Blackboard" pasa a llamarse "Properties"** en la UI, porque el término de Unity no se entiende. Internamente el código sigue usando `blackboard`.
+- Bugs reportados: el preview en modo docked se dimensiona mal hasta refrescar, y el padding de los tooltips es asimétrico.

@@ -477,6 +477,99 @@ Behavior:
 
 ---
 
+### Task 7c: shadcn everywhere + UI polish (user request)
+
+The user asked to prioritize shadcn components for every UI primitive (radix-nova style + `@joyco` registry, vendored in `shared/ui`). This task applies the findings of `.superpowers/sdd/2026-10-26-nudo-tsl-phase-2/interface-review.md` (better-interface audit) and the user's reports.
+
+Changes:
+- **Selects:** every native `<select>` becomes shadcn **Select**. That covers node enum params, the master lighting/surface params, Backdrop and anything else. Restyle the "Native select" helper away or delete it.
+- **Split divider:** the split layout uses shadcn **Resizable** (`react-resizable-panels`). It keeps the persisted percentage and keyboard resizing.
+- **Context menus:** shadcn **Context Menu** on right-click.
+  - **Canvas:** Add node…, Paste, Select all, Fit view.
+  - **Node:** Duplicate, Copy, Delete, Collapse/Expand, Preview mode.
+  - **Edge:** Delete.
+
+  Each menu is keyboard reachable through the Context Menu key / Shift+F10 on a focused node. Right-click on the pane still opens the add-node menu through "Add node…".
+- **Form primitives:** shadcn **Label** for form labels; Checkbox and Switch where booleans appear (Two sided, Exposed).
+- **Breadcrumb:** shadcn **Breadcrumb** in the header, showing "Untitled graph". Project naming arrives in phase 3; until then it shows the graph name, and later the subgraph path.
+- **Tooltip padding (user):** make the vertical and horizontal padding proportional in the vendored tooltip, e.g. `px-2.5 py-1.5`. Check it against the joyco reference.
+- **Docked preview bug (user):** on first load and after a mode switch, the docked preview canvas renders too tall and pushes the controls down until a refresh. Fix the sizing at its root cause and add an e2e that switches Split→Docked and asserts the canvas fits the panel without a reload.
+- **Rename (user asked "¿qué es Blackboard?"):** the panel title becomes **Properties**, with the tooltip "Named values you can reuse and expose as uniforms". The code keeps `blackboard` naming internally. Update the shortcut catalog label and the README.
+- Fix every HIGH/MEDIUM finding from the interface review that this task touches.
+
+- [ ] **Step 1: Failing e2e:**
+  - `enum params use the shadcn select (combobox role) and work by keyboard`;
+  - `split resize via resizable handle persists`;
+  - `node context menu duplicates and deletes`;
+  - `docked preview fits after switching layouts`;
+  - `tooltip padding is proportional` (computed padding ratio).
+- [ ] **Step 2:** Run. Expected: FAIL.
+- [ ] **Step 3:** Implement.
+- [ ] **Step 4:** Run the full gate.
+- [ ] **Step 5:** Better Design review plus keyboard audit. Screenshot `.context/phase-2/polish.png`.
+- [ ] **Step 6:** Commit `refactor(editor): use shadcn primitives everywhere and polish layout`.
+
+---
+
+### Task 7d: Command palette (user request)
+
+A global **⌘K / Ctrl+K** command palette (shadcn **Command** in a Dialog) gives access to *everything*:
+- every action in the shortcut catalog: add node by name (it shares the search with the add-node menu), toggle panels, preview layouts, theme, language, New graph, undo/redo, fit view, show shortcuts;
+- jump to a node: search the graph's nodes by label and focus/select it;
+- properties: add a property of type…;
+- examples: load (Task 13 registers them);
+- export and share in phase 3, through the same registry.
+
+**Files:** `features/command-palette/{command-registry.ts,command-registry.test.ts,command-palette.tsx,use-command-palette.ts}`.
+
+- **Shared command registry:** one registry (id, group, label, keywords, shortcut, `run`) is shared by the palette, the shortcut catalog and the context menus, so actions are defined once.
+- **Display:** each item shows its shortcut with shadcn **Kbd**. Groups: Actions, Add node, Nodes in graph, Properties, View.
+- **Focus:** opening the palette from anywhere (including text fields) works with ⌘K. Escape returns focus to the opener.
+
+- [ ] **Step 1: Failing tests:**
+  - unit: `registry ids unique; every catalog shortcut has a command`;
+  - e2e: `⌘K opens palette; typing "split" switches layout`;
+  - e2e: `jump to node focuses it`;
+  - e2e: `add node from palette`.
+- [ ] **Step 2:** Run. Expected: FAIL.
+- [ ] **Step 3:** Implement; refactor the shortcut catalog to derive from the registry.
+- [ ] **Step 4:** Run the full gate.
+- [ ] **Step 5:** Review, then screenshot `.context/phase-2/command-palette.png`.
+- [ ] **Step 6:** Commit `feat(editor): add command palette for every action`.
+
+---
+
+### Task 7e: English / Spanish UI (user request)
+
+The UI is available in **English and Spanish**. Generated code and identifiers stay English.
+
+**Files:**
+- `apps/editor/src/i18n/{messages/en.ts,messages/es.ts,i18n-provider.tsx,use-t.ts,nodes.es.ts,i18n.test.ts}`.
+
+**i18n setup:**
+- A typed dictionary: `en` is the source; `es` is `satisfies Messages` with the same keys, so the compiler catches missing keys.
+- `useT()` returns `t(key, params?)`, with simple `{name}` interpolation and no heavy library.
+- **Locale:** stored in `nudo-tsl:locale`. The default comes from `navigator.language` (`es*` → es, otherwise en). Switch it from the header (shadcn DropdownMenu "EN / ES") and from the command palette.
+- `<html lang>` updates with the locale.
+
+**What gets translated:**
+- **Node texts:** labels, descriptions, port labels and param option labels translate through `nodes.es.ts`, keyed by node type id and port/param id. English stays the fallback for community nodes.
+- **Every user-visible string** in the editor moves to messages, including aria-labels, tooltips, notices and dialog copy. The shortcut catalog and the README table stay English; the in-app `?` dialog is translated.
+
+- [ ] **Step 1: Failing tests:**
+  - unit: `es has every en key` (type-level, plus a runtime key-parity test);
+  - unit: `t interpolates`;
+  - e2e: `switching to ES translates header, panels, node labels and add-node search (search matches Spanish and English keywords)`;
+  - e2e: `locale persists`.
+- [ ] **Step 2:** Run. Expected: FAIL.
+- [ ] **Step 3:** Implement and migrate all strings. Use a script to grep JSX string literals and confirm none remain hardcoded.
+- [ ] **Step 4:** Run the full gate. Have a native-quality Spanish review of the copy: Rioplatense-neutral, using "vos" sparingly (prefer impersonal UI phrasing).
+- [ ] **Step 5:** Commit `feat(editor): add English and Spanish UI`.
+
+From here on, every later task adds its strings in both languages.
+
+---
+
 ### Task 8: Editor: texture assets
 
 **Files:**
