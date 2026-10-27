@@ -180,11 +180,20 @@ export function staggerDelayMs(index: number, count: number): number {
   return Math.min(index, maxSteps) * DURATION_MS.stagger
 }
 
-/** better-ui press feedback for buttons, through motion/react's `whileTap`. */
-export const PRESS_FEEDBACK = {
-  whileTap: { transform: scaled(PRESS_SCALE) },
-  transition: timed(DURATION_MS.quick, EASE.out),
-} as const
+const PRESS_TRANSITION: MotionTransition = timed(DURATION_MS.quick, EASE.out)
+
+/**
+ * better-ui press feedback for buttons, as motion/react's `animate` and `transition`. Driven by
+ * pointer presses the caller tracks, not by `whileTap`: motion's tap gesture also answers Enter by
+ * firing a synthetic `pointerdown`, which toggles Radix triggers a second time (ruling P2-R22).
+ * Animates the `scale` value, so a button at rest has no transform at all.
+ */
+export function pressFeedback(isPressed: boolean) {
+  return {
+    animate: { scale: isPressed ? PRESS_SCALE : 1 },
+    transition: PRESS_TRANSITION,
+  } as const
+}
 
 export function switchThumbTransition(mode: MotionMode): MotionTransition {
   return mode === 'full' ? timed(SWITCH_THUMB_MS, SWITCH_THUMB_EASE) : INSTANT

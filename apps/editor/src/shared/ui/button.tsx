@@ -4,7 +4,8 @@ import { Slot } from 'radix-ui'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/shared/lib/utils'
-import { PRESS_FEEDBACK } from '@/shared/motion/motion-presets'
+import { pressFeedback } from '@/shared/motion/motion-presets'
+import { usePointerPress } from '@/shared/motion/use-pointer-press'
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-[color,background-color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md",
@@ -53,16 +54,21 @@ type ButtonProps = Omit<
     static?: boolean
   }
 
-// nudo-tsl: better-ui scale on press (0.96) through motion/react, off under reduced motion.
+// nudo-tsl: better-ui scale on press (0.96) through motion/react, for pointer presses only: a key
+// press leaves the button still (the frequency gate), and motion's own tap gesture is not used
+// because its Enter handling fires a synthetic pointerdown that toggles Radix triggers twice
+// (ruling P2-R22). Off under reduced motion.
 function Button({
   className,
   variant = 'default',
   size = 'default',
   asChild = false,
   static: isStatic = false,
+  onPointerDown,
   ...props
 }: ButtonProps) {
   const prefersReducedMotion = useReducedMotion() === true
+  const pointerPress = usePointerPress()
   const slotProps = {
     'data-slot': 'button',
     'data-variant': variant,
@@ -72,10 +78,19 @@ function Button({
 
   if (isStatic || prefersReducedMotion) {
     const Comp = asChild ? Slot.Root : 'button'
-    return <Comp {...slotProps} {...props} />
+    return <Comp {...slotProps} onPointerDown={onPointerDown} {...props} />
   }
-  if (asChild) return <MotionSlot {...slotProps} {...PRESS_FEEDBACK} {...props} />
-  return <motion.button {...slotProps} {...PRESS_FEEDBACK} {...props} />
+  const motionProps = {
+    ...slotProps,
+    ...pressFeedback(pointerPress.isPressed),
+    onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
+      onPointerDown?.(event)
+      pointerPress.onPointerDown(event)
+    },
+    ...props,
+  }
+  if (asChild) return <MotionSlot {...motionProps} />
+  return <motion.button {...motionProps} />
 }
 
 export { Button, buttonVariants }
