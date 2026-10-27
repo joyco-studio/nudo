@@ -1,15 +1,23 @@
-import { MASTER_NODE_ID, compile } from '@nudo-tsl/core'
-import type { BlackboardProperty, CompileError, Graph, NodeRegistry } from '@nudo-tsl/core'
-import { createCodeBackend, uniformExpression } from './code-backend'
 import {
-  createNodeEntries,
-  materialClassOf,
+  MASTER_NODE_ID,
+  compile,
+  isOpacityConnected,
+  masterMaterialAssignments,
+  readInlineOpacity,
   readMasterSettings,
-  resolveTransparent,
-} from './master-output'
-import type { MasterSettings } from './master-output'
+  resolveTransparency,
+} from '@nudo-tsl/core'
+import type {
+  BlackboardProperty,
+  CompileError,
+  Graph,
+  MasterLighting,
+  MasterSettings,
+  NodeRegistry,
+} from '@nudo-tsl/core'
+import { createCodeBackend, uniformExpression } from './code-backend'
 import { printModule } from './print-module'
-import type { ModulePlan, NamedExpression } from './print-module'
+import type { MaterialClass, ModulePlan, NamedExpression } from './print-module'
 import { isVectorValue } from './literals'
 
 /** The three release the pinned `three` dependency of this repo belongs to (0.186.1). */
@@ -25,6 +33,9 @@ export interface GeneratedModule {
   readonly code: string
   readonly errors: readonly CompileError[]
 }
+
+const materialClassOf = (lighting: MasterLighting): MaterialClass =>
+  lighting === 'unlit' ? 'MeshBasicNodeMaterial' : 'MeshStandardNodeMaterial'
 
 const THREE_RELEASE_PATTERN = /^(?:r|0\.)?(\d+)(?:\.\d+)*$/
 
@@ -80,10 +91,14 @@ export function generateModule(
     return { code: '', errors: [error] }
   }
 
-  const settings = readMasterSettings(graph)
+  const settings = readMasterSettings(graph, registry)
   const slots = result.output.slots
-  const transparent = resolveTransparent(settings, graph, registry)
-  const entries = createNodeEntries(backend.tsl, slots, settings.lighting)
+  const transparent = resolveTransparency({
+    surface: settings.surface,
+    opacityConnected: isOpacityConnected(graph),
+    inlineOpacity: readInlineOpacity(graph, registry),
+  })
+  const entries = masterMaterialAssignments(backend.tsl, slots, settings.lighting)
   const plan: ModulePlan = {
     threeVersion: formatThreeVersion(options.threeVersion ?? DEFAULT_THREE_VERSION),
     materialClass: materialClassOf(settings.lighting),

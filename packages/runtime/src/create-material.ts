@@ -1,8 +1,19 @@
-import { MASTER_NODE_ID, MASTER_SLOTS, compile, portKey } from '@nudo-tsl/core'
+import {
+  DEFAULT_MASTER_SETTINGS,
+  MASTER_NODE_ID,
+  compile,
+  isOpacityConnected,
+  masterMaterialAssignments,
+  portKey,
+  readMasterSettings,
+  resolveTransparency,
+} from '@nudo-tsl/core'
 import type {
   CompileError,
   Graph,
+  MasterSettings,
   MasterSlot,
+  MasterSurface,
   NodeRegistry,
   PortKey,
   PropertyId,
@@ -13,8 +24,6 @@ import { MeshBasicNodeMaterial, MeshStandardNodeMaterial } from 'three/webgpu'
 import { createLiveBackend } from './live-backend'
 import type { LiveProperty, LiveUniform } from './live-backend'
 import type { LiveNode } from './live-facade'
-import { DEFAULT_MASTER_SETTINGS, readMasterSettings } from './master-settings'
-import type { MasterSettings, MasterSurface } from './master-settings'
 import type { MaterialOptions } from './texture-resolution'
 
 export type RuntimeMaterial = MeshStandardNodeMaterial | MeshBasicNodeMaterial
@@ -43,95 +52,36 @@ export const failedBuild = (errors: readonly CompileError[]): MaterialBuild => (
 })
 
 type MasterSlots = Partial<Record<MasterSlot, LiveNode>>
-
-type MaterialNodeProperty =
-  | 'positionNode'
-  | 'colorNode'
-  | 'emissiveNode'
-  | 'metalnessNode'
-  | 'roughnessNode'
-  | 'normalNode'
-  | 'opacityNode'
-  | 'alphaTestNode'
-
-const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MaterialNodeProperty>> = {
-  position: 'positionNode',
-  baseColor: 'colorNode',
-  emission: 'emissiveNode',
-  metalness: 'metalnessNode',
-  roughness: 'roughnessNode',
-  normal: 'normalNode',
-  opacity: 'opacityNode',
-  alphaClip: 'alphaTestNode',
-}
+type LiveFacade = TslFacade<LiveNode>
 
 export const OPACITY_INPUT: PortKey = portKey({ nodeId: MASTER_NODE_ID, portId: 'opacity' })
 
-const FULLY_OPAQUE = 1
-
-/** Whether an inline opacity needs the transparent render path to show. */
-export const isTranslucent = (opacity: number): boolean => opacity < FULLY_OPAQUE
-
-const isOpacityConnected = (graph: Graph): boolean =>
-  Object.values(graph.edges).some((edge) => portKey(edge.to) === OPACITY_INPUT)
-
 /** An unconnected opacity reads from a uniform; a connected one has none and is always blended. */
-function isInlineOpacityTranslucent(uniforms: ReadonlyMap<PortKey, LiveUniform>): boolean {
+function inlineOpacityOf(uniforms: ReadonlyMap<PortKey, LiveUniform>): number | null {
   const inlineOpacity = uniforms.get(OPACITY_INPUT)?.value
-  return typeof inlineOpacity === 'number' && isTranslucent(inlineOpacity)
+  return typeof inlineOpacity === 'number' ? inlineOpacity : null
 }
-
-function resolveTransparency(
-  surface: MasterSurface,
-  graph: Graph,
-  uniforms: ReadonlyMap<PortKey, LiveUniform>,
-): boolean {
-  if (surface === 'opaque') return false
-  if (surface === 'transparent') return true
-  return isOpacityConnected(graph) || isInlineOpacityTranslucent(uniforms)
-}
-
-/** Unlit shading has no separate emission: it is added to the color. */
-function unlitColor(tsl: TslFacade<LiveNode>, slots: MasterSlots): LiveNode | undefined {
-  const { baseColor, emission } = slots
-  if (baseColor === undefined || emission === undefined) return baseColor ?? emission
-  return tsl.add(baseColor, emission)
-}
-
-type NodeAssignment = readonly [MaterialNodeProperty, LiveNode | undefined]
-
-const standardAssignments = (slots: MasterSlots): readonly NodeAssignment[] =>
-  MASTER_SLOTS.map((slot) => [SLOT_PROPERTIES[slot], slots[slot]])
-
-/** An unlit material reads only these; metalness, roughness and normal are ignored. */
-const unlitAssignments = (
-  tsl: TslFacade<LiveNode>,
-  slots: MasterSlots,
-): readonly NodeAssignment[] => [
-  ['positionNode', slots.position],
-  ['colorNode', unlitColor(tsl, slots)],
-  ['opacityNode', slots.opacity],
-  ['alphaTestNode', slots.alphaClip],
-]
 
 function buildMaterial(
-  tsl: TslFacade<LiveNode>,
+  tsl: LiveFacade,
   slots: MasterSlots,
   settings: MasterSettings,
   graph: Graph,
   uniforms: ReadonlyMap<PortKey, LiveUniform>,
 ): RuntimeMaterial {
-  const isUnlit = settings.lighting === 'unlit'
-  const material = isUnlit ? new MeshBasicNodeMaterial() : new MeshStandardNodeMaterial()
-  const assignments = isUnlit ? unlitAssignments(tsl, slots) : standardAssignments(slots)
-  for (const [property, expression] of assignments) {
-    if (expression === undefined) continue
+  const material =
+    settings.lighting === 'unlit' ? new MeshBasicNodeMaterial() : new MeshStandardNodeMaterial()
+  for (const { property, expression } of masterMaterialAssignments(tsl, slots, settings.lighting)) {
     // Object.assign sidesteps @types/three's per-node-type property types, which cannot be
     // satisfied by a type-erased LiveNode (the graph's types are only known at runtime).
     Object.assign(material, { [property]: expression })
   }
   material.side = settings.twoSided ? DoubleSide : FrontSide
-  material.transparent = resolveTransparency(settings.surface, graph, uniforms)
+  material.transparent = resolveTransparency({
+    surface: settings.surface,
+    opacityConnected: isOpacityConnected(graph),
+    inlineOpacity: inlineOpacityOf(uniforms),
+  })
   return material
 }
 
@@ -153,7 +103,7 @@ export function createMaterial(
       },
     ])
   }
-  const settings = readMasterSettings(graph)
+  const settings = readMasterSettings(graph, registry)
   return {
     material: buildMaterial(backend.tsl, result.output.slots, settings, graph, backend.uniforms),
     uniforms: backend.uniforms,

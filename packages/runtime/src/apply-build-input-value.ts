@@ -1,8 +1,8 @@
 import type { PortRef, PortValue } from '@nudo-tsl/core'
-import { portKey } from '@nudo-tsl/core'
+import { isTranslucent, portKey } from '@nudo-tsl/core'
 import { applyInputValue } from './apply-input-value'
 import type { ApplyInputValueResult } from './apply-input-value'
-import { OPACITY_INPUT, isTranslucent } from './create-material'
+import { OPACITY_INPUT } from './create-material'
 import type { MaterialBuild } from './create-material'
 
 /**

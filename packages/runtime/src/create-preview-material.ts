@@ -1,10 +1,9 @@
-import { portKey, compile, resolvePortTypes } from '@nudo-tsl/core'
+import { DEFAULT_MASTER_SETTINGS, portKey, compile, resolvePortTypes } from '@nudo-tsl/core'
 import type { Graph, NodeRegistry, PortRef } from '@nudo-tsl/core'
 import { MeshBasicNodeMaterial } from 'three/webgpu'
 import { createLiveBackend } from './live-backend'
 import { failedBuild } from './create-material'
 import type { MaterialBuild } from './create-material'
-import { DEFAULT_MASTER_SETTINGS } from './master-settings'
 import { toPreviewColor } from './preview-color'
 import type { MaterialOptions } from './texture-resolution'
 

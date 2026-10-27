@@ -1,6 +1,6 @@
 import { collectDependencies } from './code-expression'
 import type { CodeExpression, HoistedValue } from './code-expression'
-import type { MaterialClass, NodeEntry } from './master-output'
+import type { MaterialAssignment } from '@nudo-tsl/core'
 import { HELPER_ORDER, TSL_HELPERS } from './tsl-helpers'
 
 const INDENT = '  '
@@ -13,6 +13,8 @@ const TEXTURES_NOTICE = [
   '// Replace each null with a THREE.Texture (for example from a TextureLoader). The texture',
   '// nodes below read these entries when this module loads.',
 ]
+
+export type MaterialClass = 'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial'
 
 export interface NamedExpression {
   readonly name: string
@@ -28,7 +30,7 @@ export interface ModulePlan {
   readonly surfaceHints: readonly string[]
   readonly uniforms: readonly NamedExpression[]
   readonly texturePlaceholders: readonly string[]
-  readonly entries: readonly NodeEntry[]
+  readonly entries: readonly MaterialAssignment<CodeExpression>[]
   readonly transparent: boolean
   readonly doubleSided: boolean
 }
