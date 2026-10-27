@@ -133,8 +133,7 @@ test.describe('panels', () => {
     await page.goto('/')
     await page.getByRole('group', { name: 'Sine', exact: true }).click()
     const inspector = page.getByRole('region', { name: 'Inspector' })
-    await expect(inspector).toContainText('Sine')
-    await expect(inspector).not.toContainText('Graph settings')
+    await expect(inspector.getByRole('heading', { name: 'Sine', level: 3 })).toBeVisible()
   })
 })
 

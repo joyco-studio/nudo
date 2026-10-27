@@ -59,6 +59,8 @@ export interface NumberFieldProps {
   layout: 'row' | 'component'
   /** Scales every arrow and scrub step, for values on a larger scale (pixels). Defaults to 1. */
   stepScale?: number
+  /** Whole numbers only (pixels): typed, stepped and scrubbed values are rounded. */
+  isInteger?: boolean
   onCommit: (value: number) => void
   /** Called with every value of a pointer scrub, so the preview can follow before the commit. */
   onScrubPreview: (value: number) => void
@@ -83,6 +85,7 @@ export function NumberField({
   isDefault,
   layout,
   stepScale = 1,
+  isInteger = false,
   onCommit,
   onScrubPreview,
   onScrubPreviewEnd,
@@ -97,6 +100,10 @@ export function NumberField({
   const text = draftText ?? formatted
   const isInvalid = draftText !== null && !isNumberInput(draftText)
 
+  const toFieldValue = (next: number): number => (isInteger ? Math.round(next) : next)
+  const scrubbedFieldValue = (session: ScrubSession, event: PointerEvent): number =>
+    toFieldValue(scrubbedValue(session, event, stepScale))
+
   const commit = (next: number): void => {
     if (next !== value) onCommit(next)
   }
@@ -105,14 +112,14 @@ export function NumberField({
     if (draftText === null) return
     setDraftText(null)
     if (draftText.trim() === formatNumber(value)) return
-    commit(parseNumberInput(draftText, value))
+    commit(toFieldValue(parseNumberInput(draftText, value)))
   }
 
   const step = (direction: 1 | -1, isLarge: boolean): void => {
     const base = draftText === null ? value : parseNumberInput(draftText, value)
     setDraftText(null)
     const arrowStep = (isLarge ? SHIFT_ARROW_STEP : ARROW_STEP) * stepScale
-    commit(stepNumber(base, direction * arrowStep))
+    commit(toFieldValue(stepNumber(base, direction * arrowStep)))
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -145,7 +152,7 @@ export function NumberField({
       return
     }
     session.isScrubbing = true
-    const scrubbed = scrubbedValue(session, event, stepScale)
+    const scrubbed = scrubbedFieldValue(session, event)
     setDraftText(null)
     setScrubValue(scrubbed)
     onScrubPreview(scrubbed)
@@ -156,7 +163,7 @@ export function NumberField({
     scrubSession.current = null
     setScrubValue(null)
     if (session?.isScrubbing !== true) return
-    const finalValue = scrubbedValue(session, event, stepScale)
+    const finalValue = scrubbedFieldValue(session, event)
     // The uniform must end on the committed value even when the commit changes nothing.
     onScrubPreview(finalValue)
     commit(finalValue)

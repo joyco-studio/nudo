@@ -101,6 +101,64 @@ test.describe('inspector', () => {
       .toMatchObject({ title: 'Pond', width: COMMENT_WIDTH, height: COMMENT_HEIGHT })
   })
 
+  test('comment resize from inspector is one undo step', async ({ page }) => {
+    await seedAutosave(page, COMMENT_FRAME)
+    await page.goto('/')
+    const frame = page.locator('.react-flow__node[data-id="note"]')
+    await frame.click({ position: { x: 100, y: 100 } })
+
+    const width = inspector(page).getByRole('textbox', { name: 'Width', exact: true })
+    await width.fill('400.6')
+    await width.press('Enter')
+    // Sizes are whole pixels.
+    await expect(frame).toHaveCSS('width', '401px')
+    await expect(width).toHaveValue('401')
+
+    await frame.focus()
+    await page.keyboard.press('ControlOrMeta+z')
+    await expect(frame).toHaveCSS('width', '320px')
+    await expect(width).toHaveValue('320')
+    await expect.poll(async () => (await storedNode(page, 'note'))?.params.width).toBe(320)
+  })
+
+  test('comment note editable from inspector', async ({ page }) => {
+    await seedAutosave(page, COMMENT_FRAME)
+    await page.goto('/')
+    const frame = page.locator('.react-flow__node[data-id="note"]')
+    await frame.click({ position: { x: 100, y: 100 } })
+
+    const note = inspector(page).getByRole('textbox', { name: 'Note', exact: true })
+    await note.fill('Rosettes go here')
+    await note.press('Tab')
+
+    await expect(frame.getByRole('textbox', { name: 'Comment text' })).toHaveValue(
+      'Rosettes go here',
+    )
+    await expect
+      .poll(async () => (await storedNode(page, 'note'))?.params.body)
+      .toBe('Rosettes go here')
+  })
+
+  test('escape in graph settings returns focus to the canvas', async ({ page }) => {
+    await page.goto('/')
+    const lighting = inspector(page).getByRole('combobox', { name: 'Lighting' })
+    await lighting.focus()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('main', { name: 'Node canvas' })).toBeFocused()
+  })
+
+  test('escape in a multi-selection summary returns focus to the canvas', async ({ page }) => {
+    await seedAutosave(page, TIME_AND_SINE)
+    await page.goto('/')
+    await page.getByRole('main', { name: 'Node canvas' }).focus()
+    await page.keyboard.press('ControlOrMeta+a')
+    const remove = inspector(page).getByRole('button', { name: 'Delete selected nodes' })
+    await remove.focus()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('main', { name: 'Node canvas' })).toBeFocused()
+    await expect(graphNode(page, 'Sine')).toBeVisible()
+  })
+
   test('inspector is reachable by keyboard and returns focus to canvas with Escape', async ({
     page,
   }) => {

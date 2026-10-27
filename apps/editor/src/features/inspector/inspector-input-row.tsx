@@ -3,6 +3,7 @@ import type { DataType, Graph, GraphNode, ResolvedTypes } from '@nudo-tsl/core'
 
 import { InlineField, MutedHint } from '@/features/canvas/inline-field'
 import type { InputRowModel } from '@/features/canvas/node-port-layout'
+import { TypeForAssistiveTech } from '@/features/canvas/node-view'
 import { PortLabel } from '@/features/canvas/port-label'
 import { PortTypeLabel } from '@/features/canvas/port-handle'
 import { registry } from '@/store/registry'
@@ -43,7 +44,7 @@ function InspectorInputRow({ node, row, dataType, sourceTitle }: InspectorInputR
       ) : (
         <InlineField node={node} input={input} dataType={dataType} />
       )}
-      <span className="sr-only">, {dataType}</span>
+      <TypeForAssistiveTech dataType={dataType} />
     </li>
   )
 }

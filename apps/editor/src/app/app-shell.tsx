@@ -54,14 +54,22 @@ const RIGHT_COLUMN_CLASSES: Readonly<Record<PreviewLayout, string>> = {
 }
 
 /**
- * The preview's share of the column. The preview wins over the Inspector above it: docked it keeps
- * its natural size, split it keeps at least 60% of the height, and the Inspector scrolls in what
- * is left.
+ * The preview's share of the column (ruling P2-R21). The preview wins over the Inspector above
+ * it: docked it keeps its natural size; split exists to enlarge it, so it keeps at least 60% of
+ * the height and never less than 33rem, which leaves its canvas taller than the docked square
+ * under the shape and file controls (about 200px). The Inspector scrolls in what is left.
  */
 const PREVIEW_SLOT_CLASSES: Readonly<Record<PreviewLayout, string>> = {
   docked: 'shrink-0',
-  split: 'flex-1 min-h-[60%]',
+  split: 'flex-1 min-h-[max(60%,33rem)]',
   full: 'flex-1',
+}
+
+/** Split caps the Inspector at 40% of the column; docked it only gives way to the preview. */
+const INSPECTOR_SLOT_CLASSES: Readonly<Record<PreviewLayout, string>> = {
+  docked: '',
+  split: 'max-h-[40%]',
+  full: '',
 }
 
 /** The code drawer stays over the canvas: clear of the docked column, or of the split preview. */
@@ -160,7 +168,10 @@ export function AppShell({
               isHidden={layout === 'full'}
               // Beside the canvas the Inspector gives way to the preview and scrolls, down to a few
               // rows. Stacked on a narrow screen, the whole column scrolls instead.
-              className="shrink-0 md:shrink md:data-[open=true]:min-h-24"
+              className={cn(
+                'shrink-0 md:shrink md:data-[open=true]:min-h-24',
+                INSPECTOR_SLOT_CLASSES[layout],
+              )}
               bodyClassName="max-h-[40dvh] overflow-y-auto"
             >
               {inspector}

@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import type { AnyNodeDefinition, Graph, GraphNode, NodeId, ResolvedTypes } from '@nudo-tsl/core'
 
+import { CommentBodyField } from '@/features/canvas/comment-body-field'
+import { commentBody } from '@/features/canvas/comment-params'
 import { CommentTitleField } from '@/features/canvas/comment-title-field'
 import { frameOf, sizedFrame } from '@/features/canvas/node-frame'
 import type { ResizableFrame } from '@/features/canvas/node-frame'
@@ -21,7 +23,7 @@ const FRAME_TITLE = 'Frame'
 /** Commits a comment frame's new size as one history entry. */
 export type ResizeFrame = (nodeId: NodeId, frame: NodeFrame) => void
 
-/** Frame sizes are pixels: arrows step by 1 (Shift: 10) instead of 0.1. */
+/** Frame sizes are whole pixels: arrows step by 1 (Shift: 10) instead of 0.1. */
 const PIXEL_STEP_SCALE = 10
 
 /** A size field has no live preview channel: the scrubbed value shows in the field until release. */
@@ -34,9 +36,10 @@ interface FrameFieldsProps {
   onResize: ResizeFrame
 }
 
-/** A comment frame's title and size: the same edits as its header and resize handles. */
+/** A comment frame's title, note and size: the same edits as on the frame and its handles. */
 function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
   const titleId = useId()
+  const bodyId = useId()
   const resizeTo = (size: { width?: number; height?: number }): void => {
     onResize(node.id, sizedFrame(frame, size))
   }
@@ -55,6 +58,17 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
             className="h-7 w-36 shrink-0 rounded-none border-border bg-background px-1.5 py-0 text-base hover:border-muted-foreground md:text-xs dark:bg-background"
           />
         </li>
+        <li className="flex flex-col gap-1.5 px-3 py-2">
+          <Label htmlFor={bodyId} className="text-xs font-normal">
+            Note
+          </Label>
+          <CommentBodyField
+            id={bodyId}
+            nodeId={node.id}
+            body={commentBody(node)}
+            className="min-h-20 resize-y rounded-none border-border bg-background px-1.5 py-1 text-base hover:border-muted-foreground md:text-xs dark:bg-background"
+          />
+        </li>
         <li className={INSPECTOR_ROW_CLASS}>
           <NumberField
             label="Width"
@@ -62,6 +76,7 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
             isDefault={node.params.width === undefined}
             layout="row"
             stepScale={PIXEL_STEP_SCALE}
+            isInteger
             onCommit={(width) => {
               resizeTo({ width })
             }}
@@ -76,6 +91,7 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
             isDefault={node.params.height === undefined}
             layout="row"
             stepScale={PIXEL_STEP_SCALE}
+            isInteger
             onCommit={(height) => {
               resizeTo({ height })
             }}

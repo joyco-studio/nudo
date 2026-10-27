@@ -85,4 +85,12 @@ describe('sizedFrame', () => {
       height: 80,
     })
   })
+
+  it('rounds a typed or scrubbed size to whole pixels', () => {
+    expect(sizedFrame(frame, { width: 400.6, height: 250.2 })).toEqual({
+      position: { x: 5, y: 6 },
+      width: 401,
+      height: 250,
+    })
+  })
 })

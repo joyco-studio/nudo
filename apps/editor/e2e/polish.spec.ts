@@ -316,9 +316,6 @@ test.describe('layout polish', () => {
   for (const from of ['Split', 'Full'] as const) {
     test(`docked preview fits after switching layouts (${from} → Docked)`, async ({ page }) => {
       await page.goto('/')
-      // The Inspector shares the column and takes height from a split preview; collapsed, only
-      // the preview's own sizing is measured.
-      await page.getByRole('button', { name: 'Inspector panel', exact: true }).click()
       const viewportCanvas = preview(page).locator('canvas')
       await expect(viewportCanvas).toBeVisible()
       // R3F sizes the canvas after mount: wait for the docked square before measuring it.
