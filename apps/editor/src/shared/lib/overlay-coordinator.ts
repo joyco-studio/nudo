@@ -4,6 +4,11 @@ import { create } from 'zustand'
 interface OverlayState {
   /** The one select, popover, context menu or dialog that is open, if any. */
   openId: string | null
+  /**
+   * Overlays another one took over from, until they open again. An overlay puts focus back only
+   * once its exit animation ends, and by then the one that replaced it may have closed too.
+   */
+  replacedIds: ReadonlySet<string>
 }
 
 /**
@@ -13,11 +18,16 @@ interface OverlayState {
 export const EXCLUSIVE_TRIGGER_ATTRIBUTE = 'data-exclusive-trigger'
 export const EXCLUSIVE_TRIGGER_PROPS = { [EXCLUSIVE_TRIGGER_ATTRIBUTE]: '' }
 
-const useOverlayStore = create<OverlayState>(() => ({ openId: null }))
+const useOverlayStore = create<OverlayState>(() => ({ openId: null, replacedIds: new Set() }))
 
 /** Marks an overlay as the open one; whichever was open before closes itself. */
 export function claimOverlay(id: string): void {
-  useOverlayStore.setState({ openId: id })
+  useOverlayStore.setState(({ openId, replacedIds }) => {
+    const nextReplacedIds = new Set(replacedIds)
+    nextReplacedIds.delete(id)
+    if (openId !== null && openId !== id) nextReplacedIds.add(openId)
+    return { openId: id, replacedIds: nextReplacedIds }
+  })
 }
 
 /** Clears the open overlay, unless another one has taken over since. */
@@ -25,10 +35,10 @@ export function releaseOverlay(id: string): void {
   if (useOverlayStore.getState().openId === id) useOverlayStore.setState({ openId: null })
 }
 
-/** True while a different overlay has taken over: this one must not pull focus back on close. */
+/** True once a different overlay has taken over: this one must not pull focus back on close. */
 export function isOverlayReplaced(id: string): boolean {
-  const { openId } = useOverlayStore.getState()
-  return openId !== null && openId !== id
+  const { openId, replacedIds } = useOverlayStore.getState()
+  return replacedIds.has(id) || (openId !== null && openId !== id)
 }
 
 /** For overlays whose open state can live here (a controlled select or dialog). */

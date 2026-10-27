@@ -1,12 +1,28 @@
 'use client'
 
 import * as React from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/shared/lib/utils'
+import { useControllableOpen } from '@/shared/lib/use-controllable-open'
+import { useOverlayMotion } from '@/shared/motion/use-motion-preset'
 import { ContextMenu as ContextMenuPrimitive } from 'radix-ui'
 import { ChevronRightIcon, CheckIcon } from 'lucide-react'
 
-function ContextMenu({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {
-  return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />
+// nudo-tsl: menus animate their exit with motion/react, so their content needs the open state.
+const ContextMenuOpenContext = React.createContext(false)
+const ContextMenuSubOpenContext = React.createContext(false)
+
+// Radix keeps a context menu's open state to itself; every change is reported here.
+function ContextMenu({
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {
+  const [isOpen, setOpen] = useControllableOpen({ onOpenChange })
+  return (
+    <ContextMenuOpenContext value={isOpen}>
+      <ContextMenuPrimitive.Root data-slot="context-menu" onOpenChange={setOpen} {...props} />
+    </ContextMenuOpenContext>
+  )
 }
 
 function ContextMenuTrigger({
@@ -30,8 +46,23 @@ function ContextMenuPortal({ ...props }: React.ComponentProps<typeof ContextMenu
   return <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} />
 }
 
-function ContextMenuSub({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) {
-  return <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...props} />
+function ContextMenuSub({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) {
+  const [isOpen, setOpen] = useControllableOpen({ open, defaultOpen, onOpenChange })
+  return (
+    <ContextMenuSubOpenContext value={isOpen}>
+      <ContextMenuPrimitive.Sub
+        data-slot="context-menu-sub"
+        open={isOpen}
+        onOpenChange={setOpen}
+        {...props}
+      />
+    </ContextMenuSubOpenContext>
+  )
 }
 
 function ContextMenuRadioGroup({
@@ -40,23 +71,39 @@ function ContextMenuRadioGroup({
   return <ContextMenuPrimitive.RadioGroup data-slot="context-menu-radio-group" {...props} />
 }
 
+// nudo-tsl: grows from the point it was opened at (the menu preset); instant from the keyboard.
 function ContextMenuContent({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Content> & {
   side?: 'top' | 'right' | 'bottom' | 'left'
 }) {
+  const isOpen = React.useContext(ContextMenuOpenContext)
+  const { presence, element, presenceKey } = useOverlayMotion('menu', isOpen)
   return (
-    <ContextMenuPrimitive.Portal>
-      <ContextMenuPrimitive.Content
-        data-slot="context-menu-content"
-        className={cn(
-          'z-50 max-h-(--radix-context-menu-content-available-height) min-w-36 origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-          className,
-        )}
-        {...props}
-      />
-    </ContextMenuPrimitive.Portal>
+    <AnimatePresence key={presenceKey} {...presence}>
+      {isOpen && (
+        <ContextMenuPrimitive.Portal forceMount key="context-menu">
+          <ContextMenuPrimitive.Content
+            data-slot="context-menu-content"
+            {...props}
+            forceMount
+            asChild
+          >
+            <motion.div
+              {...element}
+              className={cn(
+                'z-50 max-h-(--radix-context-menu-content-available-height) min-w-36 origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 data-closed:pointer-events-none',
+                className,
+              )}
+            >
+              {children}
+            </motion.div>
+          </ContextMenuPrimitive.Content>
+        </ContextMenuPrimitive.Portal>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -107,19 +154,36 @@ function ContextMenuSubTrigger({
   )
 }
 
+// nudo-tsl: grows from its row (the menu preset); instant when opened with the arrow key.
 function ContextMenuSubContent({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {
+  const isOpen = React.useContext(ContextMenuSubOpenContext)
+  const { presence, element, presenceKey } = useOverlayMotion('menu', isOpen)
   return (
-    <ContextMenuPrimitive.SubContent
-      data-slot="context-menu-sub-content"
-      className={cn(
-        'z-50 min-w-32 origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-        className,
+    <AnimatePresence key={presenceKey} {...presence}>
+      {isOpen && (
+        <ContextMenuPrimitive.SubContent
+          key="context-menu-sub"
+          data-slot="context-menu-sub-content"
+          {...props}
+          forceMount
+          asChild
+        >
+          <motion.div
+            {...element}
+            className={cn(
+              'z-50 min-w-32 origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg data-closed:pointer-events-none',
+              className,
+            )}
+          >
+            {children}
+          </motion.div>
+        </ContextMenuPrimitive.SubContent>
       )}
-      {...props}
-    />
+    </AnimatePresence>
   )
 }
 

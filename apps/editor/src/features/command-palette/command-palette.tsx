@@ -19,7 +19,6 @@ import { registry } from '@/store/registry'
 import { PALETTE_COMMANDS, invocationFrom } from './command-registry'
 import { paletteResults } from './palette-results'
 import type { PaletteGroupId, PaletteItem } from './palette-results'
-import './command-palette.css'
 
 const GROUP_HEADINGS: Readonly<Record<PaletteGroupId, string>> = {
   actions: 'Actions',
@@ -45,8 +44,9 @@ export interface CommandPaletteProps {
 }
 
 /**
- * Every action and node in one searchable list (Ctrl/⌘ K). A keyboard surface: it opens and
- * closes without animation (command-palette.css).
+ * Every action and node in one searchable list (Ctrl/⌘ K). A keyboard surface: from Ctrl/⌘ K it
+ * opens and closes without animation (the motion rules' frequency gate); from the header button it
+ * shares the add-node menu's one fast fade.
  */
 export function CommandPalette({
   open,
@@ -60,6 +60,7 @@ export function CommandPalette({
       <DialogContent
         data-command-palette
         showCloseButton={false}
+        motionPreset="quickFade"
         className="top-[20%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-lg"
         onCloseAutoFocus={onCloseAutoFocus}
       >
