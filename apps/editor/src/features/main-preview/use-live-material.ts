@@ -3,6 +3,7 @@ import { createMaterial } from '@nudo-tsl/runtime'
 import type { MaterialBuild, RuntimeMaterial } from '@nudo-tsl/runtime'
 import type { Graph } from '@nudo-tsl/core'
 
+import { textureCache } from '@/features/assets/texture-cache'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
@@ -15,7 +16,10 @@ const COMPILE_DEBOUNCE_MS = 150
 
 function buildPreviewMaterial(graph: Graph): MaterialBuild {
   recordCompile()
-  return createMaterial(graph, registry)
+  // Asking the cache for an asset also starts loading it; the scheduler builds again once it is in.
+  return createMaterial(graph, registry, {
+    resolveTexture: (assetId) => textureCache.peek(assetId),
+  })
 }
 
 export interface LiveMaterial {
@@ -34,7 +38,8 @@ function nextLiveMaterial(current: LiveMaterial, build: MaterialBuild): LiveMate
 
 /**
  * Keeps the editor graph compiled. Inline value edits, and the values a scrub previews before it
- * commits, reach the material in place; structural edits compile again after a pause. A failing graph keeps the last good material.
+ * commits, reach the material in place; structural edits, and a texture asset arriving, compile
+ * again after a pause. A failing graph keeps the last good material.
  */
 export function useLiveMaterial(): LiveMaterial {
   const [live, setLive] = useState<LiveMaterial>(NO_MATERIAL_YET)
@@ -58,8 +63,12 @@ export function useLiveMaterial(): LiveMaterial {
         recordPreviewApply()
       }
     })
+    const unsubscribeTextures = textureCache.subscribe((assetId) => {
+      scheduler.textureLoaded(assetId)
+    })
     return () => {
       unsubscribe()
+      unsubscribeTextures()
       scheduler.dispose()
     }
   }, [])

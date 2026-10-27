@@ -1,7 +1,7 @@
-import { asNodeId, float, vec2, vec3 } from '@nudo-tsl/core'
+import { asNodeId, float, texture, vec2, vec3 } from '@nudo-tsl/core'
 import type { GraphNode, InputDefinition, VectorPortValue } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
-import { inlineValue, valueComponents, withComponent } from './inline-value'
+import { inlineValue, textureAssetId, valueComponents, withComponent } from './inline-value'
 
 const INPUT: InputDefinition<string> = {
   id: 'a',
@@ -38,5 +38,21 @@ describe('valueComponents and withComponent', () => {
     expect(valueComponents(vector)).toEqual([1, 2, 3])
     expect(withComponent(vector, 1, 9)).toEqual(vec3(1, 9, 3))
     expect(withComponent(scalar, 0, 7)).toEqual(float(7))
+  })
+})
+
+describe('textureAssetId', () => {
+  const textureInput: InputDefinition<string> = { ...INPUT, default: texture(null) }
+
+  it('is null until an image is chosen', () => {
+    expect(textureAssetId(nodeWith(), textureInput)).toBeNull()
+  })
+
+  it('reads the chosen asset from the stored value', () => {
+    expect(textureAssetId(nodeWith({ a: texture('abc123') }), textureInput)).toBe('abc123')
+  })
+
+  it('is null when the stored value is not a texture', () => {
+    expect(textureAssetId(nodeWith({ a: float(1) }), textureInput)).toBeNull()
   })
 })

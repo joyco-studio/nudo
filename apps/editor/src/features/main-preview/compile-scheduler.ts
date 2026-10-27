@@ -1,6 +1,13 @@
 import { portKey, topologyKey } from '@nudo-tsl/core'
-import type { Graph, NodeRegistry, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
-import { applyBuildInputValue } from '@nudo-tsl/runtime'
+import type {
+  BlackboardProperty,
+  Graph,
+  NodeRegistry,
+  PortKey,
+  PortRef,
+  PortValue,
+} from '@nudo-tsl/core'
+import { applyBuildInputValue, applyPropertyValue } from '@nudo-tsl/runtime'
 import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 
 export interface CompileSchedulerOptions {
@@ -21,6 +28,11 @@ export interface CompileScheduler {
    * leaves that value unchanged does not touch the uniform.
    */
   previewValue(ref: PortRef, value: PortValue): ApplyInputValueResult
+  /**
+   * Tells the scheduler a texture asset finished loading. If the built material stood in for that
+   * asset with the neutral texture, it is built again so the real one shows.
+   */
+  textureLoaded(assetId: string): void
   dispose(): void
 }
 
@@ -52,6 +64,14 @@ function diffInlineValues(previous: Graph, next: Graph): readonly InlineValueCha
     }
   }
   return changes
+}
+
+/** Blackboard properties whose value differs between two graphs, matched by id. */
+function changedProperties(previous: Graph, next: Graph): readonly BlackboardProperty[] {
+  return next.properties.filter((property) => {
+    const before = previous.properties.find((candidate) => candidate.id === property.id)
+    return before !== undefined && before.value !== property.value
+  })
 }
 
 /**
@@ -107,8 +127,11 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     const changes = diffInlineValues(previous, next)
     if (changes === null) return false
     // Every change is applied, even after one mismatches: the rebuild replaces them all anyway.
-    const outcomes = changes.map(({ ref, value }) => applyToBuilt(ref, value))
-    return !outcomes.includes('mismatch')
+    const inputOutcomes = changes.map(({ ref, value }) => applyToBuilt(ref, value))
+    const propertyOutcomes = changedProperties(previous, next).map(({ id, value }) =>
+      builtMaterial === null ? 'missing' : applyPropertyValue(builtMaterial, id, value),
+    )
+    return ![...inputOutcomes, ...propertyOutcomes].includes('mismatch')
   }
 
   return {
@@ -133,6 +156,11 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     previewValue(ref, value) {
       if (isDisposed) return 'missing'
       return applyToBuilt(ref, value)
+    },
+    textureLoaded(assetId) {
+      if (isDisposed || builtMaterial === null) return
+      if (!builtMaterial.missingTextures.includes(assetId)) return
+      scheduleRebuild()
     },
     dispose() {
       isDisposed = true

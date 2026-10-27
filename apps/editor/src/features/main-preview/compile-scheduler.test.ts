@@ -1,7 +1,10 @@
 import {
   addNode,
+  addProperty,
+  addPropertyNode,
   asEdgeId,
   asNodeId,
+  asPropertyId,
   connect,
   createGraph,
   float,
@@ -9,13 +12,15 @@ import {
   portKey,
   setInputValue,
   setParam,
+  setPropertyValue,
+  texture,
   vec3,
 } from '@nudo-tsl/core'
 import type { Graph, PortRef, Result } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import { createMaterial } from '@nudo-tsl/runtime'
 import type { MaterialBuild } from '@nudo-tsl/runtime'
-import { Vector3 } from 'three'
+import { DataTexture, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createCompileScheduler } from './compile-scheduler'
@@ -327,5 +332,133 @@ describe('createCompileScheduler', () => {
     vi.advanceTimersByTime(DELAY_MS * 4)
 
     expect(buildSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('texture assets', () => {
+  const SAMPLE_TEXTURE: PortRef = { nodeId: asNodeId('sample'), portId: 'texture' }
+  const PROPERTY_ID = asPropertyId('albedo')
+
+  const connectEdge = (graph: Graph, id: string, from: PortRef, to: PortRef): Graph =>
+    unwrap(connect(graph, registry, { id: asEdgeId(id), from, to }))
+
+  const sampleGraph = (assetId: string | null): Graph => {
+    const sampled = connectEdge(
+      withNode(createGraph(), 'sample', 'texture/sample-texture-2d'),
+      'sample-to-base',
+      { nodeId: asNodeId('sample'), portId: 'rgb' },
+      BASE_COLOR,
+    )
+    return unwrap(setInputValue(sampled, SAMPLE_TEXTURE, texture(assetId)))
+  }
+
+  const propertyGraph = (assetId: string | null): Graph => {
+    const withProperty = unwrap(
+      addProperty(sampleGraph(null), {
+        id: PROPERTY_ID,
+        label: 'Albedo',
+        name: 'albedo',
+        exposed: true,
+        type: 'texture',
+        value: texture(assetId),
+      }),
+    )
+    const withReader = unwrap(
+      addPropertyNode(withProperty, registry, {
+        id: asNodeId('albedo-reader'),
+        propertyId: PROPERTY_ID,
+        position: ORIGIN,
+      }),
+    )
+    return connectEdge(
+      withReader,
+      'reader-to-sample',
+      { nodeId: asNodeId('albedo-reader'), portId: 'out' },
+      SAMPLE_TEXTURE,
+    )
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('swapping the asset of a texture input rebuilds with the new asset', () => {
+    const { buildSpy, scheduler } = setUp()
+    scheduler.update(sampleGraph('first'))
+    vi.advanceTimersByTime(DELAY_MS)
+
+    const swapped = sampleGraph('second')
+    scheduler.update(swapped)
+    expect(buildSpy).toHaveBeenCalledOnce()
+    vi.advanceTimersByTime(DELAY_MS)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+    expect(buildSpy).toHaveBeenLastCalledWith(swapped)
+  })
+
+  it('swapping the asset of a texture property rebuilds', () => {
+    const { buildSpy, scheduler } = setUp()
+    const graph = propertyGraph('first')
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    const swapped = unwrap(setPropertyValue(graph, PROPERTY_ID, texture('second')))
+    scheduler.update(swapped)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+    expect(buildSpy).toHaveBeenLastCalledWith(swapped)
+  })
+
+  it('a texture asset that finished loading rebuilds once, when the build was missing it', () => {
+    const { buildSpy, scheduler } = setUp()
+    scheduler.update(sampleGraph('slow'))
+    vi.advanceTimersByTime(DELAY_MS)
+
+    scheduler.textureLoaded('slow')
+    scheduler.textureLoaded('slow')
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('a loaded asset the build never asked for leaves the material alone', () => {
+    const { buildSpy, scheduler } = setUp()
+    scheduler.update(sampleGraph('slow'))
+    vi.advanceTimersByTime(DELAY_MS)
+
+    scheduler.textureLoaded('unrelated')
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('a loaded asset an already-resolved build used does not rebuild', () => {
+    const { buildSpy, scheduler } = setUp((graph) =>
+      createMaterial(graph, registry, { resolveTexture: () => new DataTexture() }),
+    )
+    scheduler.update(sampleGraph('ready'))
+    vi.advanceTimersByTime(DELAY_MS)
+
+    scheduler.textureLoaded('ready')
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
+  })
+
+  it('textureLoaded does nothing after dispose', () => {
+    const { buildSpy, scheduler } = setUp()
+    scheduler.update(sampleGraph('slow'))
+    vi.advanceTimersByTime(DELAY_MS)
+    scheduler.dispose()
+
+    scheduler.textureLoaded('slow')
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
   })
 })

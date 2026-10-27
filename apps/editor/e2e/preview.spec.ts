@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import { countReddishPixels } from './support/count-reddish-pixels'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
@@ -7,8 +8,6 @@ const FALLBACK_MESSAGE =
   'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
 /** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
 const PAST_DEBOUNCE_MS = 500
-/** The seeded Color node is orange: a lit sphere shows pixels that are clearly redder than blue. */
-const REDDISH_MARGIN = 60
 const MIN_REDDISH_PIXELS = 200
 /** 40 px at 0.01 per pixel moves Roughness from its default 0.5 to 0.9. */
 const SCRUB_DISTANCE_PX = 40
@@ -34,31 +33,6 @@ async function previewApplyCount(page: Page): Promise<number> {
 async function storedMasterRoughness(page: Page): Promise<unknown> {
   const master = (await readStoredNodes(page)).find((node) => node.id === 'master')
   return master?.inputValues.roughness
-}
-
-/** Counts pixels of a PNG screenshot whose red channel clearly dominates the blue one. */
-async function countReddishPixels(page: Page, screenshot: Buffer): Promise<number> {
-  return page.evaluate(
-    async ([base64, margin]) => {
-      const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))
-      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }))
-      const surface = document.createElement('canvas')
-      surface.width = bitmap.width
-      surface.height = bitmap.height
-      const context = surface.getContext('2d')
-      if (context === null) throw new Error('2D canvas unavailable')
-      context.drawImage(bitmap, 0, 0)
-      const { data } = context.getImageData(0, 0, bitmap.width, bitmap.height)
-      let reddish = 0
-      for (let index = 0; index < data.length; index += 4) {
-        const red = data[index] ?? 0
-        const blue = data[index + 2] ?? 0
-        if (red > blue + margin) reddish += 1
-      }
-      return reddish
-    },
-    [screenshot.toString('base64'), REDDISH_MARGIN] as const,
-  )
 }
 
 test.describe('main preview', () => {
