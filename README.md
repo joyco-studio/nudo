@@ -41,7 +41,7 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 
 ## Keyboard shortcuts
 
-`Ctrl/⌘` means Ctrl on Windows and Linux, and Command on macOS. Press `?` in the editor for the same list. Panel keys work while the canvas, a node or a panel header has focus.
+`Ctrl/⌘` means Ctrl on Windows and Linux, and Command on macOS. Press `?` in the editor for the same list, or `Ctrl/⌘` `K` to search every action and node. Panel keys work while the canvas, a node or a panel header has focus.
 
 | Where      | Shortcut                           | Action                                               |
 | ---------- | ---------------------------------- | ---------------------------------------------------- |
@@ -52,7 +52,8 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Anywhere   | `Ctrl/⌘` `A`                       | Select all nodes                                     |
 | Anywhere   | `F`                                | Fit all nodes in view                                |
 | Anywhere   | `Ctrl/⌘` `Alt` `N`                 | Start a new graph                                    |
-| Anywhere   | `?`                                | Show the shortcuts                                   |
+| Anywhere   | `Ctrl/⌘` `K`                       | Open the command palette                             |
+| Anywhere   | `?`                                | Show keyboard shortcuts                              |
 | Panels     | `B`                                | Show or hide the Properties panel                    |
 | Panels     | `I`                                | Show or hide the Inspector                           |
 | Panels     | `P`                                | Show or hide the Preview                             |

@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
 
+import { useRunCommand } from '@/features/command-palette/command-context'
+import { invocationFrom, panelCommandId } from '@/features/command-palette/command-registry'
+import { htmlElementOf } from '@/shared/lib/html-element-of'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { useEditorStore } from '@/store/editor-store'
@@ -23,10 +26,13 @@ function isLeaveFullPress(event: KeyboardEvent): boolean {
 
 /**
  * Panel keys: B, I, P and C toggle the Blackboard, Inspector, Preview and Code panels, and
- * Shift+P cycles the preview layout, while focus is on the canvas, a node or a panel header.
- * Escape leaves the full preview. Mounted once.
+ * Shift+P cycles the preview layout, while focus is on the canvas, a node or a panel header. Each
+ * runs its registry command. Escape leaves the full preview. Mounted once, inside the command
+ * provider.
  */
 export function usePanelShortcuts(): void {
+  const runCommand = useRunCommand()
+
   useEffect(() => {
     const onKeyDownCapture = (event: KeyboardEvent): void => {
       if (!isLeaveFullPress(event)) return
@@ -37,8 +43,7 @@ export function usePanelShortcuts(): void {
       const action = panelShortcutAction(event)
       if (action === null) return
       event.preventDefault()
-      if (action.kind === 'toggle') getStore().togglePanel(action.panel)
-      else getStore().cyclePreviewLayout()
+      runCommand(panelCommandId(action), invocationFrom(htmlElementOf(event.target)))
     }
     window.addEventListener('keydown', onKeyDownCapture, { capture: true })
     window.addEventListener('keydown', onKeyDown)
@@ -46,5 +51,5 @@ export function usePanelShortcuts(): void {
       window.removeEventListener('keydown', onKeyDownCapture, { capture: true })
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [])
+  }, [runCommand])
 }

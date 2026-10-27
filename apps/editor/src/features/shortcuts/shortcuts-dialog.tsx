@@ -12,8 +12,9 @@ import {
   TableRow,
 } from '@/shared/ui/table'
 
+import type { KeyChord } from './key-chord'
 import { SHORTCUT_SECTIONS } from './shortcut-catalog'
-import type { KeyChord, ShortcutEntry, ShortcutSection } from './shortcut-catalog'
+import type { ShortcutEntry, ShortcutSection } from './shortcut-catalog'
 
 function Chord({ chord }: { chord: KeyChord }) {
   return (

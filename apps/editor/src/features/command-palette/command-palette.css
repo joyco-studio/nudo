@@ -1,0 +1,10 @@
+/*
+ * The command palette is a keyboard surface opened many times a session: it appears and goes at
+ * once (the motion rules' frequency gate). The vendored dialog fades and zooms its content and
+ * fades its overlay; both are turned off here, for the palette only. Radix renders the overlay
+ * right before the content, inside the same portal.
+ */
+[data-command-palette],
+[data-slot='dialog-overlay']:has(+ [data-command-palette]) {
+  animation: none !important;
+}

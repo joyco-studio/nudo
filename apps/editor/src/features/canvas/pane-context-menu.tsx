@@ -1,16 +1,17 @@
 import { useRef } from 'react'
 import type { ReactElement } from 'react'
 
-import { MOD } from '@/features/shortcuts/shortcut-catalog'
+import { useRunCommand } from '@/features/command-palette/command-context'
+import { UNTARGETED } from '@/features/command-palette/command-registry'
 import {
   ContextMenu,
   ContextMenuItem,
   ContextMenuSeparator,
-  ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu'
 
 import { CanvasMenuContent } from './canvas-menu-content'
+import { CommandMenuLabel } from './command-menu-label'
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import type { ClientPoint } from './graph-canvas-actions'
 import { ignoreForeignContextMenu } from './open-context-menu'
@@ -35,12 +36,14 @@ interface PaneContextMenuProps {
 }
 
 /**
- * The empty canvas's right-click menu: add a node or a comment, paste, select all, or fit the view. Anything
- * added or pasted lands where the menu was opened. The ContextMenu key or Shift+F10 on the
- * focused canvas opens it in the middle of the view.
+ * The empty canvas's right-click menu: add a node or a comment, paste, select all, or fit the
+ * view. Anything added or pasted lands where the menu was opened, so those items keep their own
+ * placement; their names and keys, and the rest of the items, come from the command registry.
+ * The ContextMenu key or Shift+F10 on the focused canvas opens it in the middle of the view.
  */
 export function PaneContextMenu({ children }: PaneContextMenuProps) {
   const actions = useGraphCanvasActions()
+  const runCommand = useRunCommand()
   const menu = useCanvasMenu()
   const openedAtRef = useRef<ClientPoint>({ clientX: 0, clientY: 0 })
 
@@ -74,32 +77,36 @@ export function PaneContextMenu({ children }: PaneContextMenuProps) {
             runAtMenuPoint(actions.openAddNodeMenuAt)
           }}
         >
-          Add node…
-          <ContextMenuShortcut>Space</ContextMenuShortcut>
+          <CommandMenuLabel commandId="add-node" />
         </ContextMenuItem>
         <ContextMenuItem
           onSelect={() => {
             runAtMenuPoint(actions.pasteAt)
           }}
         >
-          Paste
-          <ContextMenuShortcut>{MOD} V</ContextMenuShortcut>
+          <CommandMenuLabel commandId="paste" />
         </ContextMenuItem>
         <ContextMenuItem
           onSelect={() => {
             runAtMenuPoint(actions.addCommentAt)
           }}
         >
-          Add comment
+          <CommandMenuLabel commandId="add-comment" />
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onSelect={actions.selectAll}>
-          Select all
-          <ContextMenuShortcut>{MOD} A</ContextMenuShortcut>
+        <ContextMenuItem
+          onSelect={() => {
+            runCommand('select-all', UNTARGETED)
+          }}
+        >
+          <CommandMenuLabel commandId="select-all" />
         </ContextMenuItem>
-        <ContextMenuItem onSelect={actions.fitView}>
-          Fit view
-          <ContextMenuShortcut>F</ContextMenuShortcut>
+        <ContextMenuItem
+          onSelect={() => {
+            runCommand('fit-view', UNTARGETED)
+          }}
+        >
+          <CommandMenuLabel commandId="fit-view" />
         </ContextMenuItem>
       </CanvasMenuContent>
     </ContextMenu>

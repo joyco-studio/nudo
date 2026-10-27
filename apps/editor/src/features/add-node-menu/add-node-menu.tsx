@@ -14,22 +14,8 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/
 import { KeyHints } from '@/shared/components/key-hints'
 import type { KeyHint } from '@/shared/components/key-hints'
 
-import { searchNodes } from './search-nodes'
-import type { AddableCategory, NodeSearchGroup } from './search-nodes'
-
-const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
-  input: 'Input',
-  math: 'Math',
-  interpolation: 'Interpolation',
-  logic: 'Logic',
-  vector: 'Vector',
-  effects: 'Effects',
-  texture: 'Texture',
-  color: 'Color',
-  scene: 'Scene',
-  normal: 'Normal',
-  utility: 'Utility',
-}
+import { CATEGORY_HEADINGS, searchNodes } from './search-nodes'
+import type { NodeSearchGroup } from './search-nodes'
 
 const KEY_HINTS: readonly KeyHint[] = [
   { keys: '↑ ↓', action: 'Move' },
@@ -113,7 +99,7 @@ function NodeSearch({ onPick }: NodeSearchProps) {
       />
       {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
       <CommandList label="Nodes" className="max-h-[min(23rem,50dvh)]">
-        <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
+        <CommandEmpty className="text-muted-foreground">
           No nodes match "{query.trim()}". Try another word, like mix or time.
         </CommandEmpty>
         {groups.map((group) => (
