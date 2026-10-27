@@ -1,4 +1,4 @@
-export const PRIMITIVE_SHAPES = ['sphere', 'cube', 'plane', 'torus'] as const
+export const PRIMITIVE_SHAPES = ['sphere', 'cube', 'plane', 'torus', 'knot', 'suzanne'] as const
 
 export type PrimitiveShape = (typeof PRIMITIVE_SHAPES)[number]
 
@@ -10,6 +10,8 @@ export const SHAPE_LABELS: Readonly<Record<PreviewShape, string>> = {
   cube: 'Cube',
   plane: 'Plane',
   torus: 'Torus',
+  knot: 'Knot',
+  suzanne: 'Suzanne',
   model: 'Model',
 }
 

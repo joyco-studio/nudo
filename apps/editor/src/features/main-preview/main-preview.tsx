@@ -107,7 +107,7 @@ function MeshPicker({ shape, hasModel, onShapeChange }: MeshPickerProps) {
         // Pressing the chosen item again would clear the group; a mesh is always chosen.
         if (isPreviewShape(next)) onShapeChange(next)
       }}
-      className="w-full"
+      className="grid w-full grid-cols-3"
     >
       {shapes.map((item) => (
         <ToggleGroupItem
@@ -116,7 +116,11 @@ function MeshPicker({ shape, hasModel, onShapeChange }: MeshPickerProps) {
           onFocus={() => {
             onShapeChange(item)
           }}
-          className="flex-1 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground aria-checked:bg-primary aria-checked:text-primary-foreground"
+          className={cn(
+            'px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground aria-checked:bg-primary aria-checked:text-primary-foreground',
+            // The loaded file gets its own row so the built-in shapes keep a full grid.
+            item === 'model' && 'col-span-full',
+          )}
         >
           {SHAPE_LABELS[item]}
         </ToggleGroupItem>

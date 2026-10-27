@@ -139,6 +139,23 @@ test.describe('main preview', () => {
     await expect(cube).toBeChecked()
   })
 
+  test('arrow keys reach the knot and Suzanne across picker rows', async ({ page }) => {
+    await page.goto('/')
+    const picker = meshPicker(page)
+    const torus = picker.getByRole('radio', { name: 'Torus' })
+    const knot = picker.getByRole('radio', { name: 'Knot' })
+    const suzanne = picker.getByRole('radio', { name: 'Suzanne' })
+
+    await torus.focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(knot).toBeFocused()
+    await expect(knot).toBeChecked()
+
+    await page.keyboard.press('ArrowRight')
+    await expect(suzanne).toBeFocused()
+    await expect(suzanne).toBeChecked()
+  })
+
   test('reset view and background color are keyboard operable', async ({ page }) => {
     await page.goto('/')
     const resetView = preview(page).getByRole('button', { name: 'Reset view' })

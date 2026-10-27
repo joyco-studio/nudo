@@ -24,7 +24,7 @@ function materialsOf(mesh: Mesh): readonly Material[] {
   return Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 }
 
-function isMesh(object: Object3D): object is Mesh {
+export function isMesh(object: Object3D): object is Mesh {
   return object instanceof Mesh
 }
 
