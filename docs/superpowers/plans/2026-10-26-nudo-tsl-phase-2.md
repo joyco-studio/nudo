@@ -511,6 +511,50 @@ Changes:
 
 ---
 
+### Task 7f: Motion with motion/react (user request)
+
+The user asked for **every UI animation to use `motion/react`**, following the `animate` and `better-ui` skills. Implementers load both skills with the Skill tool, and their exact values are binding.
+
+**Rules (copied from those skills; use the exact values):**
+- **Gate first: no open/close animation on keyboard-initiated or very frequent surfaces.**
+  - Applies to the command palette (⌘K), the add-node menu opened with Space, panel toggles via B/I/P/C, and preview layout changes via Shift+P.
+  - Pointer-opened instances of the same surfaces may share one fast fade (≤150 ms, opacity only). Instant is also fine.
+- **Popovers, selects, dropdowns, context menus:**
+  - Animate opacity 0→1 and `transform: scale(0.96)`→`scale(1)` using the full transform string, not the `scale` prop.
+  - Origin: Radix's `var(--radix-popper-transform-origin)`.
+  - Timing: 180 ms with `ease: [0.23, 1, 0.32, 1]`.
+  - Exit: opacity to 0 with a subtle `translateY(4px)`, ease-out.
+- **Tooltips:** 150 ms, opacity plus `scale(0.97)`→1, same curve and origin.
+- **Dialogs and AlertDialog:**
+  - Content: 200 ms, centered (no trigger origin), opacity plus `scale(0.96)`→1.
+  - Overlay: opacity only.
+- **Contextual icon swaps** (theme toggle sun/moon, collapse chevron, copy→check, preview toggle): scale 0.25→1, opacity 0→1, blur 4px→0, with `transition: { type: "spring", duration: 0.3, bounce: 0 }`.
+- **Press feedback:** the shadcn Button gets a 0.96 press scale via motion (`whileTap`). Add a `static` prop to opt out, and use it on canvas-dense controls and toolbar icon buttons where motion distracts.
+- **Node appear stays opacity-only.** The edge-anchor test from phase 1 must keep passing.
+- **Panels (collapse/expand):** instant when keyboard-initiated. From the header button, a height+opacity accordion of 200 ms with `[0.77, 0, 0.175, 1]` is allowed if it doesn't resize the R3F canvas mid-animation. Otherwise keep it instant.
+- **Code and properties lists:** new list rows (a property added, a node inserted) use opacity plus `translateY(4px)`, 150 ms, staggered at 40 ms only when several items enter at once.
+- **`<AnimatePresence initial={false}>`** everywhere, so nothing animates on first page load.
+- **Reduced motion:** `useReducedMotion()` drops all transforms and blur and keeps short opacity fades. Instant theme switching is unchanged.
+- **Cleanup:** remove the `tw-animate-css` enter/exit classes (`animate-in`, `fade-in-0`, `zoom-in-95`, `slide-in-from-*`) from the vendored overlays. Use Radix `forceMount` plus `AnimatePresence` to drive exits. Remove the `tw-animate-css` import if nothing else uses it.
+- **Performance:** animate only transform/opacity/filter, never `transition: all`. Use `will-change` only where first-frame stutter is observed.
+
+**Files:**
+- Create: `shared/motion/{tokens.ts,motion-presets.ts,use-motion-preset.ts}`, holding the curves and durations above as named constants.
+- Modify: the vendored overlay components in `shared/ui` (dialog, alert-dialog, popover, tooltip, select, context-menu, dropdown-menu, command), the Button, the theme toggle, the node collapse chevron, the copy button and the color picker popover.
+
+- [ ] **Step 1: Failing tests:**
+  - unit: the motion tokens equal the exact values above.
+  - e2e with motion enabled: `popover animates from trigger origin and settles within 250ms`, using `getAnimations()` or a computed transform at t≈0 vs settled.
+  - e2e: `keyboard-opened command palette and add-node menu do not animate` (no running animations right after open).
+  - e2e: `reduced motion: overlays only fade (no transform)`.
+  - The phase-1 edge-anchor test keeps passing.
+- [ ] **Step 2:** Run. Expected: FAIL.
+- [ ] **Step 3:** Implement. Add `motion` to apps/editor dependencies.
+- [ ] **Step 4:** Run the full gate. Replay key motions at 10% speed (Playwright `page.clock` or CDP Animation domain) and note the feel-checks in the report.
+- [ ] **Step 5:** Commit `feat(editor): animate UI with motion/react per the motion rules`.
+
+---
+
 ### Task 7d: Command palette (user request)
 
 A global **⌘K / Ctrl+K** command palette (shadcn **Command** in a Dialog) gives access to *everything*:
