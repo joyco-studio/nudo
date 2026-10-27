@@ -25,7 +25,10 @@ const UNREADABLE_HINT = "Couldn't read this image."
 const REMOVE_LABEL = 'Remove image'
 
 export interface TextureFieldProps {
+  /** Names the input in the slot's and remove button's accessible names. */
   label: string
+  /** The text shown beside the slot, when it differs from `label`. */
+  visibleLabel?: string
   /** The chosen asset, or `null` while no image is chosen. */
   assetId: string | null
   /** Called with the id of the image the person just chose, or `null` when they removed it. */
@@ -37,7 +40,12 @@ export interface TextureFieldProps {
  * that opens the file chooser or takes a dropped file, and a remove button once an image is set.
  * The file is stored in IndexedDB under the hash of its bytes, so the graph only carries that id.
  */
-export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
+export function TextureField({
+  label,
+  visibleLabel = label,
+  assetId,
+  onChange,
+}: TextureFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const slotRef = useRef<HTMLButtonElement>(null)
   const [problem, setProblem] = useState<string | null>(null)
@@ -96,7 +104,7 @@ export function TextureField({ label, assetId, onChange }: TextureFieldProps) {
 
   return (
     <>
-      <PortLabel label={label} />
+      <PortLabel label={visibleLabel} />
       <span className="nodrag flex shrink-0 items-center gap-1">
         {/* Always mounted, so "Missing texture" is announced when it appears. */}
         <span role="status" className="font-mono text-micro text-destructive">

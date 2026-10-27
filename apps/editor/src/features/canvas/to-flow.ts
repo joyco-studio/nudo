@@ -12,6 +12,8 @@ import type {
   ResolvedTypes,
 } from '@nudo-tsl/core'
 import type { Edge, Node } from '@xyflow/react'
+
+import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import type { CompileSlice, UiSlice } from '../../store/store-types'
 import { frameOf } from './node-frame'
 
@@ -32,6 +34,8 @@ export type FlowNodeData = {
   node: GraphNode
   /** The name the node shows and announces (see `nodeTitle`). */
   title: string
+  /** A property reader's type chip, the same one the Properties panel shows; null otherwise. */
+  typeChip: string | null
   inputTypes: Record<string, DataType>
   outputTypes: Record<string, DataType>
   connectedInputs: ReadonlySet<string>
@@ -69,11 +73,28 @@ export function nodeTitle(
     return title === '' ? definition.label : title
   }
   if (definition.reads === 'property') {
-    const propertyId = stringParam(node, PROPERTY_ID_PARAM)
-    const property = properties.find((candidate) => candidate.id === propertyId)
-    return property?.label ?? definition.label
+    return readProperty(node, properties)?.label ?? definition.label
   }
   return definition.label
+}
+
+/** The property a reader node reads, if it still exists. */
+function readProperty(
+  node: GraphNode,
+  properties: readonly BlackboardProperty[],
+): BlackboardProperty | undefined {
+  const propertyId = stringParam(node, PROPERTY_ID_PARAM)
+  return properties.find((candidate) => candidate.id === propertyId)
+}
+
+function typeChipOf(
+  node: GraphNode,
+  definition: AnyNodeDefinition,
+  properties: readonly BlackboardProperty[],
+): string | null {
+  if (definition.reads !== 'property') return null
+  const property = readProperty(node, properties)
+  return property === undefined ? null : PROPERTY_KIND_SPECS[propertyKindOf(property)].chip
 }
 
 /** Id of the visually hidden element that holds a node's description for `aria-describedby`. */
@@ -189,6 +210,7 @@ export function toFlow(
         definition,
         node,
         title,
+        typeChip: typeChipOf(node, definition, graph.properties),
         inputTypes: portTypes(node.id, definition.inputs, types.inputs),
         outputTypes: portTypes(node.id, definition.outputs, types.outputs),
         connectedInputs: connectedInputs.get(node.id) ?? new Set<string>(),

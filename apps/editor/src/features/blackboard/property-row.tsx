@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, MouseEvent, Ref } from 'react'
 import type { BlackboardProperty } from '@nudo-tsl/core'
-import { ChevronDown, ChevronRight, GripVertical, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, GripVertical, SquarePlus, Trash2 } from 'lucide-react'
 
 import { TypeChip } from '@/shared/components/type-chip'
 import { Button } from '@/shared/ui/button'
@@ -22,7 +22,8 @@ const DETAILS_LABEL = 'Details'
 const DELETE_LABEL = 'Delete property'
 const RENAME_FIELD_LABEL = 'Property name'
 const ADD_TO_CANVAS_HINT = 'Add to canvas'
-const DRAG_HINT = 'Or drag it onto the canvas'
+const DRAG_HINT = 'Drag onto the canvas'
+const RENAME_HINT = 'Double-click to rename'
 const HANDLE_DESCRIPTION =
   'Press Enter to add it to the canvas, or drag it there. F2 renames it and Delete removes it.'
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace'])
@@ -43,9 +44,10 @@ interface PropertyHandleProps {
 }
 
 /**
- * The property's name, as the row's handle: pressing it (Enter, Space or a click) adds the
- * property to the canvas, and it can be dragged there too. F2 renames it, Delete removes it and
- * the arrow keys move between rows.
+ * The property's name, as the row's handle. It is the drag source onto the canvas. From the
+ * keyboard, Enter (or Space) adds the property to the canvas, F2 renames it, Delete removes it and
+ * the arrow keys move between rows. A pointer click only focuses it, so a stray click never adds a
+ * node (the row's "Add to canvas" button does that); a double click renames it.
  */
 function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProps) {
   const descriptionId = useId()
@@ -69,9 +71,8 @@ function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProp
   }
 
   const onClick = (event: MouseEvent<HTMLButtonElement>): void => {
-    // The second press of a double click must not add a second node.
-    if (event.detail > 1) return
-    actions.addToCanvas(property.id)
+    // Keyboard activation has no click count; pointer clicks carry one and add nothing.
+    if (event.detail === 0) actions.addToCanvas(property.id)
   }
 
   return (
@@ -87,6 +88,9 @@ function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProp
             aria-keyshortcuts="Enter F2 Delete"
             className="flex h-6 min-w-0 flex-1 cursor-pointer items-center gap-1 px-1 text-left text-xs font-medium hover:bg-accent hover:text-accent-foreground"
             onClick={onClick}
+            onDoubleClick={() => {
+              startRenaming(property.id)
+            }}
             onKeyDown={onKeyDown}
             onDragStart={(event) => {
               startPropertyDrag(event.dataTransfer, property.id)
@@ -98,8 +102,8 @@ function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProp
         </TooltipTrigger>
         <TooltipContent side="top" align="start" aria-hidden="true">
           <span className="flex flex-col">
-            <span>{ADD_TO_CANVAS_HINT}</span>
-            <span className="text-micro opacity-80">{DRAG_HINT}</span>
+            <span>{DRAG_HINT}</span>
+            <span className="text-micro opacity-80">{RENAME_HINT}</span>
           </span>
         </TooltipContent>
       </Tooltip>
@@ -111,8 +115,8 @@ function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProp
 }
 
 /**
- * One Blackboard property: its name (the handle), type chip and delete button, its value editor,
- * and a disclosure with the name, reference and exposed settings.
+ * One Blackboard property: its name (the handle), type chip, "Add to canvas" and delete buttons,
+ * its value editor, and a disclosure with the name, reference and exposed settings.
  */
 export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -135,6 +139,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
           <div className="flex h-8 items-center gap-1 px-1">
             <CollapsibleTrigger asChild>
               <Button
+                static
                 variant="ghost"
                 size="icon-xs"
                 aria-label={DETAILS_LABEL}
@@ -173,6 +178,24 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  static
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={`Add ${property.label} to canvas`}
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    actions.addToCanvas(property.id)
+                  }}
+                >
+                  <SquarePlus aria-hidden="true" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">{ADD_TO_CANVAS_HINT}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  static
                   variant="ghost"
                   size="icon-xs"
                   aria-label={DELETE_LABEL}

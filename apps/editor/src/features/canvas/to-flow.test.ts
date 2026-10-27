@@ -11,6 +11,7 @@ import {
   float,
   resolvePortTypes,
   setParam,
+  vec3,
 } from '@nudo-tsl/core'
 import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
@@ -192,5 +193,30 @@ describe('toFlow titles and frames', () => {
 
     expect(reader?.ariaLabel).toBe('Wave speed')
     expect(reader?.data.title).toBe('Wave speed')
+    expect(reader?.data.typeChip).toBe('float')
+  })
+
+  it('gives a color property reader the same chip as the Properties panel', () => {
+    const readerId = asNodeId('tint-reader')
+    const propertyId = asPropertyId('tint')
+    let graph = unwrap(
+      addProperty(createGraph(), {
+        id: propertyId,
+        label: 'Tint',
+        name: 'tint',
+        exposed: true,
+        type: 'vec3',
+        widget: 'color',
+        value: vec3(1, 1, 1),
+      }),
+    )
+    graph = unwrap(
+      addPropertyNode(graph, registry, { id: readerId, propertyId, position: { x: 0, y: 0 } }),
+    )
+
+    const flow = flowFor(graph)
+
+    expect(findNode(flow, readerId).data.typeChip).toBe('color')
+    expect(findNode(flow, MASTER_NODE_ID).data.typeChip).toBeNull()
   })
 })

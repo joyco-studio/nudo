@@ -2,8 +2,9 @@ import type { PropertyError } from '@nudo-tsl/core'
 
 const EMPTY_LABEL_MESSAGE = 'Enter a name.'
 const EMPTY_REFERENCE_MESSAGE = 'Enter a reference name.'
+/** Mirrors core `isValidIdentifier`: identifier syntax, at most 64 characters, no reserved word. */
 const INVALID_REFERENCE_MESSAGE =
-  'Use letters, digits, _ or $, start with a letter, and avoid code words like class.'
+  'Use up to 64 letters, digits, _ or $. Start with a letter, _ or $, and avoid code words like class.'
 const DUPLICATE_REFERENCE_MESSAGE = 'Another property already uses this reference.'
 const MISSING_PROPERTY_MESSAGE = 'This property no longer exists.'
 const RENAME_FAILED_MESSAGE = "Couldn't rename this property."

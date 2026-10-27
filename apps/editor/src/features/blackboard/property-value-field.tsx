@@ -33,7 +33,8 @@ export function PropertyValueField({
   if (value.type === 'texture') {
     return (
       <TextureField
-        label={IMAGE_LABEL}
+        label={property.label}
+        visibleLabel={IMAGE_LABEL}
         assetId={value.assetId}
         onChange={(assetId) => {
           onCommit(texture(assetId))

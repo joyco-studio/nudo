@@ -226,7 +226,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
         </p>
         <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
           <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
-          <TypeChip>{dataType}</TypeChip>
+          <TypeChip>{data.typeChip ?? dataType}</TypeChip>
           <ConnectablePort
             nodeId={data.node.id}
             portId={output.id}

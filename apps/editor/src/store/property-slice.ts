@@ -7,15 +7,10 @@ import {
   setPropertyLabel,
   setPropertyValue,
 } from '@nudo-tsl/core'
-import type {
-  BlackboardProperty,
-  Graph,
-  PortValue,
-  PropertyId,
-  VectorPortValue,
-} from '@nudo-tsl/core'
+import type { BlackboardProperty, Graph, PortValue, PropertyId } from '@nudo-tsl/core'
 
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
+import { valueComponents } from '@/features/canvas/inline-value'
 import {
   defaultPropertyName,
   followsLabel,
@@ -35,15 +30,11 @@ function namesOfOthers(graph: Graph, id: PropertyId): ReadonlySet<string> {
   return new Set(graph.properties.filter((p) => p.id !== id).map((p) => p.name))
 }
 
-function components(value: VectorPortValue): readonly number[] {
-  return value.type === 'float' ? [value.value] : value.value
-}
-
 function isSameValue(a: PortValue, b: PortValue): boolean {
   if (a.type === 'texture') return b.type === 'texture' && a.assetId === b.assetId
   if (b.type === 'texture' || a.type !== b.type) return false
-  const others = components(b)
-  return components(a).every((component, index) => component === others[index])
+  const others = valueComponents(b)
+  return valueComponents(a).every((component, index) => component === others[index])
 }
 
 /** Renames the label, and the reference with it while it still follows the label. */

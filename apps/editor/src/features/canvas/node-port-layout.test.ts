@@ -17,6 +17,7 @@ function dataFor(
     definition,
     node,
     title: definition.label,
+    typeChip: null,
     inputTypes: {},
     outputTypes: {},
     connectedInputs: new Set(connected.inputs ?? []),

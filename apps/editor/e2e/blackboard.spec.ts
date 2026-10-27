@@ -288,10 +288,40 @@ test.describe('Properties panel', () => {
       propertyRow(page, 'vec3_1').getByRole('textbox', { name: 'Value Z' }),
     ).toBeVisible()
     await expect(
-      propertyRow(page, 'texture1').getByRole('button', { name: 'Choose image for Image' }),
+      propertyRow(page, 'texture1').getByRole('button', { name: 'Choose image for texture1' }),
     ).toBeVisible()
     await expect(propertyRow(page, 'vec3_1').locator('[data-type-chip]')).toHaveText('vec3')
     await expect(propertyRow(page, 'color1').locator('[data-type-chip]')).toHaveText('color')
+  })
+
+  test('a click on the name adds nothing; the "Add to canvas" button adds; a double click renames', async ({
+    page,
+  }) => {
+    await seedAutosave(page, TWO_FLOAT_PROPERTIES)
+    await page.goto('/')
+    await expect(canvasNodes(page)).toHaveCount(1)
+
+    await propertyHandle(page, 'scale').click()
+    await expect(propertyHandle(page, 'scale')).toBeFocused()
+    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await expect(canvasNodes(page)).toHaveCount(1)
+
+    await propertyRow(page, 'scale')
+      .getByRole('button', { name: 'Add scale to canvas', exact: true })
+      .click()
+    const pill = graphNode(page, 'scale')
+    await expect(pill).toBeFocused()
+    await expect(canvasNodes(page)).toHaveCount(2)
+
+    await propertyHandle(page, 'speed').dblclick()
+    const nameField = propertyRow(page, 'speed').getByRole('textbox', { name: 'Property name' })
+    await expect(nameField).toBeFocused()
+    await page.keyboard.type('flow rate')
+    await page.keyboard.press('Enter')
+    await expect(propertyHandle(page, 'flow rate')).toBeFocused()
+    await expect.poll(async () => (await storedProperty(page, 'speed'))?.name).toBe('flowRate')
+    // A double click adds no node either.
+    await expect(canvasNodes(page)).toHaveCount(2)
   })
 
   test('arrow keys move between rows and Escape cancels an inline rename', async ({ page }) => {
