@@ -40,3 +40,9 @@ export function withComponent(value: VectorPortValue, index: number, component: 
       return vec4(at(0), at(1), at(2), at(3))
   }
 }
+
+/** The asset a texture input points at, or `null` while no image is chosen. */
+export function textureAssetId(node: GraphNode, input: InputDefinition<string>): string | null {
+  const stored = node.inputValues[input.id] ?? input.default
+  return stored.type === 'texture' ? stored.assetId : null
+}

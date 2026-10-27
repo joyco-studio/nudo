@@ -5,10 +5,17 @@ export const AUTOSAVE_KEY = 'nudo-tsl:autosave'
 
 type Vector = readonly number[]
 
-interface SeedValue {
+interface SeedNumericValue {
   type: 'float' | 'vec2' | 'vec3' | 'vec4'
   value: number | Vector
 }
+
+interface SeedTextureValue {
+  type: 'texture'
+  assetId: string | null
+}
+
+type SeedValue = SeedNumericValue | SeedTextureValue
 
 interface SeedNode {
   id: string
@@ -95,6 +102,24 @@ export const COLOR_TO_BASE_COLOR = graphDocument(
   ],
   [{ id: 'color-to-base', from: ['color', 'out'], to: ['master', 'baseColor'] }],
 )
+
+/** A Sample Texture 2D node, with no image chosen yet, feeding the master's Base Color. */
+export const SAMPLE_TEXTURE_TO_BASE_COLOR = sampleTextureDocument(null)
+
+/** Like `SAMPLE_TEXTURE_TO_BASE_COLOR`, with its texture input pointing at `assetId`. */
+export function sampleTextureDocument(assetId: string | null): string {
+  return graphDocument(
+    [
+      {
+        id: 'sample',
+        type: 'texture/sample-texture-2d',
+        position: { x: 200, y: 40 },
+        inputValues: assetId === null ? {} : { texture: { type: 'texture', assetId } },
+      },
+    ],
+    [{ id: 'sample-to-base', from: ['sample', 'rgb'], to: ['master', 'baseColor'] }],
+  )
+}
 
 const TIME_NODE: SeedNode = { id: 'time', type: 'input/time', position: { x: 0, y: 100 } }
 const SINE_NODE: SeedNode = { id: 'sine', type: 'math/sin', position: { x: 300, y: 100 } }

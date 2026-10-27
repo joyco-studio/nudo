@@ -1,4 +1,4 @@
-import { float, vec3 } from '@nudo-tsl/core'
+import { float, texture, vec3 } from '@nudo-tsl/core'
 import type {
   DataType,
   GraphNode,
@@ -9,32 +9,18 @@ import type {
 
 import { ColorPicker } from '@/shared/components/color-picker/color-picker'
 import type { Rgb } from '@/shared/components/color-picker/color-math'
-import { cn } from '@/shared/lib/utils'
 
 import { fallbackLabel } from './fallback-label'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import { inlineValue, valueComponents, withComponent } from './inline-value'
+import { inlineValue, textureAssetId, valueComponents, withComponent } from './inline-value'
 import { NumberField } from './number-field'
+import { PortLabel } from './port-label'
+import { TextureField } from './texture-field'
 
 const COMPONENT_LABELS = ['X', 'Y', 'Z', 'W'] as const
 const OPTIONAL_HINT = 'Mesh default'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
 const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
-const TEXTURE_HINT = 'No texture'
-
-interface PortLabelProps {
-  label: string
-  /** For a row that has no effect right now. */
-  isMuted?: boolean
-}
-
-export function PortLabel({ label, isMuted = false }: PortLabelProps) {
-  return (
-    <span className={cn('min-w-0 flex-1 truncate text-xs', isMuted && 'text-muted-foreground')}>
-      {label}
-    </span>
-  )
-}
 
 export function MutedHint({ children }: { children: string }) {
   return <span className="shrink-0 font-mono text-micro text-muted-foreground">{children}</span>
@@ -149,21 +135,25 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
     )
   }
 
-  const value = inlineValue(node, input, dataType)
-  if (value === null) {
-    return (
-      <>
-        <PortLabel label={input.label} />
-        <MutedHint>{TEXTURE_HINT}</MutedHint>
-      </>
-    )
-  }
-
-  const isDefault = node.inputValues[input.id] === undefined
   const ref = { nodeId: node.id, portId: input.id }
   const commit = (next: PortValue): void => {
     setInputValue(ref, next)
   }
+
+  const value = inlineValue(node, input, dataType)
+  if (value === null) {
+    return (
+      <TextureField
+        label={input.label}
+        assetId={textureAssetId(node, input)}
+        onChange={(assetId) => {
+          commit(texture(assetId))
+        }}
+      />
+    )
+  }
+
+  const isDefault = node.inputValues[input.id] === undefined
   const preview = (next: PortValue): void => {
     previewInputValue(ref, next)
   }
