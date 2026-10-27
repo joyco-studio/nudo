@@ -49,7 +49,8 @@ function HeaderActions() {
 export function App() {
   return (
     <ThemeProvider>
-      <TooltipProvider>
+      {/* A tooltip is a label, not a surface: the pointer passes on to the control beneath it. */}
+      <TooltipProvider disableHoverableContent>
         {/* One React Flow store for the canvas and the header, so the menu can place nodes. */}
         <ReactFlowProvider>
           <AddNodeMenuProvider>

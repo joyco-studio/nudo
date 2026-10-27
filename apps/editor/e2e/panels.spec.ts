@@ -74,7 +74,7 @@ test.describe('panels', () => {
   test('panels toggle with B/I/P/C and persist after reload', async ({ page }) => {
     await page.goto('/')
     const toggles = {
-      blackboard: panelToggle(page, 'Blackboard'),
+      blackboard: panelToggle(page, 'Properties'),
       inspector: panelToggle(page, 'Inspector'),
       preview: panelToggle(page, 'Preview'),
       code: panelToggle(page, 'Code'),
@@ -83,7 +83,7 @@ test.describe('panels', () => {
     await expect(toggles.inspector).toHaveAttribute('aria-expanded', 'true')
     await expect(toggles.preview).toHaveAttribute('aria-expanded', 'true')
     await expect(toggles.code).toHaveAttribute('aria-expanded', 'false')
-    await expect(page.getByRole('region', { name: 'Blackboard' })).toContainText(
+    await expect(page.getByRole('region', { name: 'Properties' })).toContainText(
       'No properties yet.',
     )
     await expect(page.getByRole('region', { name: 'Inspector' })).toContainText('Nothing selected')
@@ -125,7 +125,7 @@ test.describe('panels', () => {
     const field = page.getByRole('textbox', { name: 'Roughness', exact: true })
     await field.focus()
     await page.keyboard.press('b')
-    await expect(panelToggle(page, 'Blackboard')).toHaveAttribute('aria-expanded', 'true')
+    await expect(panelToggle(page, 'Properties')).toHaveAttribute('aria-expanded', 'true')
   })
 
   test('inspector names the selected node', async ({ page }) => {
@@ -254,15 +254,16 @@ test.describe('preview layout', () => {
 
     const backdrop = preview(page).getByRole('combobox', { name: 'Backdrop' })
     await backdrop.focus()
+    // Type-ahead on the closed select picks the option that starts with the letter.
     await page.keyboard.press('c')
-    await expect(backdrop).toHaveValue('checker-room')
+    await expect(backdrop).toHaveText('Checker room')
     await expect
       .poll(async () => cornerLuminanceSpread(page, await viewportCanvas.screenshot()))
       .toBeGreaterThan(CHECKER_SPREAD_MIN)
 
     await page.reload()
-    await expect(preview(page).getByRole('combobox', { name: 'Backdrop' })).toHaveValue(
-      'checker-room',
+    await expect(preview(page).getByRole('combobox', { name: 'Backdrop' })).toHaveText(
+      'Checker room',
     )
   })
 })
@@ -275,7 +276,7 @@ test.describe('new graph', () => {
     await expect(page.getByRole('group', { name: 'Sine', exact: true })).toBeVisible()
 
     await newGraphButton.click()
-    const dialog = page.getByRole('dialog', { name: 'Start a new graph?' })
+    const dialog = page.getByRole('alertdialog', { name: 'Start a new graph?' })
     await expect(dialog).toBeVisible()
     await expect(dialog).toContainText('2 nodes')
     // The safe choice has focus; Escape keeps everything and returns focus to the button.
@@ -287,7 +288,7 @@ test.describe('new graph', () => {
 
     await page.keyboard.press('ControlOrMeta+Alt+KeyN')
     await expect(dialog).toBeVisible()
-    await dialog.getByRole('button', { name: 'Clear graph' }).click()
+    await dialog.getByRole('button', { name: 'Start new graph' }).click()
     await expect(dialog).toBeHidden()
     await expect(page.getByRole('group', { name: 'Sine', exact: true })).toHaveCount(0)
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
@@ -302,7 +303,7 @@ test.describe('new graph', () => {
   test('a graph with only the master resets without asking', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'New graph', exact: true }).click()
-    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('alertdialog')).toHaveCount(0)
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
   })
 })

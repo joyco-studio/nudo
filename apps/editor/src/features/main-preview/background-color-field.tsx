@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useId, useState, useSyncExternalStore } from 'react'
 
 import { ColorPicker } from '@/shared/components/color-picker/color-picker'
 import {
@@ -8,6 +8,7 @@ import {
   srgbToLinear,
 } from '@/shared/components/color-picker/color-math'
 import type { Rgb } from '@/shared/components/color-picker/color-math'
+import { Label } from '@/shared/ui/label'
 
 import { getThemeBackgroundHex, subscribeToThemeBackground } from './theme-background'
 
@@ -48,10 +49,16 @@ const hexToLinear = (hex: string): Rgb => srgbToLinear(hexToSrgb(hex) ?? BLACK)
 const linearToHex = (linear: Rgb): string => srgbToHex(linearToSrgb(linear))
 
 export function BackgroundColorField({ color }: { color: BackgroundColor }) {
+  const swatchId = useId()
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground">Background</span>
+    // The same rhythm as a node's color row: label, then the hex value and swatch, 12px apart.
+    <div className="flex items-center gap-3">
+      <Label htmlFor={swatchId} className="text-xs font-normal text-muted-foreground">
+        Background
+      </Label>
       <ColorPicker
+        id={swatchId}
         label="Background color"
         value={hexToLinear(color.committed)}
         onPreview={(linear) => {

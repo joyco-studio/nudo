@@ -18,8 +18,10 @@ import {
 } from './canvas-keyboard-model'
 import type { CanvasKeyIntent, Size } from './canvas-keyboard-model'
 import { frameOf, resizedFrame } from './node-frame'
+import { openContextMenuFor } from './open-context-menu'
 
-const FIRST_FIELD_SELECTOR = 'input:not([type="hidden"]), textarea, select'
+const FIRST_FIELD_SELECTOR =
+  'input:not([type="hidden"]), textarea, select, [role="combobox"], [role="switch"]'
 const FIRST_PORT_SELECTOR = `[${PORT_BUTTON_ATTRIBUTE}]`
 
 const getStore = () => useEditorStore.getState()
@@ -95,7 +97,8 @@ function focusOwningNode(event: KeyboardEvent): void {
 
 /**
  * The canvas keyboard model: arrows move the focused node (or pan the view when the canvas itself
- * has focus), Delete removes, Enter steps into a node's fields (or ports) and Escape steps back out.
+ * has focus), Delete removes, Enter steps into a node's fields (or ports), Escape steps back out
+ * and the ContextMenu key (or Shift+F10) opens the focused element's context menu.
  *
  * Node moves are one history entry per burst: each press updates a draft, and the draft is
  * committed when the last arrow key is released.
@@ -141,6 +144,13 @@ export function useCanvasKeyboard(selectedEdgeIds: readonly string[]): void {
         return
       case 'resize-node':
         resizeFocusedFrame(event, intent.delta)
+        return
+      case 'open-context-menu':
+        if (event.target instanceof Element && openContextMenuFor(event.target)) {
+          // No browser menu as well, and React Flow never sees the key.
+          event.preventDefault()
+          event.stopPropagation()
+        }
         return
     }
   })

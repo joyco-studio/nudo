@@ -56,7 +56,7 @@ export const srgbToLinear = (srgb: Rgb): Rgb => mapRgb(srgb, srgbChannelToLinear
 /** Encodes linear channels as sRGB. Values above 1 (HDR) stay above 1. */
 export const linearToSrgb = (linear: Rgb): Rgb => mapRgb(linear, linearChannelToSrgb)
 
-/** Reads `#rrggbb`. Returns null for any other text. */
+/** Reads `#rrggbb` in either case. Returns null for any other text. */
 export function hexToSrgb(hex: string): Rgb | null {
   const match = HEX_COLOR_PATTERN.exec(hex)
   if (match === null) return null
@@ -70,12 +70,12 @@ export const toByte = (channel: number): number => Math.round(clampUnit(channel)
 
 export const fromByte = (byte: number): number => byte / CHANNEL_MAX
 
-/** Writes lowercase `#rrggbb`. Channels outside 0..1 are clamped. */
+/** Writes uppercase `#RRGGBB`, the one hex format the UI shows. Channels outside 0..1 are clamped. */
 export function srgbToHex(srgb: Rgb): string {
   const pairs = srgb.map((channel) =>
     toByte(channel).toString(HEX_RADIX).padStart(HEX_DIGITS_PER_CHANNEL, '0'),
   )
-  return `#${pairs.join('')}`
+  return `#${pairs.join('').toUpperCase()}`
 }
 
 function hueOf([red, green, blue]: Rgb, max: number, delta: number): number {

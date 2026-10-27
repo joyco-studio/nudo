@@ -62,6 +62,11 @@
   --text-7xl--letter-spacing: -0.03em;
   --text-8xl--letter-spacing: -0.03em;
   --text-9xl--letter-spacing: -0.03em;
+  /* Two named steps below text-xs, for dense node chrome: type digits, field values. */
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1rem;
+  --text-field: 0.6875rem;
+  --text-field--line-height: 1rem;
 }
 
 :root {
@@ -76,10 +81,12 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* Darker than joyco's 0.556 so small text reaches 4.5:1 on the 0.9 popover and accent. */
+  --muted-foreground: oklch(0.47 0 0);
   --accent: oklch(0.9 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Darker than joyco's 0.577 so node error text reaches 4.5:1 on the card. */
+  --destructive: oklch(0.54 0.22 27.3);
   --border: oklch(0.922 0 0);
   --input: oklch(0.97 0 0);
   --ring: oklch(0.708 0 0);
@@ -141,7 +148,49 @@
     scrollbar-color: var(--accent) transparent;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+  /*
+   * Every interactive control shows the pointer (Tailwind v4 dropped it from buttons). Kept in the
+   * base layer so a utility (ew-resize on a scrub label, crosshair on a port, grab on the canvas)
+   * still overrides it.
+   */
+  :is(
+    button,
+    [role='button'],
+    [role='tab'],
+    [role='option'],
+    [role^='menuitem'],
+    [role='radio'],
+    [role='checkbox'],
+    [role='switch'],
+    [role='combobox']:not(input),
+    [role='slider'],
+    [data-slot='select-trigger'],
+    summary,
+    label[for],
+    a[href]
+  ) {
+    cursor: pointer;
+  }
+  :is(:disabled, [aria-disabled='true'], [data-disabled]) {
+    cursor: not-allowed;
+  }
+  /*
+   * One overlay at a time: an open select, menu or popover makes the rest of the page inert to
+   * the pointer (Radix sets pointer-events: none on the body), so pressing another select would
+   * only close the first. Select triggers stay pressable: the press closes the open overlay (an
+   * outside press) and opens this one.
+   */
+  body[style*='pointer-events: none'] [data-slot='select-trigger'] {
+    pointer-events: auto;
+  }
+  /*
+   * A tooltip is a label, never a target: the pointer passes through it (and through the
+   * positioning wrapper Radix puts around it) to the control underneath.
+   */
+  [data-radix-popper-content-wrapper]:has(> [data-slot='tooltip-content']) {
+    pointer-events: none;
   }
   html {
     @apply font-sans;

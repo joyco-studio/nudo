@@ -31,6 +31,8 @@ export type CanvasKeyIntent =
   | { readonly kind: 'leave-field' }
   /** Right and Down grow the node; Left and Up shrink it. */
   | { readonly kind: 'resize-node'; readonly delta: Size }
+  /** The keyboard path to the right-click menu of the focused node, edge or canvas. */
+  | { readonly kind: 'open-context-menu' }
 
 export interface Size {
   readonly width: number
@@ -52,13 +54,21 @@ function scaled(direction: XY, step: number): XY {
   return { x: direction.x * step, y: direction.y * step }
 }
 
-function isDeletable(target: KeyTargetKind): boolean {
+function isCanvasSurface(target: KeyTargetKind): boolean {
   return target === 'node' || target === 'edge' || target === 'canvas'
+}
+
+/** The ContextMenu key, or Shift+F10 (the same request on keyboards without that key). */
+function isContextMenuPress(press: KeyPress): boolean {
+  return press.key === 'ContextMenu' || (press.shiftKey && press.key === 'F10')
 }
 
 /** Maps a key press on a given kind of target to what the canvas should do, if anything. */
 export function canvasKeyIntent(press: KeyPress, target: KeyTargetKind): CanvasKeyIntent | null {
   if (press.ctrlKey || press.metaKey) return null
+  if (isContextMenuPress(press)) {
+    return isCanvasSurface(target) ? { kind: 'open-context-menu' } : null
+  }
   const direction = ARROW_DIRECTIONS[press.key]
   if (press.altKey) {
     if (direction === undefined || target !== 'node') return null
@@ -84,10 +94,15 @@ export function canvasKeyIntent(press: KeyPress, target: KeyTargetKind): CanvasK
     return null
   }
 
-  if (DELETE_KEYS.has(press.key) && isDeletable(target)) return { kind: 'delete' }
+  if (DELETE_KEYS.has(press.key) && isCanvasSurface(target)) return { kind: 'delete' }
   if (press.key === 'Enter' && target === 'node') return { kind: 'edit-fields' }
   if (press.key === 'Escape' && target === 'field') return { kind: 'leave-field' }
   return null
+}
+
+/** A control in a node body that Escape leaves for the node: a text field, a select, a switch. */
+function isNodeField(target: Element): boolean {
+  return isTextEntry(target) || target.getAttribute('role') === 'switch'
 }
 
 /** Classifies the element that has focus (a keyboard event's target). */
@@ -97,7 +112,7 @@ export function classifyKeyTarget(target: EventTarget | null): KeyTargetKind {
   if (target.matches(FLOW_EDGE_SELECTOR)) return 'edge'
   if (target.id === CANVAS_ID || target.matches(FLOW_PANE_SELECTOR)) return 'canvas'
   if (target.hasAttribute(PORT_BUTTON_ATTRIBUTE)) return 'port'
-  if (isTextEntry(target) && target.closest(FLOW_NODE_SELECTOR) !== null) return 'field'
+  if (isNodeField(target) && target.closest(FLOW_NODE_SELECTOR) !== null) return 'field'
   return 'other'
 }
 

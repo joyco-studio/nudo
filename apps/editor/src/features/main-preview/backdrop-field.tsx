@@ -2,7 +2,8 @@ import { useId } from 'react'
 
 import { PREVIEW_BACKDROPS } from '@/features/panels/panel-state'
 import type { PreviewBackdrop } from '@/features/panels/panel-state'
-import { NativeSelect } from '@/shared/components/native-select'
+import { OptionSelect } from '@/shared/components/option-select'
+import { Label } from '@/shared/ui/label'
 import { useEditorStore } from '@/store/editor-store'
 
 const BACKDROP_LABELS: Readonly<Record<PreviewBackdrop, string>> = {
@@ -25,10 +26,10 @@ export function BackdropField() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={selectId} className="text-xs text-muted-foreground">
+      <Label htmlFor={selectId} className="text-xs font-normal text-muted-foreground">
         Backdrop
-      </label>
-      <NativeSelect
+      </Label>
+      <OptionSelect
         id={selectId}
         value={backdrop}
         options={BACKDROP_OPTIONS}

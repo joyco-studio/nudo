@@ -77,7 +77,7 @@ export interface UiSlice {
   panels: PanelPrefs
   /** The layout Escape returns to when leaving the full preview. */
   layoutBeforeFull: NonFullPreviewLayout
-  /** The split while its divider is being dragged; stored (and persisted) only on release. */
+  /** The split while its handle is being dragged; stored (and persisted) only on release. */
   splitDraftPercent: number | null
   setSelection(ids: readonly NodeId[]): void
   setDraftPositions(positions: UiSlice['draftPositions']): void
@@ -94,6 +94,8 @@ export interface UiSlice {
   draftSplitPercent(percent: number): void
   /** Stores the dragged split, if any, and ends the drag. */
   commitSplitDraft(): void
+  /** Ends a draft that no person made (a layout the library adjusted on its own). */
+  discardSplitDraft(): void
   setPreviewBackdrop(backdrop: PreviewBackdrop): void
 }
 

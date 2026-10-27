@@ -1,10 +1,13 @@
 import { Component } from 'react'
 import type { ReactNode } from 'react'
+import { MonitorX } from 'lucide-react'
+
+import { Alert, AlertDescription } from '@/shared/ui/alert'
 
 import { RendererUnavailableError } from './renderer-unavailable-error'
 
 export const RENDERER_UNAVAILABLE_MESSAGE =
-  'Preview unavailable: this browser supports neither WebGPU nor WebGL2.'
+  'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
 export const PREVIEW_CRASHED_MESSAGE =
   'Preview stopped unexpectedly. Reload the page to restart it.'
 
@@ -43,12 +46,14 @@ export class PreviewErrorBoundary extends Component<
     const { failure } = this.state
     if (failure === null) return this.props.children
     return (
-      <p
-        role="alert"
-        className="grid aspect-square place-items-center p-6 text-center text-sm text-muted-foreground"
-      >
-        {FAILURE_MESSAGES[failure]}
-      </p>
+      <div className="grid aspect-square place-items-center p-4">
+        <Alert>
+          <MonitorX aria-hidden="true" />
+          <AlertDescription className="text-xs text-foreground">
+            {FAILURE_MESSAGES[failure]}
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 }

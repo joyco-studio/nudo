@@ -20,9 +20,18 @@ export interface PortGroup {
   readonly rows: readonly InputRowModel[]
 }
 
+/** Universal params every node accepts (see `UNIVERSAL_PARAMS` in core). */
+export const COLLAPSED_PARAM = 'collapsed'
+export const PREVIEW_MODE_PARAM = 'previewMode'
+
 /** The universal `collapsed` param: a collapsed node shows only its connected ports. */
 export function isNodeCollapsed(data: FlowNodeData): boolean {
-  return data.node.params.collapsed === true
+  return data.node.params[COLLAPSED_PARAM] === true
+}
+
+/** The collapse action, worded the same on the header toggle and in the context menu. */
+export function portsToggleLabel(isCollapsed: boolean): string {
+  return isCollapsed ? 'Show unconnected ports' : 'Hide unconnected ports'
 }
 
 function isUnlitMaster(data: FlowNodeData): boolean {

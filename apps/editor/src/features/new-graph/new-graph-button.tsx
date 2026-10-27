@@ -22,7 +22,8 @@ export function NewGraphButton() {
           }}
         >
           <FilePlus2 aria-hidden="true" />
-          New graph
+          {/* Icon only on a narrow header; the label stays the accessible name. */}
+          <span className="max-sm:sr-only">New graph</span>
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">

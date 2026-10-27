@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { MouseEvent as ReactMouseEvent } from 'react'
 import { asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
 import type { PortRef } from '@nudo-tsl/core'
 import type {
@@ -10,17 +9,23 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
+import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
+import { copySelection, duplicateNodes, pasteFromClipboard } from '@/features/shortcuts/clipboard'
+import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
+import { resolveActionNodeIds } from './canvas-keyboard-model'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
+import { fitViewOptionsFor } from './fit-view-options'
+import { focusFlowNode } from './focus-flow-node'
 import { GraphCanvas } from './graph-canvas'
 import { GraphCanvasActionsContext } from './graph-canvas-actions'
 import type { GraphCanvasActions } from './graph-canvas-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
-import { toFlow } from './to-flow'
+import { COMMENT_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
 
@@ -131,14 +136,7 @@ export function GraphCanvasContainer() {
   }, [])
 
   const openAddNodeMenu = useOpenAddNodeMenu()
-  /** Right-click on empty canvas replaces the browser menu with the add-node menu, at the cursor. */
-  const onPaneContextMenu = useCallback(
-    (event: MouseEvent | ReactMouseEvent) => {
-      event.preventDefault()
-      openAddNodeMenu({ kind: 'cursor', clientX: event.clientX, clientY: event.clientY }, null)
-    },
-    [openAddNodeMenu],
-  )
+  const { screenToFlowPosition, fitView } = useReactFlow<FlowNode, FlowEdge>()
 
   useCanvasKeyboard(selectedEdgeIds)
 
@@ -164,8 +162,41 @@ export function GraphCanvasContainer() {
       setParam: (ref, value) => {
         getStore().setParam(ref, value)
       },
+      commandTargets: (nodeId) => resolveActionNodeIds(nodeId, getStore().selectedNodeIds),
+      copyNodes: (nodeIds) => {
+        void copySelection(nodeIds)
+      },
+      duplicateNodes: (nodeIds) => {
+        const [firstCopy] = duplicateNodes(nodeIds)
+        if (firstCopy !== undefined) focusFlowNode(firstCopy)
+      },
+      deleteNodes: (nodeIds) => {
+        getStore().removeSelection(nodeIds, [])
+        focusOpenerOrCanvas(null)
+      },
+      deleteEdge: (edgeId) => {
+        getStore().removeSelection([], [edgeId])
+        focusOpenerOrCanvas(null)
+      },
+      pasteAt: (point) => {
+        void pasteFromClipboard(screenToFlowPosition({ x: point.clientX, y: point.clientY }))
+      },
+      addCommentAt: (point) => {
+        const store = getStore()
+        const position = screenToFlowPosition({ x: point.clientX, y: point.clientY })
+        const nodeId = store.addNode(COMMENT_TYPE, position)
+        if (nodeId === null) return
+        store.setSelection([nodeId])
+        focusFlowNode(nodeId)
+      },
+      openAddNodeMenuAt: (point) => {
+        openAddNodeMenu({ kind: 'cursor', ...point }, null)
+      },
+      fitView: () => {
+        void fitView(fitViewOptionsFor(window.innerWidth))
+      },
     }),
-    [],
+    [screenToFlowPosition, fitView, openAddNodeMenu],
   )
 
   return (
@@ -178,7 +209,6 @@ export function GraphCanvasContainer() {
         onConnect={onConnect}
         onDelete={onDelete}
         isValidConnection={isValidConnection}
-        onPaneContextMenu={onPaneContextMenu}
       />
     </GraphCanvasActionsContext>
   )

@@ -3,7 +3,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
-const FALLBACK_MESSAGE = 'Preview unavailable: this browser supports neither WebGPU nor WebGL2.'
+const FALLBACK_MESSAGE =
+  'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
 /** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
 const PAST_DEBOUNCE_MS = 500
 /** The seeded Color node is orange: a lit sphere shows pixels that are clearly redder than blue. */
@@ -175,7 +176,7 @@ test.describe('main preview', () => {
     const background = page
       .getByRole('region', { name: 'Main preview', includeHidden: true })
       .getByRole('button', { name: 'Background color', includeHidden: true })
-    await expect(background).toHaveAccessibleDescription(/^#[0-9a-f]{6}$/)
+    await expect(background).toHaveAccessibleDescription(/^#[0-9A-F]{6}$/)
     await background.focus()
     await page.keyboard.press('Enter')
     const hex = page

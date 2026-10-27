@@ -67,6 +67,13 @@ describe('panel actions', () => {
     expect(getState().splitDraftPercent).toBeNull()
   })
 
+  it('discards a draft that was not a drag, keeping the stored split', () => {
+    getState().draftSplitPercent(75)
+    getState().discardSplitDraft()
+    expect(getState().splitDraftPercent).toBeNull()
+    expect(getState().panels.splitPercent).toBe(DEFAULT_PANEL_PREFS.splitPercent)
+  })
+
   it('clamps the split and stores the backdrop', () => {
     getState().setSplitPercent(5)
     expect(getState().panels.splitPercent).toBe(25)

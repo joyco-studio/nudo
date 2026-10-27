@@ -3,6 +3,10 @@ import type { KeyboardEvent } from 'react'
 import { Pipette } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { fromByte, hexToSrgb, srgbToHex, toByte } from './color-math'
 import type { Rgb } from './color-math'
@@ -13,6 +17,8 @@ const BYTE_PATTERN = /^\d{1,3}$/
 const ARROW_STEP = 1
 const SHIFT_ARROW_STEP = 10
 
+const PICK_FROM_SCREEN = 'Pick a color from the screen'
+
 const CHANNELS = [
   { label: 'R', name: 'Red' },
   { label: 'G', name: 'Green' },
@@ -20,9 +26,9 @@ const CHANNELS = [
 ] as const
 
 const FIELD_CLASS =
-  'h-6 min-w-0 border border-border bg-background px-1 font-mono text-[11px] tabular-nums text-foreground hover:border-muted-foreground'
+  'h-6 min-w-0 border-border bg-background px-1 py-0 font-mono text-base tabular-nums text-foreground hover:border-muted-foreground aria-invalid:ring-0 md:text-field dark:bg-background'
 const INVALID_FIELD_CLASS = 'border-destructive text-destructive hover:border-destructive'
-const LABEL_CLASS = 'shrink-0 font-mono text-[10px] text-muted-foreground uppercase'
+const LABEL_CLASS = 'shrink-0 font-mono text-micro font-normal text-muted-foreground uppercase'
 
 function parseByte(text: string): number | null {
   const trimmed = text.trim()
@@ -83,10 +89,10 @@ function HexField({ srgb, onChange }: HexFieldProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-6')}>
+      <Label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-6')}>
         Hex
-      </label>
-      <input
+      </Label>
+      <Input
         id={inputId}
         type="text"
         autoComplete="off"
@@ -127,10 +133,10 @@ function ChannelField({ label, name, byte, onChange }: ChannelFieldProps) {
 
   return (
     <div className="flex min-w-0 flex-1 basis-0 items-center gap-1">
-      <label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-2.5')}>
+      <Label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-2.5')}>
         {label}
-      </label>
-      <input
+      </Label>
+      <Input
         id={inputId}
         type="text"
         inputMode="numeric"
@@ -169,17 +175,24 @@ function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
   }
 
   return (
-    <button
-      type="button"
-      aria-label="Pick a color from the screen"
-      title="Pick a color from the screen"
-      onClick={() => {
-        void pick()
-      }}
-      className="flex size-6 shrink-0 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground"
-    >
-      <Pipette aria-hidden="true" className="size-3.5" />
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={PICK_FROM_SCREEN}
+          onClick={() => {
+            void pick()
+          }}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <Pipette aria-hidden="true" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="top" aria-hidden="true">
+        {PICK_FROM_SCREEN}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

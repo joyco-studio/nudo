@@ -37,7 +37,7 @@ export function PortLabel({ label, isMuted = false }: PortLabelProps) {
 }
 
 export function MutedHint({ children }: { children: string }) {
-  return <span className="shrink-0 font-mono text-[10px] text-muted-foreground">{children}</span>
+  return <span className="shrink-0 font-mono text-micro text-muted-foreground">{children}</span>
 }
 
 interface ColorFieldProps {

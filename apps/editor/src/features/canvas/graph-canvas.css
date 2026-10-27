@@ -61,39 +61,7 @@
     stroke-width: 4;
   }
 
-  .graph-canvas .react-flow__controls {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-    background: var(--background);
-  }
-
-  .graph-canvas .react-flow__controls-button {
-    display: flex;
-    width: 2rem;
-    height: 2rem;
-    align-items: center;
-    justify-content: center;
-    color: var(--foreground);
-    background: var(--background);
-    border: 0;
-  }
-
-  .graph-canvas .react-flow__controls-button + .react-flow__controls-button {
-    border-top: 1px solid var(--border);
-  }
-
-  .graph-canvas .react-flow__controls-button:hover {
-    background: var(--accent);
-  }
-
-  .graph-canvas .react-flow__controls-button svg {
-    width: 0.75rem;
-    height: 0.75rem;
-    fill: currentColor;
-  }
-
-  /* The edge label layer ignores the pointer; the marker opts back in so its title shows. */
+  /* The edge label layer ignores the pointer; the marker opts back in for its tooltip and menu. */
   .graph-canvas .typed-edge-marker {
     pointer-events: all;
   }

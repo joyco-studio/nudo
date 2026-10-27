@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_PANEL_PREFS,
   clampSplitPercent,
+  defaultPanelPrefsFor,
   effectivePreviewLayout,
   nextPreviewLayout,
   parsePanelPrefs,
@@ -41,6 +42,27 @@ describe('parsePanelPrefs', () => {
       splitPercent: 75,
       backdrop: 'checker-room',
     })
+  })
+})
+
+describe('defaultPanelPrefsFor', () => {
+  it('opens Properties and Inspector on a wide screen', () => {
+    expect(defaultPanelPrefsFor(false)).toEqual(DEFAULT_PANEL_PREFS)
+  })
+
+  it('starts Properties and Inspector collapsed on a narrow screen, so the canvas shows', () => {
+    const narrow = defaultPanelPrefsFor(true)
+    expect(narrow.open).toEqual({
+      ...DEFAULT_PANEL_PREFS.open,
+      blackboard: false,
+      inspector: false,
+    })
+  })
+
+  it('is only a default: stored preferences still win on a narrow screen', () => {
+    const rawText = serializePanelPrefs(CUSTOM_PREFS)
+    expect(parsePanelPrefs(rawText, defaultPanelPrefsFor(true))).toEqual(CUSTOM_PREFS)
+    expect(parsePanelPrefs(null, defaultPanelPrefsFor(true))).toEqual(defaultPanelPrefsFor(true))
   })
 })
 

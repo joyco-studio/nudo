@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
-import { copySelection, pasteFromClipboard } from './clipboard'
+import { copySelection, duplicateNodes, pasteFromClipboard } from './clipboard'
 
 const FLOAT_NODE = 'input/float'
 const SINE_NODE = 'math/sin'
@@ -118,6 +118,19 @@ describe('pasteFromClipboard', () => {
     expect(positions).toContainEqual({ x: 240, y: 60 })
   })
 
+  it('places the pasted nodes with their top-left corner at a given flow point', async () => {
+    selectConnectedPair()
+    await copySelection()
+    readText.mockResolvedValue(writeText.mock.calls[0]?.[0] ?? '')
+
+    await pasteFromClipboard({ x: 500, y: 300 })
+
+    const graph = getState().graph
+    const positions = getState().selectedNodeIds.map((id) => graph.nodes[id]?.position)
+    expect(positions).toContainEqual({ x: 500, y: 300 })
+    expect(positions).toContainEqual({ x: 690, y: 300 })
+  })
+
   it('shows a notice and changes nothing when the clipboard holds prose', async () => {
     selectConnectedPair()
     const graphBefore = getState().graph
@@ -149,5 +162,26 @@ describe('pasteFromClipboard', () => {
 
     expect(getState().notice).toEqual({ kind: 'error', message: "Couldn't read the clipboard" })
     expect(getState().graph).toBe(graphBefore)
+  })
+})
+
+describe('duplicateNodes', () => {
+  it('copies nodes and their edges beside them as one undo step, without the clipboard', () => {
+    const { source, target } = selectConnectedPair()
+    const entriesBefore = historyLength()
+
+    const duplicated = duplicateNodes([source, target])
+
+    const graph = getState().graph
+    expect(duplicated).toHaveLength(2)
+    expect(Object.keys(graph.edges)).toHaveLength(2)
+    expect(historyLength()).toBe(entriesBefore + 1)
+    expect(getState().selectedNodeIds).toEqual(duplicated)
+    expect(duplicated.map((id) => graph.nodes[id]?.position)).toContainEqual({ x: 50, y: 60 })
+    expect(writeText).not.toHaveBeenCalled()
+  })
+
+  it('duplicates nothing for the master alone', () => {
+    expect(duplicateNodes([MASTER_NODE_ID])).toEqual([])
   })
 })

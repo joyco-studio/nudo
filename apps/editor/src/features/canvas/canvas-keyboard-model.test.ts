@@ -19,6 +19,17 @@ const press = (key: string, modifiers: Partial<typeof plain> = {}) => ({
 })
 
 describe('canvasKeyIntent', () => {
+  it('opens the context menu with the ContextMenu key or Shift+F10 on a node, edge or canvas', () => {
+    const open = { kind: 'open-context-menu' }
+    for (const target of ['node', 'edge', 'canvas'] as const) {
+      expect(canvasKeyIntent(press('ContextMenu'), target)).toEqual(open)
+      expect(canvasKeyIntent(press('F10', { shiftKey: true }), target)).toEqual(open)
+    }
+    expect(canvasKeyIntent(press('F10'), 'node')).toBeNull()
+    expect(canvasKeyIntent(press('ContextMenu'), 'field')).toBeNull()
+    expect(canvasKeyIntent(press('ContextMenu'), 'other')).toBeNull()
+  })
+
   it('moves a focused node 10 px per arrow press and 50 px with Shift', () => {
     expect(canvasKeyIntent(press('ArrowRight'), 'node')).toEqual({
       kind: 'move-nodes',
@@ -135,6 +146,8 @@ describe('classifyKeyTarget', () => {
           <input aria-label="Value" />
           <button type="button" data-port-button>Port</button>
           <button type="button" id="plain-button">Plain</button>
+          <button type="button" role="switch" id="switch">Two sided</button>
+          <button type="button" role="combobox" id="select-trigger">Lighting</button>
         </div>
         <svg><g class="react-flow__edge" data-id="edge-1" tabindex="0"></g></svg>
       </main>
@@ -152,6 +165,8 @@ describe('classifyKeyTarget', () => {
       field: pick('.react-flow__node input'),
       port: pick('[data-port-button]'),
       plain: pick('#plain-button'),
+      switchControl: pick('#switch'),
+      selectTrigger: pick('#select-trigger'),
       edge: pick('.react-flow__edge'),
       outside: pick('#outside-input'),
     }
@@ -173,6 +188,12 @@ describe('classifyKeyTarget', () => {
     const els = render()
     expect(classifyKeyTarget(els.field ?? null)).toBe('field')
     expect(classifyKeyTarget(els.port ?? null)).toBe('port')
+  })
+
+  it('counts a switch and a select trigger in a node as fields, so Escape returns to the node', () => {
+    const els = render()
+    expect(classifyKeyTarget(els.switchControl ?? null)).toBe('field')
+    expect(classifyKeyTarget(els.selectTrigger ?? null)).toBe('field')
   })
 
   it('treats anything else as other', () => {

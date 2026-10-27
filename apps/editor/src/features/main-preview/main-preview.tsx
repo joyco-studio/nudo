@@ -39,10 +39,6 @@ const CANVAS_LABEL =
 
 const STATUS_CLASS = 'border-t px-3 py-2 text-xs text-muted-foreground'
 
-function describeError(error: unknown): string {
-  return error instanceof Error ? error.message : 'Unknown error'
-}
-
 interface ViewportProps {
   candidate: RuntimeMaterial | null
   shape: PreviewShape
@@ -120,7 +116,7 @@ function MeshPicker({ shape, hasModel, onShapeChange }: MeshPickerProps) {
           onFocus={() => {
             onShapeChange(item)
           }}
-          className="flex-1 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          className="flex-1 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground aria-checked:bg-primary aria-checked:text-primary-foreground"
         >
           {SHAPE_LABELS[item]}
         </ToggleGroupItem>
@@ -165,7 +161,12 @@ function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
         else disposeModel(model)
       },
       (error: unknown) => {
-        if (isStillWanted(loadId)) onError(`Could not load ${file.name}: ${describeError(error)}`)
+        if (!isStillWanted(loadId)) return
+        // The cause goes to the console for debugging; the message says what to do next.
+        console.warn(`Could not load ${file.name}:`, error)
+        onError(
+          `Unable to load ${file.name}. Choose a .glb or .gltf file exported with embedded textures.`,
+        )
       },
     )
   }
@@ -231,7 +232,12 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
 
   return (
     <div className={cn('flex flex-col', isFilling && 'min-h-0 flex-1')}>
-      <div className={cn('relative', isFilling ? 'min-h-0 flex-1' : 'aspect-square')}>
+      {/*
+       * min-h-0 matters when docked: an aspect-ratio box grows to its content's min-content height,
+       * and R3F leaves the last (split or full) height inline on the canvas, which would keep the
+       * square stretched until a reload.
+       */}
+      <div className={cn('relative min-h-0', isFilling ? 'flex-1' : 'aspect-square')}>
         <Viewport
           candidate={candidate}
           shape={shape}
@@ -250,8 +256,9 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
       </div>
       <div className="flex flex-col gap-3 border-t p-3">
         <MeshPicker shape={shape} hasModel={model !== null} onShapeChange={selectShape} />
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        {/* Wraps on a narrow column so the zoom buttons never fall off its edge. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-1 gap-y-2">
+          <div className="flex items-center gap-1.5">
             <LoadModelButton
               onError={setLoadError}
               onModelLoaded={(loaded) => {
@@ -271,11 +278,11 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
               Reset view
             </Button>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Zoom out"
+              aria-label="Zoom preview out"
               onClick={() => {
                 if (orbitRef.current !== null) zoomView(orbitRef.current, ZOOM_OUT_FACTOR)
               }}
@@ -285,7 +292,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Zoom in"
+              aria-label="Zoom preview in"
               onClick={() => {
                 if (orbitRef.current !== null) zoomView(orbitRef.current, ZOOM_IN_FACTOR)
               }}
@@ -309,12 +316,12 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
 
 function statusFor(rejection: string | null, errorCount: number): string {
   if (rejection !== null) {
-    return `The newest material did not compile (${rejection}). Showing the last working one.`
+    return `The newest material did not compile (${rejection}), so the last working one is shown. Check the nodes marked in red.`
   }
   if (errorCount === 0) return ''
   const subject =
     errorCount === 1 ? '1 node has an error' : `${String(errorCount)} nodes have errors`
-  return `${subject}. Showing the last valid result.`
+  return `${subject}, so the last valid result is shown. Check the nodes marked in red.`
 }
 
 /** The live preview: compiles the editor graph and shows it on a mesh. */

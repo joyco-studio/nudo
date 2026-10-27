@@ -1,6 +1,7 @@
 import type { Graph, NodeId } from '@nudo-tsl/core'
 
 import { nodeTitle } from '@/features/canvas/to-flow'
+import { Empty, EmptyDescription } from '@/shared/ui/empty'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
@@ -37,5 +38,9 @@ export function InspectorPanel() {
   }
   const count = selectedNodeIds.length
   const message = count > 1 ? `${String(count)} nodes selected` : 'Nothing selected'
-  return <p className="p-3 text-xs text-muted-foreground">{message}</p>
+  return (
+    <Empty className="items-start p-3 text-left">
+      <EmptyDescription className="text-xs">{message}</EmptyDescription>
+    </Empty>
+  )
 }

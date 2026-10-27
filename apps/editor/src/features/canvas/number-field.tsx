@@ -2,6 +2,9 @@ import { useId, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent } from 'react'
 
 import { cn } from '@/shared/lib/utils'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { formatNumber, isNumberInput, parseNumberInput, stepNumber } from './parse-number-input'
 
@@ -11,6 +14,8 @@ const SHIFT_ARROW_STEP = 1
 const SCRUB_THRESHOLD_PX = 3
 const SCRUB_STEP_PER_PX = 0.01
 const SHIFT_SCRUB_STEP_PER_PX = 0.1
+/** The scrub hint waits, so it never flashes up while the pointer passes over a row. */
+const SCRUB_HINT_DELAY_MS = 700
 
 interface ScrubSession {
   readonly startX: number
@@ -145,23 +150,29 @@ export function NumberField({
         layout === 'row' ? 'flex-1' : 'flex-1 basis-0',
       )}
     >
-      <label
-        htmlFor={inputId}
-        title="Drag to change"
-        className={cn(
-          'nodrag cursor-ew-resize touch-none select-none',
-          layout === 'row'
-            ? 'min-w-0 flex-1 truncate text-xs'
-            : 'w-2.5 shrink-0 font-mono text-[10px] text-muted-foreground',
-        )}
-        onPointerDown={onScrubStart}
-        onPointerMove={onScrubMove}
-        onPointerUp={onScrubEnd}
-        onPointerCancel={onScrubCancel}
-      >
-        {label}
-      </label>
-      <input
+      <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
+        <TooltipTrigger asChild>
+          <Label
+            htmlFor={inputId}
+            className={cn(
+              'nodrag cursor-ew-resize touch-none font-normal select-none',
+              layout === 'row'
+                ? 'block min-w-0 flex-1 truncate text-xs leading-6'
+                : 'w-2.5 shrink-0 font-mono text-micro text-muted-foreground',
+            )}
+            onPointerDown={onScrubStart}
+            onPointerMove={onScrubMove}
+            onPointerUp={onScrubEnd}
+            onPointerCancel={onScrubCancel}
+          >
+            {label}
+          </Label>
+        </TooltipTrigger>
+        <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
+          Drag to change
+        </TooltipContent>
+      </Tooltip>
+      <Input
         id={inputId}
         type="text"
         inputMode="decimal"
@@ -176,10 +187,12 @@ export function NumberField({
         onBlur={commitDraft}
         onKeyDown={onKeyDown}
         className={cn(
-          'nodrag h-6 min-w-0 border border-border bg-background px-1 text-right font-mono text-[11px] tabular-nums hover:border-muted-foreground',
+          'nodrag h-6 min-w-0 border-border bg-background px-1 py-0 text-right font-mono text-base tabular-nums hover:border-muted-foreground md:text-field dark:bg-background',
           layout === 'row' ? 'w-14 shrink-0' : 'w-full',
           isDefault && draftText === null ? 'text-muted-foreground' : 'text-foreground',
           isInvalid && 'border-destructive text-destructive hover:border-destructive',
+          // The vendored Input's resting and invalid halos would crowd a 24px row.
+          'aria-invalid:ring-0',
         )}
       />
     </div>

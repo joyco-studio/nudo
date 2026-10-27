@@ -70,8 +70,9 @@ test('select node op changes via keyboard and recompiles', async ({ page }) => {
 
   const compare = graphNode(page, 'Select').getByRole('combobox', { name: 'Compare' })
   await compare.focus()
+  // Type-ahead on the closed select picks the option that starts with the character.
   await page.keyboard.press('>')
-  await expect(compare).toHaveValue('gt')
+  await expect(compare).toHaveText('>')
 
   await expect.poll(async () => (await storedParams(page, 'select')).op).toBe('gt')
   await expect.poll(async () => compileCount(page)).toBeGreaterThan(compilesBefore)
@@ -89,7 +90,7 @@ test('unlit disables metalness/roughness/normal rows', async ({ page }) => {
   const lighting = master.getByRole('combobox', { name: 'Lighting' })
   await lighting.focus()
   await page.keyboard.press('u')
-  await expect(lighting).toHaveValue('unlit')
+  await expect(lighting).toHaveText('Unlit')
 
   for (const portId of ['metalness', 'roughness', 'normal']) {
     const row = port(master, portId)

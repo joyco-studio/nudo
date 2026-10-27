@@ -48,12 +48,13 @@ describe('hexToSrgb', () => {
 })
 
 describe('srgbToHex', () => {
-  it('writes lowercase #rrggbb', () => {
-    expect(srgbToHex([26 / 255, 43 / 255, 60 / 255])).toBe('#1a2b3c')
+  it('writes uppercase #RRGGBB, the one way hex shows anywhere in the UI', () => {
+    expect(srgbToHex([26 / 255, 43 / 255, 60 / 255])).toBe('#1A2B3C')
+    expect(srgbToHex([231 / 255, 231 / 255, 231 / 255])).toBe('#E7E7E7')
   })
 
   it('clamps out-of-range channels', () => {
-    expect(srgbToHex([4, -1, 0.5])).toBe('#ff0080')
+    expect(srgbToHex([4, -1, 0.5])).toBe('#FF0080')
   })
 
   it('round-trips every 8-bit level through hex', () => {
@@ -61,7 +62,7 @@ describe('srgbToHex', () => {
       const hex = `#${level.toString(16).padStart(2, '0').repeat(3)}`
       const srgb = hexToSrgb(hex)
       if (srgb === null) throw new Error(`Could not parse ${hex}`)
-      expect(srgbToHex(srgb)).toBe(hex)
+      expect(srgbToHex(srgb)).toBe(hex.toUpperCase())
     }
   })
 })
@@ -117,7 +118,7 @@ describe('srgbToLinear and linearToSrgb', () => {
       const hex = `#${level.toString(16).padStart(2, '0').repeat(3)}`
       const srgb = hexToSrgb(hex)
       if (srgb === null) throw new Error(`Could not parse ${hex}`)
-      expect(srgbToHex(linearToSrgb(srgbToLinear(srgb)))).toBe(hex)
+      expect(srgbToHex(linearToSrgb(srgbToLinear(srgb)))).toBe(hex.toUpperCase())
     }
   })
 })

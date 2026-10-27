@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useEffect, useEffectEvent, useId, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
 import { cn } from '@/shared/lib/utils'
@@ -29,6 +29,8 @@ export interface ColorPickerProps {
   onCancel: () => void
   /** Names the swatch and titles the picker. */
   label: string
+  /** The swatch's id, so a visible `<Label htmlFor>` can point at it. */
+  id?: string
   /** Extra classes for the swatch (for example `nodrag` inside a canvas node). */
   className?: string
 }
@@ -56,6 +58,7 @@ export function ColorPicker({
   onCommit,
   onCancel,
   label,
+  id,
   className,
 }: ColorPickerProps) {
   const titleId = useId()
@@ -82,6 +85,16 @@ export function ColorPicker({
     onCancel()
   }
 
+  // Unmounting while open (the node is removed, the panel hides) ends the session like Escape,
+  // so no live preview is left applied to the material.
+  const cancelOnUnmount = useEffectEvent(cancel)
+  useEffect(
+    () => () => {
+      cancelOnUnmount()
+    },
+    [],
+  )
+
   const onContentKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     // The picker is portalled out of its owner (a canvas node, say), but React still bubbles its
     // keys to the owner's handlers, which must not move or delete the node.
@@ -95,7 +108,7 @@ export function ColorPicker({
 
   return (
     <span className="flex shrink-0 items-center gap-2">
-      <span id={hexId} aria-hidden="true" className="font-mono text-[11px] text-muted-foreground">
+      <span id={hexId} aria-hidden="true" className="font-mono text-field text-muted-foreground">
         {shownHex}
       </span>
       <Popover
@@ -108,10 +121,11 @@ export function ColorPicker({
       >
         <PopoverTrigger asChild>
           <button
+            id={id}
             type="button"
             aria-label={label}
             aria-describedby={hexId}
-            className={cn('size-6 shrink-0 cursor-pointer border border-border', className)}
+            className={cn('size-6 shrink-0 border border-border', className)}
             style={{ backgroundColor: shownHex }}
           />
         </PopoverTrigger>

@@ -50,6 +50,8 @@ export function PreviewLayoutPicker() {
       {PREVIEW_LAYOUTS.map((item) => {
         const { label, icon: Icon } = LAYOUT_OPTIONS[item]
         return (
+          // The tooltip trigger writes its own data-state over the item's, so the checked style keys
+          // off aria-checked, which only the radio sets.
           <Tooltip key={item}>
             <TooltipTrigger asChild>
               <ToggleGroupItem
@@ -58,7 +60,7 @@ export function PreviewLayoutPicker() {
                 onFocus={() => {
                   if (item !== layout) setPreviewLayout(item)
                 }}
-                className="size-8 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                className="size-8 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground aria-checked:bg-primary aria-checked:text-primary-foreground"
               >
                 <Icon aria-hidden="true" />
               </ToggleGroupItem>

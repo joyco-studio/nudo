@@ -1,4 +1,9 @@
-import { loadPanelPrefs, savePanelPrefs } from '../features/panels/panel-state'
+import {
+  NARROW_SCREEN_QUERY,
+  defaultPanelPrefsFor,
+  loadPanelPrefs,
+  savePanelPrefs,
+} from '../features/panels/panel-state'
 import { loadAutosave, startAutosave } from '../store/autosave'
 import { useEditorStore } from '../store/editor-store'
 
@@ -16,7 +21,10 @@ function startPanelPersistence(storage: Storage): () => void {
  */
 export function bootstrapEditor(storage: Storage, page: Window): () => void {
   const { graph, notice } = loadAutosave(storage)
-  const panels = loadPanelPrefs(storage)
+  // jsdom has no matchMedia; a page without it is treated as wide.
+  const isNarrow =
+    typeof page.matchMedia === 'function' && page.matchMedia(NARROW_SCREEN_QUERY).matches
+  const panels = loadPanelPrefs(storage, defaultPanelPrefsFor(isNarrow))
   useEditorStore.setState({ graph, selectedNodeIds: [], draftPositions: {}, notice, panels })
   useEditorStore.temporal.getState().clear()
   const stopAutosave = startAutosave(storage, undefined, page)

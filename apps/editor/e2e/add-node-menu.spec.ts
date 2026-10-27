@@ -2,11 +2,13 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { expectFocusRing, expectQuietFieldFocus } from './support/focus-indicators'
 import { readStoredNodes } from './support/read-autosave'
-import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
+import { COLOR_TO_BASE_COLOR, MASTER_POSITION, seedAutosave } from './support/seed-graph'
 
 /** Mirrors the color node seeded by COLOR_TO_BASE_COLOR and the menu's sideways offset. */
 const COLOR_POSITION = { x: 200, y: 40 }
 const BESIDE_NODE_OFFSET_X = 260
+/** The seeded master's left edge and its width (w-64), in flow units. */
+const MASTER_RIGHT_EDGE_X = MASTER_POSITION.x + 256
 /** An empty spot of the pane, left of the fitted nodes and above the zoom controls. */
 const EMPTY_PANE_POINT = { x: 120, y: 360 }
 const CURSOR_TOLERANCE_PX = 1
@@ -28,6 +30,17 @@ function addNodeMenu(page: Page) {
 async function storedPositionOf(page: Page, type: string): Promise<unknown> {
   const node = (await readStoredNodes(page)).find((stored) => stored.type === type)
   return node?.position ?? null
+}
+
+function isPoint(value: unknown): value is { x: number; y: number } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'x' in value &&
+    'y' in value &&
+    typeof value.x === 'number' &&
+    typeof value.y === 'number'
+  )
 }
 
 async function waitForCanvas(page: Page): Promise<void> {
@@ -57,10 +70,14 @@ test.describe('add-node menu', () => {
     const fresnel = graphNode(page, 'Fresnel')
     await expect(fresnel).toBeVisible()
     await expectFocusRing(page, fresnel)
-    // Placed beside the node that had focus when Space was pressed.
-    await expect
-      .poll(() => storedPositionOf(page, 'effects/fresnel'))
-      .toEqual({ x: COLOR_POSITION.x + BESIDE_NODE_OFFSET_X, y: COLOR_POSITION.y })
+    // Placed beside the node that had focus when Space was pressed, on its row; the Master Stack
+    // sits there, so the new node moves right past it instead of covering it.
+    await expect.poll(() => storedPositionOf(page, 'effects/fresnel')).not.toBeNull()
+    const position = await storedPositionOf(page, 'effects/fresnel')
+    if (!isPoint(position)) throw new Error('Fresnel has no stored position')
+    expect(position.y).toBe(COLOR_POSITION.y)
+    expect(position.x).toBeGreaterThanOrEqual(COLOR_POSITION.x + BESIDE_NODE_OFFSET_X)
+    expect(position.x).toBeGreaterThan(MASTER_RIGHT_EDGE_X)
   })
 
   test('escape closes and restores focus to the header button', async ({ page }) => {
@@ -111,7 +128,7 @@ test.describe('add-node menu', () => {
     await expect(color).toBeFocused()
   })
 
-  test('right-click on pane opens menu', async ({ page }) => {
+  test('right-click on pane offers Add node…, which opens the menu', async ({ page }) => {
     const hitsPane = await page.evaluate(
       ({ x, y }) => document.elementFromPoint(x, y)?.classList.contains('react-flow__pane'),
       EMPTY_PANE_POINT,
@@ -119,6 +136,7 @@ test.describe('add-node menu', () => {
     expect(hitsPane).toBe(true)
 
     await page.mouse.click(EMPTY_PANE_POINT.x, EMPTY_PANE_POINT.y, { button: 'right' })
+    await page.getByRole('menuitem', { name: /^Add node…/ }).click()
 
     const { dialog, search } = addNodeMenu(page)
     await expect(dialog).toBeVisible()
@@ -137,6 +155,7 @@ test.describe('add-node menu', () => {
 
   test('escape after right-click returns focus to the canvas', async ({ page }) => {
     await page.mouse.click(EMPTY_PANE_POINT.x, EMPTY_PANE_POINT.y, { button: 'right' })
+    await page.getByRole('menuitem', { name: /^Add node…/ }).click()
     await expect(addNodeMenu(page).dialog).toBeVisible()
 
     await page.keyboard.press('Escape')

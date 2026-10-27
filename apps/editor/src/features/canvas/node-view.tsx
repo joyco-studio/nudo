@@ -5,12 +5,21 @@ import type { NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { InlineField, MutedHint, PortLabel } from './inline-field'
+import { NodeContextMenu } from './node-context-menu'
+import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { ConnectablePort } from './connectable-port'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import { inputGroups, isNodeCollapsed, visibleOutputs } from './node-port-layout'
+import {
+  COLLAPSED_PARAM,
+  inputGroups,
+  isNodeCollapsed,
+  portsToggleLabel,
+  visibleOutputs,
+} from './node-port-layout'
 import type { InputRowModel, PortGroup } from './node-port-layout'
 import { ParamFields, bodyParams } from './param-field'
 import { PortTypeLabel } from './port-handle'
@@ -23,7 +32,6 @@ import type { FlowNode, FlowNodeData } from './to-flow'
  */
 const DESCRIPTION_DELAY_MS = 500
 const DESCRIPTION_OFFSET_PX = 8
-const COLLAPSED_PARAM = 'collapsed'
 
 /** Screen reader text for the port type, after the visible label. */
 function TypeForAssistiveTech({ dataType }: { dataType: DataType }) {
@@ -117,7 +125,7 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
     <div role="group" aria-labelledby={headingId}>
       <h3
         id={headingId}
-        className="px-3 pt-2 pb-0.5 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase"
+        className="px-3 pt-2 pb-0.5 font-mono text-micro tracking-[0.2em] text-muted-foreground uppercase"
       >
         {group.title}
       </h3>
@@ -134,25 +142,20 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-xs"
           aria-label="Unconnected ports"
           aria-expanded={!isCollapsed}
           onClick={() => {
             setParam({ nodeId: data.node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
           }}
-          className="nodrag -ml-1.5 flex size-6 shrink-0 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="nodrag -ml-1.5 text-muted-foreground hover:text-foreground"
         >
-          {isCollapsed ? (
-            <ChevronRight aria-hidden="true" className="size-3.5" />
-          ) : (
-            <ChevronDown aria-hidden="true" className="size-3.5" />
-          )}
-        </button>
+          {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+        </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">
-        {isCollapsed ? 'Show unconnected ports' : 'Hide unconnected ports'}
-      </TooltipContent>
+      <TooltipContent side="top">{portsToggleLabel(isCollapsed)}</TooltipContent>
     </Tooltip>
   )
 }
@@ -194,7 +197,7 @@ function NodeError({ message }: { message: string }) {
 function nodeFrameClass(data: FlowNodeData, selected: boolean): string {
   return cn(
     'graph-node flex flex-col border bg-card text-card-foreground',
-    selected && 'border-primary shadow-[0_0_0_1px_var(--primary)]',
+    selected && SELECTED_FRAME_CLASS,
     data.error !== undefined && 'border-destructive',
   )
 }
@@ -206,33 +209,35 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
   if (output === undefined || dataType === undefined) return null
 
   return (
-    <div
-      data-error={data.error !== undefined}
-      className={cn(nodeFrameClass(data, selected), 'w-44')}
-    >
-      <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-        {data.definition.description}
-      </p>
-      <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
-        <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
-        <span
-          data-type-chip
-          className="shrink-0 border px-1 font-mono text-[10px] leading-4 text-muted-foreground"
-        >
-          {dataType}
-        </span>
-        <ConnectablePort
-          nodeId={data.node.id}
-          portId={output.id}
-          side="output"
-          dataType={dataType}
-          nodeTitle={data.title}
-          portLabel={output.label}
-          isConnected={data.connectedOutputs.has(output.id)}
-        />
+    <NodeContextMenu data={data}>
+      <div
+        data-error={data.error !== undefined}
+        className={cn(nodeFrameClass(data, selected), 'w-44')}
+      >
+        <p id={nodeDescriptionId(data.node.id)} className="sr-only">
+          {data.definition.description}
+        </p>
+        <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
+          <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
+          <span
+            data-type-chip
+            className="shrink-0 border px-1 font-mono text-micro leading-4 text-muted-foreground"
+          >
+            {dataType}
+          </span>
+          <ConnectablePort
+            nodeId={data.node.id}
+            portId={output.id}
+            side="output"
+            dataType={dataType}
+            nodeTitle={data.title}
+            portLabel={output.label}
+            isConnected={data.connectedOutputs.has(output.id)}
+          />
+        </div>
+        {data.error !== undefined && <NodeError message={data.error} />}
       </div>
-      {data.error !== undefined && <NodeError message={data.error} />}
-    </div>
+    </NodeContextMenu>
   )
 }
 
@@ -247,34 +252,36 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const hasInputs = groups.some((group) => group.rows.length > 0)
 
   return (
-    <div
-      data-error={error !== undefined}
-      className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
-    >
-      <p id={nodeDescriptionId(node.id)} className="sr-only">
-        {definition.description}
-      </p>
-      <NodeHeader data={data} />
-      {params.length > 0 && <ParamFields node={node} params={params} />}
-      {outputs.length > 0 && (
-        <ul className="py-1">
-          {outputs.map((output) => {
-            const dataType = outputTypes[output.id]
-            return dataType === undefined ? null : (
-              <OutputRow key={output.id} data={data} output={output} dataType={dataType} />
-            )
-          })}
-        </ul>
-      )}
-      {hasInputs && (
-        <div className={cn('pb-1', outputs.length > 0 && 'border-t pt-1')}>
-          {groups.map((group) => (
-            <PortGroupList key={group.title ?? 'inputs'} group={group} data={data} />
-          ))}
-        </div>
-      )}
-      {error !== undefined && <NodeError message={error} />}
-    </div>
+    <NodeContextMenu data={data}>
+      <div
+        data-error={error !== undefined}
+        className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
+      >
+        <p id={nodeDescriptionId(node.id)} className="sr-only">
+          {definition.description}
+        </p>
+        <NodeHeader data={data} />
+        {params.length > 0 && <ParamFields node={node} params={params} />}
+        {outputs.length > 0 && (
+          <ul className="py-1">
+            {outputs.map((output) => {
+              const dataType = outputTypes[output.id]
+              return dataType === undefined ? null : (
+                <OutputRow key={output.id} data={data} output={output} dataType={dataType} />
+              )
+            })}
+          </ul>
+        )}
+        {hasInputs && (
+          <div className={cn('pb-1', outputs.length > 0 && 'border-t pt-1')}>
+            {groups.map((group) => (
+              <PortGroupList key={group.title ?? 'inputs'} group={group} data={data} />
+            ))}
+          </div>
+        )}
+        {error !== undefined && <NodeError message={error} />}
+      </div>
+    </NodeContextMenu>
   )
 }
 

@@ -2,6 +2,15 @@ import { Fragment } from 'react'
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
 import { Kbd } from '@/shared/ui/kbd'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/ui/table'
 
 import { SHORTCUT_SECTIONS } from './shortcut-catalog'
 import type { KeyChord, ShortcutEntry, ShortcutSection } from './shortcut-catalog'
@@ -23,11 +32,11 @@ function Chord({ chord }: { chord: KeyChord }) {
 
 function EntryRow({ entry }: { entry: ShortcutEntry }) {
   return (
-    <tr className="border-t">
-      <th scope="row" className="py-1.5 pr-4 text-left font-normal">
+    <TableRow className="border-t border-b-0 hover:bg-transparent">
+      <TableHead scope="row" className="h-auto py-1.5 pr-4 pl-0 font-normal whitespace-normal">
         {entry.action}
-      </th>
-      <td className="py-1.5">
+      </TableHead>
+      <TableCell className="py-1.5 pr-0">
         <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
           {entry.chords.map((chord, index) => (
             <Fragment key={chord.join('+')}>
@@ -36,28 +45,32 @@ function EntryRow({ entry }: { entry: ShortcutEntry }) {
             </Fragment>
           ))}
         </span>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
 
 function SectionRows({ section }: { section: ShortcutSection }) {
   return (
-    <tbody>
-      <tr>
-        <th
+    <TableBody>
+      <TableRow className="border-b-0 hover:bg-transparent">
+        <TableHead
           scope="rowgroup"
           colSpan={2}
-          className="pt-4 pb-1 text-left font-mono text-[10px] font-normal tracking-[0.2em] text-muted-foreground uppercase"
+          className="h-auto px-0 pt-4 pb-1 font-mono text-micro font-normal tracking-[0.2em] text-muted-foreground uppercase"
         >
           {section.title}
-        </th>
-      </tr>
+        </TableHead>
+      </TableRow>
       {section.entries.map((entry) => (
         <EntryRow key={entry.action} entry={entry} />
       ))}
-    </tbody>
+    </TableBody>
   )
+}
+
+function closeButtonIn(dialog: Element): HTMLElement | null {
+  return dialog.querySelector<HTMLElement>('[data-slot="dialog-close"]')
 }
 
 export interface ShortcutsDialogProps {
@@ -73,6 +86,14 @@ export function ShortcutsDialog({ open, onOpenChange, restoreFocus }: ShortcutsD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="max-h-[85dvh] grid-rows-[auto_auto_minmax(0,1fr)] sm:max-w-lg"
+        onOpenAutoFocus={(event) => {
+          // Close is the first stop, so the tall scroll region doesn't open wrapped in a ring.
+          const close =
+            event.currentTarget instanceof Element ? closeButtonIn(event.currentTarget) : null
+          if (close === null) return
+          event.preventDefault()
+          close.focus()
+        }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()
           restoreFocus()
@@ -91,18 +112,20 @@ export function ShortcutsDialog({ open, onOpenChange, restoreFocus }: ShortcutsD
           aria-label="All shortcuts"
           className="-mx-1 overflow-y-auto px-1 pb-1"
         >
-          <table className="w-full border-collapse text-sm">
-            <caption className="sr-only">Keyboard shortcuts by area of the editor</caption>
-            <thead className="sr-only">
-              <tr>
-                <th scope="col">Action</th>
-                <th scope="col">Keys</th>
-              </tr>
-            </thead>
+          <Table className="border-collapse">
+            <TableCaption className="sr-only">
+              Keyboard shortcuts by area of the editor
+            </TableCaption>
+            <TableHeader className="sr-only">
+              <TableRow>
+                <TableHead scope="col">Action</TableHead>
+                <TableHead scope="col">Keys</TableHead>
+              </TableRow>
+            </TableHeader>
             {SHORTCUT_SECTIONS.map((section) => (
               <SectionRows key={section.title} section={section} />
             ))}
-          </table>
+          </Table>
         </div>
       </DialogContent>
     </Dialog>

@@ -12,7 +12,8 @@ export interface ShortcutSection {
   readonly entries: readonly ShortcutEntry[]
 }
 
-const MOD = 'Ctrl/⌘'
+/** How the catalog, menus and tooltips write Ctrl on Windows and Linux, ⌘ on a Mac. */
+export const MOD = 'Ctrl/⌘'
 
 /** Every keyboard shortcut in the editor, shown in the shortcuts dialog. */
 export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
@@ -38,7 +39,7 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
   {
     title: 'Panels (canvas, node or panel header)',
     entries: [
-      { action: 'Show or hide the Blackboard', chords: [['B']] },
+      { action: 'Show or hide the Properties panel', chords: [['B']] },
       { action: 'Show or hide the Inspector', chords: [['I']] },
       { action: 'Show or hide the Preview', chords: [['P']] },
       { action: 'Show or hide the Code panel', chords: [['C']] },
@@ -49,7 +50,7 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
     title: 'Preview layout',
     entries: [
       { action: 'Leave the full preview', chords: [['Esc']] },
-      { action: 'Move the split divider 5%', chords: [['Arrow keys']] },
+      { action: 'Move the split handle 5%', chords: [['Arrow keys']] },
       { action: 'Smallest or largest canvas in split', chords: [['Home'], ['End']] },
     ],
   },
@@ -60,6 +61,7 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
       { action: 'Pan the view 40 px', chords: [['Arrow keys']] },
       { action: 'Pan the view 160 px', chords: [['Shift', 'Arrow keys']] },
       { action: 'Delete the selected nodes and connections', chords: [['Delete']] },
+      { action: 'Open the canvas menu', chords: [['Shift', 'F10'], ['Menu']] },
     ],
   },
   {
@@ -71,6 +73,10 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
       { action: 'Edit its first field', chords: [['Enter']] },
       { action: 'Leave a field and return to the node', chords: [['Esc']] },
       { action: 'Next or previous port and field', chords: [['Tab'], ['Shift', 'Tab']] },
+      {
+        action: 'Open its menu: copy, duplicate, preview mode, delete',
+        chords: [['Shift', 'F10'], ['Menu']],
+      },
     ],
   },
   {
@@ -85,6 +91,13 @@ export const SHORTCUT_SECTIONS: readonly ShortcutSection[] = [
     entries: [
       { action: 'Connect to another port', chords: [['Enter']] },
       { action: 'Remove its connections', chords: [['Delete']] },
+    ],
+  },
+  {
+    title: 'Connection',
+    entries: [
+      { action: 'Delete the connection', chords: [['Delete']] },
+      { action: 'Open its menu', chords: [['Shift', 'F10'], ['Menu']] },
     ],
   },
 ]

@@ -4,6 +4,8 @@ import type { NodeId, NodeTypeId, XY } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
 
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
+import { COMMENT_NODE_TYPE } from '@/features/canvas/to-flow'
+import type { FlowNode } from '@/features/canvas/to-flow'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
@@ -11,8 +13,8 @@ import { useEditorStore } from '@/store/editor-store'
 import { AddNodeMenu } from './add-node-menu'
 import { AddNodeMenuContext } from './add-node-menu-context'
 import type { OpenAddNodeMenu } from './add-node-menu-context'
-import { besideNode, rectCenter } from './add-node-placement'
-import type { PlacementOrigin } from './add-node-placement'
+import { NEW_NODE_SIZE, besideNode, findFreeSpot, rectCenter } from './add-node-placement'
+import type { FlowRect, PlacementOrigin } from './add-node-placement'
 import { useAddNodeShortcut } from './use-add-node-shortcut'
 
 /** Where focus goes when the menu closes: the node just added, or whatever opened the menu. */
@@ -32,6 +34,17 @@ function viewportCenter(): XY {
   )
 }
 
+/** The nodes a new node must not cover. Comment frames sit behind nodes, so they don't count. */
+function occupiedRects(nodes: readonly FlowNode[]): FlowRect[] {
+  return nodes
+    .filter((node) => node.type !== COMMENT_NODE_TYPE)
+    .map((node) => ({
+      ...node.position,
+      width: node.measured?.width ?? NEW_NODE_SIZE.width,
+      height: node.measured?.height ?? NEW_NODE_SIZE.height,
+    }))
+}
+
 interface AddNodeMenuProviderProps {
   children: ReactNode
 }
@@ -41,7 +54,7 @@ interface AddNodeMenuProviderProps {
  * node, and moving focus afterwards. Must sit inside a `ReactFlowProvider`.
  */
 export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, getNodes } = useReactFlow<FlowNode>()
   const [isOpen, setIsOpen] = useState(false)
   const placementRef = useRef<XY>({ x: 0, y: 0 })
   const focusOnCloseRef = useRef<FocusOnClose>({ kind: 'opener', element: null })
@@ -51,13 +64,16 @@ export function AddNodeMenuProvider({ children }: AddNodeMenuProviderProps) {
       if (origin.kind === 'cursor') {
         return screenToFlowPosition({ x: origin.clientX, y: origin.clientY })
       }
-      if (origin.kind === 'beside-node') {
-        const node = useEditorStore.getState().graph.nodes[origin.nodeId]
-        if (node !== undefined) return besideNode(node.position)
-      }
-      return screenToFlowPosition(viewportCenter())
+      const node =
+        origin.kind === 'beside-node'
+          ? useEditorStore.getState().graph.nodes[origin.nodeId]
+          : undefined
+      const wanted =
+        node === undefined ? screenToFlowPosition(viewportCenter()) : besideNode(node.position)
+      // Space and the header button aim at a spot; a node already there is skipped, not covered.
+      return findFreeSpot(wanted, occupiedRects(getNodes()))
     },
-    [screenToFlowPosition],
+    [screenToFlowPosition, getNodes],
   )
 
   const openMenu = useCallback<OpenAddNodeMenu>(

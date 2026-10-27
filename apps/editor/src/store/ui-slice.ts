@@ -88,6 +88,9 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
           },
     )
   },
+  discardSplitDraft: () => {
+    set({ splitDraftPercent: null })
+  },
   setPreviewBackdrop: (backdrop) => {
     set((state) => withPanels(state, { backdrop }))
   },

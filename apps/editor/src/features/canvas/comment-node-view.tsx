@@ -4,8 +4,11 @@ import { NodeResizer } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
 
 import { cn } from '@/shared/lib/utils'
+import { Input } from '@/shared/ui/input'
 
 import { useGraphCanvasActions } from './graph-canvas-actions'
+import { NodeContextMenu } from './node-context-menu'
+import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { frameOf } from './node-frame'
 import { nodeDescriptionId } from './to-flow'
 import type { FlowNode, FlowNodeData } from './to-flow'
@@ -41,7 +44,7 @@ function CommentTitleField({ data }: CommentTitleFieldProps) {
   }
 
   return (
-    <input
+    <Input
       type="text"
       aria-label="Comment title"
       autoComplete="off"
@@ -52,7 +55,7 @@ function CommentTitleField({ data }: CommentTitleFieldProps) {
       }}
       onBlur={commitDraft}
       onKeyDown={onKeyDown}
-      className="nodrag h-6 min-w-0 flex-1 border border-transparent bg-transparent px-1 font-heading text-xs font-semibold tracking-wide uppercase hover:border-border"
+      className="nodrag h-6 min-w-0 flex-1 border-transparent bg-transparent px-1 py-0 font-heading text-base font-semibold tracking-wide uppercase hover:border-border md:text-xs dark:bg-transparent"
     />
   )
 }
@@ -76,19 +79,21 @@ function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           handleClassName="comment-resize-handle"
         />
       )}
-      <div
-        className={cn(
-          'flex size-full flex-col border border-dashed border-muted-foreground/60 bg-muted/25',
-          selected && 'border-solid border-primary',
-        )}
-      >
-        <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-          {data.definition.description}
-        </p>
-        <header className="flex h-8 shrink-0 items-center border-b border-inherit px-1.5">
-          <CommentTitleField data={data} />
-        </header>
-      </div>
+      <NodeContextMenu data={data}>
+        <div
+          className={cn(
+            'flex size-full flex-col border border-dashed border-muted-foreground/60 bg-muted/25',
+            selected && ['border-solid', SELECTED_FRAME_CLASS],
+          )}
+        >
+          <p id={nodeDescriptionId(data.node.id)} className="sr-only">
+            {data.definition.description}
+          </p>
+          <header className="flex h-8 shrink-0 items-center border-b border-inherit px-1.5">
+            <CommentTitleField data={data} />
+          </header>
+        </div>
+      </NodeContextMenu>
     </>
   )
 }

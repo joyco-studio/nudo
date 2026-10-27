@@ -18,6 +18,23 @@
   box-shadow: 0 0 0 2px var(--background);
 }
 
+/*
+ * Listbox and menu rows take real focus as the highlight moves (APG listbox and menu patterns).
+ * Their active row shows through the highlighted background instead; a ring around every row
+ * would read as a second selection. Their triggers keep the ring.
+ */
+:is(
+  [role='option'],
+  [role^='menuitem'],
+  [cmdk-item],
+  [data-slot='select-item'],
+  [data-slot='context-menu-item'],
+  [data-slot='dropdown-menu-item']
+):focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 /* Full-bleed targets (the canvas landmark) would have an outer ring clipped by the viewport. */
 [data-focus-ring='inset']:focus-visible {
   outline-offset: -4px;
@@ -27,11 +44,11 @@
 /*
  * Text entry gets a quiet indicator instead of the ring (user ruling): no outline, no halo and no
  * offset; the field's own border turns the foreground color, which contrasts with every surface at
- * ~15:1 (far above the 3:1 non-text minimum). Checkboxes, radios, color swatches and sliders are
- * not text entry, so they keep the ring above.
+ * ~15:1 (far above the 3:1 non-text minimum). Checkboxes, radios and sliders are not text
+ * entry, so they keep the ring above.
  */
 :is(
-  input:not([type='checkbox'], [type='radio'], [type='color'], [type='range']),
+  input:not([type='checkbox'], [type='radio'], [type='range']),
   textarea,
   [cmdk-input]
 ):focus-visible {
@@ -54,7 +71,7 @@
  */
 [data-slot='input-group']:has(
   > :is(
-      input:not([type='checkbox'], [type='radio'], [type='color'], [type='range']),
+      input:not([type='checkbox'], [type='radio'], [type='range']),
       textarea,
       [cmdk-input]
     ):focus-visible

@@ -19,7 +19,7 @@ export const GRAPH_NODE_TYPE = 'graph-node'
 export const COMMENT_NODE_TYPE = 'comment'
 export const TYPED_EDGE_TYPE = 'typed'
 const MASTER_TITLE = 'Master Stack'
-const COMMENT_TYPE = 'utility/comment'
+export const COMMENT_TYPE = 'utility/comment'
 const COMMENT_TITLE_PARAM = 'title'
 /**
  * Comment frames sit behind every other node, even while selected: React Flow lifts a selected

@@ -1,26 +1,28 @@
-import { useRef } from 'react'
-
-import { Button } from '@/shared/ui/button'
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '@/shared/ui/dialog'
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog'
 
 export interface NewGraphDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  /** "2 nodes and 1 property": what the reset clears. */
+  /** "2 nodes and 1 property": what starting over removes. */
   contentsLabel: string
   onConfirm: () => void
   /** Runs after the dialog closes, in place of Radix's default, to put focus back. */
   restoreFocus: () => void
 }
 
-/** Confirms starting over. Cancel has focus: the safe choice is the easy one. */
+/**
+ * Confirms starting a new graph. An alert dialog focuses Cancel first, so the safe choice is the
+ * easy one, and names the one action the header button and the shortcut also call "New graph".
+ */
 export function NewGraphDialog({
   open,
   onOpenChange,
@@ -28,39 +30,30 @@ export function NewGraphDialog({
   onConfirm,
   restoreFocus,
 }: NewGraphDialogProps) {
-  const cancelRef = useRef<HTMLButtonElement>(null)
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        onOpenAutoFocus={(event) => {
-          event.preventDefault()
-          cancelRef.current?.focus()
-        }}
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent
         onCloseAutoFocus={(event) => {
           event.preventDefault()
           restoreFocus()
         }}
       >
-        <DialogTitle className="font-heading text-sm font-semibold tracking-wide uppercase">
-          Start a new graph?
-        </DialogTitle>
-        <DialogDescription>
-          This clears {contentsLabel} and keeps only the Master Stack. Undo (Ctrl/⌘ Z) brings them
-          back.
-        </DialogDescription>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button ref={cancelRef} variant="outline" size="sm">
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button variant="destructive" size="sm" onClick={onConfirm}>
-            Clear graph
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="font-heading text-sm font-semibold tracking-wide uppercase">
+            Start a new graph?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            This removes {contentsLabel} and keeps only the Master Stack. Undo (Ctrl/⌘ Z) brings
+            them back.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" size="sm" onClick={onConfirm}>
+            Start new graph
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

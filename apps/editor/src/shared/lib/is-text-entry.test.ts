@@ -14,6 +14,12 @@ describe('isTextEntry', () => {
     expect(isTextEntry(editable)).toBe(true)
   })
 
+  it('is true for a select trigger (a combobox button), which keeps letters for type-ahead', () => {
+    const trigger = document.createElement('button')
+    trigger.setAttribute('role', 'combobox')
+    expect(isTextEntry(trigger)).toBe(true)
+  })
+
   it('is false for other elements and for non-elements', () => {
     expect(isTextEntry(document.createElement('button'))).toBe(false)
     expect(isTextEntry(document.createElement('div'))).toBe(false)

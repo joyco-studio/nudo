@@ -111,7 +111,8 @@ function NodeSearch({ onPick }: NodeSearchProps) {
         aria-label="Search nodes"
         className="h-full pr-1.5"
       />
-      <CommandList label="Nodes" className="max-h-[min(22rem,50dvh)]">
+      {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
+      <CommandList label="Nodes" className="max-h-[min(23rem,50dvh)]">
         <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
           No nodes match "{query.trim()}". Try another word, like mix or time.
         </CommandEmpty>
@@ -132,13 +133,16 @@ function NodeSearch({ onPick }: NodeSearchProps) {
           </CommandGroup>
         ))}
       </CommandList>
-      <footer className="-mx-1 -mb-1 flex flex-col gap-2 border-t bg-muted/40 px-3 py-2 text-xs">
-        {/* Screen readers already hear the description as part of the highlighted option. */}
-        <p aria-hidden="true" className="min-h-[2lh] text-pretty text-foreground sm:min-h-lh">
-          {highlighted?.description}
-        </p>
-        <KeyHints hints={KEY_HINTS} />
-      </footer>
+      {/* With no match there is nothing to describe or move through: the empty message says it. */}
+      {groups.length > 0 && (
+        <footer className="-mx-1 -mb-1 flex flex-col gap-2 border-t bg-muted/40 px-3 py-2 text-xs">
+          {/* Screen readers already hear the description as part of the highlighted option. */}
+          <p aria-hidden="true" className="min-h-[2lh] text-pretty text-foreground sm:min-h-lh">
+            {highlighted?.description}
+          </p>
+          <KeyHints hints={KEY_HINTS} />
+        </footer>
+      )}
     </Command>
   )
 }

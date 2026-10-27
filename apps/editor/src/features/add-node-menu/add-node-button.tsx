@@ -22,8 +22,11 @@ export function AddNodeButton() {
         }}
       >
         <Plus aria-hidden="true" />
-        Add node
-        <Kbd aria-hidden="true">Space</Kbd>
+        {/* Icon only on a narrow header; the label stays the accessible name. */}
+        <span className="max-sm:sr-only">Add node</span>
+        <Kbd aria-hidden="true" className="max-sm:hidden">
+          Space
+        </Kbd>
       </Button>
       <span id={shortcutHintId} className="sr-only">
         Shortcut: Space while the canvas or a node has focus

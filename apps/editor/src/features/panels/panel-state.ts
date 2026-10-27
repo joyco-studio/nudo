@@ -32,6 +32,21 @@ export const DEFAULT_PANEL_PREFS: PanelPrefs = {
   backdrop: 'none',
 }
 
+/**
+ * Below this width the panels stack in one column over the canvas, so Properties and Inspector
+ * start collapsed there and the canvas stays visible.
+ */
+export const NARROW_SCREEN_QUERY = '(max-width: 767px)'
+
+/** The layout a first visit gets: wide screens open Properties and Inspector, narrow ones don't. */
+export function defaultPanelPrefsFor(isNarrow: boolean): PanelPrefs {
+  if (!isNarrow) return DEFAULT_PANEL_PREFS
+  return {
+    ...DEFAULT_PANEL_PREFS,
+    open: { ...DEFAULT_PANEL_PREFS.open, blackboard: false, inspector: false },
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -55,11 +70,11 @@ export function effectivePreviewLayout(prefs: PanelPrefs): PreviewLayout {
   return prefs.open.preview ? prefs.layout : 'docked'
 }
 
-function parseOpen(input: unknown): PanelPrefs['open'] {
+function parseOpen(input: unknown, defaults: PanelPrefs['open']): PanelPrefs['open'] {
   const stored = isRecord(input) ? input : {}
   const isOpen = (id: PanelId): boolean => {
     const value = stored[id]
-    return typeof value === 'boolean' ? value : DEFAULT_PANEL_PREFS.open[id]
+    return typeof value === 'boolean' ? value : defaults[id]
   }
   return {
     blackboard: isOpen('blackboard'),
@@ -78,18 +93,19 @@ function parseJson(rawText: string): unknown {
 }
 
 /** Validates stored preferences field by field: an invalid field falls back to its default. */
-export function parsePanelPrefs(rawText: string | null): PanelPrefs {
+export function parsePanelPrefs(
+  rawText: string | null,
+  defaults: PanelPrefs = DEFAULT_PANEL_PREFS,
+): PanelPrefs {
   const input = rawText === null ? null : parseJson(rawText)
-  if (!isRecord(input)) return DEFAULT_PANEL_PREFS
+  if (!isRecord(input)) return defaults
   const { splitPercent } = input
   return {
-    open: parseOpen(input.open),
-    layout: oneOf(PREVIEW_LAYOUTS, input.layout) ?? DEFAULT_PANEL_PREFS.layout,
+    open: parseOpen(input.open, defaults.open),
+    layout: oneOf(PREVIEW_LAYOUTS, input.layout) ?? defaults.layout,
     splitPercent:
-      typeof splitPercent === 'number'
-        ? clampSplitPercent(splitPercent)
-        : DEFAULT_PANEL_PREFS.splitPercent,
-    backdrop: oneOf(PREVIEW_BACKDROPS, input.backdrop) ?? DEFAULT_PANEL_PREFS.backdrop,
+      typeof splitPercent === 'number' ? clampSplitPercent(splitPercent) : defaults.splitPercent,
+    backdrop: oneOf(PREVIEW_BACKDROPS, input.backdrop) ?? defaults.backdrop,
   }
 }
 
@@ -97,12 +113,15 @@ export function serializePanelPrefs(prefs: PanelPrefs): string {
   return JSON.stringify(prefs)
 }
 
-export function loadPanelPrefs(storage: Storage): PanelPrefs {
+export function loadPanelPrefs(
+  storage: Storage,
+  defaults: PanelPrefs = DEFAULT_PANEL_PREFS,
+): PanelPrefs {
   try {
-    return parsePanelPrefs(storage.getItem(PANELS_STORAGE_KEY))
+    return parsePanelPrefs(storage.getItem(PANELS_STORAGE_KEY), defaults)
   } catch {
     // Storage can be blocked (privacy settings): the defaults still work for this session.
-    return DEFAULT_PANEL_PREFS
+    return defaults
   }
 }
 

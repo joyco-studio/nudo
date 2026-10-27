@@ -1,5 +1,5 @@
 import { createContext, use } from 'react'
-import type { ParamRef, ParamValue, PortRef, PortValue } from '@nudo-tsl/core'
+import type { EdgeId, NodeId, ParamRef, ParamValue, PortRef, PortValue } from '@nudo-tsl/core'
 
 import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
 
@@ -18,6 +18,26 @@ export interface GraphCanvasActions {
   disconnectPort: (origin: ConnectOrigin) => void
   /** Sets a node param (an enum, a toggle, the collapsed state, a comment title). */
   setParam: (ref: ParamRef, value: ParamValue) => void
+  /** The nodes a command on this node applies to: the selection when it holds the node. */
+  commandTargets: (nodeId: NodeId) => readonly NodeId[]
+  copyNodes: (nodeIds: readonly NodeId[]) => void
+  /** Pastes a copy beside the originals as one undo step, selects it and focuses its first node. */
+  duplicateNodes: (nodeIds: readonly NodeId[]) => void
+  /** Deletes as one undo step (never the master) and keeps focus on the canvas. */
+  deleteNodes: (nodeIds: readonly NodeId[]) => void
+  deleteEdge: (edgeId: EdgeId) => void
+  /** Pastes nudo-tsl nodes from the clipboard with their top-left corner at a screen point. */
+  pasteAt: (clientPoint: ClientPoint) => void
+  addCommentAt: (clientPoint: ClientPoint) => void
+  /** Opens the add-node menu; the picked node lands at the screen point. */
+  openAddNodeMenuAt: (clientPoint: ClientPoint) => void
+  fitView: () => void
+}
+
+/** A point in viewport (client) pixels, where a context menu was opened. */
+export interface ClientPoint {
+  readonly clientX: number
+  readonly clientY: number
 }
 
 export const GraphCanvasActionsContext = createContext<GraphCanvasActions | null>(null)

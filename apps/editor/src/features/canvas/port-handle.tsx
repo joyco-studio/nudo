@@ -3,6 +3,7 @@ import type { DataType } from '@nudo-tsl/core'
 import { Handle, Position } from '@xyflow/react'
 
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { PORT_BUTTON_ATTRIBUTE } from './canvas-keyboard-model'
 import type { PortSide } from './connect-candidates'
@@ -69,15 +70,27 @@ interface PortTypeLabelProps {
   dataType: DataType
 }
 
-/** The type as text (`1`, `2`, `3`, `4`, `T`), so type never relies on color alone. */
+/** The full type name waits, so it never flashes up while the pointer crosses a node. */
+const TYPE_HINT_DELAY_MS = 700
+
+/**
+ * The type as text (`1`, `2`, `3`, `4`, `T`), so type never relies on color alone. The full name
+ * is spoken with the port; sighted pointer users get it in a tooltip.
+ */
 export function PortTypeLabel({ dataType }: PortTypeLabelProps) {
   return (
-    <span
-      aria-hidden="true"
-      title={dataType}
-      className="w-2 shrink-0 text-center font-mono text-[10px] leading-none text-muted-foreground"
-    >
-      {PORT_LABELS[dataType]}
-    </span>
+    <Tooltip delayDuration={TYPE_HINT_DELAY_MS}>
+      <TooltipTrigger asChild>
+        <span
+          aria-hidden="true"
+          className="w-2 shrink-0 text-center font-mono text-micro leading-none text-muted-foreground"
+        >
+          {PORT_LABELS[dataType]}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
+        {dataType}
+      </TooltipContent>
+    </Tooltip>
   )
 }

@@ -9,7 +9,7 @@ const PAST_DEBOUNCE_MS = 500
 const DRAG_STEPS = 10
 /** The seeded Color node: linear [1, 0.2, 0.05], shown as sRGB hex. */
 const SEEDED_LINEAR = { type: 'vec3', value: [1, 0.2, 0.05] } as const
-const SEEDED_HEX = '#ff7c3f'
+const SEEDED_HEX = '#FF7C3F'
 /** #1a2b3c decoded to linear light (IEC 61966-2-1). */
 const HEX_1A2B3C_LINEAR = [0.01033, 0.024158, 0.045186] as const
 const LINEAR_PRECISION_DIGITS = 5
@@ -182,13 +182,13 @@ test.describe('color picker', () => {
     expect(await storedColor(page)).toEqual(SEEDED_LINEAR)
   })
 
-  test('hex field accepts #1a2b3c', async ({ page }) => {
+  test('hex field accepts #1a2b3c and shows it uppercase', async ({ page }) => {
     await openPickerWithKeyboard(page)
     const hex = picker(page).getByRole('textbox', { name: 'Hex' })
     await hex.fill('#1a2b3c')
 
     // Typing previews live; the channel fields follow.
-    await expect(colorSwatch(page)).toHaveAccessibleDescription('#1a2b3c')
+    await expect(colorSwatch(page)).toHaveAccessibleDescription('#1A2B3C')
     await expect(picker(page).getByRole('textbox', { name: 'Red' })).toHaveValue('26')
     await expect(picker(page).getByRole('textbox', { name: 'Green' })).toHaveValue('43')
     await expect(picker(page).getByRole('textbox', { name: 'Blue' })).toHaveValue('60')
@@ -201,7 +201,7 @@ test.describe('color picker', () => {
     HEX_1A2B3C_LINEAR.forEach((expected, index) => {
       expect(channels[index]).toBeCloseTo(expected, LINEAR_PRECISION_DIGITS)
     })
-    await expect(colorSwatch(page)).toHaveAccessibleDescription('#1a2b3c')
+    await expect(colorSwatch(page)).toHaveAccessibleDescription('#1A2B3C')
   })
 
   test('typing a channel previews it; text that is not 0-255 is flagged and reverts', async ({
@@ -210,7 +210,7 @@ test.describe('color picker', () => {
     await openPickerWithKeyboard(page)
     const red = picker(page).getByRole('textbox', { name: 'Red' })
     await red.fill('0')
-    await expect(picker(page).getByRole('textbox', { name: 'Hex' })).toHaveValue('#007c3f')
+    await expect(picker(page).getByRole('textbox', { name: 'Hex' })).toHaveValue('#007C3F')
 
     await red.fill('300')
     await expect(red).toHaveAttribute('aria-invalid', 'true')

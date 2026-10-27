@@ -1,0 +1,77 @@
+'use client'
+
+import * as React from 'react'
+import { cn } from '@/shared/lib/utils'
+import { Slider as SliderPrimitive } from 'radix-ui'
+
+function Slider({
+  className,
+  defaultValue,
+  value,
+  min = 0,
+  max = 100,
+  trackClassName,
+  trackStyle,
+  rangeClassName,
+  thumbClassName,
+  thumbProps,
+  ...props
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+  // nudo-tsl additions: a custom track (the hue gradient) and a name and value text on the thumb,
+  // which is the element with the slider role.
+  trackClassName?: string
+  trackStyle?: React.CSSProperties
+  rangeClassName?: string
+  thumbClassName?: string
+  thumbProps?: React.ComponentProps<typeof SliderPrimitive.Thumb>
+}) {
+  const _values = React.useMemo(
+    () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
+    [value, defaultValue, min, max],
+  )
+
+  return (
+    <SliderPrimitive.Root
+      data-slot="slider"
+      defaultValue={defaultValue}
+      value={value}
+      min={min}
+      max={max}
+      className={cn(
+        'relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col',
+        className,
+      )}
+      {...props}
+    >
+      <SliderPrimitive.Track
+        data-slot="slider-track"
+        className={cn(
+          'relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1',
+          trackClassName,
+        )}
+        style={trackStyle}
+      >
+        <SliderPrimitive.Range
+          data-slot="slider-range"
+          className={cn(
+            'absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full',
+            rangeClassName,
+          )}
+        />
+      </SliderPrimitive.Track>
+      {Array.from({ length: _values.length }, (_, index) => (
+        <SliderPrimitive.Thumb
+          data-slot="slider-thumb"
+          key={index}
+          {...thumbProps}
+          className={cn(
+            'relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50',
+            thumbClassName,
+          )}
+        />
+      ))}
+    </SliderPrimitive.Root>
+  )
+}
+
+export { Slider }
