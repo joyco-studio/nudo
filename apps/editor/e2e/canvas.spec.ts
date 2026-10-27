@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 import { expectFocusRing, expectQuietFieldFocus, tabUntilFocused } from './support/focus-indicators'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
+import { toasts } from './support/toasts'
 
 const VEC3_COLOR = 'oklch(0.82 0.16 80)'
 const DRAG_OFFSET = { x: 160, y: 90 }
@@ -263,14 +264,14 @@ test.describe('with motion enabled', () => {
   })
 })
 
-test('a corrupt autosave shows a dismissible notice', async ({ page }) => {
+test('a corrupt autosave shows a toast that stays until it is dismissed', async ({ page }) => {
   await seedAutosave(page, '{not json')
   await page.goto('/')
 
-  const notice = page.getByRole('status')
+  const notice = toasts(page)
   await expect(notice).toContainText("Couldn't restore your last session")
   await expect(graphNode(page, 'Master Stack')).toBeVisible()
 
   await notice.getByRole('button', { name: 'Dismiss' }).click()
-  await expect(notice).toBeEmpty()
+  await expect(notice).toHaveCount(0)
 })

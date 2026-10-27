@@ -54,6 +54,7 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Anywhere   | `Ctrl/⌘` `Alt` `N`                 | Start a new graph                                    |
 | Anywhere   | `Ctrl/⌘` `K`                       | Open the command palette                             |
 | Anywhere   | `?`                                | Show keyboard shortcuts                              |
+| Anywhere   | `Alt` `T`                          | Move focus to the notifications                      |
 | Panels     | `B`                                | Show or hide the Properties panel                    |
 | Panels     | `I`                                | Show or hide the Inspector                           |
 | Panels     | `P`                                | Show or hide the Preview                             |
@@ -62,6 +63,8 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Preview    | `Esc`                              | Leave the full preview                               |
 | Preview    | `Arrow keys`                       | Move the split handle 5%                             |
 | Preview    | `Home` or `End`                    | Smallest or largest canvas in split                  |
+| Notices    | `Tab` or `Shift` `Tab`             | Move between the notification and its button         |
+| Notices    | `Esc`                              | Close the notifications and return                   |
 | Canvas     | `Space`                            | Add a node                                           |
 | Canvas     | `Arrow keys`                       | Pan the view 40 px                                   |
 | Canvas     | `Shift` `Arrow keys`               | Pan the view 160 px                                  |

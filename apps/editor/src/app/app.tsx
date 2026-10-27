@@ -12,7 +12,7 @@ import { InspectorPanel } from '@/features/inspector/inspector-panel'
 import { MainPreview } from '@/features/main-preview/main-preview'
 import { NewGraphButton } from '@/features/new-graph/new-graph-button'
 import { NewGraphProvider } from '@/features/new-graph/new-graph-provider'
-import { NoticeRegionContainer } from '@/features/notice/notice-region-container'
+import { NoticeToaster } from '@/features/notice/notice-toaster'
 import { usePanelShortcuts } from '@/features/panels/use-panel-shortcuts'
 import { ShortcutsDialogProvider } from '@/features/shortcuts/shortcuts-dialog-provider'
 import { useGlobalShortcuts } from '@/features/shortcuts/use-global-shortcuts'
@@ -20,15 +20,6 @@ import { TooltipProvider } from '@/shared/ui/tooltip'
 
 import { AppShell } from './app-shell'
 import { ThemeProvider, useTheme } from './theme-provider'
-
-function Canvas() {
-  return (
-    <>
-      <GraphCanvasContainer />
-      <NoticeRegionContainer />
-    </>
-  )
-}
 
 /** Mounts the editor-wide and panel shortcuts; they run commands from the command provider. */
 function GlobalShortcuts() {
@@ -69,8 +60,9 @@ export function App() {
               <NewGraphProvider>
                 <EditorCommands>
                   <GlobalShortcuts />
+                  <NoticeToaster />
                   <AppShell
-                    canvas={<Canvas />}
+                    canvas={<GraphCanvasContainer />}
                     blackboard={<BlackboardPanel />}
                     inspector={<InspectorPanel />}
                     previewPanel={<MainPreview />}
