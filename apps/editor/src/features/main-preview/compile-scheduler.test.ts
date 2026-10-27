@@ -515,6 +515,19 @@ describe('texture assets', () => {
     expect(onBuilt.mock.calls[0]?.[0].properties.get(FLOAT_PROPERTY_ID)?.value).toBe(0.75)
   })
 
+  it('previewing a float property value applies it in place, with no rebuild and no graph change', () => {
+    const { buildSpy, onBuilt, scheduler } = setUp()
+    scheduler.update(floatPropertyGraph(0.25))
+    vi.advanceTimersByTime(DELAY_MS)
+
+    expect(scheduler.previewPropertyValue(FLOAT_PROPERTY_ID, float(0.6))).toBe('applied')
+    vi.advanceTimersByTime(DELAY_MS * 4)
+
+    expect(buildSpy).toHaveBeenCalledOnce()
+    expect(onBuilt.mock.calls[0]?.[0].properties.get(FLOAT_PROPERTY_ID)?.value).toBe(0.6)
+    expect(scheduler.previewPropertyValue(asPropertyId('ghost'), float(1))).toBe('missing')
+  })
+
   it('textureLoaded does nothing after dispose', () => {
     const { buildSpy, scheduler } = setUp()
     scheduler.update(sampleGraph('slow'))

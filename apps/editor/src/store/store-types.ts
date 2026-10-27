@@ -10,10 +10,13 @@ import type {
   ParamValue,
   PortRef,
   PortValue,
+  PropertyError,
+  PropertyId,
   XY,
 } from '@nudo-tsl/core'
 import type { StateCreator } from 'zustand'
 
+import type { PropertyKind } from '@/features/blackboard/property-kinds'
 import type {
   NonFullPreviewLayout,
   PanelId,
@@ -52,6 +55,29 @@ export interface GraphSlice {
   resetGraph(): void
 }
 
+/**
+ * Blackboard property actions. Each change that reaches the graph is one history entry; a change
+ * that would leave the property as it is creates none.
+ */
+export interface PropertySlice {
+  /** Adds an exposed property with a unique default name (`float1`, `color1`, …). */
+  addProperty(kind: PropertyKind): PropertyId | null
+  /**
+   * Renames the display label. While the reference name is still the one the label suggests
+   * (generated, not chosen by hand), it follows the new label in the same history entry.
+   * Returns null on success.
+   */
+  renamePropertyLabel(id: PropertyId, label: string): PropertyError | null
+  /** Renames the reference (the uniform name). Returns why a name was rejected, or null. */
+  renameProperty(id: PropertyId, name: string): PropertyError | null
+  setPropertyExposed(id: PropertyId, exposed: boolean): void
+  setPropertyValue(id: PropertyId, value: PortValue): void
+  /** Removes the property with every node that reads it and their edges: one history entry. */
+  removeProperty(id: PropertyId): void
+  /** Adds a reader node of the property. Returns its id, or null when it could not be added. */
+  addPropertyNode(id: PropertyId, position: XY): NodeId | null
+}
+
 export interface Notice {
   kind: 'info' | 'error'
   message: string
@@ -60,6 +86,12 @@ export interface Notice {
 /** A value being scrubbed that is shown live but not yet part of the graph. */
 export interface InputPreview {
   ref: PortRef
+  value: PortValue
+}
+
+/** A property value being scrubbed or picked, shown live but not yet part of the graph. */
+export interface PropertyPreview {
+  id: PropertyId
   value: PortValue
 }
 
@@ -72,6 +104,8 @@ export interface UiSlice {
    * undo history: the preview material reads it, and the scrub's release commits it.
    */
   inputPreview: InputPreview | null
+  /** Like `inputPreview`, for a Blackboard property value. */
+  propertyPreview: PropertyPreview | null
   notice: Notice | null
   /** Panel layout preferences, persisted to `nudo-tsl:panels`. */
   panels: PanelPrefs
@@ -83,6 +117,8 @@ export interface UiSlice {
   setDraftPositions(positions: UiSlice['draftPositions']): void
   previewInputValue(ref: PortRef, value: PortValue): void
   clearInputPreview(): void
+  previewPropertyValue(id: PropertyId, value: PortValue): void
+  clearPropertyPreview(): void
   showNotice(notice: Notice): void
   dismissNotice(): void
   togglePanel(id: PanelId): void
@@ -104,7 +140,7 @@ export interface CompileSlice {
   setCompileErrors(errors: readonly CompileError[]): void
 }
 
-export type EditorState = GraphSlice & UiSlice & CompileSlice
+export type EditorState = GraphSlice & PropertySlice & UiSlice & CompileSlice
 
 /** A slice creator that lives inside the zundo `temporal` middleware. */
 export type EditorSliceCreator<Slice> = StateCreator<

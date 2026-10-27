@@ -29,6 +29,7 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   selectedNodeIds: [],
   draftPositions: {},
   inputPreview: null,
+  propertyPreview: null,
   notice: null,
   panels: DEFAULT_PANEL_PREFS,
   layoutBeforeFull: 'docked',
@@ -44,6 +45,12 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   },
   clearInputPreview: () => {
     set({ inputPreview: null })
+  },
+  previewPropertyValue: (id, value) => {
+    set({ propertyPreview: { id, value } })
+  },
+  clearPropertyPreview: () => {
+    set({ propertyPreview: null })
   },
   showNotice: (notice) => {
     set({ notice })

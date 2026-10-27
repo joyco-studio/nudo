@@ -33,6 +33,8 @@ const SPLIT_HANDLE_TARGET = { fine: 12, coarse: 24 } as const
 export interface AppShellProps {
   canvas: ReactNode
   blackboard: ReactNode
+  /** Controls in the Properties header (the "+" menu). */
+  blackboardActions: ReactNode
   inspector: ReactNode
   previewPanel: ReactNode
   codePanel: ReactNode
@@ -61,6 +63,7 @@ function codePanelStyle(layout: PreviewLayout, splitPercent: number): CSSPropert
 export function AppShell({
   canvas,
   blackboard,
+  blackboardActions,
   inspector,
   previewPanel,
   codePanel,
@@ -81,6 +84,7 @@ export function AppShell({
       title="Properties"
       description="Named values you can reuse and expose as uniforms"
       edge="left"
+      headerActions={blackboardActions}
       isHidden={layout === 'full'}
       className={cn(
         'shrink-0',

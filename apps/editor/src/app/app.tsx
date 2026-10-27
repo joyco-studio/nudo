@@ -3,7 +3,10 @@ import { ReactFlowProvider } from '@xyflow/react'
 
 import { AddNodeButton } from '@/features/add-node-menu/add-node-button'
 import { AddNodeMenuProvider } from '@/features/add-node-menu/add-node-menu-provider'
-import { BlackboardPanel } from '@/features/blackboard/blackboard-panel'
+import {
+  AddPropertyMenuContainer,
+  BlackboardContainer,
+} from '@/features/blackboard/blackboard-container'
 import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
 import { CodePanel } from '@/features/code-panel/code-panel'
 import { CommandPaletteButton } from '@/features/command-palette/command-palette-button'
@@ -71,7 +74,8 @@ export function App() {
                   <GlobalShortcuts />
                   <AppShell
                     canvas={<Canvas />}
-                    blackboard={<BlackboardPanel />}
+                    blackboard={<BlackboardContainer />}
+                    blackboardActions={<AddPropertyMenuContainer />}
                     inspector={<InspectorPanel />}
                     previewPanel={<MainPreview />}
                     codePanel={<CodePanel />}

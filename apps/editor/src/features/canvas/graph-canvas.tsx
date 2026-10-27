@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { DragEventHandler } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from '@xyflow/react'
 import type {
   EdgeTypes,
@@ -33,6 +34,9 @@ export interface GraphCanvasProps {
   onConnect: OnConnect
   onDelete: OnDelete<FlowNode, FlowEdge>
   isValidConnection: IsValidConnection<FlowEdge>
+  /** Something dragged over the canvas from outside it (a property row). */
+  onDragOver: DragEventHandler
+  onDrop: DragEventHandler
 }
 
 export function GraphCanvas({
@@ -43,6 +47,8 @@ export function GraphCanvas({
   onConnect,
   onDelete,
   isValidConnection,
+  onDragOver,
+  onDrop,
 }: GraphCanvasProps) {
   const [fitViewOptions] = useState(() => fitViewOptionsFor(window.innerWidth))
 
@@ -59,6 +65,8 @@ export function GraphCanvas({
         onConnect={onConnect}
         onDelete={onDelete}
         isValidConnection={isValidConnection}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         // Space belongs to the add-node menu, and Delete to the keyboard model (one history entry).
         deleteKeyCode={null}
         panActivationKeyCode={null}

@@ -9,8 +9,9 @@ const UNLIT_HINT = 'Unlit ignores this'
 const COMMENT_DEFAULT_WIDTH = 320
 const COMMENT_RESIZE_STEP = 20
 
+/** A node on the canvas (the Properties panel has groups named after properties too). */
 function graphNode(page: Page, name: string): Locator {
-  return page.getByRole('group', { name, exact: true })
+  return page.getByRole('main', { name: 'Node canvas' }).getByRole('group', { name, exact: true })
 }
 
 function port(node: Locator, portId: string): Locator {

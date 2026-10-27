@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import type { DragEvent } from 'react'
 import { asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
 import type { PortRef } from '@nudo-tsl/core'
 import type {
@@ -12,6 +13,8 @@ import type {
 import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
+import { addPropertyToCanvas } from '@/features/blackboard/add-property-to-canvas'
+import { carriesProperty, droppedPropertyId } from '@/features/blackboard/property-drag'
 import { pasteFromClipboard } from '@/features/shortcuts/clipboard'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
@@ -138,6 +141,23 @@ export function GraphCanvasContainer() {
 
   useCanvasKeyboard(selectedEdgeIds)
 
+  const onDragOver = useCallback((event: DragEvent) => {
+    if (!carriesProperty(event.dataTransfer)) return
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  /** A property row dropped on the canvas becomes its reader node, at the drop point. */
+  const onDrop = useCallback(
+    (event: DragEvent) => {
+      const propertyId = droppedPropertyId(event.dataTransfer)
+      if (propertyId === null) return
+      event.preventDefault()
+      addPropertyToCanvas(propertyId, screenToFlowPosition({ x: event.clientX, y: event.clientY }))
+    },
+    [screenToFlowPosition],
+  )
+
   const actions = useMemo<GraphCanvasActions>(
     () => ({
       setInputValue: (ref, value) => {
@@ -192,6 +212,8 @@ export function GraphCanvasContainer() {
         onConnect={onConnect}
         onDelete={onDelete}
         isValidConnection={isValidConnection}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
       />
     </GraphCanvasActionsContext>
   )

@@ -5,9 +5,11 @@ import type { Graph } from '@nudo-tsl/core'
 
 import { textureCache } from '@/features/assets/texture-cache'
 import { useEditorStore } from '@/store/editor-store'
+import type { EditorState } from '@/store/store-types'
 import { registry } from '@/store/registry'
 
 import { createCompileScheduler } from './compile-scheduler'
+import type { CompileScheduler } from './compile-scheduler'
 import { recordCompile } from './compile-counter'
 import { recordPreviewApply } from './preview-apply-counter'
 
@@ -29,6 +31,26 @@ export interface LiveMaterial {
   buildFailed: boolean
 }
 
+type PreviewState = Pick<EditorState, 'inputPreview' | 'propertyPreview'>
+
+/** Puts a value being scrubbed or picked on the material, when it is new. */
+function showPreviews(
+  scheduler: CompileScheduler,
+  state: PreviewState,
+  previousState: PreviewState,
+): void {
+  const { inputPreview, propertyPreview } = state
+  const outcomes = [
+    inputPreview === null || inputPreview === previousState.inputPreview
+      ? null
+      : scheduler.previewValue(inputPreview.ref, inputPreview.value),
+    propertyPreview === null || propertyPreview === previousState.propertyPreview
+      ? null
+      : scheduler.previewPropertyValue(propertyPreview.id, propertyPreview.value),
+  ]
+  for (const outcome of outcomes) if (outcome === 'applied') recordPreviewApply()
+}
+
 const NO_MATERIAL_YET: LiveMaterial = { material: null, buildFailed: false }
 
 /** Every build reports its errors to the nodes; only a successful one yields a new material. */
@@ -37,9 +59,9 @@ function nextLiveMaterial(current: LiveMaterial, build: MaterialBuild): LiveMate
 }
 
 /**
- * Keeps the editor graph compiled. Inline value edits, and the values a scrub previews before it
- * commits, reach the material in place; structural edits, and a texture asset arriving, compile
- * again after a pause. A failing graph keeps the last good material.
+ * Keeps the editor graph compiled. Inline and property value edits, and the values a scrub
+ * previews before it commits, reach the material in place; structural edits, and a texture asset
+ * arriving, compile again after a pause. A failing graph keeps the last good material.
  */
 export function useLiveMaterial(): LiveMaterial {
   const [live, setLive] = useState<LiveMaterial>(NO_MATERIAL_YET)
@@ -57,11 +79,7 @@ export function useLiveMaterial(): LiveMaterial {
     scheduler.update(useEditorStore.getState().graph)
     const unsubscribe = useEditorStore.subscribe((state, previousState) => {
       if (state.graph !== previousState.graph) scheduler.update(state.graph)
-      const { inputPreview } = state
-      if (inputPreview === null || inputPreview === previousState.inputPreview) return
-      if (scheduler.previewValue(inputPreview.ref, inputPreview.value) === 'applied') {
-        recordPreviewApply()
-      }
+      showPreviews(scheduler, state, previousState)
     })
     const unsubscribeTextures = textureCache.subscribe((assetId, state) => {
       // An asset that turned out missing changes nothing on the material.

@@ -6,6 +6,7 @@ import type {
   PortKey,
   PortRef,
   PortValue,
+  PropertyId,
 } from '@nudo-tsl/core'
 import { applyBuildInputValue, applyPropertyValue } from '@nudo-tsl/runtime'
 import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
@@ -28,6 +29,8 @@ export interface CompileScheduler {
    * leaves that value unchanged does not touch the uniform.
    */
   previewValue(ref: PortRef, value: PortValue): ApplyInputValueResult
+  /** `previewValue` for a Blackboard property: same contract, its shared uniform instead. */
+  previewPropertyValue(id: PropertyId, value: PortValue): ApplyInputValueResult
   /**
    * Tells the scheduler a texture asset finished loading. If the built material stood in for that
    * asset with the neutral texture, it is built again so the real one shows.
@@ -120,6 +123,9 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
   const applyToBuilt = (ref: PortRef, value: PortValue): ApplyInputValueResult =>
     builtMaterial === null ? 'missing' : applyBuildInputValue(builtMaterial, ref, value)
 
+  const applyPropertyToBuilt = (id: PropertyId, value: PortValue): ApplyInputValueResult =>
+    builtMaterial === null ? 'missing' : applyPropertyValue(builtMaterial, id, value)
+
   /**
    * Returns false when some value needs a rebuild. A value with no uniform (its node cannot
    * reach the master) is not visible anywhere, so it never does.
@@ -130,7 +136,7 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     // Every change is applied, even after one mismatches: the rebuild replaces them all anyway.
     const inputOutcomes = changes.map(({ ref, value }) => applyToBuilt(ref, value))
     const propertyOutcomes = changedProperties(previous, next).map(({ id, value }) =>
-      builtMaterial === null ? 'missing' : applyPropertyValue(builtMaterial, id, value),
+      applyPropertyToBuilt(id, value),
     )
     return ![...inputOutcomes, ...propertyOutcomes].includes('mismatch')
   }
@@ -157,6 +163,10 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     previewValue(ref, value) {
       if (isDisposed) return 'missing'
       return applyToBuilt(ref, value)
+    },
+    previewPropertyValue(id, value) {
+      if (isDisposed) return 'missing'
+      return applyPropertyToBuilt(id, value)
     },
     textureLoaded(assetId) {
       if (isDisposed || builtMaterial === null) return

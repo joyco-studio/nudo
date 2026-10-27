@@ -41,3 +41,32 @@ export async function readStoredEdgeCount(page: Page): Promise<number> {
   if (!isRecord(document) || !isRecord(document.edges)) return 0
   return Object.keys(document.edges).length
 }
+
+export interface StoredProperty {
+  readonly id: unknown
+  readonly label: unknown
+  readonly name: unknown
+  readonly exposed: unknown
+  readonly value: unknown
+}
+
+/** Reads the Blackboard properties of the autosave document (empty while nothing is saved). */
+export async function readStoredProperties(page: Page): Promise<readonly StoredProperty[]> {
+  const rawText = await page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY)
+  if (rawText === null) return []
+  const document: unknown = JSON.parse(rawText)
+  if (!isRecord(document) || !Array.isArray(document.properties)) return []
+  return document.properties.flatMap((value: unknown) =>
+    isRecord(value)
+      ? [
+          {
+            id: value.id,
+            label: value.label,
+            name: value.name,
+            exposed: value.exposed,
+            value: value.value,
+          },
+        ]
+      : [],
+  )
+}

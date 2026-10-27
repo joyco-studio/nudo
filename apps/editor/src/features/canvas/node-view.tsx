@@ -4,6 +4,7 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
+import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -221,12 +222,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
         </p>
         <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
           <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
-          <span
-            data-type-chip
-            className="shrink-0 border px-1 font-mono text-micro leading-4 text-muted-foreground"
-          >
-            {dataType}
-          </span>
+          <TypeChip>{dataType}</TypeChip>
           <ConnectablePort
             nodeId={data.node.id}
             portId={output.id}

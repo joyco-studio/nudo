@@ -197,6 +197,12 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   },
 
   resetGraph: () => {
-    set({ graph: createGraph(), selectedNodeIds: [], draftPositions: {}, inputPreview: null })
+    set({
+      graph: createGraph(),
+      selectedNodeIds: [],
+      draftPositions: {},
+      inputPreview: null,
+      propertyPreview: null,
+    })
   },
 })
