@@ -60,7 +60,9 @@ export function AppShell({
   headerActions,
 }: AppShellProps) {
   const layout = useEditorStore((state) => effectivePreviewLayout(state.panels))
-  const splitPercent = useEditorStore((state) => state.panels.splitPercent)
+  const splitPercent = useEditorStore(
+    (state) => state.splitDraftPercent ?? state.panels.splitPercent,
+  )
   const previewId = useId()
   const canvasCellRef = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -128,7 +130,8 @@ export function AppShell({
               regionLabel="Main preview"
               edge="right"
               headerActions={<PreviewLayoutPicker />}
-              className={cn(isPreviewFilling && 'flex-1')}
+              // Full covers the canvas: an opaque surface, so nothing ghosts through it.
+              className={cn(isPreviewFilling && 'flex-1', layout === 'full' && 'bg-background')}
               bodyClassName={cn(isPreviewFilling && 'flex flex-1 flex-col')}
             >
               {previewPanel}

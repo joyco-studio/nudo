@@ -35,17 +35,15 @@ export interface SplitDividerProps {
  * it and use the arrow keys (5% a press), Home and End. Its value is the canvas share, 25–75%.
  */
 export function SplitDivider({ controlsId }: SplitDividerProps) {
-  const percent = useEditorStore((state) => state.panels.splitPercent)
-  const setSplitPercent = (next: number): void => {
-    useEditorStore.getState().setSplitPercent(next)
-  }
+  const percent = useEditorStore((state) => state.splitDraftPercent ?? state.panels.splitPercent)
   const isDragging = useRef(false)
 
+  // A key press is one deliberate step, so it is stored (and persisted) at once.
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     const next = keyedPercent(event.key, percent)
     if (next === null) return
     event.preventDefault()
-    setSplitPercent(next)
+    useEditorStore.getState().setSplitPercent(next)
   }
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>): void => {
@@ -58,11 +56,16 @@ export function SplitDivider({ controlsId }: SplitDividerProps) {
     if (!isDragging.current) return
     const workspace = event.currentTarget.parentElement?.getBoundingClientRect()
     if (workspace === undefined || workspace.width === 0) return
-    setSplitPercent(((event.clientX - workspace.left) / workspace.width) * PERCENT)
+    // A drag only drafts the split; it is stored once, on release.
+    useEditorStore
+      .getState()
+      .draftSplitPercent(((event.clientX - workspace.left) / workspace.width) * PERCENT)
   }
 
   const endDrag = (): void => {
+    if (!isDragging.current) return
     isDragging.current = false
+    useEditorStore.getState().commitSplitDraft()
   }
 
   return (

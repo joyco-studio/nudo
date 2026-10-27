@@ -187,6 +187,50 @@ test.describe('preview layout', () => {
     )
   })
 
+  test('the full preview is opaque, so the canvas does not show through', async ({ page }) => {
+    await page.goto('/')
+    await layoutRadio(page, 'Full').click()
+    await expect(layoutRadio(page, 'Full')).toBeChecked()
+    const background = await preview(page).evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    )
+    // A translucent color serializes with an alpha after a slash: `oklab(… / 0.85)`.
+    expect(background).not.toContain('/')
+  })
+
+  test('layout radios are named in their tooltips; the group carries the Shift+P shortcut', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const group = page.getByRole('radiogroup', { name: 'Preview layout' })
+    await expect(group).toHaveAttribute('aria-keyshortcuts', 'Shift+P')
+    await layoutRadio(page, 'Docked').focus()
+    await expect(page.getByRole('tooltip')).toHaveText('Docked')
+  })
+
+  test('dragging the split divider stores the split once, on release', async ({ page }) => {
+    await page.goto('/')
+    await layoutRadio(page, 'Split').click()
+    const divider = page.getByRole('separator', { name: 'Resize preview' })
+    const box = await divider.boundingBox()
+    if (box === null) throw new Error('Divider has no bounding box')
+    const storedSplit = async (): Promise<unknown> => {
+      const raw = await page.evaluate((key) => localStorage.getItem(key), PANELS_STORAGE_KEY)
+      const stored: unknown = raw === null ? null : JSON.parse(raw)
+      return typeof stored === 'object' && stored !== null && 'splitPercent' in stored
+        ? stored.splitPercent
+        : null
+    }
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(box.x - 200, box.y + box.height / 2, { steps: 6 })
+    await expect(divider).not.toHaveAttribute('aria-valuenow', DEFAULT_SPLIT_PERCENT)
+    expect(await storedSplit()).toBe(Number(DEFAULT_SPLIT_PERCENT))
+    await page.mouse.up()
+    await expect.poll(storedSplit).toBeLessThan(Number(DEFAULT_SPLIT_PERCENT))
+  })
+
   test('layout radios switch modes from the preview header', async ({ page }) => {
     await page.goto('/')
     await layoutRadio(page, 'Docked').focus()

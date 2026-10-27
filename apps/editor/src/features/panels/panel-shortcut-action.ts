@@ -37,12 +37,10 @@ export function panelShortcutAction(press: PanelShortcutPress): PanelShortcutAct
 
 /**
  * Panel letters fire only where they can't be typing or activating something else: the canvas, a
- * node or edge on it, a panel header, or the page itself when nothing has focus (for instance
- * after the focused element was covered by the full preview).
+ * node or edge on it, or a panel header.
  */
 export function isPanelShortcutTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false
-  if (target === document.body) return true
   const kind = classifyKeyTarget(target)
   if (kind === 'canvas' || kind === 'node' || kind === 'edge') return true
   return target.closest(`[${PANEL_HEADER_ATTRIBUTE}]`) !== null

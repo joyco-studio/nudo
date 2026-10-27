@@ -42,7 +42,7 @@ describe('isPanelShortcutTarget', () => {
     document.body.replaceChildren()
   })
 
-  it('accepts the canvas, a node, a panel header and the page itself', () => {
+  it('accepts the canvas, a node and a panel header', () => {
     const canvas = document.createElement('main')
     canvas.id = CANVAS_ID
     const node = document.createElement('div')
@@ -56,7 +56,10 @@ describe('isPanelShortcutTarget', () => {
     expect(isPanelShortcutTarget(canvas)).toBe(true)
     expect(isPanelShortcutTarget(node)).toBe(true)
     expect(isPanelShortcutTarget(headerButton)).toBe(true)
-    expect(isPanelShortcutTarget(document.body)).toBe(true)
+  })
+
+  it('rejects the page itself: with nothing focused there is no panel context', () => {
+    expect(isPanelShortcutTarget(document.body)).toBe(false)
   })
 
   it('rejects fields and other controls', () => {

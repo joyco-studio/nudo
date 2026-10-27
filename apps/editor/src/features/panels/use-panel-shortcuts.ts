@@ -5,6 +5,7 @@ import { isTextEntry } from '@/shared/lib/is-text-entry'
 import { useEditorStore } from '@/store/editor-store'
 
 import { isPanelShortcutTarget, panelShortcutAction } from './panel-shortcut-action'
+import { effectivePreviewLayout } from './panel-state'
 
 const getStore = () => useEditorStore.getState()
 
@@ -16,7 +17,8 @@ const getStore = () => useEditorStore.getState()
 function isLeaveFullPress(event: KeyboardEvent): boolean {
   if (event.key !== 'Escape' || event.defaultPrevented) return false
   if (isTextEntry(event.target) || isInsideOverlay(event.target)) return false
-  return getStore().panels.layout === 'full'
+  // A collapsed preview shows docked, whatever its stored layout: there is no full view to leave.
+  return effectivePreviewLayout(getStore().panels) === 'full'
 }
 
 /**

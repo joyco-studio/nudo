@@ -198,6 +198,25 @@ test('comment node can be added, titled and resized by keyboard', async ({ page 
   await expect.poll(async () => (await storedParams(page, String(commentId))).width).toBeUndefined()
 })
 
+test('Alt+Arrow on a node that is not a frame is left to the browser', async ({ page }) => {
+  await seedAutosave(page, TIME_TO_SINE)
+  await page.goto('/')
+  const sine = graphNode(page, 'Sine')
+  await sine.focus()
+  await page.evaluate(() => {
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight') {
+        document.body.dataset.lastKeyPrevented = String(event.defaultPrevented)
+      }
+    })
+  })
+
+  await page.keyboard.press('Alt+ArrowRight')
+
+  await expect(page.locator('body')).toHaveAttribute('data-last-key-prevented', 'false')
+  await expect.poll(async () => (await storedParams(page, 'sine')).width).toBeUndefined()
+})
+
 test('dragging a comment resize handle commits the size as one undo step', async ({ page }) => {
   await seedAutosave(
     page,

@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import { Columns2, Maximize2, PictureInPicture2 } from 'lucide-react'
 
-import { Kbd } from '@/shared/ui/kbd'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useEditorStore } from '@/store/editor-store'
@@ -11,14 +10,13 @@ import type { PreviewLayout } from './panel-state'
 
 interface LayoutOption {
   readonly label: string
-  readonly hint: string
   readonly icon: LucideIcon
 }
 
 const LAYOUT_OPTIONS: Readonly<Record<PreviewLayout, LayoutOption>> = {
-  docked: { label: 'Docked', hint: 'Float the preview over the canvas', icon: PictureInPicture2 },
-  split: { label: 'Split', hint: 'Show the canvas and the preview side by side', icon: Columns2 },
-  full: { label: 'Full', hint: 'Fill the workspace with the preview', icon: Maximize2 },
+  docked: { label: 'Docked', icon: PictureInPicture2 },
+  split: { label: 'Split', icon: Columns2 },
+  full: { label: 'Full', icon: Maximize2 },
 }
 
 function isPreviewLayout(value: string): value is PreviewLayout {
@@ -41,6 +39,8 @@ export function PreviewLayoutPicker() {
       size="sm"
       spacing={0}
       aria-label="Preview layout"
+      // Shift+P cycles the three layouts; the shortcuts dialog lists it too.
+      aria-keyshortcuts="Shift+P"
       value={layout}
       onValueChange={(next) => {
         // Pressing the chosen item again would clear the group; a layout is always chosen.
@@ -48,7 +48,7 @@ export function PreviewLayoutPicker() {
       }}
     >
       {PREVIEW_LAYOUTS.map((item) => {
-        const { label, hint, icon: Icon } = LAYOUT_OPTIONS[item]
+        const { label, icon: Icon } = LAYOUT_OPTIONS[item]
         return (
           <Tooltip key={item}>
             <TooltipTrigger asChild>
@@ -63,9 +63,7 @@ export function PreviewLayoutPicker() {
                 <Icon aria-hidden="true" />
               </ToggleGroupItem>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
-              {hint} <Kbd>Shift P</Kbd>
-            </TooltipContent>
+            <TooltipContent side="bottom">{label}</TooltipContent>
           </Tooltip>
         )
       })}

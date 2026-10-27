@@ -8,7 +8,11 @@ const getState = () => useEditorStore.getState()
 const historyLength = () => useEditorStore.temporal.getState().pastStates.length
 
 beforeEach(() => {
-  useEditorStore.setState({ panels: DEFAULT_PANEL_PREFS, layoutBeforeFull: 'docked' })
+  useEditorStore.setState({
+    panels: DEFAULT_PANEL_PREFS,
+    layoutBeforeFull: 'docked',
+    splitDraftPercent: null,
+  })
   useEditorStore.temporal.getState().clear()
 })
 
@@ -39,6 +43,28 @@ describe('panel actions', () => {
     getState().togglePanel('preview')
     getState().setPreviewLayout('split')
     expect(getState().panels.open.preview).toBe(true)
+  })
+
+  it('leaving full does nothing while the preview is collapsed (it shows docked)', () => {
+    getState().setPreviewLayout('full')
+    getState().togglePanel('preview')
+    const panelsBefore = getState().panels
+
+    getState().exitFullPreview()
+
+    expect(getState().panels).toBe(panelsBefore)
+    expect(getState().panels.open.preview).toBe(false)
+  })
+
+  it('drafts the split during a drag and stores it only when committed', () => {
+    const panelsBefore = getState().panels
+    getState().draftSplitPercent(31.6)
+    expect(getState().splitDraftPercent).toBe(32)
+    expect(getState().panels).toBe(panelsBefore)
+
+    getState().commitSplitDraft()
+    expect(getState().panels.splitPercent).toBe(32)
+    expect(getState().splitDraftPercent).toBeNull()
   })
 
   it('clamps the split and stores the backdrop', () => {

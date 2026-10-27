@@ -34,15 +34,20 @@ function moveFocusedNodes(event: KeyboardEvent, delta: XY): void {
   })
 }
 
-/** Alt + arrow on a resizable node (a comment frame): one history entry per press. */
-function resizeFocusedNode(event: KeyboardEvent, delta: Size): void {
+/**
+ * Alt + arrow on a resizable node (a comment frame): one history entry per press. On any other
+ * node the key is left alone (browsers and React Flow keep their own Alt + arrow behavior).
+ */
+function resizeFocusedFrame(event: KeyboardEvent, delta: Size): void {
   const store = getStore()
   const nodeId = flowNodeIdOf(event.target)
   const node = nodeId === null ? undefined : store.graph.nodes[nodeId]
   const definition = node === undefined ? undefined : registry.get(node.type)
-  if (node === undefined || definition === undefined) return
-  const frame = frameOf(node, definition)
-  if (frame === null) return
+  const frame = node === undefined || definition === undefined ? null : frameOf(node, definition)
+  if (node === undefined || frame === null) return
+  // React Flow would also move the node on the arrow key, as a second history entry.
+  event.preventDefault()
+  event.stopPropagation()
   store.commitResize(node.id, resizedFrame(frame, delta))
 }
 
@@ -135,10 +140,7 @@ export function useCanvasKeyboard(selectedEdgeIds: readonly string[]): void {
         focusOwningNode(event)
         return
       case 'resize-node':
-        // React Flow would also move the node on an arrow key, as a second history entry.
-        event.preventDefault()
-        event.stopPropagation()
-        resizeFocusedNode(event, intent.delta)
+        resizeFocusedFrame(event, intent.delta)
         return
     }
   })

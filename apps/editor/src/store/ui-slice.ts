@@ -32,6 +32,7 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   notice: null,
   panels: DEFAULT_PANEL_PREFS,
   layoutBeforeFull: 'docked',
+  splitDraftPercent: null,
   setSelection: (ids) => {
     set({ selectedNodeIds: ids })
   },
@@ -66,11 +67,26 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   },
   exitFullPreview: () => {
     set((state) =>
-      state.panels.layout === 'full' ? withPreviewLayout(state, state.layoutBeforeFull) : state,
+      effectivePreviewLayout(state.panels) === 'full'
+        ? withPreviewLayout(state, state.layoutBeforeFull)
+        : state,
     )
   },
   setSplitPercent: (percent) => {
     set((state) => withPanels(state, { splitPercent: clampSplitPercent(percent) }))
+  },
+  draftSplitPercent: (percent) => {
+    set({ splitDraftPercent: clampSplitPercent(percent) })
+  },
+  commitSplitDraft: () => {
+    set((state) =>
+      state.splitDraftPercent === null
+        ? state
+        : {
+            ...withPanels(state, { splitPercent: state.splitDraftPercent }),
+            splitDraftPercent: null,
+          },
+    )
   },
   setPreviewBackdrop: (backdrop) => {
     set((state) => withPanels(state, { backdrop }))
