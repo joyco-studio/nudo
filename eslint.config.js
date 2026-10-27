@@ -103,7 +103,7 @@ export default defineConfig(
   {
     // The parity test imports the generated module, so it needs three (a devDependency).
     name: 'boundaries/codegen-tests',
-    files: ['packages/codegen/**/*.test.ts'],
+    files: ['packages/codegen/src/parity.test.ts'],
     rules: restrictImports({
       packages: UI_FRAMEWORK_PACKAGES,
       allowedInternal: ['core', 'nodes'],

@@ -6,7 +6,8 @@ import { MASTER_NODE_ID, parseGraph, setParam } from '@nudo-tsl/core'
 import type { Graph } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import ts from 'typescript'
-import { Node } from 'three/webgpu'
+import { DataTexture } from 'three'
+import { Node, TextureNode } from 'three/webgpu'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
 import { unwrap } from './fixtures/unwrap'
@@ -112,7 +113,7 @@ describe('generated module parity', () => {
       ])
     })
 
-    it('exports uniforms as nodes and texture placeholders as null', async () => {
+    it('exports uniforms as nodes and textures as texture nodes that can be swapped', async () => {
       const { exports } = await loadGenerated(catalog)
 
       expect(isRecord(exports.uniforms) ? Object.keys(exports.uniforms) : []).toEqual([
@@ -123,7 +124,17 @@ describe('generated module parity', () => {
       for (const uniformNode of Object.values(isRecord(exports.uniforms) ? exports.uniforms : {})) {
         expect(uniformNode).toBeInstanceOf(Node)
       }
-      expect(exports.textures).toEqual({ albedo: null, mask: null })
+      const textures = isRecord(exports.textures) ? exports.textures : {}
+      expect(Object.keys(textures)).toEqual(['albedo', 'mask', 'texture1'])
+      for (const [key, textureNode] of Object.entries(textures)) {
+        expect(textureNode, `textures.${key}`).toBeInstanceOf(TextureNode)
+        expect(textureNode instanceof TextureNode ? textureNode.value : null).not.toBeNull()
+      }
+      const albedo = textures.albedo
+      if (!(albedo instanceof TextureNode)) throw new Error('textures.albedo is not a texture node')
+      const replacement = new DataTexture()
+      albedo.value = replacement
+      expect(albedo.value).toBe(replacement)
     })
 
     it('builds an unlit material from the same graph', async () => {

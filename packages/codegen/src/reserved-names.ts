@@ -3,8 +3,15 @@ import { TSL_HELPERS } from './tsl-helpers'
 /** Top-level names every module owns. */
 const MODULE_EXPORT_NAMES = ['uniforms', 'textures', 'nodes', 'materialSettings'] as const
 
-/** `three` constants the module may import for `materialSettings`. */
-const THREE_CONSTANT_NAMES = ['DoubleSide', 'FrontSide'] as const
+/** `three` names the module may import, and the neutral texture it declares. */
+const THREE_CONSTANT_NAMES = [
+  'DoubleSide',
+  'FrontSide',
+  'DataTexture',
+  'RGBAFormat',
+  'UnsignedByteType',
+  'neutralTexture',
+] as const
 
 /** Top-level names the helper sources declare besides the helpers themselves. */
 const HELPER_INTERNAL_NAMES = ['mod289', 'permute', 'integerQuotient', 'taylorInverseSqrt'] as const

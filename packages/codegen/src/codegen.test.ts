@@ -217,11 +217,26 @@ describe('generateModule', () => {
     graph = withLink(graph, port('bare-sampler', 'rgb'), port('master', 'emission'))
     const code = generate(graph)
 
-    expect(code).toContain('Replace each null with a THREE.Texture')
-    expect(code).toContain('export const textures = {\n  albedo: null,\n  texture1: null,\n}')
-    expect(code).toContain('const albedoTexture = texture(textures.albedo)')
-    expect(code).toContain('albedoTexture.sample(uv())')
-    expect(code).toContain('texture(textures.texture1).sample(uv())')
+    expect(code).toContain(
+      "import { DataTexture, FrontSide, RGBAFormat, UnsignedByteType } from 'three'",
+    )
+    expect(code).toContain('const neutralTexture = new DataTexture(')
+    expect(code).toContain('new Uint8Array([128, 128, 128, 255]),')
+    expect(code).toContain('textures.albedo.value = myTexture')
+    expect(code).not.toContain('Replace each null')
+    expect(code).toContain(
+      'export const textures = {\n  albedo: texture(neutralTexture),\n  texture1: texture(neutralTexture),\n}',
+    )
+    expect(code).toContain('const sampleTexture2d1Rgb = textures.albedo.sample(uv()).xyz')
+    expect(code).toContain('textures.texture1.sample(uv()).xyz')
+    expect(code).not.toContain('null')
+  })
+
+  it('declares no neutral texture when the graph has no textures', () => {
+    const code = generate(waterGraph())
+
+    expect(code).not.toContain('neutralTexture')
+    expect(code).not.toContain('DataTexture')
   })
 
   it('lists an exposed texture property that nothing reads, and skips an unread hidden one', () => {
@@ -231,7 +246,7 @@ describe('generateModule', () => {
     )
     const code = generate(graph)
 
-    expect(code).toContain('  mask: null,')
+    expect(code).toContain('  mask: texture(neutralTexture),')
     expect(code).not.toContain('hidden')
   })
 
@@ -333,6 +348,31 @@ describe('generateModule', () => {
 
   it('is deterministic', () => {
     expect(generate(waterGraph())).toBe(generate(waterGraph()))
+  })
+
+  it('reports a value a shader cannot hold as an error on its node, and never throws', () => {
+    const graph = withInput(
+      withNode(createGraph(), 'amount', 'input/float'),
+      port('amount', 'x'),
+      float(Number.POSITIVE_INFINITY),
+    )
+    const linked = withLink(graph, port('amount', 'out'), port('master', 'roughness'))
+    const result = generateModule(linked, registry)
+
+    expect(result.code).toBe('')
+    expect(result.errors.map((error) => [error.nodeId, error.code])).toEqual([
+      ['amount', 'build-failed'],
+    ])
+    expect(result.errors[0]?.message).toContain('Infinity')
+  })
+
+  it('reports a property value a shader cannot hold', () => {
+    const graph = withProperty(createGraph(), floatProperty('speed', true, Number.NaN))
+    const result = generateModule(graph, registry)
+
+    expect(result.code).toBe('')
+    expect(result.errors.map((error) => error.code)).toEqual(['build-failed'])
+    expect(result.errors[0]?.message).toContain('Property "speed"')
   })
 
   it('reports compile errors and prints no code', () => {

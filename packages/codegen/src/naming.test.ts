@@ -35,14 +35,4 @@ describe('createNameAllocator', () => {
 
     expect([names.counted('vec'), names.counted('vec')]).toEqual(['vec1', 'vec4'])
   })
-
-  it('hands out a unique name as is when free, and numbers it from 2 when taken', () => {
-    const names = createNameAllocator(new Set(['albedoTexture']))
-
-    expect([names.unique('maskTexture'), names.unique('maskTexture')]).toEqual([
-      'maskTexture',
-      'maskTexture2',
-    ])
-    expect(names.unique('albedoTexture')).toBe('albedoTexture2')
-  })
 })

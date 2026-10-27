@@ -16,10 +16,9 @@ import { RESERVED_NAMES } from './reserved-names'
 const TEXTURES_OBJECT = 'textures'
 const UNIFORMS_OBJECT = 'uniforms'
 const INLINE_TEXTURE_BASE = 'texture'
-const TEXTURE_NODE_SUFFIX = 'Texture'
 
 export interface CodeBackend extends CompileBackend<CodeExpression> {
-  /** Keys of `textures` the compiled graph reads (exposed texture properties come on top). */
+  /** Keys of `textures` the compiled graph reads (exposed texture properties come on top). Each is a texture node. */
   readonly texturePlaceholders: ReadonlySet<string>
 }
 
@@ -66,21 +65,13 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
     return created
   }
 
-  /** `texture(textures.key)`: the placeholder is for the module's user to assign a `Texture`. */
-  const textureExpression = (key: string): CodeExpression =>
-    compose(`texture(${TEXTURES_OBJECT}.${key})`, [], { imports: ['texture'] })
-
-  const textureProperty = (property: BlackboardProperty): CodeExpression => {
-    texturePlaceholders.add(property.name)
-    const name = names.unique(`${property.name}${TEXTURE_NODE_SUFFIX}`)
-    return referenceTo({ name, value: textureExpression(property.name) })
-  }
-
-  const inlineTexture = (): CodeExpression => {
-    const key = names.counted(INLINE_TEXTURE_BASE)
+  /** A reader of the `textures` entry `key`: a texture node whose `.value` the user can swap. */
+  const textureReader = (key: string): CodeExpression => {
     texturePlaceholders.add(key)
-    return textureExpression(key)
+    return compose(`${TEXTURES_OBJECT}.${key}`, [])
   }
+
+  const inlineTexture = (): CodeExpression => textureReader(names.counted(INLINE_TEXTURE_BASE))
 
   return {
     tsl: createCodeFacade(),
@@ -88,7 +79,7 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
     inputValue: (_ref, value, widget) =>
       isVectorValue(value) ? literalOf(value, isColorWidget(widget)) : inlineTexture(),
     property: (property) => {
-      if (property.value.type === 'texture') return textureProperty(property)
+      if (property.value.type === 'texture') return textureReader(property.name)
       if (property.exposed) return compose(`${UNIFORMS_OBJECT}.${property.name}`, [])
       return literalOf(property.value, isColorWidget(property.widget))
     },

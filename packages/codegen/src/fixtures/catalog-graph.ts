@@ -166,6 +166,13 @@ export function createCatalogGraph(registry: NodeRegistry): Graph {
     }
   }
 
+  // One more sampler keeps its own inline texture, which has no property behind it.
+  const inlineSampler = nextNodeId(SAMPLE_TEXTURE_TYPE)
+  graph = unwrap(
+    addNode(graph, registry, { id: inlineSampler, type: SAMPLE_TEXTURE_TYPE, position: ORIGIN }),
+  )
+  sources.push({ nodeId: inlineSampler, portId: 'rgba' })
+
   let sum: PortRef | undefined
   for (const source of sources) {
     if (sum === undefined) {

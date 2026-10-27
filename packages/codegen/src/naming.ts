@@ -15,11 +15,11 @@ export function toCamelCase(label: string): string {
   return /^[0-9]/.test(camel) ? `${FALLBACK_BASE_NAME}${capitalize(camel)}` : camel
 }
 
+const FIRST_COUNT = 1
+
 export interface NameAllocator {
   /** `base1`, `base2`, ...: a 1-based counter per base, skipping names already taken. */
   counted(base: string): string
-  /** `base` itself when free, otherwise `base2`, `base3`, ... */
-  unique(base: string): string
 }
 
 /** Hands out identifiers that never collide with each other or with the `reserved` names. */
@@ -27,8 +27,8 @@ export function createNameAllocator(reserved: ReadonlySet<string>): NameAllocato
   const taken = new Set(reserved)
   const counters = new Map<string, number>()
 
-  const claim = (base: string, firstCount: number): string => {
-    let count = counters.get(base) ?? firstCount
+  const claim = (base: string): string => {
+    let count = counters.get(base) ?? FIRST_COUNT
     while (taken.has(`${base}${String(count)}`)) count += 1
     counters.set(base, count + 1)
     const name = `${base}${String(count)}`
@@ -37,11 +37,6 @@ export function createNameAllocator(reserved: ReadonlySet<string>): NameAllocato
   }
 
   return {
-    counted: (base) => claim(base, 1),
-    unique: (base) => {
-      if (taken.has(base)) return claim(base, 2)
-      taken.add(base)
-      return base
-    },
+    counted: claim,
   }
 }

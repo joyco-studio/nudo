@@ -45,13 +45,36 @@ function formatThreeVersion(version: string): string {
   return release === undefined ? version : `r${release}`
 }
 
-/** One live uniform per exposed non-texture property, in Blackboard order. */
-function uniformsOf(properties: readonly BlackboardProperty[]): readonly NamedExpression[] {
-  return properties.flatMap((property) =>
-    property.exposed && isVectorValue(property.value)
-      ? [{ name: property.name, expression: uniformExpression(property.value, property.widget) }]
-      : [],
-  )
+interface PropertyUniforms {
+  readonly uniforms: readonly NamedExpression[]
+  readonly errors: readonly CompileError[]
+}
+
+/**
+ * One live uniform per exposed non-texture property, in Blackboard order. A value a shader cannot
+ * hold (NaN, infinity) is reported as an error instead of being printed.
+ */
+function uniformsOf(properties: readonly BlackboardProperty[]): PropertyUniforms {
+  const uniforms: NamedExpression[] = []
+  const errors: CompileError[] = []
+  for (const property of properties) {
+    if (!property.exposed || !isVectorValue(property.value)) continue
+    try {
+      uniforms.push({
+        name: property.name,
+        expression: uniformExpression(property.value, property.widget),
+      })
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+      // A property belongs to no node, so the error is reported on the master.
+      errors.push({
+        nodeId: MASTER_NODE_ID,
+        code: 'build-failed',
+        message: `Property "${property.name}": ${reason}`,
+      })
+    }
+  }
+  return { uniforms, errors }
 }
 
 /** Exposed texture properties are always listed; the rest only when the graph reads them. */
@@ -91,6 +114,9 @@ export function generateModule(
     return { code: '', errors: [error] }
   }
 
+  const propertyUniforms = uniformsOf(graph.properties)
+  if (propertyUniforms.errors.length > 0) return { code: '', errors: propertyUniforms.errors }
+
   const settings = readMasterSettings(graph, registry)
   const slots = result.output.slots
   const transparent = resolveTransparency({
@@ -107,7 +133,7 @@ export function generateModule(
       transparent,
       entries.some((entry) => entry.property === 'alphaTestNode'),
     ),
-    uniforms: uniformsOf(graph.properties),
+    uniforms: propertyUniforms.uniforms,
     texturePlaceholders: texturePlaceholdersOf(graph.properties, backend.texturePlaceholders),
     entries,
     transparent,
