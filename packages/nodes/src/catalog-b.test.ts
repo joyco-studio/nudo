@@ -172,7 +172,7 @@ describe('property nodes', () => {
 
       expect(definition.reads).toBe('property')
       expect(definition.inputs).toEqual([])
-      expect(definition.outputs).toEqual([
+      expect(definition.outputs).toMatchObject([
         { id: 'out', label: 'Out', type: { kind: 'concrete', type } },
       ])
       expect(definition.params).toEqual([
@@ -406,7 +406,7 @@ describe('master stack', () => {
   it('adds an optional alpha clip threshold slot', () => {
     const alphaClip = master.inputs.find((input) => input.id === 'alphaClip')
 
-    expect(alphaClip).toEqual({
+    expect(alphaClip).toMatchObject({
       id: 'alphaClip',
       label: 'Alpha Clip Threshold',
       type: { kind: 'concrete', type: 'float' },

@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
 import { valueComponents, withComponent } from './inline-value'
+import type { PortExplanation } from './node-explanation'
 import { NumberField } from './number-field'
 import { PortLabel } from './port-label'
 
@@ -17,6 +18,8 @@ const VECTOR_ROW: Readonly<Record<FieldSize, string>> = {
 
 export interface VectorFieldProps {
   label: string
+  /** What the input means, shown when its label is hovered. */
+  explanation?: PortExplanation | undefined
   value: VectorPortValue
   isDefault: boolean
   onCommit: (value: PortValue) => void
@@ -32,6 +35,7 @@ export interface VectorFieldProps {
  */
 export function VectorField({
   label,
+  explanation,
   value,
   isDefault,
   onCommit,
@@ -42,7 +46,7 @@ export function VectorField({
   const size = useFieldSize()
   return (
     <>
-      <PortLabel label={label} />
+      <PortLabel label={label} explanation={explanation} />
       <div className={cn('flex basis-full gap-1', VECTOR_ROW[size], componentsClassName)}>
         {valueComponents(value).map((component, index) => {
           const componentLabel = COMPONENT_LABELS[index] ?? String(index)

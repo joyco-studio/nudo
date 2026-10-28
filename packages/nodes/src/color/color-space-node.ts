@@ -14,18 +14,27 @@ export const colorSpaceNode = defineNode({
   type: 'color/color-space',
   category: 'color',
   label: 'Color Space',
-  description: 'Converts a color between sRGB and linear color spaces.',
+  description:
+    'Converts a color between sRGB, the way pickers and images store it, and linear, the way lighting math wants it.',
   keywords: ['color', 'space', 'srgb', 'linear', 'gamma', 'convert'],
   inputs: [
     {
       id: 'in',
       label: 'In',
+      description: 'The color to convert.',
       type: concrete('vec3'),
       default: vec3(1, 1, 1),
       widget: 'color',
     },
   ],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('vec3') }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('vec3'),
+      description: 'The same color in the other color space.',
+    },
+  ],
   params: [
     {
       id: 'direction',

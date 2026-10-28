@@ -21,7 +21,7 @@ import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 
-import { chainClassOf, selectionChain } from './chain-highlight'
+import { CHAIN_DIMMED_CLASS, chainClassOf, selectionChain } from './chain-highlight'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
 import { focusFlowNode } from './focus-flow-node'
 import { GraphCanvas } from './graph-canvas'
@@ -116,7 +116,16 @@ export function GraphCanvasContainer() {
     () =>
       flow.edges.map((edge) => {
         const className = chainClassOf(chain, 'edge', edge.id)
-        const highlighted = className === undefined ? edge : { ...edge, className }
+        const isChainDimmed = className === CHAIN_DIMMED_CLASS
+        const highlighted =
+          className === undefined
+            ? edge
+            : {
+                ...edge,
+                className,
+                // The conversion marker lives in another layer: it reads the dim from the data.
+                ...(edge.data === undefined ? {} : { data: { ...edge.data, isChainDimmed } }),
+              }
         return selectedEdgeIds.includes(edge.id) ? { ...highlighted, selected: true } : highlighted
       }),
     [flow.edges, selectedEdgeIds, chain],

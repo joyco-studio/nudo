@@ -7,6 +7,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { PORT_BUTTON_ATTRIBUTE } from './canvas-keyboard-model'
 import type { PortSide } from './connect-candidates'
+import type { PortExplanation } from './node-explanation'
+import { PortTooltip } from './port-tooltip'
 
 const PORT_BUTTON_PROPS = { [PORT_BUTTON_ATTRIBUTE]: '' }
 
@@ -16,6 +18,8 @@ interface PortHandleProps {
   dataType: DataType
   /** What assistive technology announces for the port. */
   accessibleName: string
+  /** What the port means, shown in its tooltip on hover and keyboard focus. */
+  explanation: PortExplanation
   buttonRef: Ref<HTMLButtonElement>
   /** Enter or Space on the focused port. */
   onActivate: () => void
@@ -33,6 +37,7 @@ export function PortHandle({
   side,
   dataType,
   accessibleName,
+  explanation,
   buttonRef,
   onActivate,
   onDisconnect,
@@ -45,23 +50,25 @@ export function PortHandle({
       className="port-handle"
       style={{ backgroundColor: PORT_COLORS[dataType] }}
     >
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-label={accessibleName}
-        {...PORT_BUTTON_PROPS}
-        className="port-button nokey"
-        onClick={(event) => {
-          // Pointer clicks belong to React Flow (click to connect); a keyboard activation has no
-          // click count.
-          if (event.detail === 0) onActivate()
-        }}
-        onKeyDown={(event) => {
-          if (event.key !== 'Delete' && event.key !== 'Backspace') return
-          event.preventDefault()
-          onDisconnect()
-        }}
-      />
+      <PortTooltip explanation={explanation}>
+        <button
+          ref={buttonRef}
+          type="button"
+          aria-label={accessibleName}
+          {...PORT_BUTTON_PROPS}
+          className="port-button nokey"
+          onClick={(event) => {
+            // Pointer clicks belong to React Flow (click to connect); a keyboard activation has no
+            // click count.
+            if (event.detail === 0) onActivate()
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Delete' && event.key !== 'Backspace') return
+            event.preventDefault()
+            onDisconnect()
+          }}
+        />
+      </PortTooltip>
     </Handle>
   )
 }

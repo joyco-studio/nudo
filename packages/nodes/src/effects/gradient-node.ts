@@ -37,8 +37,24 @@ export const gradientNode = defineNode({
   label: 'Gradient',
   description: 'A ramp from 0 to 1 along X, along Y or outward from the center of the UV.',
   keywords: ['gradient', 'ramp', 'linear', 'radial', 'falloff', 'vignette'],
-  inputs: [{ id: 'uv', label: 'UV', type: concrete('vec2'), default: vec2(0, 0), fallback: 'uv' }],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  inputs: [
+    {
+      id: 'uv',
+      label: 'UV',
+      type: concrete('vec2'),
+      default: vec2(0, 0),
+      fallback: 'uv',
+      description: 'Where to sample the ramp; the mesh UV when nothing is plugged in.',
+    },
+  ],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('float'),
+      description: 'A ramp from 0 to 1 in the chosen mode.',
+    },
+  ],
   params: [
     { id: 'mode', label: 'Mode', kind: 'enum', options: MODE_OPTIONS, default: DEFAULT_MODE },
   ],

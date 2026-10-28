@@ -6,6 +6,7 @@ import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 
 import { ConnectablePort } from './connectable-port'
 import { NodeContextMenu } from './node-context-menu'
+import { inputExplanation, nodeAccessibleDescription, outputExplanation } from './node-explanation'
 import { nodeDescriptionId } from './to-flow'
 import type { FlowNode } from './to-flow'
 
@@ -34,7 +35,7 @@ function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
     <NodeContextMenu data={data}>
       <div className="reroute-node relative flex h-6 w-10 items-center justify-center">
         <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-          {data.definition.description}
+          {nodeAccessibleDescription(data.definition)}
         </p>
         <span
           aria-hidden="true"
@@ -59,6 +60,7 @@ function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           nodeTitle={data.title}
           portLabel={input.label}
           isConnected={data.connectedInputs.has(input.id)}
+          explanation={inputExplanation(input, dataType, data.inputSources[input.id])}
         />
         <ConnectablePort
           nodeId={data.node.id}
@@ -68,6 +70,7 @@ function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
           nodeTitle={data.title}
           portLabel={output.label}
           isConnected={data.connectedOutputs.has(output.id)}
+          explanation={outputExplanation(output, dataType)}
         />
       </div>
     </NodeContextMenu>

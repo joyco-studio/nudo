@@ -137,6 +137,27 @@ describe('toFlow', () => {
     })
   })
 
+  it('names the node and port feeding each connected input', () => {
+    const flow = flowFor(sampleGraph())
+
+    expect(findNode(flow, MASTER_NODE_ID).data.inputSources).toEqual({
+      baseColor: { nodeTitle: 'Color', portLabel: 'Out' },
+      emission: { nodeTitle: 'Time', portLabel: 'Out' },
+    })
+    expect(findNode(flow, COLOR_ID).data.inputSources).toEqual({})
+  })
+
+  it('explains a conversion in the edge accessible name', () => {
+    const flow = flowFor(sampleGraph())
+
+    const byId = new Map(flow.edges.map((edge) => [edge.id, edge]))
+    expect(byId.get('color-to-base')?.ariaLabel).toBe('Color Out to Master Stack Base Color')
+    expect(byId.get('time-to-emission')?.ariaLabel).toBe(
+      'Time Out to Master Stack Emission. ' +
+        'Converted from float to vec3: the value is copied into x, y and z.',
+    )
+  })
+
   it('skips nodes whose definition is not registered', () => {
     const graph: Graph = {
       ...createGraph(),

@@ -19,14 +19,46 @@ export const selectNode = defineNode({
   category: 'logic',
   label: 'Select',
   description: 'Picks one of two values depending on how A compares with B.',
+  formula: 'Compare(A, B) ? True : False',
   keywords: ['select', 'if', 'branch', 'compare', 'condition', 'switch'],
   inputs: [
-    { id: 'a', label: 'A', type: concrete('float'), default: float(0) },
-    { id: 'b', label: 'B', type: concrete('float'), default: float(0) },
-    { id: 'whenTrue', label: 'When True', type: generic(TYPE_GROUP), default: float(1) },
-    { id: 'whenFalse', label: 'When False', type: generic(TYPE_GROUP), default: float(0) },
+    {
+      id: 'a',
+      label: 'A',
+      type: concrete('float'),
+      default: float(0),
+      description: 'The number to compare.',
+    },
+    {
+      id: 'b',
+      label: 'B',
+      type: concrete('float'),
+      default: float(0),
+      description: 'The number A is compared with.',
+    },
+    {
+      id: 'whenTrue',
+      label: 'When True',
+      type: generic(TYPE_GROUP),
+      default: float(1),
+      description: 'The result when the comparison holds.',
+    },
+    {
+      id: 'whenFalse',
+      label: 'When False',
+      type: generic(TYPE_GROUP),
+      default: float(0),
+      description: 'The result when it does not.',
+    },
   ],
-  outputs: [{ id: 'out', label: 'Out', type: generic(TYPE_GROUP) }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: generic(TYPE_GROUP),
+      description: 'When True or When False, depending on the comparison.',
+    },
+  ],
   params: [
     {
       id: 'op',

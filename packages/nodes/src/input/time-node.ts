@@ -9,10 +9,30 @@ export const timeNode = defineNode({
   inputs: [],
   // `out` stays the id of the plain time so graphs saved before the other outputs existed load.
   outputs: [
-    { id: 'out', label: 'Out', type: concrete('float') },
-    { id: 'sineTime', label: 'Sine Time', type: concrete('float') },
-    { id: 'cosineTime', label: 'Cosine Time', type: concrete('float') },
-    { id: 'deltaTime', label: 'Delta Time', type: concrete('float') },
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('float'),
+      description: 'Seconds since the shader started; it keeps growing.',
+    },
+    {
+      id: 'sineTime',
+      label: 'Sine Time',
+      type: concrete('float'),
+      description: 'Sine of Time: a wave that swings between -1 and 1.',
+    },
+    {
+      id: 'cosineTime',
+      label: 'Cosine Time',
+      type: concrete('float'),
+      description: 'Cosine of Time: the same wave as Sine Time, starting at 1.',
+    },
+    {
+      id: 'deltaTime',
+      label: 'Delta Time',
+      type: concrete('float'),
+      description: 'Seconds since the previous frame, for motion that ignores the frame rate.',
+    },
   ],
   build: ({ tsl }) => {
     const time = tsl.builtin('time')
