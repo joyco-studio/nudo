@@ -36,8 +36,8 @@ interface PaneContextMenuProps {
 }
 
 /**
- * The empty canvas's right-click menu: add a node or a comment, paste, select all, or fit the
- * view. Anything added or pasted lands where the menu was opened, so those items keep their own
+ * The empty canvas's right-click menu: add a node or a comment, paste, select all, fit the view
+ * or tidy up the graph. Anything added or pasted lands where the menu was opened, so those items keep their own
  * placement; their names and keys, and the rest of the items, come from the command registry.
  * The ContextMenu key or Shift+F10 on the focused canvas opens it in the middle of the view.
  */
@@ -107,6 +107,13 @@ export function PaneContextMenu({ children }: PaneContextMenuProps) {
           }}
         >
           <CommandMenuLabel commandId="fit-view" />
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() => {
+            runCommand('tidy-up', UNTARGETED)
+          }}
+        >
+          <CommandMenuLabel commandId="tidy-up" />
         </ContextMenuItem>
       </CanvasMenuContent>
     </ContextMenu>

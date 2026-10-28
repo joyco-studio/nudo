@@ -10,7 +10,6 @@ import { EdgeContextMenu } from './edge-context-menu'
 
 import type { FlowEdge } from './to-flow'
 
-const EDGE_WIDTH = 2
 const SELECTED_HALO_WIDTH = 6
 /** The dark theme's foreground outline: 1px beyond the halo on each side. */
 const SELECTED_OUTLINE_WIDTH = 2
@@ -71,7 +70,7 @@ function TypedEdgeComponent({
   const stroke = data === undefined ? FALLBACK_STROKE : PORT_COLORS[data.sourceType]
 
   return (
-    <EdgeContextMenu edgeId={id}>
+    <EdgeContextMenu edgeId={id} midpoint={{ x: labelX, y: labelY }}>
       <g>
         {selected === true && (
           <>
@@ -96,7 +95,8 @@ function TypedEdgeComponent({
           id={id}
           path={path}
           className="typed-edge"
-          style={{ stroke, strokeWidth: EDGE_WIDTH }}
+          // Its width comes from graph-canvas.css, so focus and the chain highlight can change it.
+          style={{ stroke }}
         />
         {data?.conversion != null && (
           <ConversionMarker conversion={data.conversion} x={labelX} y={labelY} />

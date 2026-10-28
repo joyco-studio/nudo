@@ -11,6 +11,7 @@ import {
   float,
   parseGraph,
   setInputValue,
+  splitEdge,
   setParam,
   vec3,
 } from '@nudo-tsl/core'
@@ -352,6 +353,26 @@ describe('generateModule', () => {
     expect(lines(generate(graph, { threeVersion: '0.186.1' }))[1]).toContain('three r186 ·')
     expect(lines(generate(graph, { threeVersion: 'r190' }))[1]).toContain('three r190 ·')
     expect(lines(generate(graph, { threeVersion: 'dev' }))[1]).toContain('three dev ·')
+  })
+
+  it('prints the same module when every connection runs through a reroute', () => {
+    const direct = waterGraph()
+    const rerouted = Object.values(direct.edges).reduce(
+      (graph, edge) =>
+        unwrap(
+          splitEdge(graph, registry, {
+            edgeId: edge.id,
+            node: { id: asNodeId(`dot-${edge.id}`), type: 'utility/reroute', position: ORIGIN },
+            inputPortId: 'in',
+            outputPortId: 'out',
+            edgeIds: [asEdgeId(`into-${edge.id}`), asEdgeId(`out-of-${edge.id}`)],
+          }),
+        ),
+      direct,
+    )
+
+    expect(Object.keys(rerouted.nodes).length).toBeGreaterThan(Object.keys(direct.nodes).length)
+    expect(generate(rerouted)).toBe(generate(direct))
   })
 
   it('is deterministic', () => {

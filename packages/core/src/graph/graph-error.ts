@@ -1,10 +1,11 @@
 import type { ConnectionRejection } from '../validation/check-connection'
 import type { PortRef } from '../types/graph'
-import type { NodeId, NodeTypeId } from '../types/ids'
+import type { EdgeId, NodeId, NodeTypeId } from '../types/ids'
 
 export type GraphError =
   | { code: 'unknown-node-type'; type: NodeTypeId }
   | { code: 'node-not-found'; nodeId: NodeId }
+  | { code: 'edge-not-found'; edgeId: EdgeId }
   | { code: 'cannot-remove-master' }
   | { code: 'duplicate-id'; id: string }
   | { code: 'invalid-connection'; reason: ConnectionRejection }

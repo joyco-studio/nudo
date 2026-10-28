@@ -17,7 +17,7 @@ interface SeedTextureValue {
 
 type SeedValue = SeedNumericValue | SeedTextureValue
 
-interface SeedNode {
+export interface SeedNode {
   id: string
   type: string
   position: { x: number; y: number }
@@ -25,7 +25,7 @@ interface SeedNode {
   params?: Record<string, string | number | boolean>
 }
 
-interface SeedProperty {
+export interface SeedProperty {
   id: string
   label: string
   name: string
@@ -34,7 +34,7 @@ interface SeedProperty {
   value: SeedValue
 }
 
-interface SeedEdge {
+export interface SeedEdge {
   id: string
   from: [nodeId: string, portId: string]
   to: [nodeId: string, portId: string]
@@ -42,9 +42,13 @@ interface SeedEdge {
 
 export const MASTER_POSITION = { x: 600, y: 0 }
 
-function documentBody(nodes: readonly SeedNode[], edges: readonly SeedEdge[]) {
+function documentBody(
+  nodes: readonly SeedNode[],
+  edges: readonly SeedEdge[],
+  masterPosition = MASTER_POSITION,
+) {
   const allNodes: SeedNode[] = [
-    { id: 'master', type: 'master/stack', position: MASTER_POSITION },
+    { id: 'master', type: 'master/stack', position: masterPosition },
     ...nodes,
   ]
   return {
@@ -86,8 +90,13 @@ export function graphDocumentV2(
   nodes: readonly SeedNode[],
   edges: readonly SeedEdge[],
   properties: readonly SeedProperty[],
+  masterPosition = MASTER_POSITION,
 ): string {
-  return JSON.stringify({ schemaVersion: 2, ...documentBody(nodes, edges), properties })
+  return JSON.stringify({
+    schemaVersion: 2,
+    ...documentBody(nodes, edges, masterPosition),
+    properties,
+  })
 }
 
 /** A Color node feeding the master's Base Color. */

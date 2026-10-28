@@ -7,7 +7,7 @@ import { ButtonGroup } from '@/shared/ui/button-group'
 import { Kbd } from '@/shared/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { fitViewOptionsFor } from './fit-view-options'
+import { usePanelAwareView } from './use-panel-aware-view'
 
 interface ControlButtonProps {
   label: string
@@ -42,7 +42,8 @@ function ControlButton({ label, icon: Icon, shortcut, onClick }: ControlButtonPr
 
 /** Zoom and fit for the node canvas, named apart from the preview's own zoom buttons. */
 export function CanvasControls() {
-  const { zoomIn, zoomOut, fitView } = useReactFlow()
+  const { zoomIn, zoomOut } = useReactFlow()
+  const view = usePanelAwareView()
 
   return (
     <Panel position="bottom-left">
@@ -65,10 +66,8 @@ export function CanvasControls() {
           label="Fit all nodes in view"
           icon={Maximize}
           shortcut="F"
-          onClick={() => {
-            // Same fit as the F key and the canvas menu, for the window as it is now.
-            void fitView(fitViewOptionsFor(window.innerWidth))
-          }}
+          // Same fit as the F key and the canvas menu, clear of the panels as they are now.
+          onClick={view.fitAll}
         />
       </ButtonGroup>
     </Panel>

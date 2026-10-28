@@ -65,6 +65,11 @@ export interface NodeDefinition<I extends string, O extends string> {
   readonly params?: readonly ParamDefinition[]
   /** Marks nodes that read a Blackboard property through the hidden string param `propertyId`. */
   readonly reads?: 'property'
+  /**
+   * Marks a node whose `build` hands its single input on unchanged (a reroute). Backends treat
+   * its output as the input itself: codegen gives it no name of its own.
+   */
+  readonly passthrough?: boolean
   /** Written once, runs on both backends. */
   build<E>(ctx: BuildContext<E, I>): Readonly<Record<O, E>>
 }

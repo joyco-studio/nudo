@@ -2,27 +2,22 @@ import { useCallback } from 'react'
 import type { XY } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
 
+import { measureCanvasArea } from '@/features/canvas/measure-canvas-insets'
 import { COMMENT_NODE_TYPE } from '@/features/canvas/to-flow'
 import type { FlowNode } from '@/features/canvas/to-flow'
-import { CANVAS_ID } from '@/shared/lib/landmarks'
+import { visibleCenter } from '@/features/canvas/viewport-insets'
 import { useEditorStore } from '@/store/editor-store'
 
-import { NEW_NODE_SIZE, besideNode, findFreeSpot, rectCenter } from './add-node-placement'
+import { NEW_NODE_SIZE, besideNode, findFreeSpot } from './add-node-placement'
 import type { FlowRect, PlacementOrigin } from './add-node-placement'
 
 /** Turns where a new node is asked for into a flow position. */
 export type ResolvePlacement = (origin: PlacementOrigin) => XY
 
-function canvasElement(): HTMLElement | null {
-  return document.getElementById(CANVAS_ID)
-}
-
-/** Screen point at the middle of the canvas, or the window when the canvas isn't mounted. */
+/** Screen point at the middle of the canvas the floating panels leave uncovered. */
 function viewportCenter(): XY {
-  const rect = canvasElement()?.getBoundingClientRect()
-  return rectCenter(
-    rect ?? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight },
-  )
+  const { rect, insets } = measureCanvasArea()
+  return visibleCenter(rect, insets)
 }
 
 /** The nodes a new node must not cover. Comment frames sit behind nodes, so they don't count. */

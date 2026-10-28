@@ -11,6 +11,7 @@ import type {
   NodeRegistry,
   ResolvedTypes,
 } from '@nudo-tsl/core'
+import { rerouteNode } from '@nudo-tsl/nodes'
 import type { Edge, Node } from '@xyflow/react'
 
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
@@ -20,6 +21,7 @@ import { frameOf } from './node-frame'
 
 export const GRAPH_NODE_TYPE = 'graph-node'
 export const COMMENT_NODE_TYPE = 'comment'
+export const REROUTE_NODE_TYPE = 'reroute'
 export const TYPED_EDGE_TYPE = 'typed'
 const MASTER_TITLE = 'Master Stack'
 export const COMMENT_TYPE = 'utility/comment'
@@ -50,7 +52,9 @@ export type FlowEdgeData = {
   conversion: Conversion | null
 }
 
-export type FlowNode = Node<FlowNodeData, typeof GRAPH_NODE_TYPE | typeof COMMENT_NODE_TYPE>
+export type FlowNodeType =
+  typeof GRAPH_NODE_TYPE | typeof COMMENT_NODE_TYPE | typeof REROUTE_NODE_TYPE
+export type FlowNode = Node<FlowNodeData, FlowNodeType>
 export type FlowEdge = Edge<FlowEdgeData, typeof TYPED_EDGE_TYPE>
 
 function stringParam(node: GraphNode, paramId: string): string | null {
@@ -167,6 +171,12 @@ function toFlowEdge(
   }
 }
 
+/** The view that draws a node: a comment frame, a reroute dot, or the regular node card. */
+function flowTypeOf(node: GraphNode): FlowNodeType {
+  if (node.type === COMMENT_TYPE) return COMMENT_NODE_TYPE
+  return node.type === rerouteNode.type ? REROUTE_NODE_TYPE : GRAPH_NODE_TYPE
+}
+
 /** A comment's stored size and its place behind the other nodes; nothing for other nodes. */
 function frameAttributes(
   node: GraphNode,
@@ -199,7 +209,7 @@ export function toFlow(
     entries.set(node.id, { node, definition, title })
     nodes.push({
       id: node.id,
-      type: node.type === COMMENT_TYPE ? COMMENT_NODE_TYPE : GRAPH_NODE_TYPE,
+      type: flowTypeOf(node),
       position: draft[node.id] ?? node.position,
       selected: selectedIds.has(node.id),
       deletable: node.id !== MASTER_NODE_ID,

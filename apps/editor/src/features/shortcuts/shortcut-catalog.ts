@@ -48,6 +48,7 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
       command('paste'),
       command('select-all'),
       command('fit-view'),
+      command('tidy-up'),
       command('new-graph'),
       command('open-command-palette'),
       command('show-shortcuts'),
@@ -120,7 +121,7 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
     title: 'Connection',
     entries: [
       key('Delete the connection', [['Delete']]),
-      key('Open its menu', [['Shift', 'F10'], ['Menu']]),
+      key('Open its menu: insert a reroute, delete', [['Shift', 'F10'], ['Menu']]),
     ],
   },
 ]

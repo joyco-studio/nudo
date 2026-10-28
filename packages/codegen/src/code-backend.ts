@@ -47,7 +47,7 @@ const outputSuffix = (definition: AnyNodeDefinition, portId: string): string =>
 
 /**
  * Backend that prints the graph as source. Every node output becomes one named constant, read by
- * whatever consumes it; property readers are the exception and print as the property itself.
+ * whatever consumes it; property readers print as the property itself and reroutes as their input.
  * `properties` are the Blackboard names, kept apart from the generated identifiers.
  */
 export function createCodeBackend(properties: readonly BlackboardProperty[]): CodeBackend {
@@ -84,7 +84,8 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
       return literalOf(property.value, isColorWidget(property.widget))
     },
     nameOutput: (node, definition, portId, expression) => {
-      if (definition.reads === 'property') return expression
+      // A property reader prints as the property itself, and a reroute as what feeds it.
+      if (definition.reads === 'property' || definition.passthrough === true) return expression
       const name = `${nodeName(node, definition)}${outputSuffix(definition, portId)}`
       return referenceTo({ name, value: expression })
     },

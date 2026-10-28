@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useReactFlow } from '@xyflow/react'
 
-import { fitViewOptionsFor } from '@/features/canvas/fit-view-options'
+import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 
@@ -20,7 +19,7 @@ interface NewGraphProviderProps {
  * in it asks first; the reset itself is one undo step. Must sit inside a `ReactFlowProvider`.
  */
 export function NewGraphProvider({ children }: NewGraphProviderProps) {
-  const { fitView } = useReactFlow()
+  const { fitAll } = usePanelAwareView()
   const [isOpen, setIsOpen] = useState(false)
   const [contentsLabel, setContentsLabel] = useState('')
   const openerRef = useRef<HTMLElement | null>(null)
@@ -28,10 +27,8 @@ export function NewGraphProvider({ children }: NewGraphProviderProps) {
   const resetGraph = useCallback(() => {
     useEditorStore.getState().resetGraph()
     // The master is the only node left; bring it into view once React Flow has it again.
-    requestAnimationFrame(() => {
-      void fitView(fitViewOptionsFor(window.innerWidth))
-    })
-  }, [fitView])
+    requestAnimationFrame(fitAll)
+  }, [fitAll])
 
   const requestNewGraph = useCallback<RequestNewGraph>(
     (opener) => {

@@ -686,3 +686,27 @@ describe('new catalog nodes', () => {
     expect(build.material).not.toBeNull()
   })
 })
+
+describe('reroute', () => {
+  const registry = createDefaultRegistry()
+
+  /** A Float feeding Opacity, with a reroute on the connection when asked. */
+  const floatToOpacity = (rerouted: boolean): Graph => {
+    const graph = withNode(createGraph(), registry, 'value', 'input/float')
+    if (!rerouted) return withEdge(graph, registry, ['value', 'out'], ['master', 'opacity'])
+    const withDot = withNode(graph, registry, 'dot', 'utility/reroute')
+    const fed = withEdge(withDot, registry, ['value', 'out'], ['dot', 'in'])
+    return withEdge(fed, registry, ['dot', 'out'], ['master', 'opacity'])
+  }
+
+  it('passes the value through: the same uniforms, and the slot reads the source as is', () => {
+    const direct = createMaterial(floatToOpacity(false), registry)
+    const rerouted = createMaterial(floatToOpacity(true), registry)
+    const valueUniform = rerouted.uniforms.get(portKey({ nodeId: asNodeId('value'), portId: 'x' }))
+
+    expect(rerouted.errors).toEqual([])
+    expect([...rerouted.uniforms.keys()]).toEqual([...direct.uniforms.keys()])
+    expect(valueUniform).toBeDefined()
+    expect(rerouted.material?.opacityNode).toBe(valueUniform)
+  })
+})

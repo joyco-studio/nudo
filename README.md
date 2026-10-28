@@ -51,6 +51,7 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Anywhere   | `Ctrl/⌘` `V`                       | Paste nodes                                          |
 | Anywhere   | `Ctrl/⌘` `A`                       | Select all nodes                                     |
 | Anywhere   | `F`                                | Fit all nodes in view                                |
+| Anywhere   | `Shift` `T`                        | Tidy up the graph                                    |
 | Anywhere   | `Ctrl/⌘` `Alt` `N`                 | Start a new graph                                    |
 | Anywhere   | `Ctrl/⌘` `K`                       | Open the command palette                             |
 | Anywhere   | `?`                                | Show keyboard shortcuts                              |
@@ -83,7 +84,7 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | Port       | `Enter`                            | Connect to another port                              |
 | Port       | `Delete`                           | Remove its connections                               |
 | Connection | `Delete`                           | Delete the connection                                |
-| Connection | `Shift` `F10` or `Menu`            | Open its menu                                        |
+| Connection | `Shift` `F10` or `Menu`            | Open its menu: insert a reroute, delete              |
 
 ## Contributing
 

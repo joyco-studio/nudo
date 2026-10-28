@@ -13,8 +13,8 @@ function hasSelectedText(): boolean {
 }
 
 /**
- * Editor-wide keyboard shortcuts: undo and redo, copy and paste, select all, fit view, new graph
- * and the shortcuts dialog. Each key runs the registry command with the same id, with the key's
+ * Editor-wide keyboard shortcuts: undo and redo, copy and paste, select all, fit view, tidy up,
+ * new graph and the shortcuts dialog. Each key runs the registry command with the same id, with the key's
  * target as the opener. Mounted once, inside the command provider.
  */
 export function useGlobalShortcuts(): void {

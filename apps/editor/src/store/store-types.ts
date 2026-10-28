@@ -46,6 +46,11 @@ export interface GraphSlice {
   setInputValue(ref: PortRef, value: PortValue): void
   connect(from: PortRef, to: PortRef): ConnectionCheck
   disconnect(edgeIds: readonly EdgeId[]): void
+  /**
+   * Splits a connection around a new reroute node at `position` (one history entry) and selects
+   * it. Returns its id, or null (with a notice) when the connection can't take one.
+   */
+  insertReroute(edgeId: EdgeId, position: XY): NodeId | null
   pasteFragment(fragment: GraphFragment, offset: XY): readonly NodeId[]
   /** One history entry; does nothing when the value the node shows would not change. */
   setParam(ref: ParamRef, value: ParamValue): void
