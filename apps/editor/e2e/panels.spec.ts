@@ -12,6 +12,12 @@ const ARROW_PRESSES_PAST_MAX = 8
 /** A uniform background has almost no spread; the checker room has two clearly distinct greys. */
 const UNIFORM_SPREAD_MAX = 4
 const CHECKER_SPREAD_MIN = 12
+/**
+ * The grid floor is quiet: thin lines a little off the background. Even where a cross overlaps a
+ * line, a pixel moves less than half of the full 0-255 range, far from an opaque light grey.
+ */
+const GRID_PIXELS_MIN = 50
+const GRID_DIFFERENCE_MAX = 128
 
 function canvas(page: Page): Locator {
   return page.getByRole('main', { name: 'Node canvas' })
@@ -67,6 +73,48 @@ async function cornerLuminanceSpread(page: Page, screenshot: Buffer): Promise<nu
     const mean = samples.reduce((sum, value) => sum + value, 0) / samples.length
     const variance = samples.reduce((sum, value) => sum + (value - mean) ** 2, 0) / samples.length
     return Math.sqrt(variance)
+  }, screenshot.toString('base64'))
+}
+
+interface FloorBand {
+  /** Pixels in the bottom band that differ from the background. */
+  readonly differing: number
+  /** The largest per-channel difference from the background among them. */
+  readonly maxDifference: number
+}
+
+/**
+ * Compares the bottom band of a PNG screenshot (below the centered mesh, right of the backend
+ * badge) with the background color, read from the top-left pixel where only the background shows.
+ */
+async function bottomBandAgainstBackground(page: Page, screenshot: Buffer): Promise<FloorBand> {
+  return page.evaluate(async (base64) => {
+    const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))
+    const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }))
+    const surface = document.createElement('canvas')
+    surface.width = bitmap.width
+    surface.height = bitmap.height
+    const context = surface.getContext('2d')
+    if (context === null) throw new Error('2D canvas unavailable')
+    context.drawImage(bitmap, 0, 0)
+    const { data, width, height } = context.getImageData(0, 0, bitmap.width, bitmap.height)
+    const background = [data[0] ?? 0, data[1] ?? 0, data[2] ?? 0]
+    const bandTop = Math.floor(height * 0.9)
+    const bandLeft = Math.floor(width * 0.3)
+    let differing = 0
+    let maxDifference = 0
+    for (let y = bandTop; y < height; y += 1) {
+      for (let x = bandLeft; x < width; x += 1) {
+        const index = (y * width + x) * 4
+        const difference = Math.max(
+          ...background.map((channel, offset) => Math.abs((data[index + offset] ?? 0) - channel)),
+        )
+        if (difference <= 1) continue
+        differing += 1
+        maxDifference = Math.max(maxDifference, difference)
+      }
+    }
+    return { differing, maxDifference }
   }, screenshot.toString('base64'))
 }
 
@@ -239,6 +287,44 @@ test.describe('preview layout', () => {
     await expect(layoutRadio(page, 'Full')).toBeChecked()
     await layoutRadio(page, 'Docked').click()
     await expect(layoutRadio(page, 'Docked')).toBeChecked()
+  })
+
+  test('the grid floor is the default backdrop, None removes it, and the choice persists', async ({
+    page,
+  }) => {
+    await seedAutosave(page, COLOR_TO_BASE_COLOR)
+    await page.goto('/')
+    const viewportCanvas = preview(page).locator('canvas')
+    const backdrop = preview(page).getByRole('combobox', { name: 'Backdrop' })
+    await expect(preview(page).getByText(/^(WebGPU|WebGL2)$/)).toBeVisible()
+    await expect(backdrop).toHaveText('Grid')
+
+    // Quiet lines below the mesh; the top of the view is still the plain background.
+    await expect
+      .poll(async () => {
+        const band = await bottomBandAgainstBackground(page, await viewportCanvas.screenshot())
+        return band.differing
+      })
+      .toBeGreaterThan(GRID_PIXELS_MIN)
+    const band = await bottomBandAgainstBackground(page, await viewportCanvas.screenshot())
+    expect(band.maxDifference).toBeLessThan(GRID_DIFFERENCE_MAX)
+    expect(await cornerLuminanceSpread(page, await viewportCanvas.screenshot())).toBeLessThan(
+      UNIFORM_SPREAD_MAX,
+    )
+
+    await backdrop.focus()
+    // Type-ahead on the closed select picks the option that starts with the letter.
+    await page.keyboard.press('n')
+    await expect(backdrop).toHaveText('None')
+    await expect
+      .poll(async () => {
+        const plain = await bottomBandAgainstBackground(page, await viewportCanvas.screenshot())
+        return plain.differing
+      })
+      .toBe(0)
+
+    await page.reload()
+    await expect(preview(page).getByRole('combobox', { name: 'Backdrop' })).toHaveText('None')
   })
 
   test('checker room backdrop renders behind the preview mesh', async ({ page }) => {

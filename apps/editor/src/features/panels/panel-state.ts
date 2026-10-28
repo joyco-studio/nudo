@@ -9,7 +9,8 @@ export const PREVIEW_LAYOUTS = ['docked', 'split', 'full'] as const
 export type PreviewLayout = (typeof PREVIEW_LAYOUTS)[number]
 export type NonFullPreviewLayout = Exclude<PreviewLayout, 'full'>
 
-export const PREVIEW_BACKDROPS = ['none', 'checker-room'] as const
+/** What stands behind the preview mesh; the grid floor is the first-visit default. */
+export const PREVIEW_BACKDROPS = ['none', 'grid', 'checker-room'] as const
 export type PreviewBackdrop = (typeof PREVIEW_BACKDROPS)[number]
 
 export interface PanelPrefs {
@@ -31,7 +32,7 @@ export const DEFAULT_PANEL_PREFS: PanelPrefs = {
   open: { blackboard: true, inspector: true, preview: true, code: false },
   layout: 'docked',
   splitPercent: 50,
-  backdrop: 'none',
+  backdrop: 'grid',
 }
 
 /**

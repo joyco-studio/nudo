@@ -6,6 +6,7 @@ import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 import type { PreviewBackdrop } from '@/features/panels/panel-state'
 
 import { CheckerRoom } from './checker-room'
+import { GridFloor } from './grid-floor'
 import type { OrbitView } from './orbit-view'
 import { PreviewMesh } from './preview-mesh'
 import type { PreviewShape } from './preview-shape'
@@ -48,6 +49,7 @@ export function PreviewScene({
       <color attach="background" args={[backgroundColor]} />
       <hemisphereLight args={[SKY_COLOR, GROUND_COLOR, FILL_LIGHT_INTENSITY]} />
       <directionalLight position={KEY_LIGHT_POSITION} intensity={KEY_LIGHT_INTENSITY} />
+      {backdrop === 'grid' && <GridFloor />}
       {backdrop === 'checker-room' && <CheckerRoom />}
       {material !== null && <PreviewMesh shape={shape} material={material} model={model} />}
       <OrbitControls

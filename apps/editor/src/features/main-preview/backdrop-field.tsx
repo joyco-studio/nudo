@@ -3,24 +3,31 @@ import { useId } from 'react'
 import { PREVIEW_BACKDROPS } from '@/features/panels/panel-state'
 import type { PreviewBackdrop } from '@/features/panels/panel-state'
 import { OptionSelect } from '@/shared/components/option-select'
+import type { SelectOption } from '@/shared/components/option-select'
 import { Label } from '@/shared/ui/label'
 import { useEditorStore } from '@/store/editor-store'
-import type { MessageKey } from '@/i18n/translate'
+import type { MessageKey, Translate } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
 
 function backdropLabelKey(backdrop: PreviewBackdrop): MessageKey {
   return `preview.backdrop.${backdrop}`
 }
 
+/** Every backdrop with its label in the current language, in menu order. */
+export function backdropOptions(t: Translate): readonly SelectOption<PreviewBackdrop>[] {
+  return PREVIEW_BACKDROPS.map((value) => ({ value, label: t(backdropLabelKey(value)) }))
+}
+
 /**
- * Picks what stands behind the mesh: nothing, or a checker floor and wall so screen-space nodes
- * (Scene Color, Depth Fade) have something to sample. Persisted with the panel preferences.
+ * Picks what stands behind the mesh: nothing, a quiet floor grid that fades into the background,
+ * or a checker floor and wall so screen-space nodes (Scene Color, Depth Fade) have something to
+ * sample. Persisted with the panel preferences.
  */
 export function BackdropField() {
   const backdrop = useEditorStore((state) => state.panels.backdrop)
   const selectId = useId()
   const t = useT()
-  const options = PREVIEW_BACKDROPS.map((value) => ({ value, label: t(backdropLabelKey(value)) }))
+  const options = backdropOptions(t)
 
   return (
     <div className="flex items-center gap-2">

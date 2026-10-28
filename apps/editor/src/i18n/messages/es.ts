@@ -346,6 +346,7 @@ export const es = {
     '{count} nodos tienen errores, así que se muestra el último resultado válido. Están marcados en rojo.',
   'preview.backdrop': 'Escenario',
   'preview.backdrop.none': 'Ninguno',
+  'preview.backdrop.grid': 'Grilla',
   'preview.backdrop.checker-room': 'Sala de damero',
   'preview.background': 'Fondo',
   'preview.backgroundColor': 'Color de fondo',
