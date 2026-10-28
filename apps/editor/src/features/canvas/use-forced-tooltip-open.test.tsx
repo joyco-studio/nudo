@@ -3,8 +3,12 @@ import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { claimOverlay, releaseOverlay } from '@/shared/lib/overlay-coordinator'
+
 import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 import type { ForcedTooltipOpen } from './use-forced-tooltip-open'
+
+const OVERLAY_ID = 'test-overlay'
 
 describe('useForcedTooltipOpen', () => {
   let root: Root
@@ -29,6 +33,7 @@ describe('useForcedTooltipOpen', () => {
   afterEach(() => {
     act(() => {
       root.unmount()
+      releaseOverlay(OVERLAY_ID)
     })
   })
 
@@ -90,5 +95,36 @@ describe('useForcedTooltipOpen', () => {
 
     render(null)
     expect(rendered.open).toBe(false)
+  })
+
+  it('closes when an overlay opens and stays closed after it closes, without a new hover', () => {
+    render(null)
+    act(() => {
+      rendered.onOpenChange(true)
+    })
+    expect(rendered.open).toBe(true)
+
+    act(() => {
+      claimOverlay(OVERLAY_ID)
+    })
+    expect(rendered.open).toBe(false)
+
+    act(() => {
+      releaseOverlay(OVERLAY_ID)
+    })
+    expect(rendered.open).toBe(false)
+  })
+
+  it('lets an open overlay win over a pinned-open force, and does not bring it back', () => {
+    render(true)
+    act(() => {
+      claimOverlay(OVERLAY_ID)
+    })
+    expect(rendered.open).toBe(false)
+
+    act(() => {
+      releaseOverlay(OVERLAY_ID)
+    })
+    expect(rendered.open).toBe(true)
   })
 })

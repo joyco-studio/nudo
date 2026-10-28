@@ -184,6 +184,28 @@ test.describe('tooltip state', () => {
     expect(switchWarnings).toEqual([])
   })
 
+  test('a port label tooltip open when a menu opens does not come back after it closes', async ({
+    page,
+  }) => {
+    await seedAutosave(page, UNCONNECTED_MULTIPLY)
+    await page.goto('/')
+    const multiply = graphNode(page, 'Multiply')
+    await multiply.locator('label', { hasText: /^A$/ }).hover()
+    await expect(visibleTooltip(page)).toContainText(A_DESCRIPTION)
+
+    await multiply.locator('header').click({ button: 'right' })
+    await expect(page.getByRole('menu')).toBeVisible()
+    await expect(visibleTooltip(page)).toHaveCount(0)
+
+    // Leave the label while the menu is open, then close the menu.
+    await page.mouse.move(0, 0, { steps: 3 })
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('menu')).toHaveCount(0)
+
+    await page.waitForTimeout(300)
+    await expect(visibleTooltip(page)).toHaveCount(0)
+  })
+
   test('a port tooltip hovered during an edge drag does not come back after it', async ({
     page,
   }) => {
