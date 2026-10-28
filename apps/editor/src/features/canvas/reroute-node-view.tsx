@@ -7,6 +7,8 @@ import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 
 import { ConnectablePort } from './connectable-port'
 import { NodeContextMenu } from './node-context-menu'
+import { recordNodeRender } from './node-render-stats'
+import { rendersSameNode } from './renders-same-node'
 import { inputExplanation, nodeAccessibleDescription, outputExplanation } from './node-explanation'
 import { nodeDescriptionId } from './to-flow'
 import type { FlowNode } from './to-flow'
@@ -20,6 +22,7 @@ const SELECTED_KNOT_CLASS =
  * knot's ring take the type color, and the knot shows the type as text (`1`…`4`), like a port.
  */
 function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
+  recordNodeRender()
   const t = useT()
   const [input] = data.definition.inputs
   const [output] = data.definition.outputs
@@ -73,4 +76,4 @@ function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   )
 }
 
-export const RerouteNodeView = memo(RerouteNodeViewComponent)
+export const RerouteNodeView = memo(RerouteNodeViewComponent, rendersSameNode)

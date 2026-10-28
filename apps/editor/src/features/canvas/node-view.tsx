@@ -17,6 +17,8 @@ import { InlineField, MutedHint } from './inline-field'
 import { NodeContextMenu } from './node-context-menu'
 import { inputExplanation, nodeAccessibleDescription, outputExplanation } from './node-explanation'
 import { NodeFormula } from './node-formula'
+import { recordNodeRender } from './node-render-stats'
+import { rendersSameNode } from './renders-same-node'
 import { PortLabel } from './port-label'
 import { PortTooltip } from './port-tooltip'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
@@ -268,6 +270,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
 
 /** A graph node: header, params, outputs on the right, inputs (with inline fields) on the left. */
 function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
+  recordNodeRender()
   const { definition, node, outputTypes, error } = data
   const t = useT()
   if (definition.reads === 'property') return <PropertyPill data={data} selected={selected} />
@@ -312,4 +315,4 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   )
 }
 
-export const NodeView = memo(NodeViewComponent)
+export const NodeView = memo(NodeViewComponent, rendersSameNode)

@@ -9,6 +9,8 @@ import { CommentBodyField } from './comment-body-field'
 import { commentBody } from './comment-params'
 import { CommentTitleField } from './comment-title-field'
 import { NodeContextMenu } from './node-context-menu'
+import { recordNodeRender } from './node-render-stats'
+import { rendersSameNode } from './renders-same-node'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { frameOf } from './node-frame'
 import { nodeDescriptionId } from './to-flow'
@@ -20,6 +22,7 @@ import type { FlowNode } from './to-flow'
  * selected; with the keyboard, Alt + arrow keys resize it (see the canvas keyboard model).
  */
 function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
+  recordNodeRender()
   const frame = frameOf(data.node, data.definition)
   const t = useT()
 
@@ -63,4 +66,4 @@ function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   )
 }
 
-export const CommentNodeView = memo(CommentNodeViewComponent)
+export const CommentNodeView = memo(CommentNodeViewComponent, rendersSameNode)

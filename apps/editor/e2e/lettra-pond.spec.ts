@@ -1,13 +1,10 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { changedShare, luminanceSpread } from './support/luminance-spread'
-import { pickExampleByKeyboard } from './support/open-example'
-import { readStoredNodes } from './support/read-autosave'
+import { compileCount, openPond } from './support/open-pond'
 
 /** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
 const PAST_DEBOUNCE_MS = 500
-/** The pond has well over sixty nodes, besides its comment frames and the master. */
-const MIN_POND_NODES = 60
 /** A flat or nearly flat preview stays under this luminance spread; the pond's pattern is far above. */
 const MIN_LUMINANCE_SPREAD = 12
 /** Refraction moves the pattern: this share of the preview changes within a second. */
@@ -21,48 +18,8 @@ function previewCanvas(page: Page): Locator {
   return page.getByRole('region', { name: 'Main preview' }).locator('canvas')
 }
 
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
-}
-
 async function previewApplyCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
-}
-
-/** The compile count once it stops rising: no rebuild is pending past the debounce. */
-async function settledCompileCount(page: Page): Promise<number> {
-  let previous = -1
-  await expect
-    .poll(
-      async () => {
-        const current = await compileCount(page)
-        const isSettled = current === previous
-        previous = current
-        return isSettled
-      },
-      { intervals: [PAST_DEBOUNCE_MS] },
-    )
-    .toBe(true)
-  return previous
-}
-
-/**
- * Opens the pond on a fresh page and waits for its own compile, not the page's first one, to
- * land with no node errors.
- */
-async function openPond(page: Page): Promise<void> {
-  await page.goto('/')
-  await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
-  // The page compiles its starting graph first; the baseline comes after that.
-  await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
-  const compilesBefore = await settledCompileCount(page)
-  await pickExampleByKeyboard(page, 'Lettra pond')
-  await expect
-    .poll(async () => (await readStoredNodes(page)).length)
-    .toBeGreaterThan(MIN_POND_NODES)
-  await expect.poll(() => compileCount(page)).toBeGreaterThan(compilesBefore)
-  await settledCompileCount(page)
-  await expect(page.locator('[data-error="true"]')).toHaveCount(0)
 }
 
 test.describe('lettra pond example', () => {

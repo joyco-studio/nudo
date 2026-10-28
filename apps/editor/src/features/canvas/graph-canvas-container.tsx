@@ -33,6 +33,7 @@ import { NodeFieldActionsContext } from './node-field-actions'
 import { storeFieldActions } from './store-field-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
 import { REROUTE_SIZE, canReroute } from './reroute'
+import { createUnchangedSharer } from './share-unchanged'
 import { COMMENT_NODE_TYPE, COMMENT_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
@@ -100,6 +101,10 @@ export function GraphCanvasContainer() {
   const nodeRegistry = useNodeRegistry()
   const t = useT()
 
+  // Each render's nodes and edges keep the objects of the previous render that did not change.
+  const [shareNodes] = useState(createUnchangedSharer<FlowNode>)
+  const [shareEdges] = useState(createUnchangedSharer<FlowEdge>)
+
   const types = useMemo(() => resolvePortTypes(graph, registry), [graph])
   // A node being dragged (or nudged, or tidied into place) shows no chain: it would flicker.
   const isMoving = Object.keys(draftPositions).length > 0
@@ -113,35 +118,41 @@ export function GraphCanvasContainer() {
   )
   const nodes = useMemo(
     () =>
-      flow.nodes.map((node) => {
-        const size = measured[node.id]
-        const draftSize = draftSizes[node.id]
-        const sized = draftSize === undefined ? node : { ...node, ...draftSize }
-        // Comment frames sit behind everything and are never dimmed.
-        const className =
-          node.type === COMMENT_NODE_TYPE ? undefined : chainClassOf(chain, 'node', node.id)
-        const highlighted = className === undefined ? sized : { ...sized, className }
-        return size === undefined ? highlighted : { ...highlighted, measured: size }
-      }),
-    [flow.nodes, measured, draftSizes, chain],
+      shareNodes(
+        flow.nodes.map((node) => {
+          const size = measured[node.id]
+          const draftSize = draftSizes[node.id]
+          const sized = draftSize === undefined ? node : { ...node, ...draftSize }
+          // Comment frames sit behind everything and are never dimmed.
+          const className =
+            node.type === COMMENT_NODE_TYPE ? undefined : chainClassOf(chain, 'node', node.id)
+          const highlighted = className === undefined ? sized : { ...sized, className }
+          return size === undefined ? highlighted : { ...highlighted, measured: size }
+        }),
+      ),
+    [shareNodes, flow.nodes, measured, draftSizes, chain],
   )
   const edges = useMemo(
     () =>
-      flow.edges.map((edge) => {
-        const className = chainClassOf(chain, 'edge', edge.id)
-        const isChainDimmed = className === CHAIN_DIMMED_CLASS
-        const highlighted =
-          className === undefined
-            ? edge
-            : {
-                ...edge,
-                className,
-                // The conversion marker lives in another layer: it reads the dim from the data.
-                ...(edge.data === undefined ? {} : { data: { ...edge.data, isChainDimmed } }),
-              }
-        return selectedEdgeIds.includes(edge.id) ? { ...highlighted, selected: true } : highlighted
-      }),
-    [flow.edges, selectedEdgeIds, chain],
+      shareEdges(
+        flow.edges.map((edge) => {
+          const className = chainClassOf(chain, 'edge', edge.id)
+          const isChainDimmed = className === CHAIN_DIMMED_CLASS
+          const highlighted =
+            className === undefined
+              ? edge
+              : {
+                  ...edge,
+                  className,
+                  // The conversion marker lives in another layer: it reads the dim from the data.
+                  ...(edge.data === undefined ? {} : { data: { ...edge.data, isChainDimmed } }),
+                }
+          return selectedEdgeIds.includes(edge.id)
+            ? { ...highlighted, selected: true }
+            : highlighted
+        }),
+      ),
+    [shareEdges, flow.edges, selectedEdgeIds, chain],
   )
 
   const onNodesChange = useCallback<OnNodesChange<FlowNode>>((changes) => {
