@@ -4,10 +4,10 @@ import type { ReactNode } from 'react'
 import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
 import { useT } from '@/i18n/use-t'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
-import { useEditorStore } from '@/store/editor-store'
-
 import { describeGraphContents, graphContents, hasWorkToLose } from '@/shared/lib/graph-contents'
 import type { GraphContents } from '@/shared/lib/graph-contents'
+import { useEditorStore } from '@/store/editor-store'
+
 import { NewGraphContext } from './new-graph-context'
 import type { RequestNewGraph } from './new-graph-context'
 import { NewGraphDialog } from './new-graph-dialog'

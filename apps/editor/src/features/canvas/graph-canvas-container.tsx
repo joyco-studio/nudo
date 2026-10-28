@@ -68,7 +68,6 @@ function withoutKeys<T>(record: Readonly<Record<string, T>>, keys: readonly stri
   return Object.fromEntries(Object.entries(record).filter(([key]) => !keys.includes(key)))
 }
 
-/** A resize ends with the final size; the position is the draft the resize left behind. */
 /** The measured sizes of nodes still in the graph: a replaced graph's sizes go with it. */
 function sizesInGraph(
   sizes: Readonly<Record<string, Dimensions>>,
@@ -77,6 +76,7 @@ function sizesInGraph(
   return Object.fromEntries(Object.entries(sizes).filter(([nodeId]) => nodeId in graph.nodes))
 }
 
+/** A resize ends with the final size; the position is the draft the resize left behind. */
 function commitEndedResizes(endedResizes: Readonly<Record<string, Dimensions>>): void {
   const store = getStore()
   for (const [id, size] of Object.entries(endedResizes)) {
