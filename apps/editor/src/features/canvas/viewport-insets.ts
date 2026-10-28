@@ -37,38 +37,58 @@ function intersection(a: ScreenRect, b: ScreenRect): ScreenRect | null {
   return clipped.left < clipped.right && clipped.top < clipped.bottom ? clipped : null
 }
 
+const SIDES: readonly Side[] = ['top', 'right', 'bottom', 'left']
+
+const areaOf = (box: ScreenRect): number => (box.right - box.left) * (box.bottom - box.top)
+
+/** How deep a strip along `side` must reach into the canvas to clear the panel. */
+function depthToClear(canvas: ScreenRect, panel: ScreenRect, side: Side): number {
+  switch (side) {
+    case 'top':
+      return panel.bottom - canvas.top
+    case 'right':
+      return canvas.right - panel.left
+    case 'bottom':
+      return canvas.bottom - panel.top
+    case 'left':
+      return panel.right - canvas.left
+  }
+}
+
+/** The canvas area left uncovered by the insets. */
+function visibleArea(canvas: ScreenRect, insets: Insets): number {
+  const width = Math.max(0, canvas.right - canvas.left - insets.left - insets.right)
+  const height = Math.max(0, canvas.bottom - canvas.top - insets.top - insets.bottom)
+  return width * height
+}
+
 /**
- * The side a panel is docked to: the edge whose strip, cut deep enough to clear the panel, costs
- * the least canvas area. Returns that side and the strip's depth.
+ * The insets once the panel is cleared along the edge that costs the least extra canvas. A panel
+ * already inside a strip costs nothing, so it joins that edge (a short Inspector above a tall
+ * Preview counts as right, not top).
  */
-function dockedSide(canvas: ScreenRect, panel: ScreenRect): { side: Side; depth: number } {
-  const width = canvas.right - canvas.left
-  const height = canvas.bottom - canvas.top
-  const candidates: readonly { side: Side; depth: number; area: number }[] = [
-    { side: 'left', depth: panel.right - canvas.left, area: (panel.right - canvas.left) * height },
-    { side: 'right', depth: canvas.right - panel.left, area: (canvas.right - panel.left) * height },
-    { side: 'top', depth: panel.bottom - canvas.top, area: (panel.bottom - canvas.top) * width },
-    {
-      side: 'bottom',
-      depth: canvas.bottom - panel.top,
-      area: (canvas.bottom - panel.top) * width,
-    },
-  ]
-  return candidates.reduce((best, candidate) => (candidate.area < best.area ? candidate : best))
+function clearPanel(canvas: ScreenRect, insets: Insets, panel: ScreenRect): Insets {
+  const before = visibleArea(canvas, insets)
+  const options = SIDES.map((side) => {
+    const next = { ...insets, [side]: Math.max(insets[side], depthToClear(canvas, panel, side)) }
+    return { next, cost: before - visibleArea(canvas, next) }
+  })
+  return options.reduce((best, option) => (option.cost < best.cost ? option : best)).next
 }
 
 /**
  * How much of the canvas the panels cover, per edge. Each panel over the canvas counts toward the
- * edge it is docked to; panels beside the canvas, hidden or collapsed to nothing don't count.
+ * edge that clears it for the least canvas, larger panels first; panels beside the canvas, hidden
+ * or collapsed to nothing don't count.
  */
 export function insetsFor(canvas: ScreenRect, panels: readonly ScreenRect[]): Insets {
-  const insets = { ...NO_INSETS }
-  for (const panel of panels) {
-    const covered = intersection(canvas, panel)
-    if (covered === null) continue
-    const { side, depth } = dockedSide(canvas, covered)
-    insets[side] = Math.max(insets[side], depth)
-  }
+  const covered = panels
+    .flatMap((panel) => {
+      const overlap = intersection(canvas, panel)
+      return overlap === null ? [] : [overlap]
+    })
+    .sort((a, b) => areaOf(b) - areaOf(a))
+  const insets = covered.reduce((current, panel) => clearPanel(canvas, current, panel), NO_INSETS)
   const width = canvas.right - canvas.left
   const height = canvas.bottom - canvas.top
   const isWideEnough = width - insets.left - insets.right >= MIN_VISIBLE_PX

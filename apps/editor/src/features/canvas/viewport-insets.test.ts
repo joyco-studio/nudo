@@ -33,6 +33,17 @@ describe('insetsFor', () => {
     })
   })
 
+  it('counts a short panel toward the edge a taller neighbor already clears', () => {
+    // A collapsed-looking Inspector above a tall Preview in the right-hand column: both are right.
+    const shortInspector = rect(944, 64, 1264, 160)
+    const tallPreview = rect(944, 168, 1264, 718)
+    const canvas = rect(0, 0, 1280, 720)
+    expect(insetsFor(canvas, [HEADER, shortInspector, tallPreview])).toMatchObject({
+      top: 48,
+      right: 336,
+    })
+  })
+
   it('keeps the widest inset when two panels sit on the same side', () => {
     const openCode = rect(64, 652, 1088, 884)
     expect(insetsFor(CANVAS, [CODE_COLLAPSED, openCode]).bottom).toBe(248)

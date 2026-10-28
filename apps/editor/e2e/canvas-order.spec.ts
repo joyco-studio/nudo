@@ -18,6 +18,8 @@ const PAST_DEBOUNCE_MS = 500
 /** Far enough ahead that pausing the page clock never moves it back. */
 const CLOCK_JUMP_MS = 1000
 const ONE_FRAME_MS = 20
+/** A collapsed panel is its 32px header plus borders. */
+const COLLAPSED_PANEL_MAX_PX = 40
 
 function canvas(page: Page): Locator {
   return page.getByRole('main', { name: 'Node canvas' })
@@ -108,16 +110,22 @@ test.describe('panel-aware view', () => {
   })
 
   test('still fits clear of the panels after the Properties panel collapses', async ({ page }) => {
+    const leftmostOf = async () =>
+      Math.min(...[...(await nodeBoxes(page)).values()].map((box) => box.x))
+    const leftmostOpen = await leftmostOf()
     await page.getByRole('button', { name: 'Properties panel' }).click()
+    // The collapse animates; the view measures the panel as it is when F is pressed.
+    await expect
+      .poll(async () => (await boxOf(panel(page, 'Properties'))).height)
+      .toBeLessThan(COLLAPSED_PANEL_MAX_PX)
     await canvas(page).focus()
     await page.keyboard.press('f')
     await waitForSettledView(page, TUTORIAL_NODE_COUNT)
 
     const collapsedHeader = panel(page, 'Properties')
     await expectNodesClearOf(page, [collapsedHeader, panel(page, 'Inspector')])
-    // Collapsed, it no longer costs the canvas its left edge: the graph uses that room.
-    const leftmost = Math.min(...[...(await nodeBoxes(page)).values()].map((box) => box.x))
-    expect(leftmost).toBeLessThan((await boxOf(collapsedHeader)).x + 240)
+    // Collapsed, it no longer costs the canvas its left edge: the graph moves into that room.
+    expect(await leftmostOf()).toBeLessThan(leftmostOpen)
   })
 })
 
@@ -346,6 +354,10 @@ test.describe('chain highlight', () => {
   test('selecting a node dims unrelated connections and nodes, and keeps its chain', async ({
     page,
   }) => {
+    // Seeded, the tall nodes overlap; tidied (from the keyboard, so at once) every node is clear.
+    await canvas(page).focus()
+    await page.keyboard.press('Shift+T')
+    await waitForSettledView(page, TUTORIAL_NODE_COUNT)
     await flowNode(page, 'fresnel').click()
 
     const chainEdge = page.locator('.react-flow__edge[data-id="fresnel.out-mul4.a"]')
