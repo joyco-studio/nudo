@@ -113,7 +113,7 @@ test.describe('add-node menu', () => {
     await expect(search).toHaveAttribute('aria-activedescendant', /.+/)
     await page.keyboard.press('End')
     await expect(options.last()).toHaveAttribute('aria-selected', 'true')
-    await expect(dialog).toContainText('Brightens surfaces seen at grazing angles')
+    await expect(dialog).toContainText('Glows where the surface turns away from the camera')
   })
 
   test('escape after space returns focus to the node that opened the menu', async ({ page }) => {

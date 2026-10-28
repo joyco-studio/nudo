@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
+import type { PortExplanation } from './node-explanation'
 import { PortLabel } from './port-label'
 
 const SWATCH_SIZE: Readonly<Record<FieldSize, string>> = {
@@ -16,6 +17,8 @@ const SWATCH_SIZE: Readonly<Record<FieldSize, string>> = {
 
 export interface ColorFieldProps {
   label: string
+  /** What the input means, shown when its label is hovered. */
+  explanation?: PortExplanation | undefined
   value: Extract<VectorPortValue, { type: 'vec3' }>
   onCommit: (value: PortValue) => void
   onPreview: (value: PortValue) => void
@@ -29,11 +32,18 @@ const isSameRgb = (a: Rgb, b: Rgb): boolean => a.every((channel, index) => chann
  * channel; the picker commits once when it closes, so one pick is one undo step. Used by node
  * inputs, the Inspector and Blackboard properties; the swatch follows the field size.
  */
-export function ColorField({ label, value, onCommit, onPreview, onPreviewEnd }: ColorFieldProps) {
+export function ColorField({
+  label,
+  explanation,
+  value,
+  onCommit,
+  onPreview,
+  onPreviewEnd,
+}: ColorFieldProps) {
   const size = useFieldSize()
   return (
     <>
-      <PortLabel label={label} />
+      <PortLabel label={label} explanation={explanation} />
       <ColorPicker
         label={label}
         value={value.value}

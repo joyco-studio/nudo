@@ -8,6 +8,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
+import type { PortExplanation } from './node-explanation'
+import { PortTooltip } from './port-tooltip'
 import { formatNumber, isNumberInput, parseNumberInput, stepNumber } from './parse-number-input'
 
 const ARROW_STEP = 0.1
@@ -18,6 +20,7 @@ const SCRUB_STEP_PER_PX = 0.01
 const SHIFT_SCRUB_STEP_PER_PX = 0.1
 /** The scrub hint waits, so it never flashes up while the pointer passes over a row. */
 const SCRUB_HINT_DELAY_MS = 700
+const SCRUB_HINT = 'Drag to change'
 
 interface NumberFieldSizeClasses {
   readonly rowLabel: string
@@ -52,6 +55,8 @@ export interface NumberFieldProps {
   label: string
   /** Accessible name when the visible label alone is ambiguous (a vector's "X"). */
   accessibleName?: string
+  /** What the input means: when given, hovering a row's label shows it before the scrub hint. */
+  explanation?: PortExplanation | undefined
   value: number
   /** Never edited: shown muted so changed values stand out. */
   isDefault: boolean
@@ -81,6 +86,7 @@ function scrubbedValue(session: ScrubSession, event: PointerEvent, stepScale: nu
 export function NumberField({
   label,
   accessibleName,
+  explanation,
   value,
   isDefault,
   layout,
@@ -179,6 +185,24 @@ export function NumberField({
     onScrubPreviewEnd()
   }
 
+  const scrubLabel = (
+    <Label
+      htmlFor={inputId}
+      className={cn(
+        'nodrag cursor-ew-resize touch-none font-normal select-none',
+        layout === 'row'
+          ? ['block min-w-0 flex-1 truncate text-xs', sizeClasses.rowLabel]
+          : ['shrink-0 font-mono text-muted-foreground', sizeClasses.componentLabel],
+      )}
+      onPointerDown={onScrubStart}
+      onPointerMove={onScrubMove}
+      onPointerUp={onScrubEnd}
+      onPointerCancel={onScrubCancel}
+    >
+      {label}
+    </Label>
+  )
+
   return (
     <div
       className={cn(
@@ -186,28 +210,18 @@ export function NumberField({
         layout === 'row' ? 'flex-1' : 'flex-1 basis-0',
       )}
     >
-      <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
-        <TooltipTrigger asChild>
-          <Label
-            htmlFor={inputId}
-            className={cn(
-              'nodrag cursor-ew-resize touch-none font-normal select-none',
-              layout === 'row'
-                ? ['block min-w-0 flex-1 truncate text-xs', sizeClasses.rowLabel]
-                : ['shrink-0 font-mono text-muted-foreground', sizeClasses.componentLabel],
-            )}
-            onPointerDown={onScrubStart}
-            onPointerMove={onScrubMove}
-            onPointerUp={onScrubEnd}
-            onPointerCancel={onScrubCancel}
-          >
-            {label}
-          </Label>
-        </TooltipTrigger>
-        <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
-          Drag to change
-        </TooltipContent>
-      </Tooltip>
+      {explanation === undefined ? (
+        <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
+          <TooltipTrigger asChild>{scrubLabel}</TooltipTrigger>
+          <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
+            {SCRUB_HINT}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <PortTooltip explanation={explanation} hint={SCRUB_HINT}>
+          {scrubLabel}
+        </PortTooltip>
+      )}
       <Input
         id={inputId}
         type="text"

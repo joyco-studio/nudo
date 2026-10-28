@@ -5,13 +5,39 @@ export const rotate2dNode = defineNode({
   category: 'vector',
   label: 'Rotate 2D',
   description: 'Rotates a 2D point around a center by an angle in radians.',
+  formula: 'In ↻ Angle around Center',
   keywords: ['rotate', 'rotation', 'spin', 'angle', 'uv', '2d'],
   inputs: [
-    { id: 'in', label: 'In', type: concrete('vec2'), default: vec2(0, 0) },
-    { id: 'angle', label: 'Angle', type: concrete('float'), default: float(0) },
-    { id: 'center', label: 'Center', type: concrete('vec2'), default: vec2(0.5, 0.5) },
+    {
+      id: 'in',
+      label: 'In',
+      type: concrete('vec2'),
+      default: vec2(0, 0),
+      description: 'The 2D point to rotate, usually UV.',
+    },
+    {
+      id: 'angle',
+      label: 'Angle',
+      type: concrete('float'),
+      default: float(0),
+      description: 'How far to turn, in radians: 3.14 is half a turn.',
+    },
+    {
+      id: 'center',
+      label: 'Center',
+      type: concrete('vec2'),
+      default: vec2(0.5, 0.5),
+      description: 'The point to turn around; 0.5, 0.5 is the middle of the UV.',
+    },
   ],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('vec2') }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('vec2'),
+      description: 'In turned by Angle around Center.',
+    },
+  ],
   build: ({ tsl, inputs }) => {
     const offset = tsl.sub(inputs.in, inputs.center)
     const x = tsl.swizzle(offset, 'x')

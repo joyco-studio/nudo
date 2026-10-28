@@ -7,8 +7,24 @@ export const absNode = defineNode({
   category: 'math',
   label: 'Absolute',
   description: 'Removes the sign of the input so the result is never negative.',
+  formula: 'abs(In)',
   keywords: ['abs', 'absolute', 'magnitude', 'positive'],
-  inputs: [{ id: 'in', label: 'In', type: generic(TYPE_GROUP), default: float(0) }],
-  outputs: [{ id: 'out', label: 'Out', type: generic(TYPE_GROUP) }],
+  inputs: [
+    {
+      id: 'in',
+      label: 'In',
+      type: generic(TYPE_GROUP),
+      default: float(0),
+      description: 'The value to make positive.',
+    },
+  ],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: generic(TYPE_GROUP),
+      description: 'In without its sign: -0.3 becomes 0.3.',
+    },
+  ],
   build: ({ tsl, inputs }) => ({ out: tsl.abs(inputs.in) }),
 })
