@@ -100,20 +100,45 @@ describe('locale', () => {
 })
 
 describe('node texts', () => {
-  it('translates every built-in node, port and visible param option', () => {
+  it('translates every built-in node, port, port description, visible param and option', () => {
     for (const definition of sourceRegistry.list()) {
       const texts = NODES_ES[definition.type]
       expect(texts, definition.type).toBeDefined()
-      for (const input of definition.inputs) {
-        expect(texts?.inputs?.[input.id], `${definition.type} ${input.id}`).toBeDefined()
-      }
-      for (const output of definition.outputs) {
-        expect(texts?.outputs?.[output.id], `${definition.type} ${output.id}`).toBeDefined()
+      const ports = [
+        ...definition.inputs.map((port) => ({ port, texts: texts?.inputs?.[port.id] })),
+        ...definition.outputs.map((port) => ({ port, texts: texts?.outputs?.[port.id] })),
+      ]
+      for (const { port, texts: portTexts } of ports) {
+        const where = `${definition.type} ${port.id}`
+        expect(portTexts, where).toBeDefined()
+        if (port.description !== undefined) expect(portTexts?.description, where).toBeDefined()
       }
       for (const param of definition.params ?? []) {
         if ('hidden' in param && param.hidden) continue
-        expect(texts?.params?.[param.id], `${definition.type} ${param.id}`).toBeDefined()
+        const paramTexts = texts?.params?.[param.id]
+        expect(paramTexts, `${definition.type} ${param.id}`).toBeDefined()
+        if (param.kind !== 'enum') continue
+        for (const option of param.options) {
+          // Symbols (<, ≤, =) read the same in every language.
+          if (!/\p{L}{2}/u.test(option.label)) continue
+          const where = `${definition.type} ${param.id} ${option.value}`
+          expect(paramTexts?.options?.[option.value], where).toBeDefined()
+        }
       }
+    }
+  })
+
+  it('translates a formula that names a port whose Spanish name differs', () => {
+    for (const definition of sourceRegistry.list()) {
+      const texts = NODES_ES[definition.type]
+      const { formula } = definition
+      if (formula === undefined || texts === undefined) continue
+      const renamed = [...definition.inputs, ...definition.outputs].filter((port) => {
+        const spanish = texts.inputs?.[port.id] ?? texts.outputs?.[port.id]
+        return spanish !== undefined && spanish.label !== port.label && port.label.length > 1
+      })
+      const named = renamed.some((port) => new RegExp(`\\b${port.label}\\b`).test(formula))
+      if (named) expect(texts.formula, definition.type).toBeDefined()
     }
   })
 
@@ -135,6 +160,9 @@ describe('node texts', () => {
     const add = localized.list().find((definition) => definition.type === 'math/add')
     expect(add?.label).toBe('Sumar')
     expect(add?.outputs.map((output) => output.label)).toEqual(['Salida'])
+    expect(add?.outputs[0]?.description).toBe('La suma de A y B.')
+    const clamp = localized.list().find((definition) => definition.type === 'math/clamp')
+    expect(clamp?.formula).toBe('clamp(Entrada, Mín, Máx)')
     const noise = localized.list().find((definition) => definition.type === 'effects/noise')
     const kind = noise?.params?.find((param) => param.id === 'kind')
     expect(kind?.label).toBe('Tipo')
@@ -147,5 +175,15 @@ describe('node texts', () => {
     expect(typesFound(localized, 'sumar')).toContain('math/add')
     expect(typesFound(localized, 'add')).toContain('math/add')
     expect(typesFound(localized, 'ruido')).toContain('effects/noise')
+  })
+
+  it('ignores accents, so Spanish words typed without them still match', () => {
+    const localized = localizeRegistry(sourceRegistry, NODES_ES)
+    expect(typesFound(localized, 'posicion')).toContain('input/position')
+    expect(typesFound(localized, 'camara')).toContain('input/camera-position')
+    expect(typesFound(localized, 'minimo')).toContain('math/min')
+    expect(typesFound(localized, 'angulo')).toContain('vector/rotate-2d')
+    expect(typesFound(localized, 'rotacion')).toContain('vector/rotate-2d')
+    expect(typesFound(localized, 'logica')).toContain('logic/select')
   })
 })

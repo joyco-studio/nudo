@@ -104,7 +104,7 @@ export const NODES_ES: NodeTranslations = {
   },
   'input/time': {
     label: 'Tiempo',
-    description: 'Segundos transcurridos desde que arrancó el shader, para animar valores.',
+    description: 'Segundos transcurridos desde que comenzó el shader, para animar valores.',
     keywords: ['tiempo', 'segundos', 'animar', 'reloj', 'delta'],
     outputs: {
       out: {
@@ -528,7 +528,7 @@ export const NODES_ES: NodeTranslations = {
     label: 'Seleccionar',
     description: 'Elige uno de dos valores según cómo se compara A con B.',
     formula: 'Comparar(A, B) ? Verdadero : Falso',
-    keywords: ['seleccionar', 'si', 'condición', 'comparar', 'rama'],
+    keywords: ['seleccionar', 'si', 'condición', 'comparar', 'rama', 'lógica'],
     inputs: {
       a: { label: 'A', description: 'El número a comparar.' },
       b: { label: 'B', description: 'El número con el que se compara A.' },

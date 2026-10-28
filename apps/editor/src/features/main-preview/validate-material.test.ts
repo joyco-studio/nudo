@@ -36,7 +36,16 @@ describe('validateMaterial', () => {
   it('rejects a material whose compile throws, with the reason', async () => {
     const result = await validateWith(() => Promise.reject(new Error('node graph exploded')))
 
-    expect(result).toEqual({ ok: false, message: 'node graph exploded' })
+    expect(result).toEqual({ ok: false, rejection: { text: 'node graph exploded' } })
+  })
+
+  it('rejects with its own message key when the failure is not an Error', async () => {
+    const result = await validateWith(() =>
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- the case under test: a rejection that is not an Error
+      Promise.reject('not an Error'),
+    )
+
+    expect(result).toEqual({ ok: false, rejection: { messageKey: 'preview.compileFailed' } })
   })
 
   it('rejects a material when three.js logs an error while compiling', async () => {
@@ -45,8 +54,8 @@ describe('validateMaterial', () => {
       return Promise.resolve()
     })
 
-    expect(result.ok).toBe(false)
-    expect(result.ok ? '' : result.message).toContain('TSL: bad node')
+    const reason = !result.ok && 'text' in result.rejection ? result.rejection.text : ''
+    expect(reason).toContain('TSL: bad node')
   })
 
   it('does not blame a material for errors logged outside its compile', async () => {

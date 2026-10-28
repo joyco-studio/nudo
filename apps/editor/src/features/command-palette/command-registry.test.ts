@@ -75,6 +75,8 @@ describe('command registry', () => {
     expect(ids('deshacer')).toEqual(['undo'])
     expect(ids('undo')).toEqual(['undo'])
     expect(ids('español')).toEqual(['language-es'])
+    expect(ids('espanol')).toEqual(['language-es'])
+    expect(ids('ingles')).toEqual(['language-en'])
   })
 
   it('switches the language through the services', () => {

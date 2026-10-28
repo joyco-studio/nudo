@@ -3,9 +3,10 @@ import { useThree } from '@react-three/fiber'
 import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { validateMaterial } from './validate-material'
+import type { MaterialRejection } from './validate-material'
 
-/** Called with a message when the newest material was rejected, and with null once one passes. */
-export type MaterialStatusHandler = (rejection: string | null) => void
+/** Called with the reason when the newest material was rejected, and with null once one passes. */
+export type MaterialStatusHandler = (rejection: MaterialRejection | null) => void
 
 /** Releases GPU resources of materials that are neither shown nor waiting to be validated. */
 function useDisposeRetiredMaterials(
@@ -57,7 +58,7 @@ export function useValidatedMaterial(
     void validateMaterial(gl, scene, camera, candidate, () => !isCurrent).then((validation) => {
       if (!isCurrent) return
       if (validation.ok) setAccepted(candidate)
-      reportStatus(validation.ok ? null : validation.message)
+      reportStatus(validation.ok ? null : validation.rejection)
     })
     return () => {
       isCurrent = false

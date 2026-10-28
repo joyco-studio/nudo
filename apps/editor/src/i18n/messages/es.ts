@@ -99,11 +99,11 @@ export const es = {
   'palette.buttonTooltip': 'Buscar cualquier acción o nodo',
   'palette.title': 'Paleta de comandos',
   'palette.description': 'Búsqueda de comandos y nodos: Enter ejecuta el elemento resaltado.',
-  'palette.placeholder': 'Un comando o el nombre de un nodo',
+  'palette.placeholder': 'Buscar un comando o un nodo',
   'palette.search': 'Buscar comandos y nodos',
   'palette.list': 'Comandos y nodos',
   'palette.empty':
-    'Nada coincide con "{query}". Probá con un comando como dividida o un nodo como tiempo.',
+    'Nada coincide con "{query}". Probá con un comando, como «dividida», o un nodo, como «tiempo».',
   'palette.shortcut': 'atajo',
   'palette.group.actions': 'Acciones',
   'palette.group.view': 'Vista',
@@ -130,7 +130,7 @@ export const es = {
   'addNode.placeholder': 'Buscar nodos, p. ej. mezcla o tiempo',
   'addNode.list': 'Nodos',
   'addNode.empty':
-    'Ningún nodo coincide con "{query}". Probá con otra palabra, como mezcla o tiempo.',
+    'Ningún nodo coincide con "{query}". Probá con otra palabra, como «mezcla» o «tiempo».',
   'category.input': 'Entrada',
   'category.math': 'Matemática',
   'category.interpolation': 'Interpolación',
@@ -148,7 +148,7 @@ export const es = {
   'newGraph.tooltip': 'Empezar de cero, solo con el Master Stack',
   'newGraph.title': '¿Empezar un grafo nuevo?',
   'newGraph.description':
-    'Se eliminan {contents} y queda solo el Master Stack. Deshacer (Ctrl/⌘ Z) los recupera.',
+    'Esto elimina {contents} y deja solo el Master Stack. Deshacer (Ctrl/⌘ Z) lo recupera todo.',
   'newGraph.confirm': 'Empezar grafo nuevo',
   'newGraph.nodes.one': '{count} nodo',
   'newGraph.nodes.other': '{count} nodos',
@@ -217,8 +217,8 @@ export const es = {
   'notice.copyFailed': 'No se pudo copiar al portapapeles',
   'notice.pasteFailed': 'No se pudo leer el portapapeles',
   'notice.restoreFailedKept':
-    'No se pudo restaurar la última sesión, así que se empezó un grafo nuevo. Los datos anteriores se conservaron.',
-  'notice.restoreFailed': 'No se pudo restaurar la última sesión, así que se empezó un grafo nuevo.',
+    'No se pudo restaurar la última sesión, así que se abrió un grafo nuevo. Los datos anteriores se conservaron.',
+  'notice.restoreFailed': 'No se pudo restaurar la última sesión, así que se abrió un grafo nuevo.',
   'notice.saveFailed':
     'No se pudo guardar automáticamente. Puede que el almacenamiento del navegador esté lleno.',
 
@@ -254,7 +254,7 @@ export const es = {
   'node.hidePorts': 'Ocultar los puertos sin conectar',
   'node.group.vertex': 'Vertex',
   'node.group.fragment': 'Fragment',
-  'node.unlitIgnores': 'Sin efecto sin iluminación',
+  'node.unlitIgnores': 'Ignorado sin iluminación',
   'node.meshDefault': 'Valor de la malla',
   'node.off': 'Desactivado',
   'port.name': '{port}, {side}, {type}, {connection}',
@@ -315,7 +315,7 @@ export const es = {
   'inspector.note': 'Nota',
   'inspector.width': 'Ancho',
   'inspector.height': 'Alto',
-  'inspector.from': 'Desde {node}',
+  'inspector.from': 'Viene de {node}',
   'inspector.selection.one': '{count} nodo seleccionado',
   'inspector.selection.other': '{count} nodos seleccionados',
   'inspector.selectionHint': 'Con un solo nodo seleccionado se pueden editar sus valores.',
@@ -353,6 +353,8 @@ export const es = {
     'Vista previa no disponible. Para ver el material, el editor necesita una versión actual de Chrome, Edge o Safari.',
   'preview.crashed':
     'La vista previa se detuvo de forma inesperada. Recargar la página la reinicia.',
+  'preview.compileFailed': 'El material no compiló.',
+  'preview.compileReplaced': 'El material se reemplazó antes de verificarlo.',
 
   // Properties panel (code name: blackboard)
   'property.add': 'Agregar propiedad',

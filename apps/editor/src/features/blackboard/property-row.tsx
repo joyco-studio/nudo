@@ -135,6 +135,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
           <div className="flex h-8 items-center gap-1 px-1">
             <CollapsibleTrigger asChild>
               <Button
+                static
                 variant="ghost"
                 size="icon-xs"
                 aria-label={t('property.details')}
@@ -152,7 +153,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                 value={property.label}
                 onInvalidBlur="revert"
                 commit={(text) =>
-                  renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text, t)
+                  renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text)
                 }
                 onDone={(_outcome, via) => {
                   // Leaving by key keeps the keyboard on the row; a click elsewhere keeps its
@@ -173,6 +174,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  static
                   variant="ghost"
                   size="icon-xs"
                   aria-label={t('property.addNamedToCanvas', { name: property.label })}
@@ -189,6 +191,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  static
                   variant="ghost"
                   size="icon-xs"
                   aria-label={t('property.delete')}

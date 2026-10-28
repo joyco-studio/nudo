@@ -345,6 +345,8 @@ export const en = {
   'preview.unavailable':
     'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.',
   'preview.crashed': 'Preview stopped unexpectedly. Reload the page to restart it.',
+  'preview.compileFailed': 'The material failed to compile.',
+  'preview.compileReplaced': 'The material was replaced before it was checked.',
 
   // Properties panel (code name: blackboard)
   'property.add': 'Add property',

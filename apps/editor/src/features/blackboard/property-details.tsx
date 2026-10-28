@@ -36,7 +36,7 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
         value={property.label}
         onInvalidBlur="keep"
         commit={(text) =>
-          renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text, t)
+          renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text)
         }
       />
       <Label htmlFor={referenceId} className="h-6 text-xs font-normal text-muted-foreground">
@@ -49,7 +49,7 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
         onInvalidBlur="keep"
         commit={(text) => {
           const error = actions.renameReference(property.id, text)
-          return error === null ? null : referenceErrorMessage(error, text, t)
+          return error === null ? null : referenceErrorMessage(error, text)
         }}
       />
       <div className="col-span-2 flex flex-col gap-0.5">

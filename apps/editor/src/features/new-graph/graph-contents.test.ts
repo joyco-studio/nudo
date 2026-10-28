@@ -55,4 +55,12 @@ describe('describeGraphContents', () => {
     )
     expect(describeGraphContents({ nodeCount: 2, propertyCount: 0 }, t)).toBe('2 nodos')
   })
+
+  it('keeps the Spanish dialog sentence in agreement with a single node', () => {
+    const t = createTranslator(es)
+    const contents = describeGraphContents({ nodeCount: 1, propertyCount: 0 }, t)
+    expect(t('newGraph.description', { contents })).toBe(
+      'Esto elimina 1 nodo y deja solo el Master Stack. Deshacer (Ctrl/⌘ Z) lo recupera todo.',
+    )
+  })
 })

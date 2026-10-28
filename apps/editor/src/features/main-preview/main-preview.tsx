@@ -28,6 +28,7 @@ import { PreviewScene } from './preview-scene'
 import { DEFAULT_SHAPE, PRIMITIVE_SHAPES, isPreviewShape, shapeLabelKey } from './preview-shape'
 import type { PreviewShape } from './preview-shape'
 import { RendererUnavailableError } from './renderer-unavailable-error'
+import type { MaterialRejection } from './validate-material'
 import { useLiveMaterial } from './use-live-material'
 
 const BACKEND_LABELS: Readonly<Record<RendererBackend, string>> = {
@@ -48,7 +49,7 @@ interface ViewportProps {
   backdrop: PreviewBackdrop
   orbitRef: RefObject<OrbitView | null>
   onBackend: (backend: RendererBackend) => void
-  onMaterialStatus: (rejection: string | null) => void
+  onMaterialStatus: (rejection: MaterialRejection | null) => void
 }
 
 /** The R3F canvas, which owns the renderer's whole lifetime. */
@@ -141,9 +142,14 @@ function MeshPicker({ shape, hasModel, onShapeChange }: MeshPickerProps) {
   )
 }
 
+/** A model file that could not be loaded; the message is rendered in the UI language. */
+interface LoadFailure {
+  readonly fileName: string
+}
+
 interface LoadModelButtonProps {
   onModelLoaded: (model: Group) => void
-  onError: (message: string | null) => void
+  onError: (failure: LoadFailure | null) => void
 }
 
 function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
@@ -181,7 +187,7 @@ function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
         if (!isStillWanted(loadId)) return
         // The cause goes to the console for debugging; the message says what to do next.
         console.warn(`Could not load ${file.name}:`, error)
-        onError(t('preview.loadFailed', { file: file.name }))
+        onError({ fileName: file.name })
       },
     )
   }
@@ -222,8 +228,8 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   const [shape, setShape] = useState<PreviewShape>(DEFAULT_SHAPE)
   const [model, setModel] = useState<Group | null>(null)
   const [backend, setBackend] = useState<RendererBackend | null>(null)
-  const [rejection, setRejection] = useState<string | null>(null)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  const [rejection, setRejection] = useState<MaterialRejection | null>(null)
+  const [loadError, setLoadError] = useState<LoadFailure | null>(null)
   const backgroundColor = useBackgroundColor()
   const backdrop = useEditorStore((state) => state.panels.backdrop)
   // Docked, the viewport is a square; split and full give it all the height the panel has.
@@ -239,7 +245,10 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   }, [model])
 
   // A rejection belongs to the newest material; once a later build failed it is out of date.
-  const statusMessage = loadError ?? statusFor(buildFailed ? null : rejection, errorCount, t)
+  const statusMessage =
+    loadError === null
+      ? statusFor(buildFailed ? null : rejection, errorCount, t)
+      : t('preview.loadFailed', { file: loadError.fileName })
 
   const selectShape = (next: PreviewShape): void => {
     setLoadError(null)
@@ -333,8 +342,11 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
 }
 
 /** The status line under the preview. A compiler's own reason stays as three.js wrote it. */
-function statusFor(rejection: string | null, errorCount: number, t: Translate): string {
-  if (rejection !== null) return t('preview.rejected', { reason: rejection })
+function statusFor(rejection: MaterialRejection | null, errorCount: number, t: Translate): string {
+  if (rejection !== null) {
+    const reason = 'text' in rejection ? rejection.text : t(rejection.messageKey)
+    return t('preview.rejected', { reason })
+  }
   if (errorCount === 0) return ''
   return t(plural(errorCount, { one: 'preview.errors.one', other: 'preview.errors.other' }), {
     count: errorCount,

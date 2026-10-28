@@ -1,5 +1,6 @@
 import { translateEnglish } from '@/i18n/translate'
 import type { Translate } from '@/i18n/translate'
+import { foldForSearch } from '@/shared/lib/fold-for-search'
 
 import type { Command } from './command-registry'
 import { commandSearchText } from './command-text'
@@ -7,10 +8,9 @@ import { commandSearchText } from './command-text'
 /** Anything but letters, digits and `?` separates words ("layout:", "Ctrl/⌘"). */
 const WORD_SEPARATOR = /[^\p{L}\p{N}?]+/u
 
-/** The lowercase words of a text or a search query. */
+/** The words of a text or a search query, lowercase and without accents. */
 export function wordsOf(text: string): readonly string[] {
-  return text
-    .toLowerCase()
+  return foldForSearch(text)
     .split(WORD_SEPARATOR)
     .filter((word) => word !== '')
 }

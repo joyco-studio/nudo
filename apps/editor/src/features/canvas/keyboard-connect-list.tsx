@@ -7,6 +7,7 @@ import { KeyHints } from '@/shared/components/key-hints'
 import type { KeyHint } from '@/shared/components/key-hints'
 import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
 
+import { matchesConnectQuery } from './connect-candidates'
 import type { ConnectCandidate } from './connect-candidates'
 
 const KEY_HINTS: readonly KeyHint[] = [
@@ -14,11 +15,6 @@ const KEY_HINTS: readonly KeyHint[] = [
   { keys: 'Enter', action: 'keyHint.connect' },
   { keys: 'Esc', action: 'keyHint.close' },
 ]
-
-/** Plain substring match, so "sin" finds "Sine" and not every label with an s, an i and an n. */
-function matchesQuery(label: string, query: string): number {
-  return label.toLowerCase().includes(query.trim().toLowerCase()) ? 1 : 0
-}
 
 export interface KeyboardConnectListProps {
   open: boolean
@@ -80,7 +76,7 @@ function ConnectSearch({ title, loadCandidates, onPick }: ConnectSearchProps) {
 
   return (
     <Command
-      filter={matchesQuery}
+      filter={(label, query) => (matchesConnectQuery(label, query) ? 1 : 0)}
       loop
       label={t('connect.title', { port: title })}
       className="gap-1"
