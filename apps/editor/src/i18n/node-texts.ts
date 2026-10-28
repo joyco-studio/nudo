@@ -4,6 +4,12 @@ export interface ParamTexts {
   readonly options?: Readonly<Record<string, string>>
 }
 
+/** A port's name, and what it means in its tooltip (when the English port has a description). */
+export interface PortTexts {
+  readonly label: string
+  readonly description?: string
+}
+
 /**
  * A node's texts in one language, by port and param id. Anything left out keeps the definition's
  * English text, so a community node with no translation still reads fine.
@@ -11,10 +17,12 @@ export interface ParamTexts {
 export interface NodeTexts {
   readonly label: string
   readonly description: string
+  /** The formula under the title, when it names ports or uses words (`clamp(Entrada, Mín, Máx)`). */
+  readonly formula?: string
   /** Search words in this language. The English label and keywords keep matching too. */
   readonly keywords: readonly string[]
-  readonly inputs?: Readonly<Record<string, string>>
-  readonly outputs?: Readonly<Record<string, string>>
+  readonly inputs?: Readonly<Record<string, PortTexts>>
+  readonly outputs?: Readonly<Record<string, PortTexts>>
   readonly params?: Readonly<Record<string, ParamTexts>>
 }
 

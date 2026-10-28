@@ -150,6 +150,12 @@ export function NodeInspector({
   return (
     <div>
       <InspectorHeader title={title}>
+        {definition.formula !== undefined && (
+          <p data-node-formula className="font-mono text-xs break-words">
+            <span className="sr-only">{t('inspector.formula')}: </span>
+            {definition.formula}
+          </p>
+        )}
         <p className="font-mono text-micro text-muted-foreground">
           <span className="sr-only">{t('inspector.type')}: </span>
           {node.type}

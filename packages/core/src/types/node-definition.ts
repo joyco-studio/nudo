@@ -33,12 +33,16 @@ export interface InputDefinition<I extends string> {
    * default such as the UV or the view normal. Such an input has no uniform and no inline field.
    */
   readonly fallback?: BuiltinName
+  /** What the input means, in one short sentence an artist reads in the port tooltip. */
+  readonly description?: string
 }
 
 export interface OutputDefinition<O extends string> {
   readonly id: O
   readonly label: string
   readonly type: PortTypeSpec
+  /** What the output carries, in one short sentence an artist reads in the port tooltip. */
+  readonly description?: string
 }
 
 export interface BuildContext<E, I extends string> {
@@ -57,6 +61,11 @@ export interface NodeDefinition<I extends string, O extends string> {
   readonly label: string
   /** Tooltip text. */
   readonly description: string
+  /**
+   * What the node computes, as a short display string under its title (`A × B`). Not code. Optional
+   * so community nodes may leave it out.
+   */
+  readonly formula?: string
   /** Add-node search keywords. */
   readonly keywords: readonly string[]
   readonly inputs: readonly InputDefinition<I>[]

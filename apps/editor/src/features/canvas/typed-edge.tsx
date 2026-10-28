@@ -1,14 +1,16 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
 import type { Conversion } from '@nudo-tsl/core'
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react'
 import type { EdgeProps } from '@xyflow/react'
 
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
 
+import { describeConversion } from './describe-conversion'
 import { EdgeContextMenu } from './edge-context-menu'
+import { useEdgeKeyboardFocus } from './use-edge-keyboard-focus'
+import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 
 import type { FlowEdge } from './to-flow'
 
@@ -18,19 +20,25 @@ const SELECTED_HALO_WIDTH = 6
 const SELECTED_OUTLINE_WIDTH = 2
 const FALLBACK_STROKE = 'var(--muted-foreground)'
 
-function conversionKey(kind: Conversion['kind']): MessageKey {
-  return `conversion.${kind}`
+interface ConversionMarkerProps {
+  conversion: Conversion
+  x: number
+  y: number
+  /** The edge has keyboard focus: the explanation shows without a hover. */
+  isEdgeFocused: boolean
 }
 
-function ConversionMarker({ conversion, x, y }: { conversion: Conversion; x: number; y: number }) {
+/**
+ * The `1→3` badge at the middle of an edge whose value is converted on the way in. Its tooltip says
+ * what happens to the value; the edge's accessible name carries the same sentence.
+ */
+function ConversionMarker({ conversion, x, y, isEdgeFocused }: ConversionMarkerProps) {
   const t = useT()
-  const description = t(conversionKey(conversion.kind), {
-    from: conversion.from,
-    to: conversion.to,
-  })
+  const description = describeConversion(conversion, t)
+  const tooltipOpen = useForcedTooltipOpen(isEdgeFocused ? true : null)
   return (
     <EdgeLabelRenderer>
-      <Tooltip>
+      <Tooltip {...tooltipOpen}>
         <TooltipTrigger asChild>
           <span
             role="img"
@@ -41,7 +49,7 @@ function ConversionMarker({ conversion, x, y }: { conversion: Conversion; x: num
             {PORT_LABELS[conversion.from]}→{PORT_LABELS[conversion.to]}
           </span>
         </TooltipTrigger>
-        <TooltipContent side="top" aria-hidden="true">
+        <TooltipContent side="top" aria-hidden="true" className="max-w-60 text-pretty">
           {description}
         </TooltipContent>
       </Tooltip>
@@ -73,10 +81,12 @@ function TypedEdgeComponent({
     targetPosition,
   })
   const stroke = data === undefined ? FALLBACK_STROKE : PORT_COLORS[data.sourceType]
+  const groupRef = useRef<SVGGElement>(null)
+  const isKeyboardFocused = useEdgeKeyboardFocus(groupRef)
 
   return (
     <EdgeContextMenu edgeId={id}>
-      <g>
+      <g ref={groupRef}>
         {selected === true && (
           <>
             {/* In dark, primary alone is under 3:1 on the canvas: a foreground outline carries it. */}
@@ -103,7 +113,12 @@ function TypedEdgeComponent({
           style={{ stroke, strokeWidth: EDGE_WIDTH }}
         />
         {data?.conversion != null && (
-          <ConversionMarker conversion={data.conversion} x={labelX} y={labelY} />
+          <ConversionMarker
+            conversion={data.conversion}
+            x={labelX}
+            y={labelY}
+            isEdgeFocused={isKeyboardFocused}
+          />
         )}
       </g>
     </EdgeContextMenu>

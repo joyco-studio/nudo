@@ -19,7 +19,9 @@ import type { Translate } from '@/i18n/translate'
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import type { CompileSlice, UiSlice } from '../../store/store-types'
 import { COMMENT_TITLE_PARAM } from './comment-params'
+import { describeConversion } from './describe-conversion'
 import { frameOf } from './node-frame'
+import type { PortSource } from './node-explanation'
 
 export const GRAPH_NODE_TYPE = 'graph-node'
 export const COMMENT_NODE_TYPE = 'comment'
@@ -43,6 +45,8 @@ export type FlowNodeData = {
   outputTypes: Record<string, DataType>
   connectedInputs: ReadonlySet<string>
   connectedOutputs: ReadonlySet<string>
+  /** What feeds each connected input, for the port tooltips. */
+  inputSources: Readonly<Record<string, PortSource>>
   error: string | undefined
 }
 
@@ -144,6 +148,38 @@ function portLabel(entry: NodeEntry, portId: string, side: 'inputs' | 'outputs')
   return ports.find((port) => port.id === portId)?.label ?? portId
 }
 
+/** The node and output feeding each connected input, per node, keyed by input id. */
+function inputSourcesOf(
+  graph: Graph,
+  registry: NodeRegistry,
+): ReadonlyMap<NodeId, Record<string, PortSource>> {
+  const sources = new Map<NodeId, Record<string, PortSource>>()
+  for (const edge of Object.values(graph.edges)) {
+    const node = graph.nodes[edge.from.nodeId]
+    const definition = node === undefined ? undefined : registry.get(node.type)
+    if (node === undefined || definition === undefined) continue
+    const entry = { node, definition, title: nodeTitle(node, definition, graph.properties) }
+    const forNode = sources.get(edge.to.nodeId) ?? {}
+    forNode[edge.to.portId] = {
+      nodeTitle: entry.title,
+      portLabel: portLabel(entry, edge.from.portId, 'outputs'),
+    }
+    sources.set(edge.to.nodeId, forNode)
+  }
+  return sources
+}
+
+/** "Time Out to Master Stack Emission", plus what a conversion on the way does to the value. */
+function edgeAriaLabel(
+  fromName: string,
+  toName: string,
+  conversion: Conversion | null,
+  t: Translate,
+): string {
+  const route = t('canvas.edge', { from: fromName, to: toName })
+  return conversion === null ? route : `${route}. ${describeConversion(conversion, t)}`
+}
+
 function toFlowEdge(
   edge: GraphEdge,
   entries: ReadonlyMap<NodeId, NodeEntry>,
@@ -156,7 +192,8 @@ function toFlowEdge(
   const targetType = types.inputs.get(portKey(edge.to))
   if (!from || !to || sourceType === undefined || targetType === undefined) return null
 
-  const conversion = getConversion(sourceType, targetType)
+  const check = getConversion(sourceType, targetType)
+  const conversion = check.ok ? check.conversion : null
   const fromName = `${from.title} ${portLabel(from, edge.from.portId, 'outputs')}`
   const toName = `${to.title} ${portLabel(to, edge.to.portId, 'inputs')}`
   return {
@@ -166,8 +203,8 @@ function toFlowEdge(
     sourceHandle: edge.from.portId,
     target: edge.to.nodeId,
     targetHandle: edge.to.portId,
-    ariaLabel: t('canvas.edge', { from: fromName, to: toName }),
-    data: { sourceType, conversion: conversion.ok ? conversion.conversion : null },
+    ariaLabel: edgeAriaLabel(fromName, toName, conversion, t),
+    data: { sourceType, conversion },
   }
 }
 
@@ -198,6 +235,7 @@ export function toFlow(
   const connectedInputs = connectedPortsByNode(graph, 'to')
   const connectedOutputs = connectedPortsByNode(graph, 'from')
   const entries = new Map<NodeId, NodeEntry>()
+  const inputSources = inputSourcesOf(graph, registry)
   const nodes: FlowNode[] = []
 
   for (const node of Object.values(graph.nodes)) {
@@ -223,6 +261,7 @@ export function toFlow(
         outputTypes: portTypes(node.id, definition.outputs, types.outputs),
         connectedInputs: connectedInputs.get(node.id) ?? new Set<string>(),
         connectedOutputs: connectedOutputs.get(node.id) ?? new Set<string>(),
+        inputSources: inputSources.get(node.id) ?? {},
         error: errors[node.id],
       },
     })

@@ -218,8 +218,7 @@ export const es = {
   'notice.pasteFailed': 'No se pudo leer el portapapeles',
   'notice.restoreFailedKept':
     'No se pudo restaurar la última sesión, así que se empezó un grafo nuevo. Los datos anteriores se conservaron.',
-  'notice.restoreFailed':
-    'No se pudo restaurar la última sesión, así que se empezó un grafo nuevo.',
+  'notice.restoreFailed': 'No se pudo restaurar la última sesión, así que se empezó un grafo nuevo.',
   'notice.saveFailed':
     'No se pudo guardar automáticamente. Puede que el almacenamiento del navegador esté lleno.',
 
@@ -238,9 +237,16 @@ export const es = {
   'canvas.direction.left': 'la izquierda',
   'canvas.direction.right': 'la derecha',
   'edge.delete': 'Eliminar conexión',
-  'conversion.splat': 'Conversión: {from} repetido en cada componente de {to}',
-  'conversion.truncate': 'Conversión: {from} recortado a {to}',
-  'conversion.pad': 'Conversión: {from} completado hasta {to}',
+  'conversion.sentence': 'Convertido de {from} a {to}: {effect}.',
+  'conversion.component': '«{name}»',
+  'conversion.splat': 'el valor se copia en {components}',
+  'conversion.keptOnly': 'solo se conserva {component}',
+  'conversion.kept': 'se conservan {components}',
+  'conversion.dropped.one': 'se descarta {components}',
+  'conversion.dropped.other': 'se descartan {components}',
+  'conversion.setFirst': '{component} pasa a {value}',
+  'conversion.setNext': '{component} a {value}',
+  'list.and': '{items} y {last}',
 
   // Nodes on the canvas
   'node.portsToggle': 'Puertos sin conectar',
@@ -256,6 +262,9 @@ export const es = {
   'port.side.output': 'puerto de salida',
   'port.connected': 'conectado',
   'port.notConnected': 'sin conectar',
+  'port.source': 'viene de {node} · {port}',
+  'port.sourceSentence': 'Viene de {node}, {port}.',
+  'node.withFormula': '{description} Fórmula: {formula}.',
   'field.dragToChange': 'Arrastrar para cambiar',
   'fallback.time': 'Tiempo',
   'fallback.deltaTime': 'Tiempo delta',
@@ -298,6 +307,7 @@ export const es = {
   'inspector.file': 'Archivo',
   'inspector.schemaVersion': 'Versión del esquema',
   'inspector.type': 'Tipo',
+  'inspector.formula': 'Fórmula',
   'inspector.settings': 'Ajustes',
   'inspector.inputs': 'Entradas',
   'inspector.frame': 'Marco',

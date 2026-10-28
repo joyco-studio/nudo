@@ -9,6 +9,8 @@ import { useT } from '@/i18n/use-t'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
+import type { PortExplanation } from './node-explanation'
+import { PortTooltip } from './port-tooltip'
 import { formatNumber, isNumberInput, parseNumberInput, stepNumber } from './parse-number-input'
 
 const ARROW_STEP = 0.1
@@ -53,6 +55,8 @@ export interface NumberFieldProps {
   label: string
   /** Accessible name when the visible label alone is ambiguous (a vector's "X"). */
   accessibleName?: string
+  /** What the input means: when given, hovering a row's label shows it before the scrub hint. */
+  explanation?: PortExplanation | undefined
   value: number
   /** Never edited: shown muted so changed values stand out. */
   isDefault: boolean
@@ -82,6 +86,7 @@ function scrubbedValue(session: ScrubSession, event: PointerEvent, stepScale: nu
 export function NumberField({
   label,
   accessibleName,
+  explanation,
   value,
   isDefault,
   layout,
@@ -181,6 +186,24 @@ export function NumberField({
     onScrubPreviewEnd()
   }
 
+  const scrubLabel = (
+    <Label
+      htmlFor={inputId}
+      className={cn(
+        'nodrag cursor-ew-resize touch-none font-normal select-none',
+        layout === 'row'
+          ? ['block min-w-0 flex-1 truncate text-xs', sizeClasses.rowLabel]
+          : ['shrink-0 font-mono text-muted-foreground', sizeClasses.componentLabel],
+      )}
+      onPointerDown={onScrubStart}
+      onPointerMove={onScrubMove}
+      onPointerUp={onScrubEnd}
+      onPointerCancel={onScrubCancel}
+    >
+      {label}
+    </Label>
+  )
+
   return (
     <div
       className={cn(
@@ -188,28 +211,18 @@ export function NumberField({
         layout === 'row' ? 'flex-1' : 'flex-1 basis-0',
       )}
     >
-      <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
-        <TooltipTrigger asChild>
-          <Label
-            htmlFor={inputId}
-            className={cn(
-              'nodrag cursor-ew-resize touch-none font-normal select-none',
-              layout === 'row'
-                ? ['block min-w-0 flex-1 truncate text-xs', sizeClasses.rowLabel]
-                : ['shrink-0 font-mono text-muted-foreground', sizeClasses.componentLabel],
-            )}
-            onPointerDown={onScrubStart}
-            onPointerMove={onScrubMove}
-            onPointerUp={onScrubEnd}
-            onPointerCancel={onScrubCancel}
-          >
-            {label}
-          </Label>
-        </TooltipTrigger>
-        <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
-          {t('field.dragToChange')}
-        </TooltipContent>
-      </Tooltip>
+      {explanation === undefined ? (
+        <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
+          <TooltipTrigger asChild>{scrubLabel}</TooltipTrigger>
+          <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
+            {t('field.dragToChange')}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <PortTooltip explanation={explanation} hint={t('field.dragToChange')}>
+          {scrubLabel}
+        </PortTooltip>
+      )}
       <Input
         id={inputId}
         type="text"

@@ -1,18 +1,29 @@
 import { createNodeRegistry } from '@nudo-tsl/core'
 import type { AnyNodeDefinition, NodeRegistry, ParamDefinition } from '@nudo-tsl/core'
 
-import type { NodeTexts, NodeTranslations, ParamTexts } from './node-texts'
+import type { NodeTexts, NodeTranslations, ParamTexts, PortTexts } from './node-texts'
 
-interface Labeled {
+interface Port {
   readonly id: string
   readonly label: string
+  readonly description?: string
 }
 
-function withLabels<P extends Labeled>(
+/** Each port's name and description in the other language, English where left out. */
+function withPortTexts<P extends Port>(
   ports: readonly P[],
-  labels: Readonly<Record<string, string>> | undefined,
+  texts: Readonly<Record<string, PortTexts>> | undefined,
 ): P[] {
-  return ports.map((port) => ({ ...port, label: labels?.[port.id] ?? port.label }))
+  return ports.map((port) => {
+    const translated = texts?.[port.id]
+    if (translated === undefined) return port
+    const description = translated.description ?? port.description
+    return {
+      ...port,
+      label: translated.label,
+      ...(description !== undefined && { description }),
+    }
+  })
 }
 
 /** A param in another language: its name and its options' names, English where left out. */
@@ -46,9 +57,10 @@ export function localizeDefinition(
     ...definition,
     label: texts.label,
     description: texts.description,
+    ...(texts.formula !== undefined && { formula: texts.formula }),
     keywords: [...texts.keywords, definition.label, ...definition.keywords],
-    inputs: withLabels(definition.inputs, texts.inputs),
-    outputs: withLabels(definition.outputs, texts.outputs),
+    inputs: withPortTexts(definition.inputs, texts.inputs),
+    outputs: withPortTexts(definition.outputs, texts.outputs),
     ...(params !== undefined && { params }),
   }
 }

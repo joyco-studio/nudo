@@ -22,6 +22,7 @@ function dataFor(
     outputTypes: {},
     connectedInputs: new Set(connected.inputs ?? []),
     connectedOutputs: new Set(connected.outputs ?? []),
+    inputSources: {},
     error: undefined,
   }
 }

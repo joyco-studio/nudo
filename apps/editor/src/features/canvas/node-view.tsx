@@ -2,10 +2,10 @@ import { memo, useId } from 'react'
 import type { DataType, OutputDefinition } from '@nudo-tsl/core'
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
-import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 
 import { useT } from '@/i18n/use-t'
-import { IconSwap } from '@/shared/components/icon-swap'
+import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -13,7 +13,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { InlineField, MutedHint } from './inline-field'
 import { NodeContextMenu } from './node-context-menu'
+import { inputExplanation, nodeAccessibleDescription, outputExplanation } from './node-explanation'
+import { NodeFormula } from './node-formula'
 import { PortLabel } from './port-label'
+import { PortTooltip } from './port-tooltip'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { ConnectablePort } from './connectable-port'
 import { useGraphCanvasActions } from './graph-canvas-actions'
@@ -54,6 +57,7 @@ function InputRow({ data, row }: InputRowProps) {
   if (dataType === undefined) return null
   const isConnected = data.connectedInputs.has(input.id)
   const isDisabled = disabledHint !== null
+  const explanation = inputExplanation(input, dataType, data.inputSources[input.id])
 
   return (
     <li
@@ -69,17 +73,18 @@ function InputRow({ data, row }: InputRowProps) {
         nodeTitle={data.title}
         portLabel={input.label}
         isConnected={isConnected}
+        explanation={explanation}
       />
       <PortTypeLabel dataType={dataType} />
       {isDisabled ? (
         <>
-          <PortLabel label={input.label} isMuted />
+          <PortLabel label={input.label} isMuted explanation={explanation} />
           <MutedHint>{t(disabledHint)}</MutedHint>
         </>
       ) : isConnected ? (
-        <PortLabel label={input.label} />
+        <PortLabel label={input.label} explanation={explanation} />
       ) : (
-        <InlineField node={data.node} input={input} dataType={dataType} />
+        <InlineField node={data.node} input={input} dataType={dataType} explanation={explanation} />
       )}
       <TypeForAssistiveTech dataType={dataType} />
     </li>
@@ -93,12 +98,15 @@ interface OutputRowProps {
 }
 
 function OutputRow({ data, output, dataType }: OutputRowProps) {
+  const explanation = outputExplanation(output, dataType)
   return (
     <li
       data-port-id={output.id}
       className="relative flex h-7 items-center justify-end gap-x-1.5 pr-3 pl-2"
     >
-      <span className="truncate text-xs">{output.label}</span>
+      <PortTooltip explanation={explanation}>
+        <span className="truncate text-xs">{output.label}</span>
+      </PortTooltip>
       <TypeForAssistiveTech dataType={dataType} />
       <PortTypeLabel dataType={dataType} />
       <ConnectablePort
@@ -109,6 +117,7 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
         nodeTitle={data.title}
         portLabel={output.label}
         isConnected={data.connectedOutputs.has(output.id)}
+        explanation={explanation}
       />
     </li>
   )
@@ -161,9 +170,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           }}
           className="nodrag -ml-2 text-muted-foreground hover:text-foreground"
         >
-          <IconSwap swapKey={isCollapsed ? 'collapsed' : 'expanded'}>
-            {isCollapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
-          </IconSwap>
+          <DisclosureChevron isOpen={!isCollapsed} />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">{t(portsToggleLabel(isCollapsed))}</TooltipContent>
@@ -174,24 +181,30 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
 function NodeHeader({ data }: { data: FlowNodeData }) {
   const { definition } = data
   const hasPorts = definition.inputs.length + definition.outputs.length > 0
+  const formula = isNodeCollapsed(data) ? undefined : definition.formula
 
   return (
-    <header className="flex h-8 items-center gap-1 border-b bg-muted/50 px-3">
+    // Top-aligned with py-1: the 24px chevron and title line keep the 32px header's 4px insets,
+    // and the formula line adds below them.
+    <header className="flex min-h-8 items-start gap-1 border-b bg-muted/50 px-3 py-1">
       {hasPorts && <CollapseToggle data={data} />}
-      <Tooltip delayDuration={DESCRIPTION_DELAY_MS}>
-        <TooltipTrigger asChild>
-          <h2 className="truncate font-heading text-xs font-semibold tracking-wide uppercase">
-            {data.title}
-          </h2>
-        </TooltipTrigger>
-        <TooltipContent
-          side="top"
-          sideOffset={DESCRIPTION_OFFSET_PX}
-          className="pointer-events-none"
-        >
-          {definition.description}
-        </TooltipContent>
-      </Tooltip>
+      <div className="min-w-0 flex-1">
+        <Tooltip delayDuration={DESCRIPTION_DELAY_MS}>
+          <TooltipTrigger asChild>
+            <h2 className="truncate font-heading text-xs leading-6 font-semibold tracking-wide uppercase">
+              {data.title}
+            </h2>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            sideOffset={DESCRIPTION_OFFSET_PX}
+            className="pointer-events-none"
+          >
+            {definition.description}
+          </TooltipContent>
+        </Tooltip>
+        {formula !== undefined && <NodeFormula formula={formula} />}
+      </div>
     </header>
   )
 }
@@ -215,6 +228,7 @@ function nodeFrameClass(data: FlowNodeData, selected: boolean): string {
 
 /** A Blackboard property reader: one row with the property label, its type and the output. */
 function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolean }) {
+  const t = useT()
   const [output] = data.definition.outputs
   const dataType = output === undefined ? undefined : data.outputTypes[output.id]
   if (output === undefined || dataType === undefined) return null
@@ -226,7 +240,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
         className={cn(nodeFrameClass(data, selected), 'w-44')}
       >
         <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-          {data.definition.description}
+          {nodeAccessibleDescription(data.definition, t)}
         </p>
         <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
           <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
@@ -239,6 +253,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
             nodeTitle={data.title}
             portLabel={output.label}
             isConnected={data.connectedOutputs.has(output.id)}
+            explanation={outputExplanation(output, dataType)}
           />
         </div>
         {data.error !== undefined && <NodeError message={data.error} />}
@@ -250,6 +265,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
 /** A graph node: header, params, outputs on the right, inputs (with inline fields) on the left. */
 function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const { definition, node, outputTypes, error } = data
+  const t = useT()
   if (definition.reads === 'property') return <PropertyPill data={data} selected={selected} />
 
   const params = bodyParams(definition.params)
@@ -264,7 +280,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
         className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
       >
         <p id={nodeDescriptionId(node.id)} className="sr-only">
-          {definition.description}
+          {nodeAccessibleDescription(definition, t)}
         </p>
         <NodeHeader data={data} />
         {params.length > 0 && <ParamFields node={node} params={params} />}

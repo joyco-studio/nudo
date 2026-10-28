@@ -10,6 +10,7 @@ import { fallbackLabel } from './fallback-label'
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
 import { inlineValue, textureAssetId } from './inline-value'
+import type { PortExplanation } from './node-explanation'
 import { useNodeFieldActions } from './node-field-actions'
 import { NumberField } from './number-field'
 import { PortLabel } from './port-label'
@@ -38,16 +39,18 @@ export interface InlineFieldProps {
   node: GraphNode
   input: InputDefinition<string>
   dataType: DataType
+  /** What the input means, shown when its label is hovered. The Inspector prints it instead. */
+  explanation?: PortExplanation | undefined
 }
 
 /** The label and editor of an unconnected input, picked by widget and resolved type. */
-export function InlineField({ node, input, dataType }: InlineFieldProps) {
+export function InlineField({ node, input, dataType, explanation }: InlineFieldProps) {
   const { setInputValue, previewInputValue, endInputPreview } = useNodeFieldActions()
   const t = useT()
   if (input.optional === true) {
     return (
       <>
-        <PortLabel label={input.label} />
+        <PortLabel label={input.label} explanation={explanation} />
         <MutedHint>{t(OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT)}</MutedHint>
       </>
     )
@@ -56,7 +59,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
   if (input.fallback !== undefined) {
     return (
       <>
-        <PortLabel label={input.label} />
+        <PortLabel label={input.label} explanation={explanation} />
         <MutedHint>{t(fallbackLabel(input.fallback))}</MutedHint>
       </>
     )
@@ -72,6 +75,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
     return (
       <TextureField
         label={input.label}
+        explanation={explanation}
         assetId={textureAssetId(node, input)}
         onChange={(assetId) => {
           commit(texture(assetId))
@@ -89,6 +93,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
     return (
       <ColorField
         label={input.label}
+        explanation={explanation}
         value={value}
         onCommit={commit}
         onPreview={preview}
@@ -100,6 +105,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
     return (
       <NumberField
         label={input.label}
+        explanation={explanation}
         value={value.value}
         isDefault={isDefault}
         layout="row"
@@ -116,6 +122,7 @@ export function InlineField({ node, input, dataType }: InlineFieldProps) {
   return (
     <VectorField
       label={input.label}
+      explanation={explanation}
       value={value}
       isDefault={isDefault}
       onCommit={commit}

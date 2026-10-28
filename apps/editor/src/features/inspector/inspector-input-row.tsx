@@ -47,6 +47,11 @@ function InspectorInputRow({ node, row, dataType, sourceTitle }: InspectorInputR
         <InlineField node={node} input={input} dataType={dataType} />
       )}
       <TypeForAssistiveTech dataType={dataType} />
+      {input.description !== undefined && (
+        <p className="-mt-1 basis-full pb-2 pl-4 text-micro text-pretty text-muted-foreground">
+          {input.description}
+        </p>
+      )}
     </li>
   )
 }

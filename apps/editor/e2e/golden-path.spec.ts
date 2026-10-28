@@ -11,7 +11,9 @@ const EXPECTED_EDGE_NAMES = [
   'Color Out to Lerp A',
   'Color Out to Lerp B',
   'Lerp Out to Master Stack Base Color',
-  'Fresnel Out to Master Stack Emission',
+  // A float feeding a vec3 input: the edge's name also says how the value is converted.
+  'Fresnel Out to Master Stack Emission. ' +
+    'Converted from float to vec3: the value is copied into x, y and z.',
 ] as const
 
 function graphNode(page: Page, name: string, index = 0): Locator {

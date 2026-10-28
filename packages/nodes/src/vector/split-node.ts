@@ -36,20 +36,42 @@ export const splitNode = defineNode({
   category: 'vector',
   label: 'Split',
   description: 'Splits a vector into its separate X, Y, Z and W components.',
+  formula: 'In → X, Y, Z, W',
   keywords: ['split', 'separate', 'break', 'components', 'swizzle', 'channels'],
   inputs: [
     {
       id: 'in',
       label: 'In',
+      description: 'The vector to take apart.',
       type: generic(TYPE_GROUP, VECTOR_ARITIES),
       default: vec4(0, 0, 0, 0),
     },
   ],
   outputs: [
-    { id: 'x', label: 'X', type: concrete('float') },
-    { id: 'y', label: 'Y', type: concrete('float') },
-    { id: 'z', label: 'Z', type: concrete('float') },
-    { id: 'w', label: 'W', type: concrete('float') },
+    {
+      id: 'x',
+      label: 'X',
+      type: concrete('float'),
+      description: 'The first component: red for a color.',
+    },
+    {
+      id: 'y',
+      label: 'Y',
+      type: concrete('float'),
+      description: 'The second component: green for a color.',
+    },
+    {
+      id: 'z',
+      label: 'Z',
+      type: concrete('float'),
+      description: 'The third component: blue for a color; 0 if In has only two.',
+    },
+    {
+      id: 'w',
+      label: 'W',
+      type: concrete('float'),
+      description: 'The fourth component: alpha for a color; 0 if In has fewer than four.',
+    },
   ],
   build: ({ tsl, inputs, resolvedTypes }) => {
     const arity = componentCount(resolvedTypes.in)
