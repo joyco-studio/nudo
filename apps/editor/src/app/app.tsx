@@ -8,7 +8,8 @@ import {
   BlackboardContainer,
 } from '@/features/blackboard/blackboard-container'
 import { GraphCanvasContainer } from '@/features/canvas/graph-canvas-container'
-import { CodePanel } from '@/features/code-panel/code-panel'
+import { CodePanelContainer } from '@/features/code-panel/code-panel-container'
+import { CopyCodeButton } from '@/features/code-panel/copy-code-button'
 import { CommandPaletteButton } from '@/features/command-palette/command-palette-button'
 import { CommandPaletteProvider } from '@/features/command-palette/command-palette-provider'
 import { InspectorContainer } from '@/features/inspector/inspector-container'
@@ -82,7 +83,8 @@ export function App() {
                       blackboardActions={<AddPropertyMenuContainer />}
                       inspector={<InspectorContainer />}
                       previewPanel={<MainPreview />}
-                      codePanel={<CodePanel />}
+                      codePanel={<CodePanelContainer />}
+                      codeActions={<CopyCodeButton />}
                       headerActions={<HeaderActions />}
                     />
                   </EditorCommands>

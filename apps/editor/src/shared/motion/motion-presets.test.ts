@@ -7,6 +7,8 @@ import {
   staggerDelayMs,
   surfaceStates,
   switchThumbTransition,
+  textMorphStates,
+  textMorphWidthTransition,
 } from './motion-presets'
 import { EASE } from './tokens'
 
@@ -158,5 +160,29 @@ describe('press feedback and the switch thumb', () => {
     expect(switchThumbTransition('full')).toEqual({ duration: 0.35, ease: [0.34, 1.35, 0.64, 1] })
     expect(switchThumbTransition('reduced')).toEqual({ duration: 0 })
     expect(switchThumbTransition('instant')).toEqual({ duration: 0 })
+  })
+})
+
+describe('text morph', () => {
+  it('cross-blurs the changing letters in 150ms and eases the width in 250ms (reference 33)', () => {
+    const swap = { duration: 0.15, ease: EASE.smoothOut }
+    expect(textMorphStates('full')).toEqual({
+      hidden: { opacity: 0, filter: 'blur(2px)' },
+      visible: { opacity: 1, filter: 'blur(0px)', transition: swap },
+      exit: { opacity: 0, filter: 'blur(2px)', transition: swap },
+    })
+    expect(textMorphWidthTransition('full')).toEqual({ duration: 0.25, ease: EASE.smoothOut })
+  })
+
+  it('only fades under reduced motion and is instant from the keyboard', () => {
+    const fade = { duration: 0.15, ease: EASE.smoothOut }
+    expect(textMorphStates('reduced')).toEqual({
+      hidden: { opacity: 0 },
+      visible: { opacity: 1, transition: fade },
+      exit: { opacity: 0, transition: fade },
+    })
+    expect(textMorphWidthTransition('reduced')).toEqual({ duration: 0 })
+    expect(textMorphStates('instant').visible.transition).toEqual({ duration: 0 })
+    expect(textMorphWidthTransition('instant')).toEqual({ duration: 0 })
   })
 })

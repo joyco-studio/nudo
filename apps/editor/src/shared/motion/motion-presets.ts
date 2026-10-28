@@ -155,6 +155,28 @@ export function iconSwapStates(mode: MotionMode): PresenceStates {
   }
 }
 
+/**
+ * Reference 33 (text morph): the letters two labels don't share cross-blur in place while their
+ * width eases ("Copy" to "Copied"). The reference's 180ms and 240ms sit on the token scale as
+ * `--duration-quick` (text swap) and `--duration-fast`, with `--blur-small` (ruling P2-R12).
+ */
+export function textMorphStates(mode: MotionMode): PresenceStates {
+  if (mode === 'instant') return fadeStates(INSTANT, INSTANT)
+  const swap = timed(DURATION_MS.quick, EASE.smoothOut)
+  if (mode === 'reduced') return fadeStates(swap, swap)
+  const blurred = { opacity: 0, filter: `blur(${String(BLUR_PX.small)}px)` }
+  return {
+    hidden: blurred,
+    visible: { opacity: 1, filter: 'blur(0px)', transition: swap },
+    exit: { ...blurred, transition: swap },
+  }
+}
+
+/** The width of the changing letters follows them only with full motion. */
+export function textMorphWidthTransition(mode: MotionMode): MotionTransition {
+  return mode === 'full' ? timed(DURATION_MS.fast, EASE.smoothOut) : INSTANT
+}
+
 export interface EnterStates {
   readonly hidden: MotionTarget
   readonly visible: AnimatedTarget
@@ -221,3 +243,5 @@ export const SURFACE_VARIANTS: Readonly<Record<SurfacePreset, Variants>> = {
 }
 
 export const ICON_SWAP_VARIANTS: Variants = presenceVariants(iconSwapStates)
+
+export const TEXT_MORPH_VARIANTS: Variants = presenceVariants(textMorphStates)

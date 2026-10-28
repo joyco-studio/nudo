@@ -1,0 +1,47 @@
+/*
+ * The code view's colors, all joyco tokens. Measured contrast (WCAG 2.x) against the region's
+ * opaque background, then against card as a margin:
+ *   light: keyword 9.12 / 8.36, string 6.71 / 6.15, literal 5.54 / 5.08, quiet 6.83 / 6.26
+ *   dark:  keyword 8.93 / 8.36, string 10.16 / 9.51, literal 9.29 / 8.69, quiet 7.39 / 6.91
+ * Identifiers and properties keep the foreground. The primary blue stays out (selection, focus).
+ */
+.code-view {
+  --code-keyword: var(--chart-3);
+  --code-string: color-mix(in oklab, var(--chart-2) 70%, var(--foreground));
+  --code-literal: color-mix(in oklab, var(--chart-4) 55%, var(--foreground));
+  --code-quiet: var(--muted-foreground);
+}
+
+.code-view pre {
+  counter-reset: code-line;
+}
+
+/* Line numbers are generated content: never selected, copied or read out with the code. */
+.code-view [data-code-line]::before {
+  counter-increment: code-line;
+  content: counter(code-line);
+  display: inline-block;
+  width: var(--code-gutter);
+  margin-right: 2ch;
+  text-align: right;
+  color: var(--code-quiet);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.code-view [data-token='keyword'] {
+  color: var(--code-keyword);
+}
+
+.code-view [data-token='string'] {
+  color: var(--code-string);
+}
+
+/* sugar-high reads numbers, hex colors and capitalized names (FrontSide) as `class`. */
+.code-view [data-token='class'] {
+  color: var(--code-literal);
+}
+
+.code-view :is([data-token='comment'], [data-token='sign']) {
+  color: var(--code-quiet);
+}

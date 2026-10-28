@@ -145,8 +145,8 @@ test.describe('panels', () => {
     await expect(toggles.inspector).toHaveAttribute('aria-expanded', 'false')
     await expect(toggles.preview).toHaveAttribute('aria-expanded', 'false')
     await expect(toggles.code).toHaveAttribute('aria-expanded', 'true')
-    await expect(page.getByRole('region', { name: 'Code' })).toContainText(
-      'Generated TSL appears here.',
+    await expect(page.getByRole('region', { name: 'Generated TSL' })).toContainText(
+      'export const nodes',
     )
 
     // Ctrl+C is copy, not the Code panel.

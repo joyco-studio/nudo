@@ -4,10 +4,10 @@ import type { Variants } from 'motion/react'
 
 import { isKeyboardModality } from '@/shared/lib/input-modality'
 
-import { ICON_SWAP_VARIANTS, SURFACE_VARIANTS } from './motion-presets'
+import { ICON_SWAP_VARIANTS, SURFACE_VARIANTS, TEXT_MORPH_VARIANTS } from './motion-presets'
 import type { MotionMode, SurfacePreset } from './motion-presets'
 
-export type MotionPreset = SurfacePreset | 'iconSwap'
+export type MotionPreset = SurfacePreset | 'iconSwap' | 'textMorph'
 
 /**
  * How much the change rendering now may move. Read during render on purpose: the render that opens,
@@ -34,7 +34,9 @@ export interface PresenceMotion {
 }
 
 function variantsFor(preset: MotionPreset): Variants {
-  return preset === 'iconSwap' ? ICON_SWAP_VARIANTS : SURFACE_VARIANTS[preset]
+  if (preset === 'iconSwap') return ICON_SWAP_VARIANTS
+  if (preset === 'textMorph') return TEXT_MORPH_VARIANTS
+  return SURFACE_VARIANTS[preset]
 }
 
 /** Props that animate an element in and out of an `AnimatePresence` with one preset. */

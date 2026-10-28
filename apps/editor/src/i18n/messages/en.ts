@@ -164,7 +164,12 @@ export const en = {
   'common.more': 'More',
 
   // Code panel
-  'code.empty': 'Generated TSL appears here.',
+  'code.region': 'Generated TSL',
+  'code.copy': 'Copy',
+  'code.copied': 'Copied',
+  'code.copyFailed': 'Copy failed',
+  'code.errors.title': "Can't generate the code yet",
+  'code.errors.description': 'These nodes have errors. Select one to find it on the canvas.',
 
   // Shortcuts dialog and catalog
   'shortcuts.title': 'Keyboard shortcuts',

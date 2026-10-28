@@ -41,6 +41,8 @@ export interface AppShellProps {
   inspector: ReactNode
   previewPanel: ReactNode
   codePanel: ReactNode
+  /** Controls in the Code header (Copy). */
+  codeActions: ReactNode
   headerActions: ReactNode
 }
 
@@ -89,6 +91,7 @@ export function AppShell({
   inspector,
   previewPanel,
   codePanel,
+  codeActions,
   headerActions,
 }: AppShellProps) {
   const layout = useEditorStore((state) => effectivePreviewLayout(state.panels))
@@ -204,13 +207,15 @@ export function AppShell({
           panel="code"
           title={t('panel.code.title')}
           edge="bottom"
+          headerActions={codeActions}
           isHidden={layout === 'full'}
           className={cn(
             'absolute right-4 bottom-4 left-16 z-20',
             layout === 'docked' && 'md:right-[22rem]',
           )}
           style={codePanelStyle(layout, splitPercent)}
-          bodyClassName="h-48 overflow-y-auto"
+          // The code region inside scrolls (and takes focus); the body itself never does.
+          bodyClassName="h-48"
         >
           {codePanel}
         </PanelFrame>
