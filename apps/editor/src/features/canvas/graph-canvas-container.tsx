@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import type { DragEvent } from 'react'
 import { asEdgeId, asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
 import type { EdgeId, Graph, PortRef, XY } from '@nudo-tsl/core'
+import { commentNode } from '@nudo-tsl/nodes'
 import type {
   Dimensions,
   EdgeMouseHandler,
@@ -11,7 +12,6 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
-import { commentNode } from '@nudo-tsl/nodes'
 import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
