@@ -260,11 +260,15 @@ test.describe('texture assets', () => {
     await seedAutosave(page, SAMPLE_TEXTURE_TO_BASE_COLOR)
     await page.goto('/')
     const choose = sampleNode(page).getByRole('button', { name: 'Choose image for Texture' })
+    // Armed before tabbing: Chromium turns file chooser interception on in the renderer, and
+    // `waitForEvent` does not wait for that. A key press is dispatched with input priority, so
+    // when the renderer is busy it opens the chooser before interception is on and the dialog is
+    // silently cancelled. The page round trips of the Tab loop below settle it first.
+    const chooser = page.waitForEvent('filechooser')
 
     await tabUntilFocused(page, choose)
     await expectFocusRing(page, choose)
     await expect(page.getByRole('tooltip')).toContainText('Choose image')
-    const chooser = page.waitForEvent('filechooser')
     await page.keyboard.press('Enter')
     await (await chooser).setFiles(RED_SWATCH_PATH)
 

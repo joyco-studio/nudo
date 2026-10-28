@@ -1,13 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import {
-  Group,
-  InstancedMesh,
-  Matrix4,
-  MeshBasicNodeMaterial,
-  PlaneGeometry,
-  Quaternion,
-  Vector3,
-} from 'three/webgpu'
+import { Group, Mesh, MeshBasicNodeMaterial } from 'three/webgpu'
 import { cameraPosition, color, distance, float, positionWorld, smoothstep } from 'three/tsl'
 
 import { BACKDROP_FLOOR_Y } from './backdrop-floor'
@@ -19,7 +11,7 @@ import {
   crossQuads,
   gridLineQuads,
 } from './grid-floor-layout'
-import type { FlatQuad } from './grid-floor-layout'
+import { createFlatQuadsGeometry } from './grid-floor-geometry'
 
 const GRID_COLOR = '#bbbbbb'
 /** A quiet backdrop: blended over the background it reads on both themes and on custom colors. */
@@ -37,11 +29,6 @@ const CROSS_LIFT = -0.01
 const LINES_RENDER_ORDER = 0
 const CROSSES_RENDER_ORDER = 1
 
-const QUARTER_TURN = Math.PI / 2
-const FLAT = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -QUARTER_TURN)
-const UNIT_SCALE = new Vector3(1, 1, 1)
-const ROLL_AXIS = new Vector3(0, 0, 1)
-
 /**
  * Explicit color and opacity nodes (the reference found the classic opacity path unreliable
  * across backends). The fade lives in the grid's own opacity rather than `scene.fog`, which would
@@ -57,38 +44,28 @@ function createGridMaterial(): MeshBasicNodeMaterial {
   return material
 }
 
-/** One instanced mesh of thin quads laid flat: planes, not lines, so WebGPU and WebGL2 agree. */
-function createQuadMesh(
-  geometry: PlaneGeometry,
-  material: MeshBasicNodeMaterial,
-  quads: readonly FlatQuad[],
-  lift: number,
-): InstancedMesh {
-  const mesh = new InstancedMesh(geometry, material, quads.length)
-  const matrix = new Matrix4()
-  const position = new Vector3()
-  const rotation = new Quaternion()
-  quads.forEach((quad, index) => {
-    rotation.setFromAxisAngle(ROLL_AXIS, quad.roll).premultiply(FLAT)
-    matrix.compose(position.set(quad.x, lift, quad.z), rotation, UNIT_SCALE)
-    mesh.setMatrixAt(index, matrix)
-  })
-  mesh.instanceMatrix.needsUpdate = true
-  return mesh
-}
-
 interface GridFloorParts {
   readonly group: Group
   readonly dispose: () => void
 }
 
 function createGridFloor(): GridFloorParts {
-  const lineGeometry = new PlaneGeometry(GRID_SIZE, GRID_LINE_WIDTH)
-  const crossGeometry = new PlaneGeometry(CROSS_LINE_WIDTH, CROSS_HEIGHT)
+  const lineGeometry = createFlatQuadsGeometry(
+    GRID_SIZE,
+    GRID_LINE_WIDTH,
+    gridLineQuads(),
+    LINE_LIFT,
+  )
+  const crossGeometry = createFlatQuadsGeometry(
+    CROSS_LINE_WIDTH,
+    CROSS_HEIGHT,
+    crossQuads(),
+    CROSS_LIFT,
+  )
   const lineMaterial = createGridMaterial()
   const crossMaterial = createGridMaterial()
-  const lines = createQuadMesh(lineGeometry, lineMaterial, gridLineQuads(), LINE_LIFT)
-  const crosses = createQuadMesh(crossGeometry, crossMaterial, crossQuads(), CROSS_LIFT)
+  const lines = new Mesh(lineGeometry, lineMaterial)
+  const crosses = new Mesh(crossGeometry, crossMaterial)
   lines.renderOrder = LINES_RENDER_ORDER
   crosses.renderOrder = CROSSES_RENDER_ORDER
 
@@ -101,7 +78,8 @@ function createGridFloor(): GridFloorParts {
     group,
     // R3F detaches the group itself when the primitive unmounts; this frees only GPU resources.
     dispose: () => {
-      for (const disposable of [lines, crosses, lineGeometry, crossGeometry]) disposable.dispose()
+      lineGeometry.dispose()
+      crossGeometry.dispose()
       lineMaterial.dispose()
       crossMaterial.dispose()
     },
