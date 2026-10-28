@@ -5,6 +5,8 @@ import {
   clampSplitPercent,
   defaultPanelPrefsFor,
   effectivePreviewLayout,
+  PANEL_PREFS_VERSION,
+  migratePanelPrefs,
   nextPreviewLayout,
   parsePanelPrefs,
   serializePanelPrefs,
@@ -35,6 +37,7 @@ describe('parsePanelPrefs', () => {
       layout: 'floating',
       splitPercent: 90,
       backdrop: 'checker-room',
+      prefsVersion: PANEL_PREFS_VERSION,
     })
     expect(parsePanelPrefs(rawText)).toEqual({
       open: { ...DEFAULT_PANEL_PREFS.open, blackboard: false, code: true },
@@ -52,12 +55,71 @@ describe('preview backdrop', () => {
   })
 
   it('keeps a stored choice, grid included', () => {
-    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'grid' })).backdrop).toBe('grid')
-    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'none' })).backdrop).toBe('none')
+    const current = (backdrop: string): string =>
+      JSON.stringify({ backdrop, prefsVersion: PANEL_PREFS_VERSION })
+    expect(parsePanelPrefs(current('grid')).backdrop).toBe('grid')
+    expect(parsePanelPrefs(current('none')).backdrop).toBe('none')
   })
 
   it('falls back to the grid for an unknown backdrop', () => {
-    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'skybox' })).backdrop).toBe('grid')
+    expect(
+      parsePanelPrefs(JSON.stringify({ backdrop: 'skybox', prefsVersion: PANEL_PREFS_VERSION }))
+        .backdrop,
+    ).toBe('grid')
+  })
+})
+
+describe('backdrop migration', () => {
+  const stored = (prefsVersion: unknown, backdrop: string): string =>
+    JSON.stringify({ ...CUSTOM_PREFS, backdrop, prefsVersion })
+
+  it('moves unversioned prefs to the grid, whatever backdrop they stored', () => {
+    expect(parsePanelPrefs(JSON.stringify({ ...CUSTOM_PREFS })).backdrop).toBe('grid')
+    expect(parsePanelPrefs(JSON.stringify({ ...CUSTOM_PREFS, backdrop: 'none' })).backdrop).toBe(
+      'grid',
+    )
+  })
+
+  it('moves older and unknown versions to the grid too', () => {
+    expect(parsePanelPrefs(stored(1, 'checker-room')).backdrop).toBe('grid')
+    expect(parsePanelPrefs(stored(1, 'none')).backdrop).toBe('grid')
+    expect(parsePanelPrefs(stored('2', 'checker-room')).backdrop).toBe('grid')
+    expect(parsePanelPrefs(stored(null, 'none')).backdrop).toBe('grid')
+  })
+
+  it('keeps the rest of the stored prefs while migrating', () => {
+    expect(parsePanelPrefs(stored(1, 'checker-room'))).toEqual({
+      ...CUSTOM_PREFS,
+      backdrop: 'grid',
+    })
+  })
+
+  it('keeps the backdrop of current-version prefs, checker room and none included', () => {
+    expect(parsePanelPrefs(stored(PANEL_PREFS_VERSION, 'checker-room')).backdrop).toBe(
+      'checker-room',
+    )
+    expect(parsePanelPrefs(stored(PANEL_PREFS_VERSION, 'none')).backdrop).toBe('none')
+  })
+
+  it('stamps the current version when serializing, so a saved choice is never migrated again', () => {
+    const rawText = serializePanelPrefs(CUSTOM_PREFS)
+    expect(JSON.parse(rawText)).toMatchObject({ prefsVersion: PANEL_PREFS_VERSION })
+    expect(parsePanelPrefs(rawText).backdrop).toBe('checker-room')
+  })
+
+  it('falls back to the defaults, grid included, for missing or invalid storage', () => {
+    expect(parsePanelPrefs(null).backdrop).toBe('grid')
+    expect(parsePanelPrefs('{nope').backdrop).toBe('grid')
+    expect(parsePanelPrefs('[]').backdrop).toBe('grid')
+  })
+
+  it('migratePanelPrefs only touches the backdrop of outdated versions', () => {
+    expect(migratePanelPrefs(CUSTOM_PREFS, 1)).toEqual({ ...CUSTOM_PREFS, backdrop: 'grid' })
+    expect(migratePanelPrefs(CUSTOM_PREFS, undefined)).toEqual({
+      ...CUSTOM_PREFS,
+      backdrop: 'grid',
+    })
+    expect(migratePanelPrefs(CUSTOM_PREFS, PANEL_PREFS_VERSION)).toBe(CUSTOM_PREFS)
   })
 })
 

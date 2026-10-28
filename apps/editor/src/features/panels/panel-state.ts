@@ -13,6 +13,17 @@ export type NonFullPreviewLayout = Exclude<PreviewLayout, 'full'>
 export const PREVIEW_BACKDROPS = ['none', 'grid', 'checker-room'] as const
 export type PreviewBackdrop = (typeof PREVIEW_BACKDROPS)[number]
 
+/**
+ * Version stamped on every saved copy of the prefs. Bump it to run a one-time migration over
+ * what users already stored.
+ * 1 (never written): prefs saved before the grid floor existed.
+ * 2: the grid floor is the backdrop, and later backdrop choices are the user's.
+ */
+export const PANEL_PREFS_VERSION = 2
+
+/** The backdrop users stored before the grid floor are moved to, once. */
+const MIGRATED_BACKDROP: PreviewBackdrop = 'grid'
+
 export interface PanelPrefs {
   readonly open: Readonly<Record<PanelId, boolean>>
   readonly layout: PreviewLayout
@@ -95,6 +106,15 @@ function parseJson(rawText: string): unknown {
   }
 }
 
+/**
+ * Brings prefs saved by an older version up to date. Prefs without the current version stamp
+ * (missing, older or unrecognized) move to the grid backdrop once; current ones are kept as-is.
+ */
+export function migratePanelPrefs(prefs: PanelPrefs, storedVersion: unknown): PanelPrefs {
+  if (storedVersion === PANEL_PREFS_VERSION) return prefs
+  return { ...prefs, backdrop: MIGRATED_BACKDROP }
+}
+
 /** Validates stored preferences field by field: an invalid field falls back to its default. */
 export function parsePanelPrefs(
   rawText: string | null,
@@ -103,17 +123,18 @@ export function parsePanelPrefs(
   const input = rawText === null ? null : parseJson(rawText)
   if (!isRecord(input)) return defaults
   const { splitPercent } = input
-  return {
+  const parsed: PanelPrefs = {
     open: parseOpen(input.open, defaults.open),
     layout: oneOf(PREVIEW_LAYOUTS, input.layout) ?? defaults.layout,
     splitPercent:
       typeof splitPercent === 'number' ? clampSplitPercent(splitPercent) : defaults.splitPercent,
     backdrop: oneOf(PREVIEW_BACKDROPS, input.backdrop) ?? defaults.backdrop,
   }
+  return migratePanelPrefs(parsed, input.prefsVersion)
 }
 
 export function serializePanelPrefs(prefs: PanelPrefs): string {
-  return JSON.stringify(prefs)
+  return JSON.stringify({ ...prefs, prefsVersion: PANEL_PREFS_VERSION })
 }
 
 export function loadPanelPrefs(
