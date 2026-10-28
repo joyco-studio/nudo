@@ -347,6 +347,7 @@ export const en = {
     '{count} nodes have errors, so the last valid result is shown. Check the nodes marked in red.',
   'preview.backdrop': 'Backdrop',
   'preview.backdrop.none': 'None',
+  'preview.backdrop.grid': 'Grid',
   'preview.backdrop.checker-room': 'Checker room',
   'preview.background': 'Background',
   'preview.backgroundColor': 'Background color',

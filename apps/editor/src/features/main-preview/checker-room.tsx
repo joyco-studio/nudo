@@ -1,5 +1,6 @@
 import { DataTexture, NearestFilter, RepeatWrapping, RGBAFormat, SRGBColorSpace } from 'three'
 
+import { BACKDROP_FLOOR_Y } from './backdrop-floor'
 import { checkerPixels } from './checker-pixels'
 import type { Rgb } from './checker-pixels'
 
@@ -11,7 +12,6 @@ const PATTERN_SIZE = 2
 const ROOM_WIDTH = 12
 const ROOM_DEPTH = 12
 const WALL_HEIGHT = 7
-const FLOOR_Y = -1.25
 const WALL_Z = -3
 const SURFACE_ROUGHNESS = 0.9
 
@@ -61,11 +61,11 @@ export function CheckerRoom() {
 
   return (
     <group>
-      <mesh rotation-x={-Math.PI / 2} position={[0, FLOOR_Y, WALL_Z + ROOM_DEPTH / 2]}>
+      <mesh rotation-x={-Math.PI / 2} position={[0, BACKDROP_FLOOR_Y, WALL_Z + ROOM_DEPTH / 2]}>
         <planeGeometry args={[ROOM_WIDTH, ROOM_DEPTH]} />
         <meshStandardMaterial map={floorTexture} roughness={SURFACE_ROUGHNESS} />
       </mesh>
-      <mesh position={[0, FLOOR_Y + WALL_HEIGHT / 2, WALL_Z]}>
+      <mesh position={[0, BACKDROP_FLOOR_Y + WALL_HEIGHT / 2, WALL_Z]}>
         <planeGeometry args={[ROOM_WIDTH, WALL_HEIGHT]} />
         <meshStandardMaterial map={wallTexture} roughness={SURFACE_ROUGHNESS} />
       </mesh>

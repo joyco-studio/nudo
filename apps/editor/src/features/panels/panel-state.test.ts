@@ -45,6 +45,22 @@ describe('parsePanelPrefs', () => {
   })
 })
 
+describe('preview backdrop', () => {
+  it('shows the grid floor to a first visit', () => {
+    expect(DEFAULT_PANEL_PREFS.backdrop).toBe('grid')
+    expect(parsePanelPrefs(null).backdrop).toBe('grid')
+  })
+
+  it('keeps a stored choice, grid included', () => {
+    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'grid' })).backdrop).toBe('grid')
+    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'none' })).backdrop).toBe('none')
+  })
+
+  it('falls back to the grid for an unknown backdrop', () => {
+    expect(parsePanelPrefs(JSON.stringify({ backdrop: 'skybox' })).backdrop).toBe('grid')
+  })
+})
+
 describe('defaultPanelPrefsFor', () => {
   it('opens Properties and Inspector on a wide screen', () => {
     expect(defaultPanelPrefsFor(false)).toEqual(DEFAULT_PANEL_PREFS)
