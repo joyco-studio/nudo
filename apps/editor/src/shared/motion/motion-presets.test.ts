@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   iconSwapStates,
-  listRowStates,
   pressFeedback,
-  staggerDelayMs,
   surfaceStates,
   switchThumbTransition,
   textMorphStates,
@@ -122,30 +120,6 @@ describe('iconSwapStates', () => {
       visible: { opacity: 1, transition: { duration: 0 } },
       exit: { opacity: 0, transition: { duration: 0 } },
     })
-  })
-})
-
-describe('list rows', () => {
-  it('enter with opacity and a 4px rise in 150ms, delayed by their stagger', () => {
-    expect(listRowStates('full', 80)).toEqual({
-      hidden: { opacity: 0, transform: 'translateY(4px)' },
-      visible: {
-        opacity: 1,
-        transform: 'translateY(0px)',
-        transition: { duration: 0.15, ease: EASE.smoothOut, delay: 0.08 },
-      },
-    })
-    expect(listRowStates('reduced', 80)).toEqual({
-      hidden: { opacity: 0 },
-      visible: { opacity: 1, transition: { duration: 0.15, ease: EASE.smoothOut, delay: 0.08 } },
-    })
-  })
-
-  it('stagger 40ms only when several rows enter at once, with the total under 300ms', () => {
-    expect(staggerDelayMs(0, 1)).toBe(0)
-    expect(staggerDelayMs(0, 3)).toBe(0)
-    expect(staggerDelayMs(2, 3)).toBe(80)
-    expect(staggerDelayMs(20, 30)).toBeLessThan(300)
   })
 })
 

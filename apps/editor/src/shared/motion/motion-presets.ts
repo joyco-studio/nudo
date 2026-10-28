@@ -1,6 +1,6 @@
 import type { Variants } from 'motion/react'
 
-import { BLUR_PX, DISTANCE_PX, DURATION_MS, EASE, SCALE, toSeconds } from './tokens'
+import { BLUR_PX, DURATION_MS, EASE, SCALE, toSeconds } from './tokens'
 import type { Ease } from './tokens'
 
 /**
@@ -60,8 +60,6 @@ const PRESS_SCALE = 0.96
 /** Reference 27: the switch thumb's travel and its overshoot curve (`--toggle-dur`, `--toggle-ease`). */
 const SWITCH_THUMB_MS = 350
 const SWITCH_THUMB_EASE: Ease = [0.34, 1.35, 0.64, 1]
-/** transitions-polish: the last staggered row starts under 300ms after the first. */
-const STAGGER_BUDGET_MS = 300
 
 /**
  * Open/close asymmetry (transitions-polish): surfaces open on `--duration-fast` and close faster on
@@ -175,31 +173,6 @@ export function textMorphStates(mode: MotionMode): PresenceStates {
 /** The width of the changing letters follows them only with full motion. */
 export function textMorphWidthTransition(mode: MotionMode): MotionTransition {
   return mode === 'full' ? timed(DURATION_MS.fast, EASE.smoothOut) : INSTANT
-}
-
-export interface EnterStates {
-  readonly hidden: MotionTarget
-  readonly visible: AnimatedTarget
-}
-
-/** A row added to a list (a property, a line of code): a short rise, after its stagger delay. */
-export function listRowStates(mode: MotionMode, delayMs: number): EnterStates {
-  if (mode === 'instant')
-    return { hidden: { opacity: 0 }, visible: { opacity: 1, transition: INSTANT } }
-  const enter = timed(DURATION_MS.quick, EASE.smoothOut, delayMs)
-  if (mode === 'reduced')
-    return { hidden: { opacity: 0 }, visible: { opacity: 1, transition: enter } }
-  return {
-    hidden: { opacity: 0, transform: `translateY(${String(DISTANCE_PX.micro)}px)` },
-    visible: { opacity: 1, transform: 'translateY(0px)', transition: enter },
-  }
-}
-
-/** Rows entering together start `--duration-stagger` apart; a lone row starts at once. */
-export function staggerDelayMs(index: number, count: number): number {
-  if (count <= 1) return 0
-  const maxSteps = Math.floor((STAGGER_BUDGET_MS - 1) / DURATION_MS.stagger)
-  return Math.min(index, maxSteps) * DURATION_MS.stagger
 }
 
 const PRESS_TRANSITION: MotionTransition = timed(DURATION_MS.quick, EASE.out)
