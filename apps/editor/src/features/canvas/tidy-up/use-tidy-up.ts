@@ -7,7 +7,7 @@ import { animate, useReducedMotion } from 'motion/react'
 import type { AnimationPlaybackControls } from 'motion/react'
 
 import { NEW_NODE_SIZE } from '@/features/add-node-menu/add-node-placement'
-import { isKeyboardModality } from '@/shared/lib/input-modality'
+import { motionModeFor } from '@/shared/motion/motion-mode'
 import { DURATION_MS, EASE, toSeconds } from '@/shared/motion/tokens'
 import { useEditorStore } from '@/store/editor-store'
 
@@ -155,7 +155,8 @@ export function useTidyUp(): (target: TidyTarget) => void {
       stopGlideRef.current?.()
       const finalViewport = target === 'graph' ? fittedViewport(geometry, plan) : null
       store.commitMove(plan)
-      if (prefersReducedMotion || isKeyboardModality(document)) {
+      // Only a full-motion start glides: reduced motion has no fade for a move, so it jumps too.
+      if (motionModeFor(prefersReducedMotion, document) !== 'full') {
         if (finalViewport !== null) void setViewport(finalViewport)
         return
       }

@@ -2,8 +2,7 @@ import { useCallback, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import type { Variants } from 'motion/react'
 
-import { isKeyboardModality } from '@/shared/lib/input-modality'
-
+import { motionModeFor } from './motion-mode'
 import { ICON_SWAP_VARIANTS, SURFACE_VARIANTS, TEXT_MORPH_VARIANTS } from './motion-presets'
 import type { MotionMode, SurfacePreset } from './motion-presets'
 
@@ -15,9 +14,7 @@ export type MotionPreset = SurfacePreset | 'iconSwap' | 'textMorph'
  * started from the keyboard is instant (the frequency gate) and reduced motion only fades.
  */
 export function useMotionMode(): MotionMode {
-  const prefersReducedMotion = useReducedMotion() === true
-  if (isKeyboardModality(document)) return 'instant'
-  return prefersReducedMotion ? 'reduced' : 'full'
+  return motionModeFor(useReducedMotion() === true, document)
 }
 
 export interface PresenceMotion {
