@@ -4,6 +4,7 @@ import { expectFocusRing, tabUntilFocused } from './support/focus-indicators'
 import { traceAppearance, traceExit } from './support/motion-trace'
 import type { MotionTrace } from './support/motion-trace'
 import { COLOR_TO_BASE_COLOR, TIME_AND_SINE, seedAutosave } from './support/seed-graph'
+import { stillTransforms } from './support/still-transforms'
 
 const POPOVER = '[data-slot="popover-content"]'
 const DIALOG = '[data-slot="dialog-content"]'
@@ -24,8 +25,6 @@ const OUTSIDE_INSET_PX = 8
 const ZOOM_OUT_STEPS = 3
 /** At most this much of a 350ms travel can pass on its first frame. */
 const FIRST_FRAME_SHARE = 0.3
-/** Well inside a 150ms close or a 250ms open. */
-const MID_ANIMATION_MS = 40
 
 function graphNode(page: Page, name: string): Locator {
   return page.getByRole('group', { name, exact: true })
@@ -207,11 +206,7 @@ test.describe('with motion enabled', () => {
     const twoSided = graphNode(page, 'Master Stack').getByRole('switch', { name: 'Two sided' })
     const thumb = twoSided.locator('[data-slot="switch-thumb"]')
     // Wait out the zoom so the thumb's box only moves with its own animation.
-    await expect(async () => {
-      const before = await thumb.boundingBox()
-      await page.waitForTimeout(MID_ANIMATION_MS)
-      expect(await thumb.boundingBox()).toEqual(before)
-    }).toPass()
+    await stillTransforms(page, ['.react-flow__viewport'])
     const track = await twoSided.boundingBox()
     const start = await thumb.boundingBox()
     if (track === null || start === null) throw new Error('The switch has no box')

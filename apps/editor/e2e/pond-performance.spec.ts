@@ -1,6 +1,7 @@
 import { expect, test, type JSHandle, type Page } from '@playwright/test'
 
 import { openPond } from './support/open-pond'
+import { stillTransforms } from './support/still-transforms'
 
 /** What the main thread spent while an interaction ran. */
 interface FrameCost {
@@ -20,9 +21,6 @@ interface FrameCostRecorder {
 
 /** About one second of pointer moves, one per frame. */
 const DRAG_FRAMES = 60
-/** Frames a moved node and the view must hold still before a glide counts as over. */
-const STILL_FRAMES = 5
-const GLIDE_TIMEOUT_MS = 5000
 
 /**
  * The budgets. Re-rendering every node on every frame, a one-second drag across the pond's 162 nodes
@@ -158,36 +156,7 @@ async function nodeTransform(page: Page, id: string): Promise<string> {
 
 /** Resolves once the view and the node `id` have held still for a few frames. */
 async function waitUntilStill(page: Page, id: string): Promise<void> {
-  await page.evaluate(
-    ({ nodeId, stillFrames, timeoutMs }) =>
-      new Promise<void>((resolve, reject) => {
-        const viewport = document.querySelector('.react-flow__viewport')
-        const node = document.querySelector(`.react-flow__node[data-id="${nodeId}"]`)
-        if (viewport === null || node === null) {
-          reject(new Error('The canvas is not rendered'))
-          return
-        }
-        const startedAt = performance.now()
-        let previous = ''
-        let still = 0
-        const check = (): void => {
-          const current = `${getComputedStyle(viewport).transform} ${getComputedStyle(node).transform}`
-          still = current === previous ? still + 1 : 0
-          previous = current
-          if (still >= stillFrames) {
-            resolve()
-            return
-          }
-          if (performance.now() - startedAt > timeoutMs) {
-            reject(new Error('The canvas kept moving'))
-            return
-          }
-          requestAnimationFrame(check)
-        }
-        requestAnimationFrame(check)
-      }),
-    { nodeId: id, stillFrames: STILL_FRAMES, timeoutMs: GLIDE_TIMEOUT_MS },
-  )
+  await stillTransforms(page, ['.react-flow__viewport', `.react-flow__node[data-id="${id}"]`])
 }
 
 test.describe('lettra pond frame budget', () => {

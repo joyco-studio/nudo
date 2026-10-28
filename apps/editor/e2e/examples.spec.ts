@@ -5,13 +5,15 @@ import { addNodeFromHeader } from './support/graph-keyboard'
 import { examplesButton, pickExampleByKeyboard } from './support/open-example'
 import { readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
+import { stillTransforms } from './support/still-transforms'
+import type { StillOptions } from './support/still-transforms'
 
 const PALETTE_CHORD = 'ControlOrMeta+k'
 const UNDO_CHORD = 'ControlOrMeta+z'
 /** The iridescent blob: 20 nodes, five comment frames and the master. */
 const BLOB_NODE_COUNT = 26
-/** Longer than a fit's glide, so a fit that was going to happen has started by then. */
-const VIEW_GLIDE_MS = 800
+/** Frames (about half a second) the view must hold still: a fit that was going to happen has started by then. */
+const NO_FIT_STILL_FRAMES = 30
 
 function confirmDialog(page: Page) {
   return page.getByRole('alertdialog')
@@ -25,17 +27,9 @@ async function viewportTransform(page: Page): Promise<string> {
 }
 
 /** Waits until the view stops moving (a fit glides), then returns where it settled. */
-async function settledViewport(page: Page): Promise<string> {
-  let previous = ''
-  await expect
-    .poll(async () => {
-      const current = await viewportTransform(page)
-      const isSettled = current === previous
-      previous = current
-      return isSettled
-    })
-    .toBe(true)
-  return previous
+async function settledViewport(page: Page, options: StillOptions = {}): Promise<string> {
+  const [transform] = await stillTransforms(page, ['.react-flow__viewport'], options)
+  return transform ?? ''
 }
 
 async function storedNodeIds(page: Page): Promise<readonly string[]> {
@@ -127,8 +121,7 @@ test.describe('examples', () => {
     await expect.poll(() => viewportTransform(page)).toBe(framed)
 
     await addNodeFromHeader(page, 'sine', 'Sine')
-    await page.waitForTimeout(VIEW_GLIDE_MS)
-    expect(await settledViewport(page)).toBe(framed)
+    expect(await settledViewport(page, { stillFrames: NO_FIT_STILL_FRAMES })).toBe(framed)
   })
 
   test('Tab reaches the menu button with a visible ring; Escape closes the menu back onto it', async ({

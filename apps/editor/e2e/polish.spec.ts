@@ -8,6 +8,7 @@ import {
 } from './support/focus-indicators'
 import { readStoredEdgeCount, readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
+import { runPastTooltipDelays } from './support/tooltip-delay'
 
 const PANELS_STORAGE_KEY = 'nudo-tsl:panels'
 /** Rounding slack, in CSS pixels, when comparing measured boxes. */
@@ -647,6 +648,7 @@ test.describe('fix round 2', () => {
   test('a tooltip hovered while an overlay was open does not appear after it closes', async ({
     page,
   }) => {
+    await page.clock.install()
     await page.goto('/')
     const spot = await emptyPanePoint(page)
     await page.mouse.click(spot.x, spot.y, { button: 'right' })
@@ -658,12 +660,13 @@ test.describe('fix round 2', () => {
       .getByRole('button', { name: 'Unconnected ports', includeHidden: true })
     const box = await boxOf(chevron)
     await page.mouse.move(box.x + box.w / 2, box.y + box.h / 2, { steps: 3 })
-    await page.waitForTimeout(200)
+    // Long enough on it for its tooltip to have opened, were no overlay open.
+    await runPastTooltipDelays(page)
     await page.mouse.move(spot.x, spot.y, { steps: 3 })
     await page.keyboard.press('Escape')
     await expect(contextMenu(page)).toHaveCount(0)
 
-    await page.waitForTimeout(300)
+    await runPastTooltipDelays(page)
     await expect(page.locator('[data-slot="tooltip-content"]')).toHaveCount(0)
   })
 

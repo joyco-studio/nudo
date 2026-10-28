@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import { waitForAutosave } from './support/pending-work'
 import { readStoredNodes } from './support/read-autosave'
 import { graphDocument, seedAutosave, seedAutosaveOnce } from './support/seed-graph'
 
@@ -106,7 +107,7 @@ test.describe('comment body text', () => {
 
       await expect(body).toHaveValue('Saved note')
       await expect(frame(page)).toBeFocused()
-      await page.waitForTimeout(300)
+      await waitForAutosave(page)
       expect(await storedBody(page)).toBe('Saved note')
     })
 

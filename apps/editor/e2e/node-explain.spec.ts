@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { tabUntilFocused } from './support/focus-indicators'
 import { graphDocument, seedAutosave } from './support/seed-graph'
+import { runPastTooltipDelays } from './support/tooltip-delay'
 
 /** Time feeds Multiply's A; Multiply's float result feeds the master's Emission (float → vec3). */
 const TIME_TIMES_B_TO_EMISSION = graphDocument(
@@ -197,6 +198,7 @@ test.describe('tooltip state', () => {
     page,
   }) => {
     await seedAutosave(page, UNCONNECTED_MULTIPLY)
+    await page.clock.install()
     await page.goto('/')
     const multiply = graphNode(page, 'Multiply')
     await multiply.locator('label', { hasText: /^A$/ }).hover()
@@ -211,7 +213,7 @@ test.describe('tooltip state', () => {
     await page.keyboard.press('Escape')
     await expect(page.getByRole('menu')).toHaveCount(0)
 
-    await page.waitForTimeout(300)
+    await runPastTooltipDelays(page)
     await expect(visibleTooltip(page)).toHaveCount(0)
   })
 

@@ -6,6 +6,19 @@ const BASE_URL = `http://localhost:${String(PORT)}`
 const isCi = Boolean(process.env.CI)
 
 /**
+ * Worker processes. Every page renders its previews with software WebGL (SwiftShader), which keeps
+ * several cores busy per browser, so the default (half the cores: 9 on an 18-core machine) starved
+ * the frame-sensitive specs. Six stays clear of that here; CI runners have two to four cores.
+ */
+const WORKERS = isCi ? 2 : 6
+
+/**
+ * Specs that open the 162-node pond or render many node previews. They run one at a time in
+ * their own project, so two of them never fight over the CPU.
+ */
+const HEAVY_SPECS = /(lettra-pond|pond-performance|phase-2-golden-path|node-previews)\.spec\.ts/
+
+/**
  * `E2E_GPU=1` (exactly) adds a GPU-backed run (WebGPU on, Metal ANGLE on macOS) of the preview
  * specs. The default headless run has no GPU, so it only exercises the WebGL2 fallback in
  * software; this one checks node previews copied from a WebGPU canvas, with realistic frame costs.
@@ -30,6 +43,7 @@ const gpuProjects =
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  workers: WORKERS,
   forbidOnly: isCi,
   retries: isCi ? 2 : 0,
   // On CI the HTML report is written to playwright-report/ and uploaded when the job fails.
@@ -38,7 +52,16 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }, ...gpuProjects],
+  projects: [
+    { name: 'chromium', testIgnore: HEAVY_SPECS, use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium-heavy',
+      testMatch: HEAVY_SPECS,
+      workers: 1,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    ...gpuProjects,
+  ],
   webServer: {
     command: `pnpm exec vite --port ${String(PORT)} --strictPort`,
     url: BASE_URL,

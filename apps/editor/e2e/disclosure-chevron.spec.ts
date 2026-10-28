@@ -3,14 +3,35 @@ import type { Locator, Page } from '@playwright/test'
 
 /** A quarter turn, as the closed chevron shows it. */
 const CLOSED_DEGREES = -90
-/** Well inside the 250ms rotation. */
-const MID_ROTATION_MS = 90
 const SETTLED_DEGREES_TOLERANCE = 0.5
 
 function masterToggle(page: Page): Locator {
   return page
     .getByRole('group', { name: 'Master Stack', exact: true })
     .getByRole('button', { name: 'Unconnected ports' })
+}
+
+/**
+ * Clicks the toggle from inside the page and samples its chevron halfway through the rotation it
+ * starts: the CSS transition is paused at once and set to half its duration, so the sample does not
+ * depend on how fast the machine runs. Returns the rotation in degrees.
+ */
+async function rotationHalfwayAfterClick(toggle: Locator): Promise<number> {
+  return toggle.evaluate(async (button) => {
+    const chevron = button.querySelector('svg')
+    if (!(button instanceof HTMLElement) || chevron === null) throw new Error('No chevron')
+    button.click()
+    // React commits a click's update in a microtask; getAnimations() then flushes the style
+    // change, which starts the transition.
+    await Promise.resolve()
+    const [transition] = chevron.getAnimations()
+    if (transition === undefined) throw new Error('The chevron did not start a transition')
+    transition.pause()
+    transition.currentTime = Number(transition.effect?.getTiming().duration ?? 0) / 2
+    const matrix = new DOMMatrix(getComputedStyle(chevron).transform)
+    transition.play()
+    return (Math.atan2(matrix.b, matrix.a) * 180) / Math.PI
+  })
 }
 
 /** The chevron's current rotation in degrees, read from its computed matrix. */
@@ -36,9 +57,7 @@ test.describe('with motion enabled', () => {
 
     const before = await chevron.elementHandle()
 
-    await toggle.click()
-    await page.waitForTimeout(MID_ROTATION_MS)
-    const midway = await rotationDegrees(chevron)
+    const midway = await rotationHalfwayAfterClick(toggle)
     expect(midway).toBeLessThan(-SETTLED_DEGREES_TOLERANCE)
     expect(midway).toBeGreaterThan(CLOSED_DEGREES + SETTLED_DEGREES_TOLERANCE)
 
