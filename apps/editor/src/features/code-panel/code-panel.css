@@ -16,10 +16,11 @@
   counter-reset: code-line;
 }
 
-/* Line numbers are generated content: never selected, copied or read out with the code. */
+/* Line numbers are generated content: never selected or copied, and their empty alt text keeps
+   them out of the accessibility tree. */
 .code-view [data-code-line]::before {
   counter-increment: code-line;
-  content: counter(code-line);
+  content: counter(code-line) / '';
   display: inline-block;
   width: var(--code-gutter);
   margin-right: 2ch;

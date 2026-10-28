@@ -22,7 +22,8 @@ export function failedNodesOf(
     const node = graph.nodes[nodeId]
     if (node === undefined) return []
     const definition = nodeRegistry.get(node.type)
-    const title = definition === undefined ? node.type : nodeTitle(node, definition, graph.properties)
+    const title =
+      definition === undefined ? node.type : nodeTitle(node, definition, graph.properties)
     return [{ nodeId, title }]
   })
 }

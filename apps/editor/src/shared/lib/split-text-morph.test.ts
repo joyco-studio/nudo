@@ -25,7 +25,12 @@ describe('splitTextMorph', () => {
       incoming: 'ed',
       tail: ' in',
     })
-    expect(splitTextMorph('aa', 'aaa')).toEqual({ head: 'aa', outgoing: '', incoming: 'a', tail: '' })
+    expect(splitTextMorph('aa', 'aaa')).toEqual({
+      head: 'aa',
+      outgoing: '',
+      incoming: 'a',
+      tail: '',
+    })
   })
 
   it('swaps everything when nothing is shared, and nothing when the label is the same', () => {

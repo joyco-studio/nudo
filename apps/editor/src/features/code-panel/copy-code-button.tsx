@@ -40,8 +40,10 @@ async function writeToClipboard(text: string): Promise<boolean> {
 }
 
 /**
- * Copies the generated module. The label morphs to "Copied" (reference 33) as the icon swaps to a
- * check, and a polite status announces the outcome. Disabled while errors keep the module empty.
+ * Copies the generated module. The visible label morphs to "Copied" (reference 33) as the icon swaps
+ * to a check. The accessible name stays "Copy code"; the polite status speaks each outcome once,
+ * every copy (its text node is replaced per attempt, so a second "Copied" is announced too).
+ * Disabled while errors keep the module empty.
  */
 export function CopyCodeButton() {
   const { code } = useGeneratedCode()
@@ -73,7 +75,7 @@ export function CopyCodeButton() {
       <Button
         variant="ghost"
         size="sm"
-        aria-label={label}
+        aria-label={t('code.copyAction')}
         disabled={code === ''}
         onClick={() => {
           void copy()
@@ -86,7 +88,7 @@ export function CopyCodeButton() {
       </Button>
       {/* Stays mounted, so each outcome is announced when it appears. */}
       <span role="status" className="sr-only">
-        {feedback.status === 'idle' ? '' : label}
+        {feedback.status !== 'idle' && <span key={feedback.attempt}>{label}</span>}
       </span>
     </>
   )

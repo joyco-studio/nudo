@@ -172,10 +172,12 @@ export const es = {
   // Code panel
   'code.region': 'TSL generado',
   'code.copy': 'Copiar',
+  'code.copyAction': 'Copiar código',
   'code.copied': 'Copiado',
   'code.copyFailed': 'No se pudo copiar',
   'code.errors.title': 'Todavía no se puede generar el código',
-  'code.errors.description': 'Estos nodos tienen errores. Al seleccionar uno, se muestra en el lienzo.',
+  'code.errors.description':
+    'Estos nodos tienen errores. Al seleccionar uno, se muestra en el lienzo.',
 
   // Shortcuts dialog and catalog
   'shortcuts.title': 'Atajos de teclado',

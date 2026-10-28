@@ -25,9 +25,15 @@ function useShowNode(): (nodeId: NodeId) => void {
 
 /**
  * Connects the code drawer to the live module. The graph is only read while errors need node
- * titles, so moving nodes around never re-renders the code. Must sit inside a `ReactFlowProvider`.
+ * titles, so moving nodes around never re-renders the code, and a collapsed drawer renders nothing
+ * (Copy in the header keeps the module live). Must sit inside a `ReactFlowProvider`.
  */
 export function CodePanelContainer() {
+  const isOpen = useEditorStore((state) => state.panels.open.code)
+  return isOpen ? <OpenCodePanel /> : null
+}
+
+function OpenCodePanel() {
   const { code, errors } = useGeneratedCode()
   const graph = useEditorStore((state) => (errors.length > 0 ? state.graph : null))
   const nodeRegistry = useNodeRegistry()

@@ -166,6 +166,7 @@ export const en = {
   // Code panel
   'code.region': 'Generated TSL',
   'code.copy': 'Copy',
+  'code.copyAction': 'Copy code',
   'code.copied': 'Copied',
   'code.copyFailed': 'Copy failed',
   'code.errors.title': "Can't generate the code yet",

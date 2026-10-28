@@ -33,6 +33,11 @@ function portButton(node: Locator, name: RegExp): Locator {
   return node.getByRole('button', { name })
 }
 
+/** Walks start on the canvas (where the skip link lands), not wherever the last click left focus. */
+async function focusCanvas(page: Page): Promise<void> {
+  await page.getByRole('main', { name: 'Node canvas' }).focus()
+}
+
 function visibleTooltip(page: Page): Locator {
   return page.locator('[data-slot="tooltip-content"]')
 }
@@ -72,6 +77,7 @@ test.describe('node explanations', () => {
 
   test('keyboard focus on a port shows its tooltip at once', async ({ page }) => {
     const portB = portButton(graphNode(page, 'Multiply'), /^B, input port/)
+    await focusCanvas(page)
     await tabUntilFocused(page, portB)
 
     await expect(visibleTooltip(page)).toContainText(B_DESCRIPTION)
@@ -105,6 +111,7 @@ test.describe('node explanations', () => {
     await expect(edge).toHaveAccessibleName(
       `Multiply Out to Master Stack Emission. ${SPLAT_DESCRIPTION}`,
     )
+    await focusCanvas(page)
     await tabUntilFocused(page, edge)
     await expect(visibleTooltip(page)).toHaveText(SPLAT_DESCRIPTION)
 
@@ -147,6 +154,7 @@ test.describe('labels of unconnected inputs', () => {
 
   test('the description stays reachable from the keyboard on the same row', async ({ page }) => {
     const portA = portButton(graphNode(page, 'Multiply'), /^A, input port/)
+    await focusCanvas(page)
     await tabUntilFocused(page, portA)
 
     await expect(visibleTooltip(page)).toContainText(A_DESCRIPTION)
@@ -176,6 +184,7 @@ test.describe('tooltip state', () => {
     await page.mouse.up()
 
     const edge = page.getByRole('group', { name: /^Multiply Out to Master Stack Emission/ })
+    await focusCanvas(page)
     await tabUntilFocused(page, edge)
     await expect(visibleTooltip(page)).toHaveText(SPLAT_DESCRIPTION)
     await page.keyboard.press('Escape')

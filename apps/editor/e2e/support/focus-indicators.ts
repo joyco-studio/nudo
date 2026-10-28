@@ -1,7 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
-/** Enough to wrap once around the whole page (header, panels, canvas, code drawer) and back. */
-const MAX_TAB_PRESSES = 60
+const MAX_TAB_PRESSES = 40
 
 export async function tabUntilFocused(page: Page, target: Locator): Promise<void> {
   for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {
