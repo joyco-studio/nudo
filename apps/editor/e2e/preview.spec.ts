@@ -1,13 +1,16 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { countReddishPixels } from './support/count-reddish-pixels'
+import {
+  firstSettledCompileCount,
+  settledCompileCount,
+  waitForAutosave,
+} from './support/pending-work'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
 const FALLBACK_MESSAGE =
   'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
-const PAST_DEBOUNCE_MS = 500
 const MIN_REDDISH_PIXELS = 200
 /** 40 px at 0.01 per pixel moves Roughness from its default 0.5 to 0.9. */
 const SCRUB_DISTANCE_PX = 40
@@ -20,10 +23,6 @@ function preview(page: Page): Locator {
 
 function meshPicker(page: Page): Locator {
   return preview(page).getByRole('radiogroup', { name: 'Preview mesh' })
-}
-
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
 }
 
 async function previewApplyCount(page: Page): Promise<number> {
@@ -58,9 +57,7 @@ test.describe('main preview', () => {
 
   test('changing color value does not log compile', async ({ page }) => {
     await page.goto('/')
-    await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    const before = await compileCount(page)
+    const before = await firstSettledCompileCount(page)
 
     const swatch = page
       .getByRole('group', { name: 'Color', exact: true })
@@ -75,16 +72,13 @@ test.describe('main preview', () => {
         return color?.inputValues.color
       })
       .toEqual({ type: 'vec3', value: [0, 1, 0] })
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
 
-    expect(await compileCount(page)).toBe(before)
+    expect(await settledCompileCount(page)).toBe(before)
   })
 
   test('scrubbing a number field updates the preview live without compiling', async ({ page }) => {
     await page.goto('/')
-    await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    const compilesBefore = await compileCount(page)
+    const compilesBefore = await firstSettledCompileCount(page)
     const appliedBefore = await previewApplyCount(page)
 
     const master = page.getByRole('group', { name: 'Master Stack', exact: true })
@@ -102,16 +96,15 @@ test.describe('main preview', () => {
     // Mid-scrub: the field and the material move, but the graph (and its history) has not.
     await expect(field).toHaveValue(SCRUBBED_ROUGHNESS)
     await expect.poll(() => previewApplyCount(page)).toBeGreaterThan(appliedBefore)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await waitForAutosave(page)
     expect(await storedMasterRoughness(page)).toBeUndefined()
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
 
     await page.mouse.up()
     await expect
       .poll(() => storedMasterRoughness(page))
       .toEqual({ type: 'float', value: Number(SCRUBBED_ROUGHNESS) })
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
 
     // One scrub is one undo step. Releasing on the label focuses its field, which owns undo.
     await field.blur()

@@ -10,7 +10,7 @@ import { registry } from '@/store/registry'
 
 import { createCompileScheduler } from './compile-scheduler'
 import type { CompileScheduler } from './compile-scheduler'
-import { recordCompile } from './compile-counter'
+import { recordCompile, recordCompilePending } from './compile-counter'
 import { recordPreviewApply } from './preview-apply-counter'
 
 /** Quiet period after the last structural edit before the graph is compiled again. */
@@ -75,6 +75,7 @@ export function useLiveMaterial(): LiveMaterial {
         useEditorStore.getState().setCompileErrors(build.errors)
         setLive((current) => nextLiveMaterial(current, build))
       },
+      onPendingChange: recordCompilePending,
     })
     scheduler.update(useEditorStore.getState().graph)
     const unsubscribe = useEditorStore.subscribe((state, previousState) => {

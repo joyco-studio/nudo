@@ -53,14 +53,20 @@ function setUp(
 ) {
   const buildSpy = vi.fn(build)
   const onBuilt = vi.fn<(result: MaterialBuild) => void>()
+  const onPendingChange = vi.fn<(isPending: boolean) => void>()
   const scheduler = createCompileScheduler({
     registry,
     delayMs: DELAY_MS,
     build: buildSpy,
     onBuilt,
+    onPendingChange,
   })
-  return { buildSpy, onBuilt, scheduler }
+  return { buildSpy, onBuilt, onPendingChange, scheduler }
 }
+
+/** The pending state the scheduler last reported (false before any report). */
+const lastPending = (onPendingChange: { mock: { calls: readonly (readonly [boolean])[] } }) =>
+  onPendingChange.mock.calls.at(-1)?.[0] ?? false
 
 describe('createCompileScheduler', () => {
   beforeEach(() => {
@@ -322,6 +328,36 @@ describe('createCompileScheduler', () => {
 
     expect(buildSpy).not.toHaveBeenCalled()
     expect(onBuilt).not.toHaveBeenCalled()
+  })
+
+  it('reports a rebuild as pending from the update until the build has run', () => {
+    const { buildSpy, onPendingChange, scheduler } = setUp()
+    scheduler.update(createGraph())
+    expect(lastPending(onPendingChange)).toBe(true)
+
+    vi.advanceTimersByTime(DELAY_MS)
+    expect(buildSpy).toHaveBeenCalledOnce()
+    expect(lastPending(onPendingChange)).toBe(false)
+
+    // A value applied in place leaves nothing pending.
+    onPendingChange.mockClear()
+    scheduler.update(withBaseColor(createGraph(), 0, 1, 0))
+    expect(onPendingChange).not.toHaveBeenCalled()
+
+    // An edit undone before the debounce ends cancels the rebuild: nothing is pending any more.
+    scheduler.update(withNode(createGraph(), 'time', 'input/time'))
+    expect(lastPending(onPendingChange)).toBe(true)
+    scheduler.update(withBaseColor(createGraph(), 0, 1, 0))
+    expect(lastPending(onPendingChange)).toBe(false)
+  })
+
+  it('reports nothing pending once disposed', () => {
+    const { onPendingChange, scheduler } = setUp()
+    scheduler.update(createGraph())
+
+    scheduler.dispose()
+
+    expect(lastPending(onPendingChange)).toBe(false)
   })
 
   it('ignores updates after dispose', () => {

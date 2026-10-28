@@ -13,6 +13,8 @@ export interface CompileSchedulerOptions {
   build(graph: Graph): MaterialBuild
   /** Receives every build, including failed ones. */
   onBuilt(build: MaterialBuild): void
+  /** Told when a rebuild starts waiting out the delay, and when none is waiting any more. */
+  onPendingChange?(isPending: boolean): void
 }
 
 export interface CompileScheduler {
@@ -57,23 +59,28 @@ export function createCompileScheduler(options: CompileSchedulerOptions): Compil
     if (pendingTimer === null) return
     clearTimeout(pendingTimer)
     pendingTimer = null
+    options.onPendingChange?.(false)
   }
 
   const rebuild = (): void => {
     pendingTimer = null
     isRebuildOwed = false
-    if (latestGraph === null) return
-    const graph = latestGraph
-    const build = options.build(graph)
-    builtGraph = graph
-    builtKey = topologyKey(graph, options.registry)
-    builtMaterial = build
-    options.onBuilt(build)
+    if (latestGraph !== null) {
+      const graph = latestGraph
+      const build = options.build(graph)
+      builtGraph = graph
+      builtKey = topologyKey(graph, options.registry)
+      builtMaterial = build
+      options.onBuilt(build)
+    }
+    // Reported after the build, so whoever waits for it sees the build done.
+    options.onPendingChange?.(false)
   }
 
   const scheduleRebuild = (): void => {
-    cancelPendingRebuild()
+    if (pendingTimer !== null) clearTimeout(pendingTimer)
     pendingTimer = setTimeout(rebuild, options.delayMs)
+    options.onPendingChange?.(true)
   }
 
   const applyToBuilt = (ref: PortRef, value: PortValue): ApplyInputValueResult =>

@@ -1,11 +1,14 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { expectFocusRing, expectQuietFieldFocus, tabUntilFocused } from './support/focus-indicators'
+import {
+  firstSettledCompileCount,
+  settledCompileCount,
+  waitForAutosave,
+} from './support/pending-work'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
-const PAST_DEBOUNCE_MS = 500
 const DRAG_STEPS = 10
 /** The seeded Color node: linear [1, 0.2, 0.05], shown as sRGB hex. */
 const SEEDED_LINEAR = { type: 'vec3', value: [1, 0.2, 0.05] } as const
@@ -33,10 +36,6 @@ function saturationArea(page: Page): Locator {
   return picker(page).getByRole('slider', { name: 'Saturation and brightness' })
 }
 
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
-}
-
 async function previewApplyCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
 }
@@ -44,13 +43,6 @@ async function previewApplyCount(page: Page): Promise<number> {
 async function storedColor(page: Page): Promise<unknown> {
   const node = (await readStoredNodes(page)).find((stored) => stored.id === 'color')
   return node?.inputValues.color ?? null
-}
-
-/** Waits for the first compile and its debounce, so later counts only move for new reasons. */
-async function waitForSettledCompile(page: Page): Promise<number> {
-  await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
-  await page.waitForTimeout(PAST_DEBOUNCE_MS)
-  return compileCount(page)
 }
 
 /** The stored color's channels, empty while nothing is stored. */
@@ -97,7 +89,7 @@ test.describe('color picker', () => {
   test('dragging in the picker updates the node color and the preview without Enter', async ({
     page,
   }) => {
-    const compilesBefore = await waitForSettledCompile(page)
+    const compilesBefore = await firstSettledCompileCount(page)
     const appliedBefore = await previewApplyCount(page)
 
     await colorSwatch(page).click()
@@ -112,9 +104,9 @@ test.describe('color picker', () => {
     // Mid-drag: the swatch and the material follow, but the graph (and its history) has not.
     await expect(colorSwatch(page)).not.toHaveAccessibleDescription(SEEDED_HEX)
     await expect.poll(() => previewApplyCount(page)).toBeGreaterThan(appliedBefore)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await waitForAutosave(page)
     expect(await storedColor(page)).toEqual(SEEDED_LINEAR)
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
 
     await page.mouse.up()
     const draggedHex = await picker(page).getByRole('textbox', { name: 'Hex' }).inputValue()
@@ -125,8 +117,7 @@ test.describe('color picker', () => {
     await expect(picker(page)).toBeHidden()
     await expect.poll(() => storedColor(page)).not.toEqual(SEEDED_LINEAR)
     await expect(colorSwatch(page)).toHaveAccessibleDescription(draggedHex)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
   })
 
   test('keyboard-only: open picker, arrows change hue, Enter commits, one undo restores', async ({
@@ -160,7 +151,7 @@ test.describe('color picker', () => {
 
   test('Escape cancels and restores the original color', async ({ page }) => {
     // Previews only reach a material once the first one has compiled.
-    await waitForSettledCompile(page)
+    await firstSettledCompileCount(page)
     await openPickerWithKeyboard(page)
     const area = saturationArea(page)
     const saturationBefore = Number(await area.getAttribute('aria-valuenow'))
@@ -178,7 +169,7 @@ test.describe('color picker', () => {
     await expect(colorSwatch(page)).toHaveAccessibleDescription(SEEDED_HEX)
     // The material is put back on the original color too.
     await expect.poll(() => previewApplyCount(page)).toBeGreaterThan(appliedBeforeEscape)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await waitForAutosave(page)
     expect(await storedColor(page)).toEqual(SEEDED_LINEAR)
   })
 

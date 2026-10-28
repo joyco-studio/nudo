@@ -131,6 +131,18 @@ describe('startAutosave', () => {
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBe(serializeGraph(useEditorStore.getState().graph))
   })
 
+  it('flags a write as pending on window until it lands, for e2e tests to wait on', () => {
+    startTrackedAutosave()
+    expect(window.__nudoAutosavePending ?? false).toBe(false)
+
+    useEditorStore.getState().addNode('input/float', { x: 1, y: 1 })
+    expect(window.__nudoAutosavePending).toBe(true)
+
+    vi.advanceTimersByTime(500)
+    expect(window.__nudoAutosavePending).toBe(false)
+    expect(localStorage.getItem(AUTOSAVE_KEY)).not.toBeNull()
+  })
+
   it('collapses rapid changes into a single write with the latest graph', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem')
     startTrackedAutosave()

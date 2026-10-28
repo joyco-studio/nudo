@@ -1,10 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import { compileCount, firstSettledCompileCount, settledCompileCount } from './support/pending-work'
 import { readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, graphDocument, graphDocumentV2, seedAutosave } from './support/seed-graph'
 
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
-const PAST_DEBOUNCE_MS = 500
 const UNLIT_HINT = 'Unlit ignores this'
 const COMMENT_DEFAULT_WIDTH = 320
 const COMMENT_RESIZE_STEP = 20
@@ -18,22 +17,12 @@ function port(node: Locator, portId: string): Locator {
   return node.locator(`[data-port-id="${portId}"]`)
 }
 
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
-}
-
 async function storedParams(
   page: Page,
   nodeId: string,
 ): Promise<Readonly<Record<string, unknown>>> {
   const node = (await readStoredNodes(page)).find((stored) => stored.id === nodeId)
   return node?.params ?? {}
-}
-
-/** Waits until the first compile ran, so later counts only measure what the test did. */
-async function waitForFirstCompile(page: Page): Promise<void> {
-  await expect.poll(async () => compileCount(page)).toBeGreaterThan(0)
-  await page.waitForTimeout(PAST_DEBOUNCE_MS)
 }
 
 const SELECT_TO_ROUGHNESS = graphDocument(
@@ -66,8 +55,7 @@ const WAVE_SPEED_PROPERTY = graphDocumentV2(
 test('select node op changes via keyboard and recompiles', async ({ page }) => {
   await seedAutosave(page, SELECT_TO_ROUGHNESS)
   await page.goto('/')
-  await waitForFirstCompile(page)
-  const compilesBefore = await compileCount(page)
+  const compilesBefore = await firstSettledCompileCount(page)
 
   const compare = graphNode(page, 'Select').getByRole('combobox', { name: 'Compare' })
   await compare.focus()
@@ -127,8 +115,7 @@ test('property node renders as a pill', async ({ page }) => {
 test('collapsing a node hides unconnected ports and does not recompile', async ({ page }) => {
   await seedAutosave(page, TIME_TO_SINE)
   await page.goto('/')
-  await waitForFirstCompile(page)
-  const compilesBefore = await compileCount(page)
+  const compilesBefore = await firstSettledCompileCount(page)
   const sine = graphNode(page, 'Sine')
   const chevron = sine.getByRole('button', { name: 'Unconnected ports' })
   await expect(chevron).toHaveAttribute('aria-expanded', 'true')
@@ -141,8 +128,7 @@ test('collapsing a node hides unconnected ports and does not recompile', async (
   await expect(port(sine, 'in')).toBeVisible()
   await expect.poll(async () => (await storedParams(page, 'sine')).collapsed).toBe(true)
 
-  await page.waitForTimeout(PAST_DEBOUNCE_MS)
-  expect(await compileCount(page)).toBe(compilesBefore)
+  expect(await settledCompileCount(page)).toBe(compilesBefore)
 
   await page.getByRole('main', { name: 'Node canvas' }).focus()
   await page.keyboard.press('ControlOrMeta+z')

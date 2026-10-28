@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { addNodeFromHeader, connectByKeyboard, graphNode } from './support/graph-keyboard'
+import { compileCount } from './support/pending-work'
 import {
   readStoredEdgeCount,
   readStoredNodes,
@@ -70,10 +71,6 @@ async function expectGoldenModule(page: Page): Promise<void> {
 
 function nodePreview(page: Page, title: string): Locator {
   return page.getByRole('img', { name: `${title} preview`, exact: true })
-}
-
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
 }
 
 /** Adds a Float property named `name` from the Properties "+" menu, then puts it on the canvas. */

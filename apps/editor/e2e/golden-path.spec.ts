@@ -5,6 +5,7 @@ import {
   connectByKeyboard,
   graphNode,
 } from './support/graph-keyboard'
+import { compileCount } from './support/pending-work'
 import { readStoredEdgeCount } from './support/read-autosave'
 
 const EXPECTED_EDGE_COUNT = 6
@@ -36,10 +37,6 @@ async function expectGoldenPathGraph(page: Page): Promise<void> {
   }
   await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
   await expect(errorBorders(page)).toHaveCount(0)
-}
-
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
 }
 
 test('golden path: Time → Sin → Lerp(t) between two Colors → Base Color, plus Fresnel → Emission, compiles without node errors and survives reload', async ({

@@ -1,11 +1,14 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { tabUntilFocused } from './support/focus-indicators'
+import {
+  firstSettledCompileCount,
+  settledCompileCount,
+  waitForAutosave,
+} from './support/pending-work'
 import { readStoredEdgeCount, readStoredNodes, readStoredProperties } from './support/read-autosave'
 import { graphDocumentV2, seedAutosave } from './support/seed-graph'
 
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
-const PAST_DEBOUNCE_MS = 500
 const SCRUB_DISTANCE_PX = 60
 const SCRUB_STEPS = 6
 /** A node dropped on the canvas lands with its top-left corner this close to the drop point. */
@@ -34,19 +37,8 @@ function canvasNodes(page: Page): Locator {
   return page.locator('.react-flow__node')
 }
 
-async function compileCount(page: Page): Promise<number> {
-  return page.evaluate(() => window.__nudoCompileCount ?? 0)
-}
-
 async function previewApplyCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
-}
-
-/** Waits for the first compile and its debounce, so later counts only move for new reasons. */
-async function waitForSettledCompile(page: Page): Promise<number> {
-  await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
-  await page.waitForTimeout(PAST_DEBOUNCE_MS)
-  return compileCount(page)
 }
 
 async function storedProperty(page: Page, id: string) {
@@ -157,7 +149,7 @@ test.describe('Properties panel', () => {
     await expect(list).toBeHidden()
     await expect.poll(() => readStoredEdgeCount(page)).toBe(1)
 
-    const compilesBefore = await waitForSettledCompile(page)
+    const compilesBefore = await firstSettledCompileCount(page)
     const propertyId = String((await readStoredProperties(page))[0]?.id)
     const valueField = propertyRow(page, 'waveSpeed').getByRole('textbox', { name: 'Value' })
     await valueField.fill('2.5')
@@ -182,8 +174,7 @@ test.describe('Properties panel', () => {
       .poll(async () => (await storedProperty(page, propertyId))?.value)
       .not.toEqual({ type: 'float', value: 2.5 })
 
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
   })
 
   test('invalid rename shows message and keeps old name', async ({ page }) => {
@@ -203,7 +194,7 @@ test.describe('Properties panel', () => {
       expect(messageId).not.toBeNull()
       await expect(reference).toHaveAttribute('aria-describedby', new RegExp(messageId ?? ''))
       await expect(reference).toHaveAccessibleDescription(/.+/)
-      await page.waitForTimeout(PAST_DEBOUNCE_MS)
+      await waitForAutosave(page)
       expect((await storedProperty(page, 'scale'))?.name).toBe('scale')
     }
 
@@ -303,7 +294,8 @@ test.describe('Properties panel', () => {
 
     await propertyHandle(page, 'scale').click()
     await expect(propertyHandle(page, 'scale')).toBeFocused()
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    // A node added to the graph would leave an autosave pending: once none is, nothing was added.
+    await waitForAutosave(page)
     await expect(canvasNodes(page)).toHaveCount(1)
 
     await propertyRow(page, 'scale')
@@ -339,7 +331,7 @@ test.describe('Properties panel', () => {
     await page.keyboard.type('nope')
     await page.keyboard.press('Escape')
     await expect(propertyHandle(page, 'speed')).toBeFocused()
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await waitForAutosave(page)
     expect((await storedProperty(page, 'speed'))?.label).toBe('speed')
   })
 })

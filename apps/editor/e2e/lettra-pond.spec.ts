@@ -1,10 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { changedShare, luminanceSpread } from './support/luminance-spread'
-import { compileCount, openPond } from './support/open-pond'
+import { openPond } from './support/open-pond'
+import { compileCount, settledCompileCount } from './support/pending-work'
 
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
-const PAST_DEBOUNCE_MS = 500
 /** A flat or nearly flat preview stays under this luminance spread; the pond's pattern is far above. */
 const MIN_LUMINANCE_SPREAD = 12
 /** Refraction moves the pattern: this share of the preview changes within a second. */
@@ -64,7 +63,6 @@ test.describe('lettra pond example', () => {
     await page.mouse.up()
     await page.keyboard.press('Enter')
 
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    expect(await compileCount(page)).toBe(compilesBefore)
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
   })
 })

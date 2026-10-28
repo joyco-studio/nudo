@@ -1,5 +1,6 @@
 import { createGraph, parseGraph, serializeGraph } from '@nudo-tsl/core'
 import type { Graph } from '@nudo-tsl/core'
+import { recordAutosavePending } from './autosave-pending'
 import { useEditorStore } from './editor-store'
 import { registry } from './registry'
 import type { Notice, UiSlice } from './store-types'
@@ -68,6 +69,7 @@ export function startAutosave(
     if (pendingTimer === null) return
     clearTimeout(pendingTimer)
     pendingTimer = null
+    recordAutosavePending(false)
   }
 
   const save = (): void => {
@@ -77,6 +79,7 @@ export function startAutosave(
     } catch {
       useEditorStore.getState().showNotice(SAVE_FAILED_NOTICE)
     }
+    recordAutosavePending(false)
   }
 
   const flushPendingSave = (): void => {
@@ -93,6 +96,7 @@ export function startAutosave(
     if (state.graph === previousState.graph) return
     clearPendingTimer()
     pendingTimer = setTimeout(save, delayMs)
+    recordAutosavePending(true)
   })
   page?.addEventListener('pagehide', flushPendingSave)
   page?.document.addEventListener('visibilitychange', flushWhenHidden)

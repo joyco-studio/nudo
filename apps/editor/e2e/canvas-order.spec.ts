@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { countReddishPixels } from './support/count-reddish-pixels'
+import { compileCount, firstSettledCompileCount, settledCompileCount } from './support/pending-work'
 import { readStoredEdgeCount, readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, graphDocumentV2, seedAutosave } from './support/seed-graph'
 import { TUTORIAL_EDGES, TUTORIAL_GRAPH, TUTORIAL_NODE_COUNT } from './support/tutorial-graph'
@@ -13,7 +14,7 @@ interface Box {
 }
 
 const MIN_REDDISH_PIXELS = 200
-/** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
+/** Longer than the compile debounce (150 ms): the paused clock runs a pending rebuild with it. */
 const PAST_DEBOUNCE_MS = 500
 /** Far enough ahead that pausing the page clock never moves it back. */
 const CLOCK_JUMP_MS = 1000
@@ -256,12 +257,11 @@ test.describe('reroute', () => {
     page,
   }) => {
     const previewCanvas = panel(page, 'Main preview').locator('canvas')
+    const compilesBefore = await firstSettledCompileCount(page)
     await expect
       .poll(async () => countReddishPixels(page, await previewCanvas.screenshot()))
       .toBeGreaterThan(MIN_REDDISH_PIXELS)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
     const reddishBefore = await countReddishPixels(page, await previewCanvas.screenshot())
-    const compilesBefore = await page.evaluate(() => window.__nudoCompileCount ?? 0)
 
     const edge = page.locator('.react-flow__edge').first()
     const path = await boxOf(edge.locator('.react-flow__edge-path'))
@@ -276,12 +276,13 @@ test.describe('reroute', () => {
       reroute.getByRole('button', { name: 'In, input port, vec3, connected' }),
     ).toBeAttached()
 
-    await expect
-      .poll(() => page.evaluate(() => window.__nudoCompileCount ?? 0))
-      .toBeGreaterThan(compilesBefore)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
+    await expect.poll(() => compileCount(page)).toBeGreaterThan(compilesBefore)
+    await settledCompileCount(page)
     await expect(page.locator('.react-flow__node [data-error="true"]')).toHaveCount(0)
-    expect(await countReddishPixels(page, await previewCanvas.screenshot())).toBe(reddishBefore)
+    // The rebuilt material reaches the canvas a frame or so later; then it looks the same.
+    await expect
+      .poll(async () => countReddishPixels(page, await previewCanvas.screenshot()))
+      .toBe(reddishBefore)
   })
 
   test('the connection menu inserts a reroute from the keyboard and focuses it', async ({
