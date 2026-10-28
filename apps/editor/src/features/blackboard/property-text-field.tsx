@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from 'react'
 
+import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/ui/input'
 
@@ -32,6 +33,7 @@ export function PropertyTextField({
   const errorId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const { error, inputProps } = useTextDraft(draftOptions)
+  const t = useT()
 
   useEffect(() => {
     if (!isAutoFocused) return
@@ -60,7 +62,7 @@ export function PropertyTextField({
       />
       {error !== null && (
         <p id={errorId} role="alert" className="text-micro leading-4 text-destructive">
-          {error}
+          {t(error)}
         </p>
       )}
     </div>

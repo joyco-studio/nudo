@@ -5,6 +5,8 @@ import { rerouteNode } from '@nudo-tsl/nodes'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
 import { MIN_TIDY_SELECTION } from '@/features/command-palette/command-registry'
+import { useUniversalParam } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 import type { CommandInvocation } from '@/features/command-palette/command-registry'
 import {
   ContextMenu,
@@ -39,6 +41,26 @@ import type { CanvasMenu } from './use-canvas-menu'
 /** Auto / 2D / 3D, read from the universal param so the menu and the graph never disagree. */
 const PREVIEW_MODE = UNIVERSAL_PARAMS.find((param) => param.id === PREVIEW_MODE_PARAM)
 const PREVIEW_MODE_PARAM_DEFINITION = isEnumParam(PREVIEW_MODE) ? PREVIEW_MODE : null
+
+/** The preview mode param, named in the UI language. */
+function PreviewModeSub({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const param = useUniversalParam(PREVIEW_MODE)
+  if (!isEnumParam(param)) return null
+  return (
+    <ContextMenuSub>
+      <ContextMenuSubTrigger>{param.label}</ContextMenuSubTrigger>
+      <ContextMenuSubContent className="min-w-32">
+        <ContextMenuRadioGroup value={value} onValueChange={onChange}>
+          {param.options.map((option) => (
+            <ContextMenuRadioItem key={option.value} value={option.value}>
+              {option.label}
+            </ContextMenuRadioItem>
+          ))}
+        </ContextMenuRadioGroup>
+      </ContextMenuSubContent>
+    </ContextMenuSub>
+  )
+}
 
 interface NodeMenuModel {
   /** Copy, Duplicate and Delete: never the master, which can't be copied or removed. */
@@ -99,6 +121,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
   const actions = useGraphCanvasActions()
   const runCommand = useRunCommand()
   const menu = useCanvasMenu()
+  const t = useT()
   // The menu's own node, named explicitly: the commands act on it, or on the selection holding it.
   // No opener: the menu restores focus itself.
   const target: CommandInvocation = { opener: null, nodeId: data.node.id }
@@ -146,27 +169,16 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
               actions.setParam({ nodeId: node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
             }}
           >
-            {portsToggleLabel(isCollapsed)}
+            {t(portsToggleLabel(isCollapsed))}
           </ContextMenuItem>
         )}
-        {model.canSetPreviewMode && PREVIEW_MODE_PARAM_DEFINITION !== null && (
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>{PREVIEW_MODE_PARAM_DEFINITION.label}</ContextMenuSubTrigger>
-            <ContextMenuSubContent className="min-w-32">
-              <ContextMenuRadioGroup
-                value={previewMode}
-                onValueChange={(value) => {
-                  actions.setParam({ nodeId: node.id, paramId: PREVIEW_MODE_PARAM }, value)
-                }}
-              >
-                {PREVIEW_MODE_PARAM_DEFINITION.options.map((option) => (
-                  <ContextMenuRadioItem key={option.value} value={option.value}>
-                    {option.label}
-                  </ContextMenuRadioItem>
-                ))}
-              </ContextMenuRadioGroup>
-            </ContextMenuSubContent>
-          </ContextMenuSub>
+        {model.canSetPreviewMode && (
+          <PreviewModeSub
+            value={previewMode}
+            onChange={(value) => {
+              actions.setParam({ nodeId: node.id, paramId: PREVIEW_MODE_PARAM }, value)
+            }}
+          />
         )}
         {model.canCopyOrRemove && (
           <>

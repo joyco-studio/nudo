@@ -1,23 +1,20 @@
 import { useMemo } from 'react'
 import type { RefObject } from 'react'
 
+import { useT } from '@/i18n/use-t'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
 import { KeyHints } from '@/shared/components/key-hints'
 import type { KeyHint } from '@/shared/components/key-hints'
 import { Popover, PopoverAnchor, PopoverContent } from '@/shared/ui/popover'
 
+import { matchesConnectQuery } from './connect-candidates'
 import type { ConnectCandidate } from './connect-candidates'
 
 const KEY_HINTS: readonly KeyHint[] = [
-  { keys: '↑ ↓', action: 'Move' },
-  { keys: 'Enter', action: 'Connect' },
-  { keys: 'Esc', action: 'Close' },
+  { keys: '↑ ↓', action: 'keyHint.move' },
+  { keys: 'Enter', action: 'keyHint.connect' },
+  { keys: 'Esc', action: 'keyHint.close' },
 ]
-
-/** Plain substring match, so "sin" finds "Sine" and not every label with an s, an i and an n. */
-function matchesQuery(label: string, query: string): number {
-  return label.toLowerCase().includes(query.trim().toLowerCase()) ? 1 : 0
-}
 
 export interface KeyboardConnectListProps {
   open: boolean
@@ -46,11 +43,12 @@ export function KeyboardConnectList({
   onPick,
   restoreFocus,
 }: KeyboardConnectListProps) {
+  const t = useT()
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverAnchor virtualRef={anchorRef} />
       <PopoverContent
-        aria-label={`Connect ${title}`}
+        aria-label={t('connect.title', { port: title })}
         side="bottom"
         align="start"
         className="w-80 gap-0 p-0"
@@ -74,13 +72,19 @@ interface ConnectSearchProps {
 /** Lives inside the popover content, so it mounts (and reads the graph) only while open. */
 function ConnectSearch({ title, loadCandidates, onPick }: ConnectSearchProps) {
   const candidates = useMemo(() => loadCandidates(), [loadCandidates])
+  const t = useT()
 
   return (
-    <Command filter={matchesQuery} loop label={`Connect ${title}`} className="gap-1">
-      <CommandInput placeholder="Search ports, e.g. sine" aria-label="Search ports" />
-      <CommandList label="Compatible ports" className="max-h-[min(18rem,50dvh)]">
+    <Command
+      filter={(label, query) => (matchesConnectQuery(label, query) ? 1 : 0)}
+      loop
+      label={t('connect.title', { port: title })}
+      className="gap-1"
+    >
+      <CommandInput placeholder={t('connect.placeholder')} aria-label={t('connect.search')} />
+      <CommandList label={t('connect.list')} className="max-h-[min(18rem,50dvh)]">
         <CommandEmpty className="px-3 py-6 text-center text-sm text-muted-foreground">
-          No compatible ports. Try another word, or add a node first.
+          {t('connect.empty')}
         </CommandEmpty>
         {candidates.map((candidate) => (
           <CommandItem

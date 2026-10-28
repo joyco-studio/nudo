@@ -1,4 +1,5 @@
 import { Slider } from '@/shared/ui/slider'
+import { useT } from '@/i18n/use-t'
 
 const HUE_MAX = 360
 const HUE_TRACK =
@@ -17,6 +18,7 @@ interface HueSliderProps {
  */
 export function HueSlider({ hue, onChange }: HueSliderProps) {
   const degrees = Math.round(hue)
+  const t = useT()
 
   return (
     <Slider
@@ -33,7 +35,10 @@ export function HueSlider({ hue, onChange }: HueSliderProps) {
       trackStyle={HUE_TRACK_STYLE}
       rangeClassName="hidden"
       thumbClassName="h-4 w-1.5 rounded-none border-2 border-white bg-transparent shadow-[0_0_0_1px_rgb(0_0_0/0.6)] ring-0 hover:ring-0 active:ring-0"
-      thumbProps={{ 'aria-label': 'Hue', 'aria-valuetext': `${String(degrees)} degrees` }}
+      thumbProps={{
+        'aria-label': t('color.hue'),
+        'aria-valuetext': t('color.hueValue', { degrees }),
+      }}
     />
   )
 }

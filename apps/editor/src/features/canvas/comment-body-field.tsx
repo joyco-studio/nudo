@@ -4,6 +4,7 @@ import type { NodeId } from '@nudo-tsl/core'
 
 import { cn } from '@/shared/lib/utils'
 import { Textarea } from '@/shared/ui/textarea'
+import { useT } from '@/i18n/use-t'
 
 import { NODE_ENTRY_ATTRIBUTE } from './canvas-keyboard-model'
 import { COMMENT_BODY_PARAM } from './comment-params'
@@ -35,6 +36,7 @@ interface CommentBodyFieldProps {
  */
 export function CommentBodyField({ nodeId, body, id, className }: CommentBodyFieldProps) {
   const { setParam } = useNodeFieldActions()
+  const t = useT()
   const [draft, setDraft] = useState<string | null>(null)
   const fieldRef = useRef<HTMLTextAreaElement>(null)
   const value = draft ?? body
@@ -55,8 +57,8 @@ export function CommentBodyField({ nodeId, body, id, className }: CommentBodyFie
     <Textarea
       ref={fieldRef}
       id={id}
-      aria-label={id === undefined ? 'Comment text' : undefined}
-      placeholder="Write a note…"
+      aria-label={id === undefined ? t('comment.text') : undefined}
+      placeholder={t('comment.placeholder')}
       value={value}
       onChange={(event) => {
         setDraft(event.target.value)

@@ -6,7 +6,8 @@ import type { InputRowModel } from '@/features/canvas/node-port-layout'
 import { TypeForAssistiveTech } from '@/features/canvas/node-view'
 import { PortLabel } from '@/features/canvas/port-label'
 import { PortTypeLabel } from '@/features/canvas/port-handle'
-import { registry } from '@/store/registry'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 
 import { connectedSourceTitle } from './inspector-model'
 
@@ -27,6 +28,7 @@ interface InspectorInputRowProps {
  */
 function InspectorInputRow({ node, row, dataType, sourceTitle }: InspectorInputRowProps) {
   const { input, disabledHint } = row
+  const t = useT()
 
   return (
     <li data-port-id={input.id} className={INSPECTOR_ROW_CLASS}>
@@ -34,12 +36,12 @@ function InspectorInputRow({ node, row, dataType, sourceTitle }: InspectorInputR
       {disabledHint !== null ? (
         <>
           <PortLabel label={input.label} isMuted />
-          <MutedHint>{disabledHint}</MutedHint>
+          <MutedHint>{t(disabledHint)}</MutedHint>
         </>
       ) : sourceTitle !== null ? (
         <>
           <PortLabel label={input.label} />
-          <MutedHint>{`From ${sourceTitle}`}</MutedHint>
+          <MutedHint>{t('inspector.from', { node: sourceTitle })}</MutedHint>
         </>
       ) : (
         <InlineField node={node} input={input} dataType={dataType} />
@@ -63,6 +65,7 @@ interface InspectorInputRowsProps {
 
 /** The rows of a node's inputs, each in its resolved type and with the node that feeds it. */
 export function InspectorInputRows({ graph, node, rows, types }: InspectorInputRowsProps) {
+  const registry = useNodeRegistry()
   return rows.map((row) => {
     const ref = { nodeId: node.id, portId: row.input.id }
     const dataType = types.inputs.get(portKey(ref))

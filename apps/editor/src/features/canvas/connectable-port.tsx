@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { DataType } from '@nudo-tsl/core'
 
+import type { Translate } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
+
 import { useGraphCanvasActions } from './graph-canvas-actions'
 import { KeyboardConnectList } from './keyboard-connect-list'
 import type { PortExplanation } from './node-explanation'
@@ -18,9 +21,13 @@ export interface ConnectablePortProps {
   explanation: PortExplanation
 }
 
-function accessibleNameOf(props: ConnectablePortProps): string {
-  const connection = props.isConnected ? 'connected' : 'not connected'
-  return `${props.portLabel}, ${props.side} port, ${props.dataType}, ${connection}`
+function accessibleNameOf(props: ConnectablePortProps, t: Translate): string {
+  return t('port.name', {
+    port: props.portLabel,
+    side: t(props.side === 'input' ? 'port.side.input' : 'port.side.output'),
+    type: props.dataType,
+    connection: t(props.isConnected ? 'port.connected' : 'port.notConnected'),
+  })
 }
 
 /**
@@ -30,6 +37,7 @@ function accessibleNameOf(props: ConnectablePortProps): string {
 export function ConnectablePort(props: ConnectablePortProps) {
   const { nodeId, portId, side, dataType, nodeTitle, portLabel } = props
   const actions = useGraphCanvasActions()
+  const t = useT()
   const [isListOpen, setIsListOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const origin = useMemo<ConnectOrigin>(
@@ -44,7 +52,7 @@ export function ConnectablePort(props: ConnectablePortProps) {
         portId={portId}
         side={side}
         dataType={dataType}
-        accessibleName={accessibleNameOf(props)}
+        accessibleName={accessibleNameOf(props, t)}
         explanation={props.explanation}
         buttonRef={buttonRef}
         onActivate={() => {

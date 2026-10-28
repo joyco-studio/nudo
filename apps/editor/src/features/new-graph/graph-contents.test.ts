@@ -2,6 +2,8 @@ import { addNode, addProperty, asNodeId, asPropertyId, createGraph, float } from
 import type { Graph } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 
+import { es } from '@/i18n/messages/es'
+import { createTranslator, translateEnglish } from '@/i18n/translate'
 import { registry } from '@/store/registry'
 
 import { describeGraphContents, graphContents } from './graph-contents'
@@ -38,8 +40,27 @@ describe('graphContents', () => {
 
 describe('describeGraphContents', () => {
   it('names what a reset clears, in plain words', () => {
-    expect(describeGraphContents({ nodeCount: 1, propertyCount: 0 })).toBe('1 node')
-    expect(describeGraphContents({ nodeCount: 2, propertyCount: 1 })).toBe('2 nodes and 1 property')
-    expect(describeGraphContents({ nodeCount: 0, propertyCount: 3 })).toBe('3 properties')
+    const t = translateEnglish
+    expect(describeGraphContents({ nodeCount: 1, propertyCount: 0 }, t)).toBe('1 node')
+    expect(describeGraphContents({ nodeCount: 2, propertyCount: 1 }, t)).toBe(
+      '2 nodes and 1 property',
+    )
+    expect(describeGraphContents({ nodeCount: 0, propertyCount: 3 }, t)).toBe('3 properties')
+  })
+
+  it('names it in Spanish, singular and plural', () => {
+    const t = createTranslator(es)
+    expect(describeGraphContents({ nodeCount: 1, propertyCount: 1 }, t)).toBe(
+      '1 nodo y 1 propiedad',
+    )
+    expect(describeGraphContents({ nodeCount: 2, propertyCount: 0 }, t)).toBe('2 nodos')
+  })
+
+  it('keeps the Spanish dialog sentence in agreement with a single node', () => {
+    const t = createTranslator(es)
+    const contents = describeGraphContents({ nodeCount: 1, propertyCount: 0 }, t)
+    expect(t('newGraph.description', { contents })).toBe(
+      'Esto elimina 1 nodo y deja solo el Master Stack. Deshacer (Ctrl/⌘ Z) lo recupera todo.',
+    )
   })
 })

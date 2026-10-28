@@ -6,6 +6,7 @@ import type { EdgeProps } from '@xyflow/react'
 import { cn } from '@/shared/lib/utils'
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import { CHAIN_DIMMED_CLASS } from './chain-highlight'
 import { describeConversion } from './describe-conversion'
@@ -42,7 +43,8 @@ function ConversionMarker({
   isEdgeFocused,
   isChainDimmed,
 }: ConversionMarkerProps) {
-  const description = describeConversion(conversion)
+  const t = useT()
+  const description = describeConversion(conversion, t)
   const tooltipOpen = useForcedTooltipOpen(isEdgeFocused ? true : null)
   return (
     <EdgeLabelRenderer>

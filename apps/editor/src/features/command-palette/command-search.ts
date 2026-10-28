@@ -1,12 +1,16 @@
+import { translateEnglish } from '@/i18n/translate'
+import type { Translate } from '@/i18n/translate'
+import { foldForSearch } from '@/shared/lib/fold-for-search'
+
 import type { Command } from './command-registry'
+import { commandSearchText } from './command-text'
 
 /** Anything but letters, digits and `?` separates words ("layout:", "Ctrl/⌘"). */
 const WORD_SEPARATOR = /[^\p{L}\p{N}?]+/u
 
-/** The lowercase words of a text or a search query. */
+/** The words of a text or a search query, lowercase and without accents. */
 export function wordsOf(text: string): readonly string[] {
-  return text
-    .toLowerCase()
+  return foldForSearch(text)
     .split(WORD_SEPARATOR)
     .filter((word) => word !== '')
 }
@@ -24,12 +28,14 @@ export function startsWordsFor(text: string, queryWords: readonly string[]): boo
 }
 
 /**
- * Case-insensitive search over labels and keywords (see `startsWordsFor`). Keeps registry order;
- * an empty query keeps every command.
+ * Case-insensitive search over names and keywords, in the UI language and in English (see
+ * `startsWordsFor`). Keeps registry order; an empty query keeps every command.
  */
-export function searchCommands(commands: readonly Command[], query: string): readonly Command[] {
+export function searchCommands(
+  commands: readonly Command[],
+  query: string,
+  t: Translate = translateEnglish,
+): readonly Command[] {
   const queryWords = wordsOf(query)
-  return commands.filter((command) =>
-    startsWordsFor([command.label, ...command.keywords].join(' '), queryWords),
-  )
+  return commands.filter((command) => startsWordsFor(commandSearchText(command, t), queryWords))
 }

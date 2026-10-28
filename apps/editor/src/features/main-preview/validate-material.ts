@@ -1,7 +1,15 @@
 import { Mesh, SphereGeometry, getConsoleFunction, setConsoleFunction } from 'three'
 import type { Camera, Material, Scene, WebGLRenderer } from 'three'
 
-export type MaterialValidation = { ok: true } | { ok: false; message: string }
+import type { MessageKey } from '@/i18n/translate'
+
+/**
+ * Why a material was rejected: three.js's or the compiler's own words (diagnostics stay as they
+ * were written), or one of ours, as a message key shown in the UI language.
+ */
+export type MaterialRejection = { readonly text: string } | { readonly messageKey: MessageKey }
+
+export type MaterialValidation = { ok: true } | { ok: false; rejection: MaterialRejection }
 
 type ConsoleFunction = ReturnType<typeof getConsoleFunction>
 
@@ -9,8 +17,6 @@ type ConsoleFunction = ReturnType<typeof getConsoleFunction>
 type CompilingRenderer = Pick<WebGLRenderer, 'compileAsync'>
 
 const PROBE_SEGMENTS = { width: 8, height: 4 } as const
-const FALLBACK_MESSAGE = 'The material failed to compile.'
-const CANCELLED_MESSAGE = 'The material was replaced before it was checked.'
 /** A renderer that never answers must not block every later material. */
 const COMPILE_TIMEOUT_MS = 10_000
 
@@ -22,8 +28,8 @@ const forwardToConsole: ConsoleFunction = (type, message, ...params) => {
 /** Typed as possibly missing: three.js has no console function until one is installed. */
 const currentConsoleFunction = (): ConsoleFunction | null => getConsoleFunction()
 
-function describeFailure(error: unknown): string {
-  return error instanceof Error ? error.message : FALLBACK_MESSAGE
+function describeFailure(error: unknown): MaterialRejection {
+  return error instanceof Error ? { text: error.message } : { messageKey: 'preview.compileFailed' }
 }
 
 /** Runs the task while collecting every error three.js logs, still printing them as usual. */
@@ -82,16 +88,18 @@ export function validateMaterial(
 ): Promise<MaterialValidation> {
   return runOneAtATime(async () => {
     // Waiting in the queue can outlast the material: a superseded one never reaches the GPU.
-    if (isCancelled()) return { ok: false, message: CANCELLED_MESSAGE }
+    if (isCancelled()) return { ok: false, rejection: { messageKey: 'preview.compileReplaced' } }
     const geometry = new SphereGeometry(1, PROBE_SEGMENTS.width, PROBE_SEGMENTS.height)
     const probe = new Mesh(geometry, material)
     try {
       const compiled = collectingErrors(() => renderer.compileAsync(probe, camera, scene))
       const errors = await withTimeout(compiled, COMPILE_TIMEOUT_MS, [])
       const [firstError] = errors
-      return firstError === undefined ? { ok: true } : { ok: false, message: firstError }
+      return firstError === undefined
+        ? { ok: true }
+        : { ok: false, rejection: { text: firstError } }
     } catch (error) {
-      return { ok: false, message: describeFailure(error) }
+      return { ok: false, rejection: describeFailure(error) }
     } finally {
       geometry.dispose()
     }

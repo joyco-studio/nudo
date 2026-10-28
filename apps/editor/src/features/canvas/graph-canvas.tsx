@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { DragEventHandler } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from '@xyflow/react'
 import type {
+  AriaLabelConfig,
   EdgeMouseHandler,
   EdgeTypes,
   IsValidConnection,
@@ -11,6 +12,9 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
+
+import type { MessageKey, Translate } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { CanvasControls } from './canvas-controls'
 import { CommentNodeView } from './comment-node-view'
@@ -28,6 +32,32 @@ const NODE_TYPES: NodeTypes = {
   [GRAPH_NODE_TYPE]: NodeView,
   [COMMENT_NODE_TYPE]: CommentNodeView,
   [REROUTE_NODE_TYPE]: RerouteNodeView,
+}
+
+/** React Flow's arrow-key directions, as its live region announces a moved node. */
+function directionKey(direction: string): MessageKey | null {
+  switch (direction) {
+    case 'up':
+    case 'down':
+    case 'left':
+    case 'right':
+      return `canvas.direction.${direction}`
+    default:
+      return null
+  }
+}
+
+/** React Flow's own screen reader texts (edge hints, the moved-node announcement), translated. */
+function flowAriaLabels(t: Translate): Partial<AriaLabelConfig> {
+  return {
+    'node.a11yDescription.default': t('canvas.nodeDescription'),
+    'node.a11yDescription.keyboardDisabled': t('canvas.nodeDescription'),
+    'node.a11yDescription.ariaLiveMessage': ({ direction, x, y }) => {
+      const key = directionKey(direction)
+      return t('canvas.nodeMoved', { direction: key === null ? direction : t(key), x, y })
+    },
+    'edge.a11yDescription.default': t('canvas.edgeDescription'),
+  }
 }
 const EDGE_TYPES: EdgeTypes = { [TYPED_EDGE_TYPE]: TypedEdge }
 const GRID_GAP = 20
@@ -74,6 +104,9 @@ export function GraphCanvas({
   onDragOver,
   onDrop,
 }: GraphCanvasProps) {
+  const t = useT()
+  const ariaLabelConfig = useMemo(() => flowAriaLabels(t), [t])
+
   return (
     <PaneContextMenu>
       <ReactFlow<FlowNode, FlowEdge>
@@ -94,6 +127,7 @@ export function GraphCanvas({
         deleteKeyCode={null}
         panActivationKeyCode={null}
         minZoom={MIN_ZOOM}
+        ariaLabelConfig={ariaLabelConfig}
       >
         <InitialFit />
         <Background

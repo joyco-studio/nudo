@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
+import { translateEnglish } from '@/i18n/translate'
 import type { Notice } from '@/store/store-types'
 
 import {
@@ -13,11 +14,11 @@ import {
 } from './notice-toasts'
 import type { NoticeToastApi, NoticeToastOptions } from './notice-toasts'
 
-const INFO_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
-const ERROR_NOTICE: Notice = { kind: 'error', message: "Couldn't connect those ports." }
+const INFO_NOTICE: Notice = { kind: 'info', messageKey: 'notice.masterDelete' }
+const ERROR_NOTICE: Notice = { kind: 'error', messageKey: 'notice.connectFailed' }
 const PERSISTENT_NOTICE: Notice = {
   kind: 'error',
-  message: "Couldn't restore your last session, so we started a new graph.",
+  messageKey: 'notice.restoreFailed',
   persistent: true,
 }
 
@@ -41,12 +42,12 @@ describe('showNoticeToast', () => {
   it('shows an info notice as an info toast that closes by itself', () => {
     const api = createApi()
 
-    showNoticeToast(INFO_NOTICE, api, vi.fn())
+    showNoticeToast(INFO_NOTICE, api, vi.fn(), translateEnglish)
 
     expect(api.error).not.toHaveBeenCalled()
     expect(api.info).toHaveBeenCalledTimes(1)
     // The toaster's polite live region announces it; no role of its own.
-    expect(api.info.mock.calls[0]?.[0]).toBe(INFO_NOTICE.message)
+    expect(api.info.mock.calls[0]?.[0]).toBe(translateEnglish(INFO_NOTICE.messageKey))
     const options = optionsOf(api.info.mock.calls)
     expect(options).toMatchObject({
       id: NOTICE_TOAST_ID,
@@ -59,7 +60,7 @@ describe('showNoticeToast', () => {
   it('shows an error notice as an error toast that stays a little longer', () => {
     const api = createApi()
 
-    showNoticeToast(ERROR_NOTICE, api, vi.fn())
+    showNoticeToast(ERROR_NOTICE, api, vi.fn(), translateEnglish)
 
     expect(api.info).not.toHaveBeenCalled()
     expect(optionsOf(api.error.mock.calls).duration).toBe(ERROR_NOTICE_DURATION_MS)
@@ -69,7 +70,7 @@ describe('showNoticeToast', () => {
   it('announces an error assertively, as an alert', () => {
     const api = createApi()
 
-    showNoticeToast(ERROR_NOTICE, api, vi.fn())
+    showNoticeToast(ERROR_NOTICE, api, vi.fn(), translateEnglish)
 
     expect(renderToStaticMarkup(api.error.mock.calls[0]?.[0])).toBe(
       `<span role="alert">Couldn&#x27;t connect those ports.</span>`,
@@ -80,7 +81,7 @@ describe('showNoticeToast', () => {
     const api = createApi()
     const onClosed = vi.fn()
 
-    showNoticeToast(PERSISTENT_NOTICE, api, onClosed)
+    showNoticeToast(PERSISTENT_NOTICE, api, onClosed, translateEnglish)
 
     const options = optionsOf(api.error.mock.calls)
     expect(options.duration).toBe(Infinity)
@@ -94,7 +95,7 @@ describe('showNoticeToast', () => {
     const api = createApi()
     const onClosed = vi.fn()
 
-    showNoticeToast(INFO_NOTICE, api, onClosed)
+    showNoticeToast(INFO_NOTICE, api, onClosed, translateEnglish)
     const options = optionsOf(api.info.mock.calls)
     options.onDismiss()
     options.onAutoClose()
@@ -107,7 +108,7 @@ describe('syncNoticeToast', () => {
   it('shows the notice when there is one', () => {
     const api = createApi()
 
-    syncNoticeToast(ERROR_NOTICE, api, vi.fn())
+    syncNoticeToast(ERROR_NOTICE, api, vi.fn(), translateEnglish)
 
     expect(api.error).toHaveBeenCalledTimes(1)
     expect(api.dismiss).not.toHaveBeenCalled()
@@ -116,7 +117,7 @@ describe('syncNoticeToast', () => {
   it('takes the toast down when the notice is cleared', () => {
     const api = createApi()
 
-    syncNoticeToast(null, api, vi.fn())
+    syncNoticeToast(null, api, vi.fn(), translateEnglish)
 
     expect(api.dismiss).toHaveBeenCalledWith(NOTICE_TOAST_ID)
     expect(api.info).not.toHaveBeenCalled()

@@ -10,6 +10,7 @@ import { useTidyUp } from '@/features/canvas/tidy-up/use-tidy-up'
 import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
 import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
 import { useOpenShortcutsDialog } from '@/features/shortcuts/shortcuts-dialog-context'
+import type { Locale } from '@/i18n/locale'
 import { useEditorStore } from '@/store/editor-store'
 
 import { CommandsContext } from './command-context'
@@ -23,6 +24,8 @@ import { useCommandPalette } from './use-command-palette'
 interface CommandPaletteProviderProps {
   /** The theme lives above the editor providers; the app passes its switch in. */
   toggleTheme: () => void
+  /** So does the language. */
+  setLocale: (locale: Locale) => void
   children: ReactNode
 }
 
@@ -30,7 +33,11 @@ interface CommandPaletteProviderProps {
  * Runs registry commands for the keyboard, the context menus and the palette, and owns the palette
  * itself. Must sit inside the React Flow, add-node menu, shortcuts dialog and new-graph providers.
  */
-export function CommandPaletteProvider({ toggleTheme, children }: CommandPaletteProviderProps) {
+export function CommandPaletteProvider({
+  toggleTheme,
+  setLocale,
+  children,
+}: CommandPaletteProviderProps) {
   const { getNode } = useReactFlow<FlowNode>()
   const view = usePanelAwareView()
   const tidyUp = useTidyUp()
@@ -47,6 +54,7 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
       frameNodes: view.frameNodes,
       tidyUp,
       toggleTheme,
+      setLocale,
       openShortcutsDialog,
       requestNewGraph,
       openAddNodeMenu,
@@ -57,6 +65,7 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
       view,
       tidyUp,
       toggleTheme,
+      setLocale,
       openShortcutsDialog,
       requestNewGraph,
       openAddNodeMenu,

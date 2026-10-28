@@ -9,6 +9,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu'
+import { useT } from '@/i18n/use-t'
 
 import { CanvasMenuContent } from './canvas-menu-content'
 import { useGraphCanvasActions } from './graph-canvas-actions'
@@ -37,6 +38,7 @@ export function EdgeContextMenu({
 }: EdgeContextMenuProps) {
   const { deleteEdge, insertRerouteAt } = useGraphCanvasActions()
   const menu = useCanvasMenu()
+  const t = useT()
 
   return (
     <ContextMenu onOpenChange={menu.onOpenChange}>
@@ -57,7 +59,7 @@ export function EdgeContextMenu({
                 })
               }}
             >
-              Insert reroute
+              {t('edge.insertReroute')}
             </ContextMenuItem>
             <ContextMenuSeparator />
           </>
@@ -70,7 +72,7 @@ export function EdgeContextMenu({
             })
           }}
         >
-          Delete connection
+          {t('edge.delete')}
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
       </CanvasMenuContent>

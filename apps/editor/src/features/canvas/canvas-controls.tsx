@@ -2,6 +2,8 @@ import type { LucideIcon } from 'lucide-react'
 import { Maximize, Minus, Plus } from 'lucide-react'
 import { Panel, useReactFlow } from '@xyflow/react'
 
+import { commandLabelKey } from '@/features/command-palette/command-text'
+import { useT } from '@/i18n/use-t'
 import { Button } from '@/shared/ui/button'
 import { ButtonGroup } from '@/shared/ui/button-group'
 import { Kbd } from '@/shared/ui/kbd'
@@ -44,26 +46,27 @@ function ControlButton({ label, icon: Icon, shortcut, onClick }: ControlButtonPr
 export function CanvasControls() {
   const { zoomIn, zoomOut } = useReactFlow()
   const view = usePanelAwareView()
+  const t = useT()
 
   return (
     <Panel position="bottom-left">
-      <ButtonGroup orientation="vertical" aria-label="Canvas view">
+      <ButtonGroup orientation="vertical" aria-label={t('canvas.controls')}>
         <ControlButton
-          label="Zoom canvas in"
+          label={t('canvas.zoomIn')}
           icon={Plus}
           onClick={() => {
             void zoomIn()
           }}
         />
         <ControlButton
-          label="Zoom canvas out"
+          label={t('canvas.zoomOut')}
           icon={Minus}
           onClick={() => {
             void zoomOut()
           }}
         />
         <ControlButton
-          label="Fit all nodes in view"
+          label={t(commandLabelKey('fit-view'))}
           icon={Maximize}
           shortcut="F"
           // Same fit as the F key and the canvas menu, clear of the panels as they are now.

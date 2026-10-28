@@ -9,6 +9,7 @@ import {
 } from '@/shared/components/color-picker/color-math'
 import type { Rgb } from '@/shared/components/color-picker/color-math'
 import { Label } from '@/shared/ui/label'
+import { useT } from '@/i18n/use-t'
 
 import { getThemeBackgroundHex, subscribeToThemeBackground } from './theme-background'
 
@@ -50,16 +51,17 @@ const linearToHex = (linear: Rgb): string => srgbToHex(linearToSrgb(linear))
 
 export function BackgroundColorField({ color }: { color: BackgroundColor }) {
   const swatchId = useId()
+  const t = useT()
 
   return (
     // The same rhythm as a node's color row: label, then the hex value and swatch, 12px apart.
     <div className="flex items-center gap-3">
       <Label htmlFor={swatchId} className="text-xs font-normal text-muted-foreground">
-        Background
+        {t('preview.background')}
       </Label>
       <ColorPicker
         id={swatchId}
-        label="Background color"
+        label={t('preview.backgroundColor')}
         value={hexToLinear(color.committed)}
         onPreview={(linear) => {
           color.preview(linearToHex(linear))

@@ -1,6 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
 import { Columns2, Maximize2, PictureInPicture2 } from 'lucide-react'
 
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useEditorStore } from '@/store/editor-store'
@@ -9,14 +11,14 @@ import { PREVIEW_LAYOUTS, effectivePreviewLayout } from './panel-state'
 import type { PreviewLayout } from './panel-state'
 
 interface LayoutOption {
-  readonly label: string
+  readonly label: MessageKey
   readonly icon: LucideIcon
 }
 
 const LAYOUT_OPTIONS: Readonly<Record<PreviewLayout, LayoutOption>> = {
-  docked: { label: 'Docked', icon: PictureInPicture2 },
-  split: { label: 'Split', icon: Columns2 },
-  full: { label: 'Full', icon: Maximize2 },
+  docked: { label: 'previewLayout.docked', icon: PictureInPicture2 },
+  split: { label: 'previewLayout.split', icon: Columns2 },
+  full: { label: 'previewLayout.full', icon: Maximize2 },
 }
 
 function isPreviewLayout(value: string): value is PreviewLayout {
@@ -29,6 +31,7 @@ function isPreviewLayout(value: string): value is PreviewLayout {
  */
 export function PreviewLayoutPicker() {
   const layout = useEditorStore((state) => effectivePreviewLayout(state.panels))
+  const t = useT()
   const setPreviewLayout = (next: PreviewLayout): void => {
     useEditorStore.getState().setPreviewLayout(next)
   }
@@ -38,7 +41,7 @@ export function PreviewLayoutPicker() {
       type="single"
       size="sm"
       spacing={0}
-      aria-label="Preview layout"
+      aria-label={t('previewLayout.label')}
       // Shift+P cycles the three layouts; the shortcuts dialog lists it too.
       aria-keyshortcuts="Shift+P"
       value={layout}
@@ -48,7 +51,8 @@ export function PreviewLayoutPicker() {
       }}
     >
       {PREVIEW_LAYOUTS.map((item) => {
-        const { label, icon: Icon } = LAYOUT_OPTIONS[item]
+        const { label: labelKey, icon: Icon } = LAYOUT_OPTIONS[item]
+        const label = t(labelKey)
         return (
           // The tooltip trigger writes its own data-state over the item's, so the checked style keys
           // off aria-checked, which only the radio sets.

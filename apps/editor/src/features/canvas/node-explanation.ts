@@ -1,5 +1,7 @@
 import type { AnyNodeDefinition, DataType, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
 
+import type { Translate } from '@/i18n/translate'
+
 /** The node and output feeding a connected input. */
 export interface PortSource {
   readonly nodeTitle: string
@@ -16,9 +18,9 @@ export interface PortExplanation {
   readonly source: PortSource | null
 }
 
-/** "from Noise · Out". */
-export function describePortSource(source: PortSource): string {
-  return `from ${source.nodeTitle} · ${source.portLabel}`
+/** "from Noise · Out", in the UI language. */
+export function describePortSource(source: PortSource, t: Translate): string {
+  return t('port.source', { node: source.nodeTitle, port: source.portLabel })
 }
 
 /**
@@ -26,20 +28,25 @@ export function describePortSource(source: PortSource): string {
  * in its accessible name, so only the meaning and the source are added. A comma stands in for the
  * middle dot, which screen readers spell out.
  */
-export function portAccessibleDescription(explanation: PortExplanation): string | null {
+export function portAccessibleDescription(
+  explanation: PortExplanation,
+  t: Translate,
+): string | null {
   const { description, source } = explanation
   const parts = [
     description,
-    source === null ? null : `From ${source.nodeTitle}, ${source.portLabel}.`,
+    source === null
+      ? null
+      : t('port.sourceSentence', { node: source.nodeTitle, port: source.portLabel }),
   ].filter((part): part is string => part !== null && part !== '')
   return parts.length === 0 ? null : parts.join(' ')
 }
 
 /** What a focused node announces after its name: what it does, then its formula if it has one. */
-export function nodeAccessibleDescription(definition: AnyNodeDefinition): string {
+export function nodeAccessibleDescription(definition: AnyNodeDefinition, t: Translate): string {
   return definition.formula === undefined
     ? definition.description
-    : `${definition.description} Formula: ${definition.formula}.`
+    : t('node.withFormula', { description: definition.description, formula: definition.formula })
 }
 
 /** The tooltip content of an input, with what feeds it when it is connected. */

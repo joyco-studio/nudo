@@ -20,6 +20,8 @@ import { pasteFromClipboard } from '@/features/shortcuts/clipboard'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 
 import { CHAIN_DIMMED_CLASS, chainClassOf, selectionChain } from './chain-highlight'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
@@ -86,6 +88,9 @@ export function GraphCanvasContainer() {
   const [selectedEdgeIds, setSelectedEdgeIds] = useState<readonly string[]>([])
   // Live sizes while a comment frame's resizer is dragged; the store gets the final one.
   const [draftSizes, setDraftSizes] = useState<Readonly<Record<string, Dimensions>>>({})
+  // Names in the UI language; types and connection checks use the store's registry.
+  const nodeRegistry = useNodeRegistry()
+  const t = useT()
 
   const types = useMemo(() => resolvePortTypes(graph, registry), [graph])
   // A node being dragged (or nudged, or tidied into place) shows no chain: it would flicker.
@@ -95,8 +100,8 @@ export function GraphCanvasContainer() {
     [graph, selectedNodeIds, isMoving],
   )
   const flow = useMemo(
-    () => toFlow(graph, registry, types, draftPositions, errorsByNode, selectedNodeIds),
-    [graph, types, draftPositions, errorsByNode, selectedNodeIds],
+    () => toFlow(graph, nodeRegistry, types, draftPositions, errorsByNode, selectedNodeIds, t),
+    [graph, nodeRegistry, types, draftPositions, errorsByNode, selectedNodeIds, t],
   )
   const nodes = useMemo(
     () =>
@@ -206,7 +211,8 @@ export function GraphCanvasContainer() {
   const actions = useMemo<GraphCanvasActions>(
     () => ({
       ...storeFieldActions,
-      listConnectCandidates: (origin) => listConnectCandidates(getStore().graph, registry, origin),
+      listConnectCandidates: (origin) =>
+        listConnectCandidates(getStore().graph, nodeRegistry, origin),
       connectPorts: (origin, target) => {
         const [from, to] = origin.side === 'output' ? [origin.ref, target] : [target, origin.ref]
         getStore().connect(from, to)
@@ -234,7 +240,7 @@ export function GraphCanvasContainer() {
         openAddNodeMenu({ kind: 'cursor', ...point }, null)
       },
     }),
-    [screenToFlowPosition, openAddNodeMenu],
+    [screenToFlowPosition, openAddNodeMenu, nodeRegistry],
   )
 
   return (

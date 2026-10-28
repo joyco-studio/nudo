@@ -4,17 +4,18 @@ import type { Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ThemeProvider } from '@/app/theme-provider'
+import { translateEnglish } from '@/i18n/translate'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 import type { Notice } from '@/store/store-types'
 
 import { NoticeToaster } from './notice-toaster'
 
-const MASTER_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
-const CONNECT_NOTICE: Notice = { kind: 'error', message: "Couldn't connect those ports." }
+const MASTER_NOTICE: Notice = { kind: 'info', messageKey: 'notice.masterDelete' }
+const CONNECT_NOTICE: Notice = { kind: 'error', messageKey: 'notice.connectFailed' }
 const RESTORE_NOTICE: Notice = {
   kind: 'error',
-  message: "Couldn't restore your last session, so we started a new graph.",
+  messageKey: 'notice.restoreFailed',
   persistent: true,
 }
 const CLOSE_BUTTON_NAME = 'Close notification'
@@ -90,7 +91,7 @@ describe('NoticeToaster', () => {
 
     showNotice(MASTER_NOTICE)
 
-    await expectToasts([MASTER_NOTICE.message])
+    await expectToasts([translateEnglish(MASTER_NOTICE.messageKey)])
   })
 
   it('announces toasts through a polite live region labelled with the hotkey', () => {
@@ -107,11 +108,13 @@ describe('NoticeToaster', () => {
 
     showNotice(CONNECT_NOTICE)
     await vi.waitFor(() => {
-      expect(firstToast().querySelector('[role="alert"]')?.textContent).toBe(CONNECT_NOTICE.message)
+      expect(firstToast().querySelector('[role="alert"]')?.textContent).toBe(
+        translateEnglish(CONNECT_NOTICE.messageKey),
+      )
     })
 
     showNotice(MASTER_NOTICE)
-    await expectToasts([MASTER_NOTICE.message])
+    await expectToasts([translateEnglish(MASTER_NOTICE.messageKey)])
     expect(firstToast().querySelector('[role="alert"]')).toBeNull()
   })
 
@@ -121,7 +124,7 @@ describe('NoticeToaster', () => {
     mount()
 
     await vi.waitFor(() => {
-      expect(toastTexts().join()).toContain(RESTORE_NOTICE.message)
+      expect(toastTexts().join()).toContain(translateEnglish(RESTORE_NOTICE.messageKey))
     })
   })
 
@@ -180,7 +183,7 @@ describe('NoticeToaster', () => {
 
     await vi.waitFor(() => {
       expect(toastTexts()).toHaveLength(1)
-      expect(toastTexts().join()).toContain(CONNECT_NOTICE.message)
+      expect(toastTexts().join()).toContain(translateEnglish(CONNECT_NOTICE.messageKey))
     })
   })
 

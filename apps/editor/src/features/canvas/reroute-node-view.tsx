@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { NodeProps } from '@xyflow/react'
 
+import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 
@@ -19,6 +20,7 @@ const SELECTED_KNOT_CLASS =
  * knot's ring take the type color, and the knot shows the type as text (`1`…`4`), like a port.
  */
 function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
+  const t = useT()
   const [input] = data.definition.inputs
   const [output] = data.definition.outputs
   const dataType = output === undefined ? undefined : data.outputTypes[output.id]
@@ -29,7 +31,7 @@ function RerouteNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
     <NodeContextMenu data={data}>
       <div className="reroute-node relative flex h-6 w-10 items-center justify-center">
         <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-          {nodeAccessibleDescription(data.definition)}
+          {nodeAccessibleDescription(data.definition, t)}
         </p>
         <span
           aria-hidden="true"

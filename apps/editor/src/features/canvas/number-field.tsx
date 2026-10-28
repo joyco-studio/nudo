@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
@@ -20,7 +21,6 @@ const SCRUB_STEP_PER_PX = 0.01
 const SHIFT_SCRUB_STEP_PER_PX = 0.1
 /** The scrub hint waits, so it never flashes up while the pointer passes over a row. */
 const SCRUB_HINT_DELAY_MS = 700
-const SCRUB_HINT = 'Drag to change'
 
 interface NumberFieldSizeClasses {
   readonly rowLabel: string
@@ -97,6 +97,7 @@ export function NumberField({
   onScrubPreviewEnd,
 }: NumberFieldProps) {
   const inputId = useId()
+  const t = useT()
   const sizeClasses = SIZE_CLASSES[useFieldSize()]
   const [draftText, setDraftText] = useState<string | null>(null)
   const [scrubValue, setScrubValue] = useState<number | null>(null)
@@ -214,11 +215,11 @@ export function NumberField({
         <Tooltip delayDuration={SCRUB_HINT_DELAY_MS}>
           <TooltipTrigger asChild>{scrubLabel}</TooltipTrigger>
           <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
-            {SCRUB_HINT}
+            {t('field.dragToChange')}
           </TooltipContent>
         </Tooltip>
       ) : (
-        <PortTooltip explanation={explanation} hint={SCRUB_HINT}>
+        <PortTooltip explanation={explanation} hint={t('field.dragToChange')}>
           {scrubLabel}
         </PortTooltip>
       )}

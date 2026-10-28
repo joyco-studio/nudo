@@ -9,12 +9,9 @@ import type { Notice } from '@/store/store-types'
 /** Where pasted and duplicated nodes land relative to the nodes they were copied from. */
 export const PASTE_OFFSET: XY = { x: 40, y: 40 }
 
-const NOT_NUDO_NOTICE: Notice = {
-  kind: 'info',
-  message: "Clipboard doesn't contain nudo-tsl nodes",
-}
-const COPY_FAILED_NOTICE: Notice = { kind: 'error', message: "Couldn't copy to the clipboard" }
-const PASTE_FAILED_NOTICE: Notice = { kind: 'error', message: "Couldn't read the clipboard" }
+const NOT_NUDO_NOTICE: Notice = { kind: 'info', messageKey: 'notice.notNudo' }
+const COPY_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.copyFailed' }
+const PASTE_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.pasteFailed' }
 
 const getStore = () => useEditorStore.getState()
 

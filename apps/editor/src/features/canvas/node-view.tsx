@@ -4,6 +4,7 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { TriangleAlert } from 'lucide-react'
 
+import { useT } from '@/i18n/use-t'
 import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
@@ -51,6 +52,7 @@ interface InputRowProps {
 
 function InputRow({ data, row }: InputRowProps) {
   const { input, disabledHint } = row
+  const t = useT()
   const dataType = data.inputTypes[input.id]
   if (dataType === undefined) return null
   const isConnected = data.connectedInputs.has(input.id)
@@ -77,7 +79,7 @@ function InputRow({ data, row }: InputRowProps) {
       {isDisabled ? (
         <>
           <PortLabel label={input.label} isMuted explanation={explanation} />
-          <MutedHint>{disabledHint}</MutedHint>
+          <MutedHint>{t(disabledHint)}</MutedHint>
         </>
       ) : isConnected ? (
         <PortLabel label={input.label} explanation={explanation} />
@@ -124,6 +126,7 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
 /** A titled group (Master Stack "Vertex", "Fragment") is a labelled group, not a landmark. */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
   const headingId = useId()
+  const t = useT()
   if (group.rows.length === 0) return null
   const list = (
     <ul>
@@ -139,7 +142,7 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
         id={headingId}
         className="px-3 pt-2 pb-0.5 font-mono text-micro tracking-[0.2em] text-muted-foreground uppercase"
       >
-        {group.title}
+        {t(group.title)}
       </h3>
       {list}
     </div>
@@ -149,6 +152,7 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
 /** Disclosure for the unconnected ports: the universal `collapsed` param, which never recompiles. */
 function CollapseToggle({ data }: { data: FlowNodeData }) {
   const { setParam } = useGraphCanvasActions()
+  const t = useT()
   const isCollapsed = isNodeCollapsed(data)
 
   return (
@@ -159,7 +163,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           static
           variant="ghost"
           size="icon-xs"
-          aria-label="Unconnected ports"
+          aria-label={t('node.portsToggle')}
           aria-expanded={!isCollapsed}
           onClick={() => {
             setParam({ nodeId: data.node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
@@ -169,7 +173,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           <DisclosureChevron isOpen={!isCollapsed} />
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">{portsToggleLabel(isCollapsed)}</TooltipContent>
+      <TooltipContent side="top">{t(portsToggleLabel(isCollapsed))}</TooltipContent>
     </Tooltip>
   )
 }
@@ -224,6 +228,7 @@ function nodeFrameClass(data: FlowNodeData, selected: boolean): string {
 
 /** A Blackboard property reader: one row with the property label, its type and the output. */
 function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolean }) {
+  const t = useT()
   const [output] = data.definition.outputs
   const dataType = output === undefined ? undefined : data.outputTypes[output.id]
   if (output === undefined || dataType === undefined) return null
@@ -235,7 +240,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
         className={cn(nodeFrameClass(data, selected), 'w-44')}
       >
         <p id={nodeDescriptionId(data.node.id)} className="sr-only">
-          {nodeAccessibleDescription(data.definition)}
+          {nodeAccessibleDescription(data.definition, t)}
         </p>
         <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
           <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
@@ -260,6 +265,7 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
 /** A graph node: header, params, outputs on the right, inputs (with inline fields) on the left. */
 function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const { definition, node, outputTypes, error } = data
+  const t = useT()
   if (definition.reads === 'property') return <PropertyPill data={data} selected={selected} />
 
   const params = bodyParams(definition.params)
@@ -274,7 +280,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
         className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
       >
         <p id={nodeDescriptionId(node.id)} className="sr-only">
-          {nodeAccessibleDescription(definition)}
+          {nodeAccessibleDescription(definition, t)}
         </p>
         <NodeHeader data={data} />
         {params.length > 0 && <ParamFields node={node} params={params} />}

@@ -2,6 +2,8 @@ import { asNodeId } from '@nudo-tsl/core'
 import type { NodeId } from '@nudo-tsl/core'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { es } from '@/i18n/messages/es'
+import { createTranslator, isMessageKey, translateEnglish } from '@/i18n/translate'
 import { useEditorStore } from '@/store/editor-store'
 import { PANEL_IDS } from '@/features/panels/panel-state'
 import { PANEL_SHORTCUT_KEYS } from '@/features/panels/panel-shortcut-action'
@@ -22,6 +24,8 @@ import {
   placementNear,
 } from './command-registry'
 import type { CommandServices } from './command-registry'
+import { searchCommands } from './command-search'
+import { commandLabelKey, commandMenuLabelKey } from './command-text'
 
 function idsOf(commands: readonly { readonly id: string }[]): readonly string[] {
   return commands.map((command) => command.id)
@@ -51,9 +55,36 @@ describe('command registry', () => {
   it('derives catalog rows from the commands: same chords, the command label by default', () => {
     const rows = SHORTCUT_SECTIONS.flatMap((section) => section.entries)
     const undo = findCommand('undo')
-    expect(rows).toContainEqual({ action: undo?.label, chords: undo?.shortcut })
-    const layout = findCommand('cycle-preview-layout')
-    expect(rows).toContainEqual({ action: layout?.label, chords: [['Shift', 'P']] })
+    expect(rows).toContainEqual({ action: 'command.undo.label', chords: undo?.shortcut })
+    expect(rows).toContainEqual({
+      action: 'command.cycle-preview-layout.label',
+      chords: [['Shift', 'P']],
+    })
+  })
+
+  it('names every command, and its context menu name, in both languages', () => {
+    for (const command of COMMANDS) {
+      expect(translateEnglish(commandLabelKey(command.id)), command.id).not.toBe('')
+      expect(isMessageKey(commandMenuLabelKey(command)), command.id).toBe(true)
+    }
+  })
+
+  it('finds a command by its words in the UI language and in English', () => {
+    const spanish = createTranslator(es)
+    const ids = (query: string) => searchCommands(PALETTE_COMMANDS, query, spanish).map((c) => c.id)
+    expect(ids('deshacer')).toEqual(['undo'])
+    expect(ids('undo')).toEqual(['undo'])
+    expect(ids('español')).toEqual(['language-es'])
+    expect(ids('espanol')).toEqual(['language-es'])
+    expect(ids('ingles')).toEqual(['language-en'])
+  })
+
+  it('switches the language through the services', () => {
+    const chosen: string[] = []
+    const services: CommandServices = { ...NO_SERVICES, setLocale: (locale) => chosen.push(locale) }
+    findCommand('language-es')?.run({ ...UNTARGETED, services })
+    findCommand('language-en')?.run({ ...UNTARGETED, services })
+    expect(chosen).toEqual(['es', 'en'])
   })
 
   it('backs every editor-wide key with a command that shows it', () => {
@@ -83,6 +114,7 @@ const NO_SERVICES: CommandServices = {
   frameNodes: () => undefined,
   tidyUp: () => undefined,
   toggleTheme: () => undefined,
+  setLocale: () => undefined,
   openShortcutsDialog: () => undefined,
   requestNewGraph: () => undefined,
   openAddNodeMenu: () => undefined,

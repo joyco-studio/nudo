@@ -14,6 +14,7 @@ import {
   PREVIEW_PANEL_ID,
   useSplitLayout,
 } from '@/features/panels/use-split-layout'
+import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useMediaQuery } from '@/shared/lib/use-media-query'
@@ -99,11 +100,12 @@ export function AppShell({
   const isPreviewFilling = layout !== 'docked'
   const isWide = useMediaQuery(WIDE_QUERY)
   const split = useSplitLayout(layout === 'split')
+  const t = useT()
   const blackboardPanel = (
     <PanelFrame
       panel="blackboard"
-      title="Properties"
-      description="Named values you can reuse and expose as uniforms"
+      title={t('panel.blackboard.title')}
+      description={t('panel.blackboard.description')}
       edge="left"
       headerActions={blackboardActions}
       isHidden={layout === 'full'}
@@ -147,7 +149,7 @@ export function AppShell({
             {isWide && blackboardPanel}
             <main
               id={CANVAS_ID}
-              aria-label="Node canvas"
+              aria-label={t('app.canvas')}
               tabIndex={-1}
               data-focus-ring="inset"
               className="absolute inset-0"
@@ -168,7 +170,7 @@ export function AppShell({
             {!isWide && blackboardPanel}
             <PanelFrame
               panel="inspector"
-              title="Inspector"
+              title={t('panel.inspector.title')}
               edge="right"
               isHidden={layout === 'full'}
               // Beside the canvas the Inspector gives way to the preview and scrolls, down to a few
@@ -184,8 +186,8 @@ export function AppShell({
             <div className={cn('flex min-h-0 flex-col', PREVIEW_SLOT_CLASSES[layout])}>
               <PanelFrame
                 panel="preview"
-                title="Preview"
-                regionLabel="Main preview"
+                title={t('panel.preview.title')}
+                regionLabel={t('panel.preview.region')}
                 edge="right"
                 headerActions={<PreviewLayoutPicker />}
                 // Full covers the canvas: an opaque surface, so nothing ghosts through it.
@@ -200,7 +202,7 @@ export function AppShell({
         {/* Over the canvas, pinned to its bottom edge, after the column in the tab order. */}
         <PanelFrame
           panel="code"
-          title="Code"
+          title={t('panel.code.title')}
           edge="bottom"
           isHidden={layout === 'full'}
           className={cn(
@@ -219,12 +221,13 @@ export function AppShell({
 
 /** Parked above the viewport until focused, then it covers the wordmark slot. */
 function SkipToCanvasLink() {
+  const t = useT()
   return (
     <a
       href={`#${CANVAS_ID}`}
       className="absolute top-4 left-4 z-50 flex h-8 -translate-y-16 items-center bg-primary px-3 text-sm font-medium text-primary-foreground focus:translate-y-0"
     >
-      Skip to canvas
+      {t('app.skipToCanvas')}
     </a>
   )
 }
@@ -257,13 +260,14 @@ function AppHeader({ actions }: AppHeaderProps) {
  */
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const t = useT()
   const isDark = theme === 'dark'
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Toggle
-          aria-label="Dark theme"
+          aria-label={t('theme.toggle')}
           pressed={isDark}
           onPressedChange={toggleTheme}
           className="size-8 min-w-8 rounded-none bg-accent p-0 text-accent-foreground hover:bg-accent/80 hover:text-accent-foreground aria-pressed:bg-accent data-[state=on]:bg-accent"
@@ -273,9 +277,7 @@ function ThemeToggle() {
           </IconSwap>
         </Toggle>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        {isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      </TooltipContent>
+      <TooltipContent side="bottom">{t(isDark ? 'theme.toLight' : 'theme.toDark')}</TooltipContent>
     </Tooltip>
   )
 }

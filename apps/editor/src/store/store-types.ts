@@ -16,6 +16,8 @@ import type {
 } from '@nudo-tsl/core'
 import type { StateCreator } from 'zustand'
 
+import type { MessageKey } from '@/i18n/translate'
+
 import type { PropertyKind } from '@/features/blackboard/property-kinds'
 import type {
   NonFullPreviewLayout,
@@ -85,7 +87,8 @@ export interface PropertySlice {
 
 export interface Notice {
   kind: 'info' | 'error'
-  message: string
+  /** Shown in the UI language when the toast renders. */
+  messageKey: MessageKey
   /**
    * The person has to acknowledge it: its toast never closes by itself and offers a Dismiss
    * action instead of a close button.

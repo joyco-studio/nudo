@@ -1,6 +1,9 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { Graph } from '@nudo-tsl/core'
 
+import { plural } from '@/i18n/translate'
+import type { Translate } from '@/i18n/translate'
+
 export interface GraphContents {
   /** Nodes besides the master, which a new graph keeps. */
   readonly nodeCount: number
@@ -19,15 +22,18 @@ export function hasWorkToLose(contents: GraphContents): boolean {
   return contents.nodeCount > 0 || contents.propertyCount > 0
 }
 
-function counted(count: number, singular: string, plural: string): string {
-  return `${String(count)} ${count === 1 ? singular : plural}`
-}
-
-/** "2 nodes and 1 property": what starting a new graph clears. */
-export function describeGraphContents(contents: GraphContents): string {
-  const parts = [
-    contents.nodeCount > 0 ? counted(contents.nodeCount, 'node', 'nodes') : null,
-    contents.propertyCount > 0 ? counted(contents.propertyCount, 'property', 'properties') : null,
-  ].filter((part) => part !== null)
-  return parts.join(' and ')
+/** "2 nodes and 1 property": what starting a new graph clears, in the UI language. */
+export function describeGraphContents(contents: GraphContents, t: Translate): string {
+  const { nodeCount, propertyCount } = contents
+  const nodes = t(plural(nodeCount, { one: 'newGraph.nodes.one', other: 'newGraph.nodes.other' }), {
+    count: nodeCount,
+  })
+  const properties = t(
+    plural(propertyCount, { one: 'newGraph.properties.one', other: 'newGraph.properties.other' }),
+    { count: propertyCount },
+  )
+  if (nodeCount > 0 && propertyCount > 0) {
+    return t('newGraph.and', { first: nodes, second: properties })
+  }
+  return nodeCount > 0 ? nodes : properties
 }
