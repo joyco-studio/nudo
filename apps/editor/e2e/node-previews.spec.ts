@@ -33,6 +33,10 @@ const MEASURE_MS = 3000
 const MIN_ON_SCREEN_PREVIEWS = 6
 const PREVIEW_FPS_CAP = 20
 
+/** Longer than one second, after which raw Time seconds would read as solid white. */
+const SATURATION_WAIT_MS = 1500
+const WHITE_CHANNEL = 250
+
 /** Long enough to cover a few 20 fps frames, short enough to land inside one sawtooth tooth. */
 const ANIMATION_SAMPLE_GAP_MS = 250
 
@@ -79,6 +83,22 @@ async function previewStatuses(page: Page): Promise<(string | null)[]> {
     .evaluateAll((frames) => frames.map((frame) => frame.getAttribute('data-preview-status')))
 }
 
+/** A preview whose picture changes between two samples a few frames apart. */
+async function expectAnimates(page: Page, preview: Locator): Promise<void> {
+  await expect(preview).toBeVisible()
+  await expect.poll(async () => (await centerPixel(preview)).a).toBe(255)
+  const first = await centerPixel(preview)
+  await expect
+    .poll(
+      async () => {
+        await page.waitForTimeout(ANIMATION_SAMPLE_GAP_MS)
+        return (await centerPixel(preview)).r
+      },
+      { timeout: 5000 },
+    )
+    .not.toBe(first.r)
+}
+
 async function storedShowPreview(page: Page, nodeId: string): Promise<unknown> {
   const node = (await readStoredNodes(page)).find((stored) => stored.id === nodeId)
   return node?.params.showPreview
@@ -104,9 +124,20 @@ test.describe('node previews', () => {
     await page.goto('/')
 
     const preview = nodePreview(page, 'Fract')
-    await expect(preview).toBeVisible()
-    await expect.poll(async () => (await centerPixel(preview)).a).toBe(255)
-    const first = await centerPixel(preview)
+    await expectAnimates(page, preview)
+    // Fract is grey: every channel carries the same value.
+    const later = await centerPixel(preview)
+    expect(later.g).toBe(later.r)
+  })
+
+  test("the time node's own preview loops instead of saturating to white", async ({ page }) => {
+    await seedAutosave(page, TIME_TO_FRACT)
+    await page.goto('/')
+
+    const preview = nodePreview(page, 'Time')
+    await expectAnimates(page, preview)
+    // Well past one second, raw seconds would be white for good; the looped value keeps dipping.
+    await page.waitForTimeout(SATURATION_WAIT_MS)
     await expect
       .poll(
         async () => {
@@ -115,10 +146,7 @@ test.describe('node previews', () => {
         },
         { timeout: 5000 },
       )
-      .not.toBe(first.r)
-    // Fract is grey: every channel carries the same value.
-    const later = await centerPixel(preview)
-    expect(later.g).toBe(later.r)
+      .toBeLessThan(WHITE_CHANNEL)
   })
 
   test('toggle hides preview', async ({ page }) => {

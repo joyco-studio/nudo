@@ -567,6 +567,44 @@ describe('preview engine errors', () => {
   })
 })
 
+describe('combined value updates', () => {
+  it('applies a value change in place even when the same update removes a value elsewhere', async () => {
+    const graph = graphWith([
+      ['x', 'input/color'],
+      ['y', 'input/color'],
+    ])
+    const withValues = unwrap(
+      setInputValue(
+        unwrap(setInputValue(graph, port('x', 'color'), vec3(1, 0, 0))),
+        port('y', 'color'),
+        vec3(0, 0, 1),
+      ),
+    )
+    const harness = setUp()
+    harness.engine.update(withValues)
+    harness.show(port('x', 'out'))
+    harness.show(port('y', 'out'))
+    await harness.settle()
+
+    // One update: X loses its inline value while Y's value changes.
+    const changedY = unwrap(setInputValue(withValues, port('y', 'color'), vec3(0, 1, 0)))
+    const nodeX = changedY.nodes[id('x')]
+    if (nodeX === undefined) throw new Error('No node x')
+    harness.engine.update({
+      ...changedY,
+      nodes: { ...changedY.nodes, [nodeX.id]: { ...nodeX, inputValues: {} } },
+    })
+    await harness.manual.frame()
+
+    expect(harness.latestBuildOf('y').uniforms.get('y:color')?.value).toEqual(new Vector3(0, 1, 0))
+    expect(harness.buildsOf('y')).toBe(1)
+    await harness.manual.frame(REBUILD_DELAY_MS)
+    await harness.settle()
+    expect(harness.buildsOf('x')).toBe(2)
+    expect(harness.buildsOf('y')).toBe(1)
+  })
+})
+
 const isMesh = (object: Object3D): object is Mesh => object instanceof Mesh
 
 describe('preview engine lifecycle', () => {

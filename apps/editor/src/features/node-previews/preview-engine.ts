@@ -5,11 +5,7 @@ import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 import { Mesh, Scene } from 'three'
 import type { Camera, ColorRepresentation, Object3D } from 'three'
 
-import {
-  changedProperties,
-  diffInlineValues,
-  nodesWithRemovedValues,
-} from '@/shared/lib/graph-value-diff'
+import { changedProperties, partitionInlineValues } from '@/shared/lib/graph-value-diff'
 import type { RendererBackend } from '@/features/main-preview/create-renderer'
 import { registry as defaultRegistry } from '@/store/registry'
 
@@ -351,11 +347,10 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
   }
 
   const applyValueChanges = (previous: Graph, next: Graph): void => {
-    const changes = diffInlineValues(previous, next)
-    if (changes === null) {
-      rebuildReaders(next, nodesWithRemovedValues(previous, next), () => true)
-      return
-    }
+    // Each preview reads only its upstream, so a lost value rebuilds just its readers while every
+    // other change still goes into the uniforms in place.
+    const { changes, nodesWithRemovedValues } = partitionInlineValues(previous, next)
+    rebuildReaders(next, nodesWithRemovedValues, () => true)
     for (const { ref, value } of changes) {
       applyToEntries((build) => applyInputValue(build.uniforms, ref, value))
     }

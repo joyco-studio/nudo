@@ -1,4 +1,4 @@
-import type { DataType, TslFacade } from '@nudo-tsl/core'
+import type { DataType, OutputPreview, TslFacade } from '@nudo-tsl/core'
 
 type PreviewFacade<E> = Pick<TslFacade<E>, 'construct' | 'swizzle' | 'textureSample' | 'builtin'>
 
@@ -19,4 +19,16 @@ export function toPreviewColor<E>(tsl: PreviewFacade<E>, value: E, type: DataTyp
     case 'texture':
       return tsl.swizzle(tsl.textureSample(value, tsl.builtin('uv'), null), 'xyz')
   }
+}
+
+/**
+ * Applies an output's preview hint before it is shown: `repeat` loops a value that only grows
+ * (seconds) through its fractional part. Display only, so materials and code never see it.
+ */
+export function toPreviewValue<E>(
+  tsl: Pick<TslFacade<E>, 'fract'>,
+  value: E,
+  preview: OutputPreview | undefined,
+): E {
+  return preview === 'repeat' ? tsl.fract(value) : value
 }

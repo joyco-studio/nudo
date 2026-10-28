@@ -14,43 +14,47 @@ function connectedInputKeys(graph: Graph): ReadonlySet<PortKey> {
   return new Set(Object.values(graph.edges).map((edge) => portKey(edge.to)))
 }
 
+export interface InlineValueDiff {
+  /** Values that changed (or appeared) on unconnected inputs: each fits a uniform in place. */
+  readonly changes: readonly InlineValueChange[]
+  /** Nodes that lost an inline value, which no uniform can represent: their readers rebuild. */
+  readonly nodesWithRemovedValues: ReadonlySet<NodeId>
+}
+
 /**
- * Inline values that differ between two graphs of the same topology, or `null` when a value
- * disappeared (no uniform can represent that). A connected input's inline value is ignored by the
- * compiler, so changing it needs no uniform.
+ * Splits what changed between two graphs of the same topology into values that fit a uniform in
+ * place and nodes that lost a value. A connected input's inline value is ignored by the compiler,
+ * so changing it needs no uniform.
  */
-export function diffInlineValues(
-  previous: Graph,
-  next: Graph,
-): readonly InlineValueChange[] | null {
+export function partitionInlineValues(previous: Graph, next: Graph): InlineValueDiff {
   const connected = connectedInputKeys(next)
   const changes: InlineValueChange[] = []
+  const nodesWithRemovedValues = new Set<NodeId>()
 
   for (const node of Object.values(next.nodes)) {
     const previousValues = previous.nodes[node.id]?.inputValues ?? {}
-    if (Object.keys(previousValues).some((portId) => !(portId in node.inputValues))) return null
+    if (Object.keys(previousValues).some((portId) => !(portId in node.inputValues))) {
+      nodesWithRemovedValues.add(node.id)
+    }
     for (const [portId, value] of Object.entries(node.inputValues)) {
       const ref: PortRef = { nodeId: node.id, portId }
       if (previousValues[portId] === value || connected.has(portKey(ref))) continue
       changes.push({ ref, value })
     }
   }
-  return changes
+  return { changes, nodesWithRemovedValues }
 }
 
 /**
- * The nodes that lost an inline value between two graphs: what `diffInlineValues` cannot express
- * in place, so whatever reads those nodes has to be built again.
+ * Inline values that differ between two graphs of the same topology, or `null` when a value
+ * disappeared anywhere: the one material that reads the whole graph must then be built again.
  */
-export function nodesWithRemovedValues(previous: Graph, next: Graph): ReadonlySet<NodeId> {
-  const nodeIds = new Set<NodeId>()
-  for (const node of Object.values(next.nodes)) {
-    const previousValues = previous.nodes[node.id]?.inputValues ?? {}
-    if (Object.keys(previousValues).some((portId) => !(portId in node.inputValues))) {
-      nodeIds.add(node.id)
-    }
-  }
-  return nodeIds
+export function diffInlineValues(
+  previous: Graph,
+  next: Graph,
+): readonly InlineValueChange[] | null {
+  const { changes, nodesWithRemovedValues } = partitionInlineValues(previous, next)
+  return nodesWithRemovedValues.size > 0 ? null : changes
 }
 
 /** Blackboard properties whose value differs between two graphs, matched by id. */

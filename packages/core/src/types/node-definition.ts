@@ -37,12 +37,23 @@ export interface InputDefinition<I extends string> {
   readonly description?: string
 }
 
+/**
+ * How a node preview displays an output, when its raw value would not read well:
+ * - `repeat`: the value only grows (seconds), so the preview shows its fractional part and loops
+ *   once per unit instead of saturating to white.
+ *
+ * Display only: it never changes the compiled material or the generated code.
+ */
+export type OutputPreview = 'repeat'
+
 export interface OutputDefinition<O extends string> {
   readonly id: O
   readonly label: string
   readonly type: PortTypeSpec
   /** What the output carries, in one short sentence an artist reads in the port tooltip. */
   readonly description?: string
+  /** Optional preview display hint; absent means the preview shows the value as it is. */
+  readonly preview?: OutputPreview
 }
 
 export interface BuildContext<E, I extends string> {
