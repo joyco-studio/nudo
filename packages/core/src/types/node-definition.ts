@@ -37,12 +37,23 @@ export interface InputDefinition<I extends string> {
   readonly description?: string
 }
 
+/**
+ * How a node preview displays an output, when its raw value would not read well:
+ * - `repeat`: the value only grows (seconds), so the preview shows its fractional part and loops
+ *   once per unit instead of saturating to white.
+ *
+ * Display only: it never changes the compiled material or the generated code.
+ */
+export type OutputPreview = 'repeat'
+
 export interface OutputDefinition<O extends string> {
   readonly id: O
   readonly label: string
   readonly type: PortTypeSpec
   /** What the output carries, in one short sentence an artist reads in the port tooltip. */
   readonly description?: string
+  /** Optional preview display hint; absent means the preview shows the value as it is. */
+  readonly preview?: OutputPreview
 }
 
 export interface BuildContext<E, I extends string> {
@@ -70,7 +81,10 @@ export interface NodeDefinition<I extends string, O extends string> {
   readonly keywords: readonly string[]
   readonly inputs: readonly InputDefinition<I>[]
   readonly outputs: readonly OutputDefinition<O>[]
-  /** Structural settings of the node. Universal params (collapsed, previewMode) are implicit. */
+  /**
+   * Structural settings of the node. Universal params (collapsed, showPreview, previewMode) are
+   * implicit.
+   */
   readonly params?: readonly ParamDefinition[]
   /** Marks nodes that read a Blackboard property through the hidden string param `propertyId`. */
   readonly reads?: 'property'

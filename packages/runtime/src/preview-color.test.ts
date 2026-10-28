@@ -1,6 +1,6 @@
 import type { TslFacade } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
-import { toPreviewColor } from './preview-color'
+import { toPreviewColor, toPreviewValue } from './preview-color'
 
 /** Records every call as text so the shape of the resulting expression can be asserted. */
 const recordingFacade: Pick<
@@ -32,5 +32,17 @@ describe('toPreviewColor', () => {
 
   it('shows a texture by its rgb at the mesh UV', () => {
     expect(toPreviewColor(recordingFacade, 't', 'texture')).toBe('sample(t, uv, auto).xyz')
+  })
+})
+
+describe('toPreviewValue', () => {
+  const fractFacade: Pick<TslFacade<string>, 'fract'> = { fract: (value) => `fract(${value})` }
+
+  it('loops an output that only grows (repeat) through its fractional part', () => {
+    expect(toPreviewValue(fractFacade, 't', 'repeat')).toBe('fract(t)')
+  })
+
+  it('shows every other output as it is', () => {
+    expect(toPreviewValue(fractFacade, 'v', undefined)).toBe('v')
   })
 })

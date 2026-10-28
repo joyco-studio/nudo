@@ -14,6 +14,8 @@ export const timeNode = defineNode({
       label: 'Out',
       type: concrete('float'),
       description: 'Seconds since the shader started; it keeps growing.',
+      // Raw seconds turn the preview white after one second: it loops the fraction instead.
+      preview: 'repeat',
     },
     {
       id: 'sineTime',

@@ -27,6 +27,7 @@ const ANGLE_IN = 'El ángulo; una vuelta completa es unos 6,28. Con Tiempo conec
 /** The universal params every node accepts (see `UNIVERSAL_PARAMS` in core). */
 export const UNIVERSAL_PARAMS_ES: Readonly<Record<string, ParamTexts>> = {
   collapsed: { label: 'Contraído' },
+  showPreview: { label: 'Mostrar vista previa' },
   previewMode: {
     label: 'Modo de vista previa',
     options: { auto: 'Automático', '2d': '2D', '3d': '3D' },

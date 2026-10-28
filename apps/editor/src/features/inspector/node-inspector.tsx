@@ -16,6 +16,7 @@ import type { NodeFrame } from '@/store/store-types'
 
 import { INSPECTOR_ROW_CLASS, InspectorInputRows } from './inspector-input-row'
 import { InspectorHeader, InspectorSection } from './inspector-section'
+import { PreviewSettings } from './preview-settings'
 
 /** Commits a comment frame's new size as one history entry. */
 export type ResizeFrame = (nodeId: NodeId, frame: NodeFrame) => void
@@ -133,7 +134,7 @@ export interface NodeInspectorProps {
 
 /**
  * The selected node: its name, type and what it does, then its settings, its frame (for a
- * comment) and every input, each with the editor the node shows inline.
+ * comment), every input, each with the editor the node shows inline, and its preview.
  */
 export function NodeInspector({
   graph,
@@ -175,6 +176,7 @@ export function NodeInspector({
         <FrameFields node={node} title={title} frame={frame} onResize={onResizeFrame} />
       )}
       <InputSections graph={graph} node={node} definition={definition} types={types} />
+      <PreviewSettings node={node} definition={definition} />
     </div>
   )
 }

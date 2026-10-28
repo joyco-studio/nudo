@@ -146,3 +146,14 @@ describe('compiling a built-in graph', () => {
     )
   })
 })
+
+describe('preview hints', () => {
+  const registry = createDefaultRegistry()
+
+  it('loops the Time output in previews, since raw seconds would saturate to white', () => {
+    const outputs = registry.get('input/time')?.outputs ?? []
+    expect(outputs.find((output) => output.id === 'out')?.preview).toBe('repeat')
+    // The bounded outputs (sine, cosine, delta) already stay in range.
+    expect(outputs.filter((output) => output.preview !== undefined)).toHaveLength(1)
+  })
+})

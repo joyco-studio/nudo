@@ -4,6 +4,8 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { TriangleAlert } from 'lucide-react'
 
+import { NodePreview } from '@/features/node-previews/node-preview'
+import { PreviewToggle } from '@/features/node-previews/preview-toggle'
 import { useT } from '@/i18n/use-t'
 import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
@@ -205,6 +207,8 @@ function NodeHeader({ data }: { data: FlowNodeData }) {
         </Tooltip>
         {formula !== undefined && <NodeFormula formula={formula} />}
       </div>
+      {/* -mr-2: 4px from the right edge, top-aligned with the collapse chevron in the title row. */}
+      <PreviewToggle node={data.node} definition={definition} className="-mr-2 shrink-0" />
     </header>
   )
 }
@@ -301,6 +305,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
             ))}
           </div>
         )}
+        <NodePreview node={node} definition={definition} title={data.title} />
         {error !== undefined && <NodeError message={error} />}
       </div>
     </NodeContextMenu>

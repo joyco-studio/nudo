@@ -25,7 +25,6 @@ export interface PortGroup {
 
 /** Universal params every node accepts (see `UNIVERSAL_PARAMS` in core). */
 export const COLLAPSED_PARAM = 'collapsed'
-export const PREVIEW_MODE_PARAM = 'previewMode'
 
 /** The universal `collapsed` param: a collapsed node shows only its connected ports. */
 export function isNodeCollapsed(data: FlowNodeData): boolean {
