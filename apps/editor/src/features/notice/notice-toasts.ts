@@ -1,6 +1,7 @@
 import { createElement } from 'react'
 import type { ReactNode } from 'react'
 
+import type { Translate } from '@/i18n/translate'
 import type { Notice } from '@/store/store-types'
 
 /** Every notice uses this id, so a new one replaces the toast on screen instead of piling up. */
@@ -10,7 +11,6 @@ export const INFO_NOTICE_DURATION_MS = 5_000
 /** An error takes longer to read and act on than a passing hint. */
 export const ERROR_NOTICE_DURATION_MS = 8_000
 const PERSISTENT_NOTICE_DURATION_MS = Infinity
-const DISMISS_ACTION_LABEL = 'Dismiss'
 
 export interface NoticeToastOptions {
   id: string
@@ -35,14 +35,14 @@ function durationFor(notice: Notice): number {
   return notice.kind === 'error' ? ERROR_NOTICE_DURATION_MS : INFO_NOTICE_DURATION_MS
 }
 
-function toastOptionsFor(notice: Notice, onClosed: () => void): NoticeToastOptions {
+function toastOptionsFor(notice: Notice, onClosed: () => void, t: Translate): NoticeToastOptions {
   const isPersistent = notice.persistent === true
   return {
     id: NOTICE_TOAST_ID,
     duration: durationFor(notice),
     // A persistent notice has its Dismiss action; a second control for the same thing is noise.
     closeButton: !isPersistent,
-    ...(isPersistent && { action: { label: DISMISS_ACTION_LABEL, onClick: onClosed } }),
+    ...(isPersistent && { action: { label: t('notice.dismiss'), onClick: onClosed } }),
     onDismiss: onClosed,
     onAutoClose: onClosed,
   }
@@ -52,15 +52,21 @@ function toastOptionsFor(notice: Notice, onClosed: () => void): NoticeToastOptio
  * The toaster announces every toast through its polite live region; an error also interrupts, as
  * an alert, because it reports something that went wrong.
  */
-function messageOf(notice: Notice): ReactNode {
-  if (notice.kind !== 'error') return notice.message
-  return createElement('span', { role: 'alert' }, notice.message)
+function messageOf(notice: Notice, t: Translate): ReactNode {
+  const message = t(notice.messageKey)
+  if (notice.kind !== 'error') return message
+  return createElement('span', { role: 'alert' }, message)
 }
 
-/** Shows the notice as a toast. `onClosed` runs however the toast ends. */
-export function showNoticeToast(notice: Notice, api: NoticeToastApi, onClosed: () => void): void {
-  const options = toastOptionsFor(notice, onClosed)
-  const message = messageOf(notice)
+/** Shows the notice as a toast, in the UI language. `onClosed` runs however the toast ends. */
+export function showNoticeToast(
+  notice: Notice,
+  api: NoticeToastApi,
+  onClosed: () => void,
+  t: Translate,
+): void {
+  const options = toastOptionsFor(notice, onClosed, t)
+  const message = messageOf(notice, t)
   if (notice.kind === 'error') api.error(message, options)
   else api.info(message, options)
 }
@@ -70,10 +76,11 @@ export function syncNoticeToast(
   notice: Notice | null,
   api: NoticeToastApi,
   onClosed: () => void,
+  t: Translate,
 ): void {
   if (notice === null) {
     api.dismiss(NOTICE_TOAST_ID)
     return
   }
-  showNoticeToast(notice, api, onClosed)
+  showNoticeToast(notice, api, onClosed, t)
 }

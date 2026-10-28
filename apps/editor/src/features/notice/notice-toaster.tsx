@@ -1,4 +1,5 @@
 import { useTheme } from '@/app/theme-provider'
+import { useT } from '@/i18n/use-t'
 import { Toaster } from '@/shared/ui/sonner'
 
 import { useNoticeToasts } from './use-notice-toasts'
@@ -10,7 +11,16 @@ import { useNoticeToasts } from './use-notice-toasts'
  */
 export function NoticeToaster() {
   const { theme } = useTheme()
+  const t = useT()
   useNoticeToasts()
 
-  return <Toaster theme={theme} position="top-center" offset={{ top: '4rem' }} />
+  return (
+    <Toaster
+      theme={theme}
+      position="top-center"
+      offset={{ top: '4rem' }}
+      containerAriaLabel={t('notice.region')}
+      closeButtonAriaLabel={t('notice.close')}
+    />
+  )
 }

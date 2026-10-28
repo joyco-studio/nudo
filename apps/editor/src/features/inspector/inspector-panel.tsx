@@ -1,6 +1,8 @@
 import type { Graph, ResolvedTypes } from '@nudo-tsl/core'
 import { Trash2 } from 'lucide-react'
 
+import { plural } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 import { Button } from '@/shared/ui/button'
 
 import { GraphInspector } from './graph-inspector'
@@ -24,17 +26,20 @@ interface SelectionSummaryProps {
 
 /** Several nodes have nothing to edit together; they can be deleted together. */
 function SelectionSummary({ count, onDelete }: SelectionSummaryProps) {
+  const t = useT()
+  const title = t(
+    plural(count, { one: 'inspector.selection.one', other: 'inspector.selection.other' }),
+    { count },
+  )
   return (
     <div className="pb-3">
-      <InspectorHeader title={`${String(count)} nodes selected`}>
-        <p className="text-xs text-pretty text-muted-foreground">
-          Select one node to edit its values.
-        </p>
+      <InspectorHeader title={title}>
+        <p className="text-xs text-pretty text-muted-foreground">{t('inspector.selectionHint')}</p>
       </InspectorHeader>
       <div className="px-3">
         <Button variant="outline" size="sm" className="rounded-none" onClick={onDelete}>
           <Trash2 aria-hidden="true" />
-          Delete selected nodes
+          {t('inspector.deleteSelection')}
         </Button>
       </div>
     </div>

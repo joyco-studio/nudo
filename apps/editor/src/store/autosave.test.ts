@@ -5,8 +5,7 @@ import { useEditorStore } from './editor-store'
 
 const RESTORE_FAILED_NOTICE = {
   kind: 'error',
-  message:
-    "Couldn't restore your last session, so we started a new graph. The previous data was kept.",
+  messageKey: 'notice.restoreFailedKept',
   persistent: true,
 } as const
 
@@ -93,7 +92,7 @@ describe('loadAutosave', () => {
     expect(result.graph).toEqual(createGraph())
     expect(result.notice).toEqual({
       kind: 'error',
-      message: "Couldn't restore your last session, so we started a new graph.",
+      messageKey: 'notice.restoreFailed',
       persistent: true,
     })
     expect(localStorage.getItem(AUTOSAVE_CORRUPT_KEY)).toBeNull()
@@ -149,7 +148,7 @@ describe('startAutosave', () => {
     startTrackedAutosave()
 
     useEditorStore.getState().setSelection([])
-    useEditorStore.getState().showNotice({ kind: 'info', message: 'hi' })
+    useEditorStore.getState().showNotice({ kind: 'info', messageKey: 'notice.masterDelete' })
     vi.advanceTimersByTime(1000)
 
     expect(localStorage.getItem(AUTOSAVE_KEY)).toBeNull()
@@ -217,7 +216,7 @@ describe('startAutosave', () => {
 
     expect(useEditorStore.getState().notice).toEqual({
       kind: 'error',
-      message: "Couldn't save your work automatically. Your browser storage may be full.",
+      messageKey: 'notice.saveFailed',
     })
   })
 })

@@ -13,6 +13,8 @@ import { copySelection, pasteFromClipboard } from '@/features/shortcuts/clipboar
 import { MOD } from '@/features/shortcuts/key-chord'
 import type { KeyChord } from '@/features/shortcuts/key-chord'
 import type { GlobalShortcutAction } from '@/features/shortcuts/shortcut-action'
+import type { Locale } from '@/i18n/locale'
+import type { MessageKey } from '@/i18n/translate'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { redo, undo, useEditorStore } from '@/store/editor-store'
 
@@ -21,11 +23,13 @@ export type CommandGroupId = 'actions' | 'view'
 
 type PanelCommandId = `toggle-${PanelId}`
 type LayoutCommandId = `preview-${PreviewLayout}`
+type LanguageCommandId = `language-${Locale}`
 
 export type CommandId =
   | GlobalShortcutAction
   | PanelCommandId
   | LayoutCommandId
+  | LanguageCommandId
   | 'duplicate'
   | 'delete'
   | 'add-node'
@@ -34,10 +38,11 @@ export type CommandId =
   | 'toggle-theme'
   | 'open-command-palette'
 
-/** What commands need from the React tree: the view, the theme and the editor's dialogs. */
+/** What commands need from the React tree: the view, the theme, the language and the dialogs. */
 export interface CommandServices {
   fitView: () => void
   toggleTheme: () => void
+  setLocale: (locale: Locale) => void
   openShortcutsDialog: (opener: HTMLElement | null) => void
   requestNewGraph: (opener: HTMLElement | null) => void
   openAddNodeMenu: (origin: PlacementOrigin, opener: HTMLElement | null) => void
@@ -72,15 +77,16 @@ export interface CommandContext extends CommandInvocation {
   readonly services: CommandServices
 }
 
+/**
+ * A command's words live in the messages, keyed by its id (see `command-text.ts`): its name in the
+ * palette and the shortcuts dialog (`command.<id>.label`) and other words people search for
+ * (`command.<id>.keywords`).
+ */
 export interface Command {
   readonly id: CommandId
   readonly group: CommandGroupId
-  /** The name in the palette and the shortcuts catalog. */
-  readonly label: string
   /** A shorter name for a context menu, whose target already says what the command acts on. */
-  readonly menuLabel?: string
-  /** Other words people search for. */
-  readonly keywords: readonly string[]
+  readonly menuLabel?: MessageKey
   /** Alternative chords that run the command; empty when no key does. */
   readonly shortcut: readonly KeyChord[]
   /** False while there is nothing to act on; the palette leaves the command out then. */
@@ -105,26 +111,10 @@ export function placementNear(nodeId: NodeId | null): PlacementOrigin {
   return nodeId === null ? { kind: 'viewport-center' } : { kind: 'beside-node', nodeId }
 }
 
-const PANEL_NAMES: Readonly<Record<PanelId, string>> = {
-  blackboard: 'the Properties panel',
-  inspector: 'the Inspector',
-  preview: 'the Preview',
-  code: 'the Code panel',
-}
-
-const PANEL_KEYWORDS: Readonly<Record<PanelId, readonly string[]>> = {
-  blackboard: ['blackboard', 'uniforms', 'sidebar'],
-  inspector: ['details', 'selected node'],
-  preview: ['viewport', 'render', 'material'],
-  code: ['tsl', 'generated', 'export'],
-}
-
 function panelCommand(panel: PanelId): Command {
   return {
     id: `toggle-${panel}`,
     group: 'view',
-    label: `Show or hide ${PANEL_NAMES[panel]}`,
-    keywords: ['toggle', 'panel', ...PANEL_KEYWORDS[panel]],
     shortcut: [[PANEL_SHORTCUT_KEYS[panel]]],
     run: () => {
       getStore().togglePanel(panel)
@@ -132,27 +122,24 @@ function panelCommand(panel: PanelId): Command {
   }
 }
 
-const LAYOUT_NAMES: Readonly<Record<PreviewLayout, string>> = {
-  docked: 'Docked',
-  split: 'Split',
-  full: 'Full',
-}
-
-const LAYOUT_KEYWORDS: Readonly<Record<PreviewLayout, readonly string[]>> = {
-  docked: ['dock', 'floating', 'corner'],
-  split: ['side by side', 'columns'],
-  full: ['fullscreen', 'maximize', 'expand'],
-}
-
 function layoutCommand(layout: PreviewLayout): Command {
   return {
     id: `preview-${layout}`,
     group: 'view',
-    label: `Preview layout: ${LAYOUT_NAMES[layout]}`,
-    keywords: ['preview', ...LAYOUT_KEYWORDS[layout]],
     shortcut: [],
     run: () => {
       getStore().setPreviewLayout(layout)
+    },
+  }
+}
+
+function languageCommand(locale: Locale): Command {
+  return {
+    id: `language-${locale}`,
+    group: 'view',
+    shortcut: [],
+    run: ({ services }) => {
+      services.setLocale(locale)
     },
   }
 }
@@ -161,8 +148,6 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'undo',
     group: 'actions',
-    label: 'Undo',
-    keywords: ['history', 'revert', 'back'],
     shortcut: [[MOD, 'Z']],
     isAvailable: () => useEditorStore.temporal.getState().pastStates.length > 0,
     run: undo,
@@ -170,8 +155,6 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'redo',
     group: 'actions',
-    label: 'Redo',
-    keywords: ['history', 'again', 'forward'],
     shortcut: [
       [MOD, 'Shift', 'Z'],
       ['Ctrl', 'Y'],
@@ -182,9 +165,7 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'add-node',
     group: 'actions',
-    label: 'Add a node',
-    menuLabel: 'Add node…',
-    keywords: ['insert', 'create', 'new node', 'browse'],
+    menuLabel: 'command.add-node.menu',
     shortcut: [['Space']],
     run: ({ opener, nodeId, services }) => {
       services.openAddNodeMenu(placementNear(nodeId), opener)
@@ -193,9 +174,7 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'add-comment',
     group: 'actions',
-    label: 'Add a comment',
-    menuLabel: 'Add comment',
-    keywords: ['note', 'frame', 'annotation', 'group'],
+    menuLabel: 'command.add-comment.menu',
     shortcut: [],
     run: ({ nodeId, services }) => {
       const commentId = services.addNode(COMMENT_TYPE, placementNear(nodeId))
@@ -205,9 +184,7 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'copy',
     group: 'actions',
-    label: 'Copy selected nodes',
-    menuLabel: 'Copy',
-    keywords: ['clipboard'],
+    menuLabel: 'command.copy.menu',
     shortcut: [[MOD, 'C']],
     isAvailable: hasRemovableTargets,
     run: ({ nodeId }) => {
@@ -217,9 +194,7 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'paste',
     group: 'actions',
-    label: 'Paste nodes',
-    menuLabel: 'Paste',
-    keywords: ['clipboard'],
+    menuLabel: 'command.paste.menu',
     shortcut: [[MOD, 'V']],
     run: () => {
       void pasteFromClipboard()
@@ -228,9 +203,7 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'duplicate',
     group: 'actions',
-    label: 'Duplicate selected nodes',
-    menuLabel: 'Duplicate',
-    keywords: ['clone', 'copy'],
+    menuLabel: 'command.duplicate.menu',
     shortcut: [],
     isAvailable: hasRemovableTargets,
     run: ({ nodeId }) => {
@@ -241,18 +214,14 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'select-all',
     group: 'actions',
-    label: 'Select all nodes',
-    menuLabel: 'Select all',
-    keywords: ['everything'],
+    menuLabel: 'command.select-all.menu',
     shortcut: [[MOD, 'A']],
     run: selectAllNodes,
   },
   {
     id: 'delete',
     group: 'actions',
-    label: 'Delete selected nodes',
-    menuLabel: 'Delete',
-    keywords: ['remove', 'erase'],
+    menuLabel: 'command.delete.menu',
     // The Delete key is handled by the canvas, which also deletes selected connections.
     shortcut: [],
     isAvailable: hasRemovableTargets,
@@ -264,8 +233,6 @@ const ACTION_COMMANDS: readonly Command[] = [
   {
     id: 'new-graph',
     group: 'actions',
-    label: 'Start a new graph',
-    keywords: ['reset', 'clear', 'empty', 'start over', 'new file'],
     shortcut: [[MOD, 'Alt', 'N']],
     run: ({ opener, services }) => {
       services.requestNewGraph(opener)
@@ -277,9 +244,7 @@ const VIEW_COMMANDS: readonly Command[] = [
   {
     id: 'fit-view',
     group: 'view',
-    label: 'Fit all nodes in view',
-    menuLabel: 'Fit view',
-    keywords: ['zoom', 'frame', 'center', 'reset view'],
+    menuLabel: 'command.fit-view.menu',
     shortcut: [['F']],
     run: ({ services }) => {
       services.fitView()
@@ -295,8 +260,6 @@ const VIEW_COMMANDS: readonly Command[] = [
   {
     id: 'cycle-preview-layout',
     group: 'view',
-    label: 'Next preview layout: docked, split, full',
-    keywords: ['preview', 'cycle'],
     shortcut: [['Shift', 'P']],
     run: () => {
       getStore().cyclePreviewLayout()
@@ -305,18 +268,16 @@ const VIEW_COMMANDS: readonly Command[] = [
   {
     id: 'toggle-theme',
     group: 'view',
-    label: 'Switch between light and dark theme',
-    keywords: ['appearance', 'mode', 'color scheme'],
     shortcut: [],
     run: ({ services }) => {
       services.toggleTheme()
     },
   },
+  languageCommand('en'),
+  languageCommand('es'),
   {
     id: 'show-shortcuts',
     group: 'view',
-    label: 'Show keyboard shortcuts',
-    keywords: ['help', 'keys', 'hotkeys', 'keyboard'],
     shortcut: [['?']],
     run: ({ opener, services }) => {
       services.openShortcutsDialog(opener)
@@ -325,8 +286,6 @@ const VIEW_COMMANDS: readonly Command[] = [
   {
     id: 'open-command-palette',
     group: 'view',
-    label: 'Open the command palette',
-    keywords: ['search', 'commands'],
     shortcut: [[MOD, 'K']],
     run: ({ opener, services }) => {
       services.openCommandPalette(opener)

@@ -5,6 +5,8 @@ import type { EdgeProps } from '@xyflow/react'
 
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { EdgeContextMenu } from './edge-context-menu'
 
@@ -16,14 +18,16 @@ const SELECTED_HALO_WIDTH = 6
 const SELECTED_OUTLINE_WIDTH = 2
 const FALLBACK_STROKE = 'var(--muted-foreground)'
 
-const CONVERSION_DESCRIPTIONS: Readonly<Record<Conversion['kind'], (c: Conversion) => string>> = {
-  splat: (c) => `Conversion: ${c.from} repeated into every ${c.to} component`,
-  truncate: (c) => `Conversion: ${c.from} truncated to ${c.to}`,
-  pad: (c) => `Conversion: ${c.from} padded to ${c.to}`,
+function conversionKey(kind: Conversion['kind']): MessageKey {
+  return `conversion.${kind}`
 }
 
 function ConversionMarker({ conversion, x, y }: { conversion: Conversion; x: number; y: number }) {
-  const description = CONVERSION_DESCRIPTIONS[conversion.kind](conversion)
+  const t = useT()
+  const description = t(conversionKey(conversion.kind), {
+    from: conversion.from,
+    to: conversion.to,
+  })
   return (
     <EdgeLabelRenderer>
       <Tooltip>

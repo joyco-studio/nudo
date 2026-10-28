@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import { Plus } from 'lucide-react'
 
+import { useT } from '@/i18n/use-t'
 import { Button } from '@/shared/ui/button'
 import { Kbd } from '@/shared/ui/kbd'
 
@@ -10,6 +11,7 @@ import { useOpenAddNodeMenu } from './add-node-menu-context'
 export function AddNodeButton() {
   const openMenu = useOpenAddNodeMenu()
   const shortcutHintId = useId()
+  const t = useT()
 
   return (
     <>
@@ -23,13 +25,13 @@ export function AddNodeButton() {
       >
         <Plus aria-hidden="true" />
         {/* Icon only on a narrow header; the label stays the accessible name. */}
-        <span className="max-sm:sr-only">Add node</span>
+        <span className="max-sm:sr-only">{t('addNode.label')}</span>
         <Kbd aria-hidden="true" className="max-sm:hidden">
-          Space
+          {t('key.space')}
         </Kbd>
       </Button>
       <span id={shortcutHintId} className="sr-only">
-        Shortcut: Space while the canvas or a node has focus
+        {t('addNode.shortcutHint')}
       </span>
     </>
   )

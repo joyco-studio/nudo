@@ -7,6 +7,8 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { fromByte, hexToSrgb, srgbToHex, toByte } from './color-math'
 import type { Rgb } from './color-math'
@@ -17,13 +19,11 @@ const BYTE_PATTERN = /^\d{1,3}$/
 const ARROW_STEP = 1
 const SHIFT_ARROW_STEP = 10
 
-const PICK_FROM_SCREEN = 'Pick a color from the screen'
-
-const CHANNELS = [
-  { label: 'R', name: 'Red' },
-  { label: 'G', name: 'Green' },
-  { label: 'B', name: 'Blue' },
-] as const
+const CHANNELS: readonly { readonly label: string; readonly name: MessageKey }[] = [
+  { label: 'R', name: 'color.red' },
+  { label: 'G', name: 'color.green' },
+  { label: 'B', name: 'color.blue' },
+]
 
 const FIELD_CLASS =
   'h-6 min-w-0 border-border bg-background px-1 py-0 font-mono text-base tabular-nums text-foreground hover:border-muted-foreground aria-invalid:ring-0 md:text-field dark:bg-background'
@@ -86,18 +86,19 @@ interface HexFieldProps {
 function HexField({ srgb, onChange }: HexFieldProps) {
   const inputId = useId()
   const field = useDraftText(srgbToHex(srgb), parseHex, onChange)
+  const t = useT()
 
   return (
     <div className="flex items-center gap-2">
       <Label htmlFor={inputId} className={cn(LABEL_CLASS, 'w-6')}>
-        Hex
+        {t('color.hex')}
       </Label>
       <Input
         id={inputId}
         type="text"
         autoComplete="off"
         spellCheck={false}
-        aria-label="Hex"
+        aria-label={t('color.hex')}
         aria-invalid={field.isInvalid}
         value={field.text}
         onChange={(event) => {
@@ -112,7 +113,7 @@ function HexField({ srgb, onChange }: HexFieldProps) {
 
 interface ChannelFieldProps {
   label: string
-  name: string
+  name: MessageKey
   byte: number
   onChange: (byte: number) => void
 }
@@ -121,6 +122,7 @@ interface ChannelFieldProps {
 function ChannelField({ label, name, byte, onChange }: ChannelFieldProps) {
   const inputId = useId()
   const field = useDraftText(String(byte), parseByte, onChange)
+  const t = useT()
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
@@ -142,7 +144,7 @@ function ChannelField({ label, name, byte, onChange }: ChannelFieldProps) {
         inputMode="numeric"
         autoComplete="off"
         spellCheck={false}
-        aria-label={name}
+        aria-label={t(name)}
         aria-invalid={field.isInvalid}
         value={field.text}
         onChange={(event) => {
@@ -158,6 +160,7 @@ function ChannelField({ label, name, byte, onChange }: ChannelFieldProps) {
 
 function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
   const isMountedRef = useRef(false)
+  const t = useT()
 
   useEffect(() => {
     isMountedRef.current = true
@@ -181,7 +184,7 @@ function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
           static
           variant="ghost"
           size="icon-xs"
-          aria-label={PICK_FROM_SCREEN}
+          aria-label={t('color.pickFromScreen')}
           onClick={() => {
             void pick()
           }}
@@ -191,7 +194,7 @@ function EyeDropperButton({ onPick }: { onPick: (srgb: Rgb) => void }) {
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top" aria-hidden="true">
-        {PICK_FROM_SCREEN}
+        {t('color.pickFromScreen')}
       </TooltipContent>
     </Tooltip>
   )

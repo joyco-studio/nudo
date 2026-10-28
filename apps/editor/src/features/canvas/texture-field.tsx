@@ -2,11 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { X } from 'lucide-react'
 
-import {
-  ACCEPTED_IMAGES_HINT,
-  IMAGE_ACCEPT,
-  isAcceptedImage,
-} from '@/features/assets/accepted-images'
+import { IMAGE_ACCEPT, isAcceptedImage } from '@/features/assets/accepted-images'
 import { putAsset } from '@/features/assets/asset-store'
 import { textureCache } from '@/features/assets/texture-cache'
 import {
@@ -16,13 +12,11 @@ import {
 import { useTexture } from '@/features/assets/use-texture'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { PortLabel } from './port-label'
 import { TextureSlot } from './texture-slot'
-
-const SAVE_FAILED_HINT = 'Could not save this image.'
-const UNREADABLE_HINT = "Couldn't read this image."
-const REMOVE_LABEL = 'Remove image'
 
 export interface TextureFieldProps {
   /** Names the input in the slot's and remove button's accessible names. */
@@ -48,7 +42,9 @@ export function TextureField({
 }: TextureFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const slotRef = useRef<HTMLButtonElement>(null)
-  const [problem, setProblem] = useState<string | null>(null)
+  /** Why the last image was not taken, shown under the row. */
+  const [problem, setProblem] = useState<MessageKey | null>(null)
+  const t = useT()
   const texture = useTexture(assetId)
   // The asset can change while an image is being stored, so saveImage reads it through a ref.
   const currentAssetId = useRef(assetId)
@@ -67,20 +63,20 @@ export function TextureField({
       await textureCache.reload(chosenId)
       // The bytes are stored, so an image that did not load could not be decoded: keep the old one.
       if (textureCache.getSnapshot(chosenId).state !== 'ready') {
-        setProblem(UNREADABLE_HINT)
+        setProblem('texture.unreadable')
         return
       }
       if (chosenId !== currentAssetId.current) onChange(chosenId)
     } catch (error) {
       console.warn('Could not store the chosen image:', error)
-      setProblem(SAVE_FAILED_HINT)
+      setProblem('texture.saveFailed')
     }
   }
 
   const takeFile = (file: File | undefined): void => {
     if (file === undefined) return
     if (!isAcceptedImage(file)) {
-      setProblem(ACCEPTED_IMAGES_HINT)
+      setProblem('texture.accepted')
       return
     }
     setProblem(null)
@@ -110,8 +106,8 @@ export function TextureField({
         <span role="status" className="font-mono text-micro text-destructive">
           {isMissing && (
             <>
-              <span>Missing</span>
-              <span className="sr-only"> texture</span>
+              <span>{t('texture.missing')}</span>
+              <span className="sr-only"> {t('texture.missingDetail')}</span>
             </>
           )}
         </span>
@@ -123,14 +119,14 @@ export function TextureField({
                 type="button"
                 variant="ghost"
                 size="icon-xs"
-                aria-label={`${REMOVE_LABEL} from ${label}`}
+                aria-label={t('texture.removeFrom', { port: label })}
                 className="text-muted-foreground hover:text-foreground"
                 onClick={removeImage}
               >
                 <X aria-hidden="true" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">{REMOVE_LABEL}</TooltipContent>
+            <TooltipContent side="top">{t('texture.remove')}</TooltipContent>
           </Tooltip>
         )}
         <TextureSlot
@@ -156,7 +152,7 @@ export function TextureField({
       </span>
       {problem !== null && (
         <span role="alert" className="basis-full pb-1.5 pl-3.5 text-micro text-destructive">
-          {problem}
+          {t(problem)}
         </span>
       )}
     </>

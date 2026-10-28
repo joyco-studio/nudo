@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
+import { useT } from '@/i18n/use-t'
 import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 import type { Notice } from '@/store/store-types'
@@ -14,17 +15,25 @@ const getStore = () => useEditorStore.getState()
  * Shows the store's notice as a toast and keeps the two in step: a new notice replaces the toast,
  * and the toast closing (timer, close button, swipe, Escape) clears the notice. Escape inside the
  * toasts closes them and gives focus back to where it was. Mounted once, beside the `<Toaster>`.
+ * A language switch shows the open notice again, in the new language.
  */
 export function useNoticeToasts(): void {
+  const t = useT()
+
   useEffect(() => {
     const focus = trackToasterFocus(document, () => document.getElementById(CANVAS_ID))
 
     const sync = (notice: Notice | null): void => {
-      syncNoticeToast(notice, toast, () => {
-        // A toast replaced by a newer notice must not clear that one when it closes.
-        if (notice !== null && getStore().notice === notice) getStore().dismissNotice()
-        focus.returnFocus()
-      })
+      syncNoticeToast(
+        notice,
+        toast,
+        () => {
+          // A toast replaced by a newer notice must not clear that one when it closes.
+          if (notice !== null && getStore().notice === notice) getStore().dismissNotice()
+          focus.returnFocus()
+        },
+        t,
+      )
     }
 
     // A notice can predate the toaster (the autosave restore failure is set during bootstrap).
@@ -45,5 +54,5 @@ export function useNoticeToasts(): void {
       unsubscribe()
       focus.stop()
     }
-  }, [])
+  }, [t])
 }

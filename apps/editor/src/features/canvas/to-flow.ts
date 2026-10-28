@@ -13,6 +13,9 @@ import type {
 } from '@nudo-tsl/core'
 import type { Edge, Node } from '@xyflow/react'
 
+import { translateEnglish } from '@/i18n/translate'
+import type { Translate } from '@/i18n/translate'
+
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import type { CompileSlice, UiSlice } from '../../store/store-types'
 import { COMMENT_TITLE_PARAM } from './comment-params'
@@ -145,6 +148,7 @@ function toFlowEdge(
   edge: GraphEdge,
   entries: ReadonlyMap<NodeId, NodeEntry>,
   types: ResolvedTypes,
+  t: Translate,
 ): FlowEdge | null {
   const from = entries.get(edge.from.nodeId)
   const to = entries.get(edge.to.nodeId)
@@ -162,7 +166,7 @@ function toFlowEdge(
     sourceHandle: edge.from.portId,
     target: edge.to.nodeId,
     targetHandle: edge.to.portId,
-    ariaLabel: `${fromName} to ${toName}`,
+    ariaLabel: t('canvas.edge', { from: fromName, to: toName }),
     data: { sourceType, conversion: conversion.ok ? conversion.conversion : null },
   }
 }
@@ -177,7 +181,10 @@ function frameAttributes(
   return { width: frame.width, height: frame.height, zIndex: COMMENT_Z_INDEX }
 }
 
-/** Derives the React Flow view of the graph. Pure: the store stays the single source of truth. */
+/**
+ * Derives the React Flow view of the graph. Pure: the store stays the single source of truth.
+ * `registry` and `t` are in the UI language: they name the nodes, ports and edges.
+ */
 export function toFlow(
   graph: Graph,
   registry: NodeRegistry,
@@ -185,6 +192,7 @@ export function toFlow(
   draft: UiSlice['draftPositions'],
   errors: CompileSlice['errorsByNode'],
   selected: readonly NodeId[],
+  t: Translate = translateEnglish,
 ): { nodes: FlowNode[]; edges: FlowEdge[] } {
   const selectedIds = new Set(selected)
   const connectedInputs = connectedPortsByNode(graph, 'to')
@@ -221,7 +229,7 @@ export function toFlow(
   }
 
   const edges = Object.values(graph.edges)
-    .map((edge) => toFlowEdge(edge, entries, types))
+    .map((edge) => toFlowEdge(edge, entries, types, t))
     .filter((edge): edge is FlowEdge => edge !== null)
 
   return { nodes, edges }

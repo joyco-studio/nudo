@@ -10,19 +10,15 @@ const DEFAULT_AUTOSAVE_DELAY_MS = 500
 
 const RESTORE_FAILED_NOTICE: Notice = {
   kind: 'error',
-  message:
-    "Couldn't restore your last session, so we started a new graph. The previous data was kept.",
+  messageKey: 'notice.restoreFailedKept',
   persistent: true,
 }
 const RESTORE_FAILED_DATA_LOST_NOTICE: Notice = {
   kind: 'error',
-  message: "Couldn't restore your last session, so we started a new graph.",
+  messageKey: 'notice.restoreFailed',
   persistent: true,
 }
-const SAVE_FAILED_NOTICE: Notice = {
-  kind: 'error',
-  message: "Couldn't save your work automatically. Your browser storage may be full.",
-}
+const SAVE_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.saveFailed' }
 
 function readItem(storage: Storage, key: string): string | null {
   try {

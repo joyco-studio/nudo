@@ -12,6 +12,7 @@ import { UNTARGETED } from '@/features/command-palette/command-registry'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { isInsideOverlay } from '@/shared/lib/is-inside-overlay'
 import { useEditorStore } from '@/store/editor-store'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
 import { registry } from '@/store/registry'
 import type { NodeFrame } from '@/store/store-types'
 
@@ -65,8 +66,9 @@ export function InspectorContainer() {
   const graph = useEditorStore((state) => state.graph)
   const selectedNodeIds = useEditorStore((state) => state.selectedNodeIds)
   const runCommand = useRunCommand()
+  const nodeRegistry = useNodeRegistry()
   const types = useMemo(() => resolvePortTypes(graph, registry), [graph])
-  const subject = inspectorSubject(graph, registry, selectedNodeIds)
+  const subject = inspectorSubject(graph, nodeRegistry, selectedNodeIds)
 
   const rootRef = useRef<HTMLDivElement>(null)
   useLeaveWithEscape(rootRef)

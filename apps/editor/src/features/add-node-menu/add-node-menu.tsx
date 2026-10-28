@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { AnyNodeDefinition, NodeTypeId } from '@nudo-tsl/core'
 
-import { registry } from '@/store/registry'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 import {
   Command,
   CommandEmpty,
@@ -14,13 +15,13 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/
 import { KeyHints } from '@/shared/components/key-hints'
 import type { KeyHint } from '@/shared/components/key-hints'
 
-import { CATEGORY_HEADINGS, searchNodes } from './search-nodes'
+import { categoryLabelKey, searchNodes } from './search-nodes'
 import type { NodeSearchGroup } from './search-nodes'
 
 const KEY_HINTS: readonly KeyHint[] = [
-  { keys: '↑ ↓', action: 'Move' },
-  { keys: 'Enter', action: 'Add' },
-  { keys: 'Esc', action: 'Close' },
+  { keys: '↑ ↓', action: 'keyHint.move' },
+  { keys: 'Enter', action: 'keyHint.add' },
+  { keys: 'Esc', action: 'keyHint.close' },
 ]
 
 export interface AddNodeMenuProps {
@@ -36,6 +37,7 @@ export interface AddNodeMenuProps {
 
 /** A searchable dialog listing every node a person can add, grouped by category. */
 export function AddNodeMenu({ open, onOpenChange, onPick, restoreFocus }: AddNodeMenuProps) {
+  const t = useT()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -48,10 +50,8 @@ export function AddNodeMenu({ open, onOpenChange, onPick, restoreFocus }: AddNod
           restoreFocus()
         }}
       >
-        <DialogTitle className="sr-only">Add node</DialogTitle>
-        <DialogDescription className="sr-only">
-          Search nodes by name or keyword, then press Enter to add the highlighted node.
-        </DialogDescription>
+        <DialogTitle className="sr-only">{t('addNode.label')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('addNode.description')}</DialogDescription>
         <NodeSearch onPick={onPick} />
       </DialogContent>
     </Dialog>
@@ -80,6 +80,8 @@ function findDefinition(
 function NodeSearch({ onPick }: NodeSearchProps) {
   const [query, setQuery] = useState('')
   const [highlightedType, setHighlightedType] = useState('')
+  const t = useT()
+  const registry = useNodeRegistry()
   const groups = searchNodes(registry.list(), query)
   const highlighted = findDefinition(groups, highlightedType)
 
@@ -87,7 +89,7 @@ function NodeSearch({ onPick }: NodeSearchProps) {
     <Command
       shouldFilter={false}
       loop
-      label="Search nodes"
+      label={t('addNode.search')}
       value={highlightedType}
       onValueChange={setHighlightedType}
       className="gap-1"
@@ -95,17 +97,17 @@ function NodeSearch({ onPick }: NodeSearchProps) {
       <CommandInput
         value={query}
         onValueChange={setQuery}
-        placeholder="Search nodes, e.g. mix or time"
-        aria-label="Search nodes"
+        placeholder={t('addNode.placeholder')}
+        aria-label={t('addNode.search')}
         className="h-full pr-1.5"
       />
       {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
-      <CommandList label="Nodes" className="max-h-[min(23rem,50dvh)]">
+      <CommandList label={t('addNode.list')} className="max-h-[min(23rem,50dvh)]">
         <CommandEmpty className="text-muted-foreground">
-          No nodes match "{query.trim()}". Try another word, like mix or time.
+          {t('addNode.empty', { query: query.trim() })}
         </CommandEmpty>
         {groups.map((group) => (
-          <CommandGroup key={group.category} heading={CATEGORY_HEADINGS[group.category]}>
+          <CommandGroup key={group.category} heading={t(categoryLabelKey(group.category))}>
             {group.items.map((definition) => (
               <CommandItem
                 key={definition.type}

@@ -1,5 +1,7 @@
 import type { AnyNodeDefinition, NodeCategory } from '@nudo-tsl/core'
 
+import type { MessageKey } from '@/i18n/translate'
+
 /** The categories a person can add from, in `NodeCategory` order. The master is never added. */
 export type AddableCategory = Exclude<NodeCategory, 'master'>
 
@@ -25,18 +27,8 @@ export const ADDABLE_CATEGORIES = exhaustiveOrder([
 ])
 
 /** How the add-node menu and the command palette name each category. */
-export const CATEGORY_HEADINGS: Readonly<Record<AddableCategory, string>> = {
-  input: 'Input',
-  math: 'Math',
-  interpolation: 'Interpolation',
-  logic: 'Logic',
-  vector: 'Vector',
-  effects: 'Effects',
-  texture: 'Texture',
-  color: 'Color',
-  scene: 'Scene',
-  normal: 'Normal',
-  utility: 'Utility',
+export function categoryLabelKey(category: AddableCategory): MessageKey {
+  return `category.${category}`
 }
 
 export interface NodeSearchGroup {
@@ -50,7 +42,9 @@ const isAddable = (definition: AnyNodeDefinition): boolean => definition.reads !
 /**
  * The node matcher the add-node menu and the command palette share: the query, trimmed and
  * case-insensitive, appears anywhere in the node's label (or a node's own title), type id or a
- * keyword. Node names are short, so "ine" finding Sine and Cosine is what people expect.
+ * keyword. Node names are short, so "ine" finding Sine and Cosine is what people expect. A
+ * translated definition keeps its English label and keywords among its keywords, so both
+ * languages find it.
  */
 export function matchesNodeQuery(
   definition: AnyNodeDefinition,

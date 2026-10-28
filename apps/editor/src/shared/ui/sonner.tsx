@@ -17,8 +17,11 @@ import { buttonVariants } from '@/shared/ui/button'
 // destructive border on errors. The theme arrives as a prop (the app's ThemeProvider owns it),
 // not from next-themes. Below 600px sonner pins the list between both side offsets but also sets
 // `width: 100%`, which pushes its box past the right edge; `w-auto` lets the offsets size it and
-// each toast then fills the list.
-const Toaster = ({ ...props }: ToasterProps) => {
+// each toast then fills the list. The close button's name arrives as a prop, in the UI language.
+const Toaster = ({
+  closeButtonAriaLabel,
+  ...props
+}: ToasterProps & { closeButtonAriaLabel: string }) => {
   return (
     <Sonner
       className="toaster group max-[600px]:w-auto!"
@@ -44,7 +47,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       toastOptions={{
         unstyled: true,
-        closeButtonAriaLabel: 'Close notification',
+        closeButtonAriaLabel,
         classNames: {
           toast: `${MENU_SURFACE_CLASS} pointer-events-auto flex w-(--width) items-start max-[600px]:w-full! gap-3 p-3 font-sans text-sm text-foreground data-[type=error]:border-destructive`,
           icon: 'mt-0.5 flex shrink-0 items-center',

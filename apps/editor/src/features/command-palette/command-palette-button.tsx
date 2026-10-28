@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react'
 
 import { MOD } from '@/features/shortcuts/key-chord'
+import { useT } from '@/i18n/use-t'
 import { Button } from '@/shared/ui/button'
 import { Kbd } from '@/shared/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -10,6 +11,7 @@ import { useOpenCommandPalette } from './command-context'
 /** Header action that opens the command palette, so Ctrl/⌘ K is discoverable. Hidden on phones. */
 export function CommandPaletteButton() {
   const openCommandPalette = useOpenCommandPalette()
+  const t = useT()
 
   return (
     <Tooltip>
@@ -28,11 +30,11 @@ export function CommandPaletteButton() {
           }}
         >
           <Search aria-hidden="true" />
-          Commands
+          {t('palette.button')}
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        Search every action and node <Kbd>{MOD} K</Kbd>
+        {t('palette.buttonTooltip')} <Kbd>{MOD} K</Kbd>
       </TooltipContent>
     </Tooltip>
   )

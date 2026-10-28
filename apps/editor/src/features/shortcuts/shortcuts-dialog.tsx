@@ -1,5 +1,7 @@
 import { Fragment } from 'react'
 
+import { useT } from '@/i18n/use-t'
+
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
 import { Kbd } from '@/shared/ui/kbd'
 import {
@@ -12,19 +14,21 @@ import {
   TableRow,
 } from '@/shared/ui/table'
 
+import { keyCapLabel } from './key-chord'
 import type { KeyChord } from './key-chord'
 import { SHORTCUT_SECTIONS } from './shortcut-catalog'
 import type { ShortcutEntry, ShortcutSection } from './shortcut-catalog'
 
 function Chord({ chord }: { chord: KeyChord }) {
+  const t = useT()
   return (
     <span className="inline-flex items-center gap-1">
       {chord.map((key, index) => (
         <Fragment key={key}>
           {index > 0 && <span aria-hidden="true">+</span>}
-          <Kbd>{key}</Kbd>
+          <Kbd>{keyCapLabel(key, t)}</Kbd>
           {/* Read as "Ctrl plus Z", not "Ctrl Z". */}
-          {index < chord.length - 1 && <span className="sr-only">plus</span>}
+          {index < chord.length - 1 && <span className="sr-only">{t('key.plus')}</span>}
         </Fragment>
       ))}
     </span>
@@ -32,16 +36,17 @@ function Chord({ chord }: { chord: KeyChord }) {
 }
 
 function EntryRow({ entry }: { entry: ShortcutEntry }) {
+  const t = useT()
   return (
     <TableRow className="border-t border-b-0 hover:bg-transparent">
       <TableHead scope="row" className="h-auto py-1.5 pr-4 pl-0 font-normal whitespace-normal">
-        {entry.action}
+        {t(entry.action)}
       </TableHead>
       <TableCell className="py-1.5 pr-0">
         <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
           {entry.chords.map((chord, index) => (
             <Fragment key={chord.join('+')}>
-              {index > 0 && <span className="text-xs text-muted-foreground">or</span>}
+              {index > 0 && <span className="text-xs text-muted-foreground">{t('key.or')}</span>}
               <Chord chord={chord} />
             </Fragment>
           ))}
@@ -52,6 +57,7 @@ function EntryRow({ entry }: { entry: ShortcutEntry }) {
 }
 
 function SectionRows({ section }: { section: ShortcutSection }) {
+  const t = useT()
   return (
     <TableBody>
       <TableRow className="border-b-0 hover:bg-transparent">
@@ -60,7 +66,7 @@ function SectionRows({ section }: { section: ShortcutSection }) {
           colSpan={2}
           className="h-auto px-0 pt-4 pb-1 font-mono text-micro font-normal tracking-[0.2em] text-muted-foreground uppercase"
         >
-          {section.title}
+          {t(section.title)}
         </TableHead>
       </TableRow>
       {section.entries.map((entry) => (
@@ -83,6 +89,7 @@ export interface ShortcutsDialogProps {
 
 /** Every keyboard shortcut in one semantic table. */
 export function ShortcutsDialog({ open, onOpenChange, restoreFocus }: ShortcutsDialogProps) {
+  const t = useT()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -101,27 +108,23 @@ export function ShortcutsDialog({ open, onOpenChange, restoreFocus }: ShortcutsD
         }}
       >
         <DialogTitle className="font-heading text-sm font-semibold tracking-wide uppercase">
-          Keyboard shortcuts
+          {t('shortcuts.title')}
         </DialogTitle>
-        <DialogDescription>
-          Everything works from the keyboard. Shortcuts pause while you type in a field.
-        </DialogDescription>
+        <DialogDescription>{t('shortcuts.description')}</DialogDescription>
         {/* Focusable so a keyboard user can scroll the list when it is taller than the dialog. */}
         <div
           tabIndex={0}
           role="region"
-          aria-label="All shortcuts"
+          aria-label={t('shortcuts.region')}
           data-focus-ring="inset"
           className="-mx-1 overflow-y-auto px-1 pb-1"
         >
           <Table className="border-collapse">
-            <TableCaption className="sr-only">
-              Keyboard shortcuts by area of the editor
-            </TableCaption>
+            <TableCaption className="sr-only">{t('shortcuts.caption')}</TableCaption>
             <TableHeader className="sr-only">
               <TableRow>
-                <TableHead scope="col">Action</TableHead>
-                <TableHead scope="col">Keys</TableHead>
+                <TableHead scope="col">{t('shortcuts.action')}</TableHead>
+                <TableHead scope="col">{t('shortcuts.keys')}</TableHead>
               </TableRow>
             </TableHeader>
             {SHORTCUT_SECTIONS.map((section) => (

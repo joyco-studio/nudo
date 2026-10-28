@@ -3,15 +3,11 @@ import type { BlackboardProperty } from '@nudo-tsl/core'
 
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
+import { useT } from '@/i18n/use-t'
 
 import { referenceErrorMessage, renameLabelOrExplain } from './property-messages'
 import { PropertyTextField } from './property-text-field'
 import type { BlackboardActions } from './blackboard-actions'
-
-const NAME_LABEL = 'Name'
-const REFERENCE_LABEL = 'Reference'
-const EXPOSED_LABEL = 'Exposed'
-const EXPOSED_HINT = 'Can be changed from code after export.'
 
 export interface PropertyDetailsProps {
   property: BlackboardProperty
@@ -27,11 +23,12 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
   const referenceId = useId()
   const exposedId = useId()
   const exposedHintId = useId()
+  const t = useT()
 
   return (
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-1.5 pt-0.5 pr-2 pb-2 pl-8">
       <Label htmlFor={nameId} className="h-6 text-xs font-normal text-muted-foreground">
-        {NAME_LABEL}
+        {t('property.name')}
       </Label>
       <PropertyTextField
         id={nameId}
@@ -39,11 +36,11 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
         value={property.label}
         onInvalidBlur="keep"
         commit={(text) =>
-          renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text)
+          renameLabelOrExplain((label) => actions.renameLabel(property.id, label), text, t)
         }
       />
       <Label htmlFor={referenceId} className="h-6 text-xs font-normal text-muted-foreground">
-        {REFERENCE_LABEL}
+        {t('property.reference')}
       </Label>
       <PropertyTextField
         id={referenceId}
@@ -52,7 +49,7 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
         onInvalidBlur="keep"
         commit={(text) => {
           const error = actions.renameReference(property.id, text)
-          return error === null ? null : referenceErrorMessage(error, text)
+          return error === null ? null : referenceErrorMessage(error, text, t)
         }}
       />
       <div className="col-span-2 flex flex-col gap-0.5">
@@ -68,11 +65,11 @@ export function PropertyDetails({ property, actions }: PropertyDetailsProps) {
             }}
           />
           <Label htmlFor={exposedId} className="cursor-pointer text-xs font-normal">
-            {EXPOSED_LABEL}
+            {t('property.exposed')}
           </Label>
         </div>
         <p id={exposedHintId} className="text-micro leading-4 text-muted-foreground">
-          {EXPOSED_HINT}
+          {t('property.exposedHint')}
         </p>
       </div>
     </div>

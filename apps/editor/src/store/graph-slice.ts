@@ -25,14 +25,9 @@ import { createEdgeId, createNodeId } from './ids'
 import { registry } from './registry'
 import type { EditorSliceCreator, GraphSlice, NodeFrame, Notice } from './store-types'
 
-const MASTER_DELETE_NOTICE: Notice = { kind: 'info', message: "The Master Stack can't be deleted." }
-
-const DROPPED_READERS_NOTICE: Notice = {
-  kind: 'info',
-  message: "Some pasted nodes referenced properties that don't exist here and were skipped.",
-}
-
-const CONNECT_FAILED_NOTICE: Notice = { kind: 'error', message: "Couldn't connect those ports." }
+const MASTER_DELETE_NOTICE: Notice = { kind: 'info', messageKey: 'notice.masterDelete' }
+const DROPPED_READERS_NOTICE: Notice = { kind: 'info', messageKey: 'notice.droppedReaders' }
+const CONNECT_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.connectFailed' }
 
 /** Core `connect` re-checks the connection, so a failure here is almost always a rejection. */
 function rejectionReason(error: GraphError): ConnectionRejection {

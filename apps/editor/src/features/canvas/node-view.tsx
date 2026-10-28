@@ -4,6 +4,7 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
+import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
@@ -48,6 +49,7 @@ interface InputRowProps {
 
 function InputRow({ data, row }: InputRowProps) {
   const { input, disabledHint } = row
+  const t = useT()
   const dataType = data.inputTypes[input.id]
   if (dataType === undefined) return null
   const isConnected = data.connectedInputs.has(input.id)
@@ -72,7 +74,7 @@ function InputRow({ data, row }: InputRowProps) {
       {isDisabled ? (
         <>
           <PortLabel label={input.label} isMuted />
-          <MutedHint>{disabledHint}</MutedHint>
+          <MutedHint>{t(disabledHint)}</MutedHint>
         </>
       ) : isConnected ? (
         <PortLabel label={input.label} />
@@ -115,6 +117,7 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
 /** A titled group (Master Stack "Vertex", "Fragment") is a labelled group, not a landmark. */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
   const headingId = useId()
+  const t = useT()
   if (group.rows.length === 0) return null
   const list = (
     <ul>
@@ -130,7 +133,7 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
         id={headingId}
         className="px-3 pt-2 pb-0.5 font-mono text-micro tracking-[0.2em] text-muted-foreground uppercase"
       >
-        {group.title}
+        {t(group.title)}
       </h3>
       {list}
     </div>
@@ -140,6 +143,7 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
 /** Disclosure for the unconnected ports: the universal `collapsed` param, which never recompiles. */
 function CollapseToggle({ data }: { data: FlowNodeData }) {
   const { setParam } = useGraphCanvasActions()
+  const t = useT()
   const isCollapsed = isNodeCollapsed(data)
 
   return (
@@ -150,7 +154,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           static
           variant="ghost"
           size="icon-xs"
-          aria-label="Unconnected ports"
+          aria-label={t('node.portsToggle')}
           aria-expanded={!isCollapsed}
           onClick={() => {
             setParam({ nodeId: data.node.id, paramId: COLLAPSED_PARAM }, !isCollapsed)
@@ -162,7 +166,7 @@ function CollapseToggle({ data }: { data: FlowNodeData }) {
           </IconSwap>
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">{portsToggleLabel(isCollapsed)}</TooltipContent>
+      <TooltipContent side="top">{t(portsToggleLabel(isCollapsed))}</TooltipContent>
     </Tooltip>
   )
 }

@@ -10,15 +10,12 @@ import { groupInputs } from '@/features/canvas/node-port-layout'
 import { NumberField } from '@/features/canvas/number-field'
 import { ParamField, bodyParams } from '@/features/canvas/param-field'
 import { nodeTitle } from '@/features/canvas/to-flow'
+import { useT } from '@/i18n/use-t'
 import { Label } from '@/shared/ui/label'
 import type { NodeFrame } from '@/store/store-types'
 
 import { INSPECTOR_ROW_CLASS, InspectorInputRows } from './inspector-input-row'
 import { InspectorHeader, InspectorSection } from './inspector-section'
-
-const SETTINGS_TITLE = 'Settings'
-const INPUTS_TITLE = 'Inputs'
-const FRAME_TITLE = 'Frame'
 
 /** Commits a comment frame's new size as one history entry. */
 export type ResizeFrame = (nodeId: NodeId, frame: NodeFrame) => void
@@ -40,16 +37,17 @@ interface FrameFieldsProps {
 function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
   const titleId = useId()
   const bodyId = useId()
+  const t = useT()
   const resizeTo = (size: { width?: number; height?: number }): void => {
     onResize(node.id, sizedFrame(frame, size))
   }
 
   return (
-    <InspectorSection title={FRAME_TITLE}>
+    <InspectorSection title={t('inspector.frame')}>
       <ul>
         <li className={INSPECTOR_ROW_CLASS}>
           <Label htmlFor={titleId} className="min-w-0 flex-1 text-xs font-normal">
-            Title
+            {t('inspector.title')}
           </Label>
           <CommentTitleField
             id={titleId}
@@ -60,7 +58,7 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
         </li>
         <li className="flex flex-col gap-1.5 px-3 py-2">
           <Label htmlFor={bodyId} className="text-xs font-normal">
-            Note
+            {t('inspector.note')}
           </Label>
           <CommentBodyField
             id={bodyId}
@@ -71,7 +69,7 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
         </li>
         <li className={INSPECTOR_ROW_CLASS}>
           <NumberField
-            label="Width"
+            label={t('inspector.width')}
             value={frame.width}
             isDefault={node.params.width === undefined}
             layout="row"
@@ -86,7 +84,7 @@ function FrameFields({ node, title, frame, onResize }: FrameFieldsProps) {
         </li>
         <li className={INSPECTOR_ROW_CLASS}>
           <NumberField
-            label="Height"
+            label={t('inspector.height')}
             value={frame.height}
             isDefault={node.params.height === undefined}
             layout="row"
@@ -114,9 +112,10 @@ interface InputSectionsProps {
 /** Every input of the node, collapsed or not, grouped like the node groups them. */
 function InputSections({ graph, node, definition, types }: InputSectionsProps) {
   const groups = groupInputs(node, definition.inputs).filter((group) => group.rows.length > 0)
+  const t = useT()
 
   return groups.map((group) => (
-    <InspectorSection key={group.title ?? INPUTS_TITLE} title={group.title ?? INPUTS_TITLE}>
+    <InspectorSection key={group.title ?? 'inputs'} title={t(group.title ?? 'inspector.inputs')}>
       <ul>
         <InspectorInputRows graph={graph} node={node} rows={group.rows} types={types} />
       </ul>
@@ -146,18 +145,19 @@ export function NodeInspector({
   const title = nodeTitle(node, definition, graph.properties)
   const params = bodyParams(definition.params)
   const frame = frameOf(node, definition)
+  const t = useT()
 
   return (
     <div>
       <InspectorHeader title={title}>
         <p className="font-mono text-micro text-muted-foreground">
-          <span className="sr-only">Type: </span>
+          <span className="sr-only">{t('inspector.type')}: </span>
           {node.type}
         </p>
         <p className="text-xs text-pretty text-muted-foreground">{definition.description}</p>
       </InspectorHeader>
       {params.length > 0 && (
-        <InspectorSection title={SETTINGS_TITLE}>
+        <InspectorSection title={t('inspector.settings')}>
           <ul>
             {params.map((param) => (
               <ParamField key={param.id} node={node} param={param} />

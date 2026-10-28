@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
@@ -91,6 +92,7 @@ export function NumberField({
   onScrubPreviewEnd,
 }: NumberFieldProps) {
   const inputId = useId()
+  const t = useT()
   const sizeClasses = SIZE_CLASSES[useFieldSize()]
   const [draftText, setDraftText] = useState<string | null>(null)
   const [scrubValue, setScrubValue] = useState<number | null>(null)
@@ -205,7 +207,7 @@ export function NumberField({
           </Label>
         </TooltipTrigger>
         <TooltipContent side="top" aria-hidden="true" className="pointer-events-none">
-          Drag to change
+          {t('field.dragToChange')}
         </TooltipContent>
       </Tooltip>
       <Input

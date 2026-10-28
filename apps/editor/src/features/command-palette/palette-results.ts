@@ -1,11 +1,13 @@
 import type { Graph, NodeId, NodeRegistry, NodeTypeId } from '@nudo-tsl/core'
 
 import {
-  CATEGORY_HEADINGS,
+  categoryLabelKey,
   matchesNodeQuery,
   searchNodes,
 } from '@/features/add-node-menu/search-nodes'
 import { nodeTitle } from '@/features/canvas/to-flow'
+import { translateEnglish } from '@/i18n/translate'
+import type { Translate } from '@/i18n/translate'
 
 import { PALETTE_COMMANDS } from './command-registry'
 import type { Command, CommandGroupId } from './command-registry'
@@ -44,9 +46,12 @@ export interface PaletteGroup {
 export interface PaletteQuery {
   readonly query: string
   readonly graph: Graph
+  /** The registry in the UI language: node names, descriptions and search words. */
   readonly registry: NodeRegistry
   /** The commands to search; defaults to every palette command. */
   readonly commands?: readonly Command[]
+  /** The UI language's messages; English by default. Commands also match their English words. */
+  readonly t?: Translate
 }
 
 function commandGroup(commands: readonly Command[], id: CommandGroupId): readonly PaletteGroup[] {
@@ -75,14 +80,14 @@ function graphNodeItems(
   })
 }
 
-function addNodeItems(registry: NodeRegistry, query: string): readonly PaletteItem[] {
+function addNodeItems(registry: NodeRegistry, query: string, t: Translate): readonly PaletteItem[] {
   return searchNodes(registry.list(), query).flatMap((group) =>
     group.items.map((definition): PaletteItem => ({
       kind: 'add',
       key: `add:${definition.type}`,
       type: definition.type,
       label: definition.label,
-      detail: CATEGORY_HEADINGS[group.category],
+      detail: t(categoryLabelKey(group.category)),
     })),
   )
 }
@@ -101,13 +106,14 @@ export function paletteResults({
   graph,
   registry,
   commands = PALETTE_COMMANDS,
+  t = translateEnglish,
 }: PaletteQuery): readonly PaletteGroup[] {
-  const matches = searchCommands(commands, query)
+  const matches = searchCommands(commands, query, t)
   const commandGroups = [...commandGroup(matches, 'actions'), ...commandGroup(matches, 'view')]
   if (query.trim() === '') return commandGroups
   return [
     ...commandGroups,
     ...nodeGroup('nodes-in-graph', graphNodeItems(graph, registry, query)),
-    ...nodeGroup('add-node', addNodeItems(registry, query)),
+    ...nodeGroup('add-node', addNodeItems(registry, query, t)),
   ]
 }

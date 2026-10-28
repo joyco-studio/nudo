@@ -60,7 +60,7 @@ describe('node port layout', () => {
 
   it('groups the master inputs into Vertex and Fragment', () => {
     const groups = inputGroups(dataFor(master()))
-    expect(groups.map((group) => group.title)).toEqual(['Vertex', 'Fragment'])
+    expect(groups.map((group) => group.title)).toEqual(['node.group.vertex', 'node.group.fragment'])
     expect(groups[0]?.rows.map((row) => row.input.id)).toEqual(['position'])
   })
 

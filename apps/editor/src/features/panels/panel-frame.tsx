@@ -10,6 +10,7 @@ import {
   PanelRightOpen,
 } from 'lucide-react'
 
+import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -40,7 +41,7 @@ const PANEL_HEADER_PROPS = { [PANEL_HEADER_ATTRIBUTE]: '' }
 
 export interface PanelFrameProps {
   panel: PanelId
-  /** Visible heading; the toggle is named "<title> panel". */
+  /** Visible heading; the toggle is named after it ("Properties panel"). */
   title: string
   /** Name of the panel landmark when it differs from the title. */
   regionLabel?: string
@@ -105,8 +106,9 @@ export function PanelFrame({
 }: PanelFrameProps) {
   const isOpen = useEditorStore((state) => state.panels.open[panel])
   const descriptionId = useId()
+  const t = useT()
   const Icon = isOpen ? TOGGLE_ICONS[edge].open : TOGGLE_ICONS[edge].closed
-  const hint = `${isOpen ? 'Collapse' : 'Expand'} ${title.toLowerCase()}`
+  const hint = t(isOpen ? 'panel.collapse' : 'panel.expand', { title: title.toLowerCase() })
 
   return (
     <Collapsible
@@ -139,7 +141,7 @@ export function PanelFrame({
                   static
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`${title} panel`}
+                  aria-label={t('panel.toggle', { title })}
                   aria-keyshortcuts={PANEL_SHORTCUT_KEYS[panel]}
                 >
                   <IconSwap swapKey={isOpen ? 'open' : 'closed'}>

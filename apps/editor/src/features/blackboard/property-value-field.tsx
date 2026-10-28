@@ -5,10 +5,7 @@ import { ColorField } from '@/features/canvas/color-field'
 import { NumberField } from '@/features/canvas/number-field'
 import { TextureField } from '@/features/canvas/texture-field'
 import { VectorField } from '@/features/canvas/vector-field'
-
-const VALUE_LABEL = 'Value'
-const COLOR_LABEL = 'Color'
-const IMAGE_LABEL = 'Image'
+import { useT } from '@/i18n/use-t'
 
 export interface PropertyValueFieldProps {
   property: BlackboardProperty
@@ -30,11 +27,12 @@ export function PropertyValueField({
   onPreviewEnd,
 }: PropertyValueFieldProps) {
   const { value } = property
+  const t = useT()
   if (value.type === 'texture') {
     return (
       <TextureField
         label={property.label}
-        visibleLabel={IMAGE_LABEL}
+        visibleLabel={t('property.image')}
         assetId={value.assetId}
         onChange={(assetId) => {
           onCommit(texture(assetId))
@@ -45,7 +43,7 @@ export function PropertyValueField({
   if (value.type === 'vec3' && property.widget === 'color') {
     return (
       <ColorField
-        label={COLOR_LABEL}
+        label={t('property.color')}
         value={value}
         onCommit={onCommit}
         onPreview={onPreview}
@@ -56,7 +54,7 @@ export function PropertyValueField({
   if (value.type === 'float') {
     return (
       <NumberField
-        label={VALUE_LABEL}
+        label={t('property.value')}
         value={value.value}
         isDefault={false}
         layout="row"
@@ -72,7 +70,7 @@ export function PropertyValueField({
   }
   return (
     <VectorField
-      label={VALUE_LABEL}
+      label={t('property.value')}
       value={value}
       isDefault={false}
       onCommit={onCommit}
