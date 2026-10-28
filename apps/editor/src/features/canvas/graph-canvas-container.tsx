@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { DragEvent } from 'react'
 import { asEdgeId, asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
-import type { EdgeId, PortRef, XY } from '@nudo-tsl/core'
+import type { EdgeId, Graph, PortRef, XY } from '@nudo-tsl/core'
 import type {
   Dimensions,
   EdgeMouseHandler,
@@ -68,6 +68,14 @@ function withoutKeys<T>(record: Readonly<Record<string, T>>, keys: readonly stri
 }
 
 /** A resize ends with the final size; the position is the draft the resize left behind. */
+/** The measured sizes of nodes still in the graph: a replaced graph's sizes go with it. */
+function sizesInGraph(
+  sizes: Readonly<Record<string, Dimensions>>,
+  graph: Graph,
+): Readonly<Record<string, Dimensions>> {
+  return Object.fromEntries(Object.entries(sizes).filter(([nodeId]) => nodeId in graph.nodes))
+}
+
 function commitEndedResizes(endedResizes: Readonly<Record<string, Dimensions>>): void {
   const store = getStore()
   for (const [id, size] of Object.entries(endedResizes)) {
@@ -140,7 +148,7 @@ export function GraphCanvasContainer() {
     const store = getStore()
     const intent = interpretNodeChanges(changes, store)
     if (Object.keys(intent.dimensions).length > 0) {
-      setMeasured((current) => ({ ...current, ...intent.dimensions }))
+      setMeasured((current) => ({ ...sizesInGraph(current, store.graph), ...intent.dimensions }))
     }
     if (Object.keys(intent.draftSizes).length > 0) {
       setDraftSizes((current) => ({ ...current, ...intent.draftSizes }))

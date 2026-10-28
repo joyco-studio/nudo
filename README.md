@@ -19,7 +19,7 @@ Then open http://localhost:5173. Press `Space` on the canvas to add a node, `Tab
 
 ## Examples
 
-The header's **Examples** menu (also in the `Ctrl/⌘` `K` palette) opens a finished graph in place of yours, as one undo step. It asks first when your graph has nodes or properties. Each example is a versioned `.graph.json` in `apps/editor/src/examples`, built from a spec in `examples/build` with the core graph operations and laid out like **Tidy up**. After changing a spec, run `pnpm --filter @nudo-tsl/editor exec vitest run -u src/examples` to write the files again.
+The header's **Examples** menu (also in the `Ctrl/⌘` `K` palette) opens a finished graph in place of yours, as one undo step. It asks first when your graph has nodes or properties. Each example is a versioned `.graph.json` in `apps/editor/src/examples`, built from a spec in `examples/build` with the core graph operations and laid out like **Tidy up**. After changing a spec, run `pnpm --filter @nudo-tsl/editor exec vitest run src/examples --update` to write the files again.
 
 | Example         | What it shows                                                                                                                                                                                              |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -15,7 +15,8 @@ import { SIMPLE_WATER } from './simple-water'
 
 /**
  * Builds every example from its spec and keeps the committed `.graph.json` in step: run
- * `pnpm vitest run -u src/examples` after changing a spec to write the files again.
+ * `pnpm --filter @nudo-tsl/editor exec vitest run src/examples --update` (from the repo root) after
+ * changing a spec to write the files again.
  */
 const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['lettra-pond', LETTRA_POND],

@@ -11,6 +11,14 @@
     "test": {
       "dependsOn": ["^test"]
     },
+    "@nudo-tsl/codegen#test": {
+      "dependsOn": ["^test"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/editor/src/examples/*.graph.json",
+        "$TURBO_ROOT$/packages/runtime/src/*.ts"
+      ]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

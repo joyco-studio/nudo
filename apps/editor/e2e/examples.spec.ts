@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { expectFocusRing, tabUntilFocused } from './support/focus-indicators'
+import { addNodeFromHeader } from './support/graph-keyboard'
 import { examplesButton, pickExampleByKeyboard } from './support/open-example'
 import { readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
@@ -9,9 +10,32 @@ const PALETTE_CHORD = 'ControlOrMeta+k'
 const UNDO_CHORD = 'ControlOrMeta+z'
 /** The iridescent blob: 20 nodes, five comment frames and the master. */
 const BLOB_NODE_COUNT = 26
+/** Longer than a fit's glide, so a fit that was going to happen has started by then. */
+const VIEW_GLIDE_MS = 800
 
 function confirmDialog(page: Page) {
   return page.getByRole('alertdialog')
+}
+
+/** The canvas pan and zoom, as React Flow writes it on the viewport layer. */
+async function viewportTransform(page: Page): Promise<string> {
+  return page
+    .locator('.react-flow__viewport')
+    .evaluate((element) => getComputedStyle(element).transform)
+}
+
+/** Waits until the view stops moving (a fit glides), then returns where it settled. */
+async function settledViewport(page: Page): Promise<string> {
+  let previous = ''
+  await expect
+    .poll(async () => {
+      const current = await viewportTransform(page)
+      const isSettled = current === previous
+      previous = current
+      return isSettled
+    })
+    .toBe(true)
+  return previous
 }
 
 async function storedNodeIds(page: Page): Promise<readonly string[]> {
@@ -81,6 +105,31 @@ test.describe('examples', () => {
       expect(collisions).toEqual([])
     })
   }
+
+  test('opening the same example twice frames it once, and adding a node then leaves the view alone', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
+    await pickExampleByKeyboard(page, 'Simple water')
+    await expect(page.getByRole('group', { name: 'Waves', exact: true })).toBeAttached()
+    const framed = await settledViewport(page)
+
+    // Pan away, so the second opening has to frame the example again to land there.
+    await page.getByRole('main', { name: 'Node canvas' }).focus()
+    await page.keyboard.press('Shift+ArrowRight')
+    expect(await settledViewport(page)).not.toBe(framed)
+
+    // Every node of the second copy has the same id as one the canvas already measured.
+    await pickExampleByKeyboard(page, 'Simple water')
+    await confirmDialog(page).getByRole('button', { name: 'Open example' }).click()
+    await expect(confirmDialog(page)).toBeHidden()
+    await expect.poll(() => viewportTransform(page)).toBe(framed)
+
+    await addNodeFromHeader(page, 'sine', 'Sine')
+    await page.waitForTimeout(VIEW_GLIDE_MS)
+    expect(await settledViewport(page)).toBe(framed)
+  })
 
   test('Tab reaches the menu button with a visible ring; Escape closes the menu back onto it', async ({
     page,

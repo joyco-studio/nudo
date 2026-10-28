@@ -29,14 +29,40 @@ async function previewApplyCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
 }
 
+/** The compile count once it stops rising: no rebuild is pending past the debounce. */
+async function settledCompileCount(page: Page): Promise<number> {
+  let previous = -1
+  await expect
+    .poll(
+      async () => {
+        const current = await compileCount(page)
+        const isSettled = current === previous
+        previous = current
+        return isSettled
+      },
+      { intervals: [PAST_DEBOUNCE_MS] },
+    )
+    .toBe(true)
+  return previous
+}
+
+/**
+ * Opens the pond on a fresh page and waits for its own compile, not the page's first one, to
+ * land with no node errors.
+ */
 async function openPond(page: Page): Promise<void> {
   await page.goto('/')
   await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
+  // The page compiles its starting graph first; the baseline comes after that.
+  await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
+  const compilesBefore = await settledCompileCount(page)
   await pickExampleByKeyboard(page, 'Lettra pond')
   await expect
     .poll(async () => (await readStoredNodes(page)).length)
     .toBeGreaterThan(MIN_POND_NODES)
-  await expect.poll(() => compileCount(page)).toBeGreaterThan(0)
+  await expect.poll(() => compileCount(page)).toBeGreaterThan(compilesBefore)
+  await settledCompileCount(page)
+  await expect(page.locator('[data-error="true"]')).toHaveCount(0)
 }
 
 test.describe('lettra pond example', () => {
@@ -47,8 +73,6 @@ test.describe('lettra pond example', () => {
 
     await expect(page.getByRole('group', { name: 'Rosettes', exact: true })).toBeAttached()
     await expect(page.getByRole('radio', { name: 'Plane', exact: true })).toBeChecked()
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
-    await expect(page.locator('[data-error="true"]')).toHaveCount(0)
     await expect
       .poll(async () => luminanceSpread(page, await previewCanvas(page).screenshot()), {
         timeout: FIRST_PICTURE_TIMEOUT_MS,
@@ -64,7 +88,6 @@ test.describe('lettra pond example', () => {
 
   test('and scrubbing a palette property triggers no compile', async ({ page }) => {
     await openPond(page)
-    await page.waitForTimeout(PAST_DEBOUNCE_MS)
     const compilesBefore = await compileCount(page)
     const appliedBefore = await previewApplyCount(page)
 

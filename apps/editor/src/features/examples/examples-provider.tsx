@@ -1,23 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useNodesInitialized } from '@xyflow/react'
+import type { Graph } from '@nudo-tsl/core'
+import { useStoreApi } from '@xyflow/react'
+import type { ReactFlowState } from '@xyflow/react'
 
 import { findExample } from '@/examples'
 import type { Example } from '@/examples'
 import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
-import {
-  describeGraphContents,
-  graphContents,
-  hasWorkToLose,
-} from '@/features/new-graph/graph-contents'
-import type { GraphContents } from '@/features/new-graph/graph-contents'
 import { useLocale, useT } from '@/i18n/use-t'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
+import { describeGraphContents, graphContents, hasWorkToLose } from '@/shared/lib/graph-contents'
+import type { GraphContents } from '@/shared/lib/graph-contents'
 import { ReplaceGraphDialog } from '@/shared/components/replace-graph-dialog'
 import { useEditorStore } from '@/store/editor-store'
 
 import { ExamplesContext } from './examples-context'
 import type { RequestExample } from './examples-context'
+import { isGraphMeasured } from './is-graph-measured'
 import { openExample } from './open-example'
 
 interface ExamplesProviderProps {
@@ -41,22 +40,49 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
   const [pending, setPending] = useState<PendingExample | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const openerRef = useRef<HTMLElement | null>(null)
-  const isFitPendingRef = useRef(false)
-  const areNodesMeasured = useNodesInitialized()
+  const flowStore = useStoreApi()
+  // Stops waiting to frame the last example opened (another one opened, or the editor unmounts).
+  const cancelFitRef = useRef<(() => void) | null>(null)
 
-  // Frame the example once React Flow has measured every node of it (its new nodes start
-  // unmeasured): fitting earlier would only frame the few it had measured.
-  useEffect(() => {
-    if (!isFitPendingRef.current || !areNodesMeasured) return
-    isFitPendingRef.current = false
-    fitAll()
-  }, [areNodesMeasured, fitAll])
+  useEffect(
+    () => () => {
+      cancelFitRef.current?.()
+    },
+    [],
+  )
+
+  /**
+   * Frames `graph` once the canvas holds all of its nodes, measured. Sizes the canvas kept from
+   * an earlier graph with the same ids count, so opening the same example again frames it on the
+   * next frame instead of waiting for a measurement that never comes.
+   */
+  const fitWhenMeasured = useCallback(
+    (graph: Graph) => {
+      cancelFitRef.current?.()
+      const fitIfMeasured = (state: ReactFlowState): void => {
+        if (!isGraphMeasured(graph, (nodeId) => state.nodeLookup.get(nodeId)?.measured)) return
+        cancelFitRef.current?.()
+        fitAll()
+      }
+      const unsubscribe = flowStore.subscribe(fitIfMeasured)
+      // The canvas takes the new nodes on its next render: check from then on, not before.
+      const frame = requestAnimationFrame(() => {
+        fitIfMeasured(flowStore.getState())
+      })
+      cancelFitRef.current = () => {
+        unsubscribe()
+        cancelAnimationFrame(frame)
+        cancelFitRef.current = null
+      }
+    },
+    [flowStore, fitAll],
+  )
 
   const open = useCallback(
     (example: Example) => {
-      if (openExample(example, locale)) isFitPendingRef.current = true
+      if (openExample(example, locale)) fitWhenMeasured(useEditorStore.getState().graph)
     },
-    [locale],
+    [locale, fitWhenMeasured],
   )
 
   const requestExample = useCallback<RequestExample>(

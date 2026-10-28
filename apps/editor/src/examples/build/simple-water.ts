@@ -8,9 +8,15 @@ import { hexColor } from './hex-color'
  * The phase-1 water snippet with its colors and wave settings as properties: sine waves over the
  * UV blend a deep and a shallow color, and a fresnel rim glows on the edges.
  */
+
+/**
+ * Radians of wave per unit of UV. The phase-1 snippet's 12 rolls about two waves around the
+ * sphere, which reads as one flat color; 40 shows six or so.
+ */
+const WAVE_FREQUENCY = 40
 export const SIMPLE_WATER: ExampleSpec = {
   properties: [
-    { name: 'waveFrequency', label: 'Wave frequency', value: float(12) },
+    { name: 'waveFrequency', label: 'Wave frequency', value: float(WAVE_FREQUENCY) },
     { name: 'waveSpeed', label: 'Wave speed', value: float(1.5) },
     { name: 'deepColor', label: 'Deep color', value: hexColor('#082040'), widget: 'color' },
     { name: 'shallowColor', label: 'Shallow color', value: hexColor('#50C3CF'), widget: 'color' },

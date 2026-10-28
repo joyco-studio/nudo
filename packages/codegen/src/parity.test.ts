@@ -92,6 +92,8 @@ describe('generated module parity', () => {
     const loaded = await loadGenerated(unwrap(parseGraph(lettraPondGraph, registry)))
 
     expect(expectEverySlotIsANode(loaded)).toEqual(['colorNode', 'opacityNode'])
+    expect(loaded.code).toContain('MeshBasicNodeMaterial')
+    expect(loaded.code).not.toContain('MeshStandardNodeMaterial')
     const uniforms = isRecord(loaded.exports.uniforms) ? Object.keys(loaded.exports.uniforms) : []
     expect(uniforms).toContain('waveSpeed')
     expect(uniforms).toContain('laceCoreSun')
