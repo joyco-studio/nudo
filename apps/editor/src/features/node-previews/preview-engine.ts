@@ -5,11 +5,20 @@ import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 import { Mesh, Scene } from 'three'
 import type { Camera, ColorRepresentation, Object3D } from 'three'
 
-import { changedProperties, diffInlineValues } from '@/features/main-preview/graph-value-diff'
+import {
+  changedProperties,
+  diffInlineValues,
+  nodesWithRemovedValues,
+} from '@/shared/lib/graph-value-diff'
 import type { RendererBackend } from '@/features/main-preview/create-renderer'
 import { registry as defaultRegistry } from '@/store/registry'
 
-import { isAnimatedPreview, resolvePreviewShape, upstreamTopologyKey } from './preview-graph'
+import {
+  isAnimatedPreview,
+  resolvePreviewShape,
+  upstreamNodeIds,
+  upstreamTopologyKey,
+} from './preview-graph'
 import type { PreviewShape } from './preview-graph'
 import {
   browserFrameClock,
@@ -166,6 +175,17 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
     entry.build = null
   }
 
+  /**
+   * A preview that cannot compile or draw drops its material, so it stops rendering (and taking
+   * budget) until its upstream changes and it is built again.
+   */
+  const failEntry = (entry: PreviewEntry): void => {
+    entry.isCompiling = false
+    entry.isDirty = false
+    releaseMaterial(entry)
+    setStatus(entry, 'error')
+  }
+
   /** A compile in flight asks for a frame itself when it finishes, so it keeps no loop alive. */
   const hasWork = (entry: PreviewEntry): boolean =>
     entry.isVisible &&
@@ -190,8 +210,7 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
       },
       () => {
         if (entry.generation !== generation) return
-        entry.isCompiling = false
-        setStatus(entry, 'error')
+        failEntry(entry)
       },
     )
   }
@@ -204,8 +223,7 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
     releaseMaterial(entry)
     const build = buildMaterial(graph, entry.ref)
     if (build.material === null) {
-      entry.isCompiling = false
-      setStatus(entry, 'error')
+      failEntry(entry)
       return
     }
     entry.build = build
@@ -221,7 +239,7 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
       activeRenderer.render(entry.scene, stages[entry.shape].camera)
       present(activeRenderer.domElement, entry.canvas)
     } catch {
-      setStatus(entry, 'error')
+      failEntry(entry)
       return
     }
     options.onRendered?.(clock.now() - startedAt)
@@ -299,9 +317,9 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
     entry.buildAfter = clock.now() + rebuildDelayMs
   }
 
-  const markForRebuild = (entry: PreviewEntry): void => {
+  const markForRebuild = (entry: PreviewEntry, delayMs = 0): void => {
     entry.needsBuild = true
-    entry.buildAfter = clock.now()
+    entry.buildAfter = clock.now() + delayMs
   }
 
   /** Applies a value in place; a value no uniform can hold (a texture swap) rebuilds instead. */
@@ -314,10 +332,28 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
     }
   }
 
+  const readsAnyOf = (entry: PreviewEntry, next: Graph, nodeIds: ReadonlySet<NodeId>): boolean => {
+    const upstream = upstreamNodeIds(next, entry.ref.nodeId)
+    return [...nodeIds].some((nodeId) => upstream.has(nodeId))
+  }
+
+  /** Previews that read one of `nodeIds` upstream (and pass `isEligible`) build again after a pause. */
+  const rebuildReaders = (
+    next: Graph,
+    nodeIds: ReadonlySet<NodeId>,
+    isEligible: (entry: PreviewEntry) => boolean,
+  ): void => {
+    if (nodeIds.size === 0) return
+    for (const entry of entries.values()) {
+      if (entry.needsBuild || !isEligible(entry) || !readsAnyOf(entry, next, nodeIds)) continue
+      markForRebuild(entry, rebuildDelayMs)
+    }
+  }
+
   const applyValueChanges = (previous: Graph, next: Graph): void => {
     const changes = diffInlineValues(previous, next)
     if (changes === null) {
-      for (const entry of entries.values()) markForRebuild(entry)
+      rebuildReaders(next, nodesWithRemovedValues(previous, next), () => true)
       return
     }
     for (const { ref, value } of changes) {
@@ -326,6 +362,9 @@ export function createPreviewEngine(options: PreviewEngineOptions): PreviewEngin
     for (const { id, value } of changedProperties(previous, next)) {
       applyToEntries((build) => applyPropertyValue(build, id, value))
     }
+    // A failed preview has no uniforms to update: a value change upstream gives it another try.
+    const changedNodes = new Set(changes.map(({ ref }) => ref.nodeId))
+    rebuildReaders(next, changedNodes, (entry) => entry.status === 'error')
   }
 
   const createEntry = (

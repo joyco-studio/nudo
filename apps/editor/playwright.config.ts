@@ -6,25 +6,26 @@ const BASE_URL = `http://localhost:${String(PORT)}`
 const isCi = Boolean(process.env.CI)
 
 /**
- * `E2E_GPU=1` adds a GPU-backed run (WebGPU on, Metal ANGLE on macOS) of the preview specs. The
- * default headless run has no GPU, so it only ever exercises the WebGL2 fallback in software;
- * this one checks node previews copied from a WebGPU canvas and gives realistic frame costs.
+ * `E2E_GPU=1` (exactly) adds a GPU-backed run (WebGPU on, Metal ANGLE on macOS) of the preview
+ * specs. The default headless run has no GPU, so it only exercises the WebGL2 fallback in
+ * software; this one checks node previews copied from a WebGPU canvas, with realistic frame costs.
  */
-const gpuProjects = process.env.E2E_GPU
-  ? [
-      {
-        name: 'chromium-gpu',
-        testMatch: /(node-previews|preview)\.spec\.ts/,
-        use: {
-          ...devices['Desktop Chrome'],
-          channel: 'chromium',
-          launchOptions: {
-            args: ['--enable-unsafe-webgpu', '--use-angle=metal', '--ignore-gpu-blocklist'],
+const gpuProjects =
+  process.env.E2E_GPU === '1'
+    ? [
+        {
+          name: 'chromium-gpu',
+          testMatch: /(node-previews|preview)\.spec\.ts/,
+          use: {
+            ...devices['Desktop Chrome'],
+            channel: 'chromium',
+            launchOptions: {
+              args: ['--enable-unsafe-webgpu', '--use-angle=metal', '--ignore-gpu-blocklist'],
+            },
           },
         },
-      },
-    ]
-  : []
+      ]
+    : []
 
 export default defineConfig({
   testDir: './e2e',

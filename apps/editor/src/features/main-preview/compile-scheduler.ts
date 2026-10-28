@@ -3,7 +3,7 @@ import type { Graph, NodeRegistry, PortRef, PortValue, PropertyId } from '@nudo-
 import { applyBuildInputValue, applyPropertyValue } from '@nudo-tsl/runtime'
 import type { ApplyInputValueResult, MaterialBuild } from '@nudo-tsl/runtime'
 
-import { changedProperties, diffInlineValues } from './graph-value-diff'
+import { changedProperties, diffInlineValues } from '@/shared/lib/graph-value-diff'
 
 export interface CompileSchedulerOptions {
   /** Tells `topologyKey` which params are editor-only, so editing them never recompiles. */

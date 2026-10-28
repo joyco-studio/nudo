@@ -17,7 +17,7 @@
     },
     "e2e": {
       "cache": false,
-      "passThroughEnv": ["CI"]
+      "passThroughEnv": ["CI", "E2E_PORT", "E2E_GPU"]
     },
     "dev": {
       "cache": false,

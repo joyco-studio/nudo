@@ -10,13 +10,18 @@ import type { Graph, PortRef } from '@nudo-tsl/core'
 import { createPreviewMaterial } from '@nudo-tsl/runtime'
 import type { MaterialBuild } from '@nudo-tsl/runtime'
 import type { Object3D } from 'three'
-import { Vector3 } from 'three'
+import { Mesh, Vector3 } from 'three'
 import { describe, expect, it, vi } from 'vitest'
 
 import { registry } from '@/store/registry'
 
 import { createPreviewEngine } from './preview-engine'
-import type { NodePreviewSnapshot, PreviewEngineOptions, PreviewRenderer } from './preview-engine'
+import type {
+  NodePreviewSnapshot,
+  PreviewEngineOptions,
+  PreviewRenderer,
+  PreviewRendererResult,
+} from './preview-engine'
 import type { FrameClock } from './preview-scheduler'
 import { graphWith, id, port, unwrap, withEdge, withNode } from './test-graph'
 
@@ -59,9 +64,17 @@ function createManualClock() {
   }
 }
 
+interface FakeRendererBehaviour {
+  /** Every render throws, like a pipeline the backend rejects. */
+  failRender?: boolean
+  /** Every compile rejects, like a material whose shader does not build. */
+  failCompile?: boolean
+}
+
 /** Stands in for WebGPURenderer: records what each render drew instead of drawing it. */
-function createFakeRenderer() {
+function createFakeRenderer(behaviour: FakeRendererBehaviour = {}) {
   const rendered: Object3D[] = []
+  const dispose = vi.fn()
   const renderer: PreviewRenderer = {
     domElement: document.createElement('canvas'),
     setPixelRatio: () => {},
@@ -69,19 +82,30 @@ function createFakeRenderer() {
     setClearColor: () => {},
     render: (scene: Object3D) => {
       rendered.push(scene)
+      if (behaviour.failRender === true) throw new Error('render failed')
     },
-    compileAsync: () => Promise.resolve(),
-    dispose: () => {},
+    compileAsync: () =>
+      behaviour.failCompile === true
+        ? Promise.reject(new Error('compile failed'))
+        : Promise.resolve(),
+    dispose,
   }
-  return { renderer, rendered }
+  return { renderer, rendered, dispose }
 }
 
-function setUp(overrides: Partial<PreviewEngineOptions> = {}) {
+function setUp(
+  overrides: Partial<PreviewEngineOptions> = {},
+  behaviour: FakeRendererBehaviour = {},
+) {
   const manual = createManualClock()
-  const { renderer, rendered } = createFakeRenderer()
-  const buildMaterial = vi.fn((graph: Graph, ref: PortRef): MaterialBuild =>
-    createPreviewMaterial(graph, registry, ref),
-  )
+  const { renderer, rendered, dispose: disposeRenderer } = createFakeRenderer(behaviour)
+  /** Called once for every preview material the engine disposes. */
+  const materialDisposed = vi.fn()
+  const buildMaterial = vi.fn((graph: Graph, ref: PortRef): MaterialBuild => {
+    const build = createPreviewMaterial(graph, registry, ref)
+    build.material?.addEventListener('dispose', materialDisposed)
+    return build
+  })
   const present = vi.fn<(source: HTMLCanvasElement, target: HTMLCanvasElement) => void>()
   const engine = createPreviewEngine({
     size: SIZE,
@@ -131,6 +155,8 @@ function setUp(overrides: Partial<PreviewEngineOptions> = {}) {
     engine,
     manual,
     rendered,
+    disposeRenderer,
+    materialDisposed,
     present,
     show,
     buildsOf,
@@ -444,5 +470,167 @@ describe('preview engine', () => {
     await harness.settle()
 
     expect(harness.present.mock.calls.filter(([, target]) => target === canvas)).toHaveLength(1)
+  })
+})
+
+/** Time feeding Fract: an animated preview that is due again every frame interval. */
+const TIME_TO_FRACT = withEdge(
+  graphWith([
+    ['time', 'input/time'],
+    ['fract', 'math/fract'],
+  ]),
+  port('time', 'out'),
+  port('fract', 'in'),
+)
+const FRACT_OUT = port('fract', 'out')
+
+describe('preview engine errors', () => {
+  it('an animated preview whose render throws stops rendering until its upstream changes', async () => {
+    const harness = setUp({}, { failRender: true })
+    harness.engine.update(TIME_TO_FRACT)
+    harness.show(FRACT_OUT)
+    await harness.settle(4)
+    expect(harness.rendered).toHaveLength(1)
+
+    for (let frame = 0; frame < 20; frame += 1) await harness.manual.frame(100)
+
+    // One failed attempt, then nothing: no retries every frame interval, no budget taken.
+    expect(harness.snapshots.get('fract')?.status).toBe('error')
+    expect(harness.rendered).toHaveLength(1)
+    expect(harness.materialDisposed).toHaveBeenCalledOnce()
+    expect(harness.manual.hasPendingFrame()).toBe(false)
+  })
+
+  it('a compile that fails releases the material and renders nothing', async () => {
+    const harness = setUp({}, { failCompile: true })
+    harness.engine.update(TIME_TO_FRACT)
+    harness.show(FRACT_OUT)
+    await harness.settle()
+    for (let frame = 0; frame < 10; frame += 1) await harness.manual.frame(100)
+
+    expect(harness.snapshots.get('fract')?.status).toBe('error')
+    expect(harness.materialDisposed).toHaveBeenCalledOnce()
+    expect(harness.rendered).toHaveLength(0)
+    expect(harness.manual.hasPendingFrame()).toBe(false)
+  })
+
+  it('a failed preview is built again once its upstream changes', async () => {
+    const failing = vi.fn((graph: Graph, ref: PortRef): MaterialBuild => {
+      const build = createPreviewMaterial(graph, registry, ref)
+      return failing.mock.calls.length === 1 ? { ...build, material: null } : build
+    })
+    const harness = setUp({ buildMaterial: failing })
+    harness.engine.update(COLOR_GRAPH)
+    harness.show(COLOR_OUT)
+    await harness.settle()
+    expect(harness.snapshots.get('color')?.status).toBe('error')
+
+    harness.engine.update(unwrap(setInputValue(COLOR_GRAPH, port('color', 'color'), vec3(0, 1, 0))))
+    await harness.manual.frame(REBUILD_DELAY_MS)
+    await harness.settle()
+
+    expect(failing).toHaveBeenCalledTimes(2)
+    expect(harness.snapshots.get('color')?.status).toBe('ready')
+  })
+
+  it('a value that disappears rebuilds only the previews reading that node, after the pause', async () => {
+    const graph = graphWith([
+      ['a', 'input/color'],
+      ['b', 'input/color'],
+    ])
+    const withValues = unwrap(
+      setInputValue(
+        unwrap(setInputValue(graph, port('a', 'color'), vec3(1, 0, 0))),
+        port('b', 'color'),
+        vec3(0, 0, 1),
+      ),
+    )
+    const harness = setUp()
+    harness.engine.update(withValues)
+    harness.show(port('a', 'out'))
+    harness.show(port('b', 'out'))
+    await harness.settle()
+
+    const nodeA = withValues.nodes[id('a')]
+    if (nodeA === undefined) throw new Error('No node a')
+    harness.engine.update({
+      ...withValues,
+      nodes: { ...withValues.nodes, [nodeA.id]: { ...nodeA, inputValues: {} } },
+    })
+    await harness.manual.frame()
+    expect(harness.buildsOf('a')).toBe(1)
+
+    await harness.manual.frame(REBUILD_DELAY_MS)
+    await harness.settle()
+    expect(harness.buildsOf('a')).toBe(2)
+    expect(harness.buildsOf('b')).toBe(1)
+  })
+})
+
+const isMesh = (object: Object3D): object is Mesh => object instanceof Mesh
+
+describe('preview engine lifecycle', () => {
+  it('disposes the material when a preview is unregistered', async () => {
+    const harness = setUp()
+    harness.engine.update(COLOR_GRAPH)
+    const unregister = harness.engine.register(COLOR_OUT, document.createElement('canvas'))
+    harness.engine.setVisible(id('color'), true)
+    await harness.settle()
+    expect(harness.materialDisposed).not.toHaveBeenCalled()
+
+    unregister()
+
+    expect(harness.materialDisposed).toHaveBeenCalledOnce()
+  })
+
+  it('disposes the old material when the same node registers again', async () => {
+    const harness = setUp()
+    harness.engine.update(COLOR_GRAPH)
+    harness.show(COLOR_OUT)
+    await harness.settle()
+
+    harness.show(COLOR_OUT)
+    await harness.settle()
+
+    expect(harness.materialDisposed).toHaveBeenCalledOnce()
+    expect(harness.buildsOf('color')).toBe(2)
+  })
+
+  it('disposes the renderer, the shared geometry and every material with the engine', async () => {
+    const harness = setUp()
+    harness.engine.update(COLOR_GRAPH)
+    harness.show(COLOR_OUT)
+    await harness.settle()
+    const [scene] = harness.rendered
+    const mesh = scene?.children[0]
+    if (mesh === undefined || !isMesh(mesh)) throw new Error('Nothing rendered')
+    const geometryDisposed = vi.fn()
+    mesh.geometry.addEventListener('dispose', geometryDisposed)
+
+    harness.engine.dispose()
+
+    expect(harness.disposeRenderer).toHaveBeenCalledOnce()
+    expect(harness.materialDisposed).toHaveBeenCalledOnce()
+    expect(geometryDisposed).toHaveBeenCalledOnce()
+  })
+
+  it('disposes a renderer that finishes starting after the engine is gone', async () => {
+    const { renderer, dispose } = createFakeRenderer()
+    let finishStarting: (result: PreviewRendererResult) => void = () => {}
+    const harness = setUp({
+      createRenderer: () =>
+        new Promise<PreviewRendererResult>((resolve) => {
+          finishStarting = resolve
+        }),
+    })
+    harness.engine.update(COLOR_GRAPH)
+    harness.show(COLOR_OUT)
+    harness.engine.dispose()
+
+    finishStarting({ ok: true, renderer, backend: 'webgl2' })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(dispose).toHaveBeenCalledOnce()
   })
 })

@@ -29,8 +29,8 @@ const TIME_TO_FRACT = graphDocument(
 
 /** How long the frame-budget test watches the tutorial graph animate. */
 const MEASURE_MS = 3000
-/** Lets the tutorial graph's previews build and compile before measuring. */
-const WARM_UP_MS = 2000
+/** Previews of the tutorial graph that fit in the default 1280×720 viewport, at least. */
+const MIN_ON_SCREEN_PREVIEWS = 6
 const PREVIEW_FPS_CAP = 20
 
 /** Long enough to cover a few 20 fps frames, short enough to land inside one sawtooth tooth. */
@@ -51,20 +51,32 @@ function nodePreview(page: Page, title: string): Locator {
   return page.getByRole('img', { name: `${title} preview`, exact: true })
 }
 
-/** The pixel at the center of a node preview canvas, read from its 2D context. */
-async function centerPixel(preview: Locator): Promise<Rgba> {
-  return preview.evaluate((element) => {
-    if (!(element instanceof HTMLCanvasElement)) throw new Error('Not a canvas')
-    const context = element.getContext('2d')
-    if (context === null) throw new Error('No 2D context')
-    const [r = 0, g = 0, b = 0, a = 0] = context.getImageData(
-      Math.floor(element.width / 2),
-      Math.floor(element.height / 2),
-      1,
-      1,
-    ).data
-    return { r, g, b, a }
-  })
+/** A pixel of a node preview canvas, at a fraction of its width and height, from its 2D context. */
+async function pixelAt(preview: Locator, fractionX: number, fractionY: number): Promise<Rgba> {
+  return preview.evaluate(
+    (element, [x, y]) => {
+      if (!(element instanceof HTMLCanvasElement)) throw new Error('Not a canvas')
+      const context = element.getContext('2d')
+      if (context === null) throw new Error('No 2D context')
+      const [r = 0, g = 0, b = 0, a = 0] = context.getImageData(
+        Math.floor((element.width - 1) * x),
+        Math.floor((element.height - 1) * y),
+        1,
+        1,
+      ).data
+      return { r, g, b, a }
+    },
+    [fractionX, fractionY] as const,
+  )
+}
+
+const centerPixel = (preview: Locator): Promise<Rgba> => pixelAt(preview, 0.5, 0.5)
+
+/** The `data-preview-status` of every preview frame on the canvas. */
+async function previewStatuses(page: Page): Promise<(string | null)[]> {
+  return page
+    .locator('[data-preview-status]')
+    .evaluateAll((frames) => frames.map((frame) => frame.getAttribute('data-preview-status')))
 }
 
 async function storedShowPreview(page: Page, nodeId: string): Promise<unknown> {
@@ -158,24 +170,24 @@ test.describe('node previews', () => {
 
     const frame = color.locator('[data-preview-shape]')
     await expect(frame).toHaveAttribute('data-preview-shape', '3d')
-    // The sphere fills the middle; the corners stay outside the round mask.
-    await expect
-      .poll(() => centerPixel(nodePreview(page, 'Color')))
-      .toMatchObject({ g: 255, a: 255 })
+    await expect(frame).not.toHaveCSS('border-top-left-radius', '0px')
+    // The sphere fills the middle; the corners, outside the round mask, are left transparent.
+    const preview = nodePreview(page, 'Color')
+    await expect.poll(() => centerPixel(preview)).toMatchObject({ g: 255, a: 255 })
+    expect((await pixelAt(preview, 0, 0)).a).toBe(0)
+    expect((await pixelAt(preview, 1, 1)).a).toBe(0)
   })
 
   test('tutorial-size graph keeps animated previews under the frame budget', async ({ page }) => {
     await seedAutosave(page, BLOB_TUTORIAL_GRAPH)
     await page.goto('/')
     await expect(nodePreview(page, 'Remap')).toBeVisible()
-    await page.waitForTimeout(WARM_UP_MS)
-
-    const statuses = await page
-      .locator('[data-preview-status]')
-      .evaluateAll((frames) => frames.map((frame) => frame.getAttribute('data-preview-status')))
-    // Off-screen previews stay pending (never built or drawn); none of the rest fails.
+    // Off-screen previews stay pending (never built or drawn); the on-screen ones get drawn.
+    await expect
+      .poll(async () => (await previewStatuses(page)).filter((status) => status === 'ready').length)
+      .toBeGreaterThanOrEqual(MIN_ON_SCREEN_PREVIEWS)
+    const statuses = await previewStatuses(page)
     const drawn = statuses.filter((status) => status === 'ready').length
-    expect(drawn).toBeGreaterThan(5)
     expect(statuses.filter((status) => status === 'error' || status === 'unavailable')).toEqual([])
 
     await page.evaluate(() => {

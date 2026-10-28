@@ -10,6 +10,8 @@ import type {
   PortRef,
 } from '@nudo-tsl/core'
 
+import { COMMENT_TYPE } from '@/features/canvas/to-flow'
+
 /** The universal param that shows or hides a node's preview (see `UNIVERSAL_PARAMS` in core). */
 export const SHOW_PREVIEW_PARAM = 'showPreview'
 /** The universal param that forces a preview to 2D or 3D, or leaves it on `auto`. */
@@ -18,11 +20,14 @@ export const PREVIEW_MODE_PARAM = 'previewMode'
 /** A flat quad (2D, drawn square) or a sphere (3D, drawn as a circle like Unity's previews). */
 export type PreviewShape = '2d' | '3d'
 
+/** Task 7i's reroute node: a dot on a wire that passes its value through unchanged. */
+export const REROUTE_NODE_TYPE: NodeTypeId = 'utility/reroute'
+
 /**
  * Nodes that pass a value along without shaping it have nothing of their own to show: a reroute
  * is a dot on a wire, and a comment has no output.
  */
-const NO_PREVIEW_TYPES: ReadonlySet<NodeTypeId> = new Set(['utility/comment', 'utility/reroute'])
+const NO_PREVIEW_TYPES: ReadonlySet<NodeTypeId> = new Set([COMMENT_TYPE, REROUTE_NODE_TYPE])
 
 /** Upstream nodes whose value only makes sense on a curved surface, so `auto` picks the sphere. */
 const SURFACE_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([

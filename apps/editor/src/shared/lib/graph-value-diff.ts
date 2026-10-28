@@ -1,5 +1,5 @@
 import { portKey } from '@nudo-tsl/core'
-import type { BlackboardProperty, Graph, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
+import type { BlackboardProperty, Graph, NodeId, PortKey, PortRef, PortValue } from '@nudo-tsl/core'
 
 /**
  * An inline value that changed between two graphs of the same topology. The Main Preview and the
@@ -36,6 +36,21 @@ export function diffInlineValues(
     }
   }
   return changes
+}
+
+/**
+ * The nodes that lost an inline value between two graphs: what `diffInlineValues` cannot express
+ * in place, so whatever reads those nodes has to be built again.
+ */
+export function nodesWithRemovedValues(previous: Graph, next: Graph): ReadonlySet<NodeId> {
+  const nodeIds = new Set<NodeId>()
+  for (const node of Object.values(next.nodes)) {
+    const previousValues = previous.nodes[node.id]?.inputValues ?? {}
+    if (Object.keys(previousValues).some((portId) => !(portId in node.inputValues))) {
+      nodeIds.add(node.id)
+    }
+  }
+  return nodeIds
 }
 
 /** Blackboard properties whose value differs between two graphs, matched by id. */
