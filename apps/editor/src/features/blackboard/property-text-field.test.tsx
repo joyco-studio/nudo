@@ -3,10 +3,12 @@ import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { MessageKey } from '@/i18n/translate'
+
 import { PropertyTextField } from './property-text-field'
 import type { DraftOutcome } from './use-text-draft'
 
-const REJECTION = 'Nope.'
+const REJECTION = 'property.error.emptyLabel'
 
 /** Sets an input's value the way typing does, so React's onChange fires. */
 function typeInto(input: HTMLInputElement, text: string): void {
@@ -22,7 +24,7 @@ function press(input: HTMLInputElement, key: string): void {
 describe('PropertyTextField', () => {
   let container: HTMLDivElement
   let root: Root
-  const commit = vi.fn<(text: string) => string | null>()
+  const commit = vi.fn<(text: string) => MessageKey | null>()
   const onDone = vi.fn<(outcome: DraftOutcome, via: 'key' | 'blur') => void>()
 
   function render(onInvalidBlur: 'keep' | 'revert'): HTMLInputElement {
@@ -87,7 +89,7 @@ describe('PropertyTextField', () => {
     })
 
     const alert = message()
-    expect(alert?.textContent).toBe(REJECTION)
+    expect(alert?.textContent).toBe('Enter a name.')
     expect(input.getAttribute('aria-invalid')).toBe('true')
     expect(input.getAttribute('aria-describedby')).toBe(alert?.id)
     expect(input.value).toBe('2x')

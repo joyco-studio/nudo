@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { DragEventHandler } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from '@xyflow/react'
 import type {
+  AriaLabelConfig,
   EdgeTypes,
   IsValidConnection,
   NodeTypes,
@@ -10,6 +11,9 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
+
+import type { MessageKey, Translate } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { CanvasControls } from './canvas-controls'
 import { CommentNodeView } from './comment-node-view'
@@ -23,6 +27,32 @@ import type { FlowEdge, FlowNode } from './to-flow'
 import './graph-canvas.css'
 
 const NODE_TYPES: NodeTypes = { [GRAPH_NODE_TYPE]: NodeView, [COMMENT_NODE_TYPE]: CommentNodeView }
+
+/** React Flow's arrow-key directions, as its live region announces a moved node. */
+function directionKey(direction: string): MessageKey | null {
+  switch (direction) {
+    case 'up':
+    case 'down':
+    case 'left':
+    case 'right':
+      return `canvas.direction.${direction}`
+    default:
+      return null
+  }
+}
+
+/** React Flow's own screen reader texts (edge hints, the moved-node announcement), translated. */
+function flowAriaLabels(t: Translate): Partial<AriaLabelConfig> {
+  return {
+    'node.a11yDescription.default': t('canvas.nodeDescription'),
+    'node.a11yDescription.keyboardDisabled': t('canvas.nodeDescription'),
+    'node.a11yDescription.ariaLiveMessage': ({ direction, x, y }) => {
+      const key = directionKey(direction)
+      return t('canvas.nodeMoved', { direction: key === null ? direction : t(key), x, y })
+    },
+    'edge.a11yDescription.default': t('canvas.edgeDescription'),
+  }
+}
 const EDGE_TYPES: EdgeTypes = { [TYPED_EDGE_TYPE]: TypedEdge }
 const GRID_GAP = 20
 
@@ -51,6 +81,8 @@ export function GraphCanvas({
   onDrop,
 }: GraphCanvasProps) {
   const [fitViewOptions] = useState(() => fitViewOptionsFor(window.innerWidth))
+  const t = useT()
+  const ariaLabelConfig = useMemo(() => flowAriaLabels(t), [t])
 
   return (
     <PaneContextMenu>
@@ -72,6 +104,7 @@ export function GraphCanvas({
         panActivationKeyCode={null}
         fitView
         fitViewOptions={fitViewOptions}
+        ariaLabelConfig={ariaLabelConfig}
       >
         <Background
           variant={BackgroundVariant.Dots}

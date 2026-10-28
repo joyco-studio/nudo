@@ -13,13 +13,13 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import { ADD_PROPERTY_ATTRIBUTE } from './property-focus'
 import { PROPERTY_KINDS, PROPERTY_KIND_SPECS } from './property-kinds'
 import type { PropertyKind } from './property-kinds'
 import { startRenaming } from './renaming-property'
 
-const ADD_PROPERTY_LABEL = 'Add property'
 const ADD_PROPERTY_TRIGGER_PROPS = { [ADD_PROPERTY_ATTRIBUTE]: '', ...EXCLUSIVE_TRIGGER_PROPS }
 
 export interface AddPropertyMenuProps {
@@ -32,6 +32,7 @@ export interface AddPropertyMenuProps {
  */
 export function AddPropertyMenu({ onAdd }: AddPropertyMenuProps) {
   const menu = useCanvasMenu()
+  const t = useT()
 
   return (
     <DropdownMenu onOpenChange={menu.onOpenChange}>
@@ -42,17 +43,17 @@ export function AddPropertyMenu({ onAdd }: AddPropertyMenuProps) {
               static
               variant="ghost"
               size="icon-sm"
-              aria-label={ADD_PROPERTY_LABEL}
+              aria-label={t('property.add')}
               {...ADD_PROPERTY_TRIGGER_PROPS}
             >
               <Plus aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent side="bottom">{ADD_PROPERTY_LABEL}</TooltipContent>
+        <TooltipContent side="bottom">{t('property.add')}</TooltipContent>
       </Tooltip>
       <DropdownMenuContent
-        aria-label={ADD_PROPERTY_LABEL}
+        aria-label={t('property.add')}
         align="end"
         className={cn(MENU_SURFACE_CLASS, 'w-auto min-w-36 p-1')}
         onCloseAutoFocus={menu.onCloseAutoFocus}
@@ -70,7 +71,7 @@ export function AddPropertyMenu({ onAdd }: AddPropertyMenuProps) {
               }
             }}
           >
-            {PROPERTY_KIND_SPECS[kind].label}
+            {t(PROPERTY_KIND_SPECS[kind].label)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

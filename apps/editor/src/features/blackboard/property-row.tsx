@@ -8,6 +8,7 @@ import { TypeChip } from '@/shared/components/type-chip'
 import { Button } from '@/shared/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/ui/collapsible'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import type { BlackboardActions } from './blackboard-actions'
 import { PROPERTY_HANDLE_ATTRIBUTE, focusSiblingHandle } from './property-focus'
@@ -19,14 +20,6 @@ import { PropertyTextField } from './property-text-field'
 import { PropertyValueField } from './property-value-field'
 import { startRenaming, stopRenaming, useIsRenaming } from './renaming-property'
 
-const DETAILS_LABEL = 'Details'
-const DELETE_LABEL = 'Delete property'
-const RENAME_FIELD_LABEL = 'Property name'
-const ADD_TO_CANVAS_HINT = 'Add to canvas'
-const DRAG_HINT = 'Drag onto the canvas'
-const RENAME_HINT = 'Double-click to rename'
-const HANDLE_DESCRIPTION =
-  'Press Enter to add it to the canvas, or drag it there. F2 renames it and Delete removes it.'
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace'])
 const ARROW_OFFSETS: Readonly<Record<string, 1 | -1>> = { ArrowDown: 1, ArrowUp: -1 }
 
@@ -52,6 +45,7 @@ interface PropertyHandleProps {
  */
 function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProps) {
   const descriptionId = useId()
+  const t = useT()
 
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>): void => {
     const offset = ARROW_OFFSETS[event.key]
@@ -103,13 +97,13 @@ function PropertyHandle({ property, actions, onDelete, ref }: PropertyHandleProp
         </TooltipTrigger>
         <TooltipContent side="top" align="start" aria-hidden="true">
           <span className="flex flex-col">
-            <span>{DRAG_HINT}</span>
-            <span className="text-micro opacity-80">{RENAME_HINT}</span>
+            <span>{t('property.dragHint')}</span>
+            <span className="text-micro opacity-80">{t('property.renameHint')}</span>
           </span>
         </TooltipContent>
       </Tooltip>
       <span id={descriptionId} className="sr-only">
-        {HANDLE_DESCRIPTION}
+        {t('property.handleDescription')}
       </span>
     </>
   )
@@ -124,6 +118,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
   const isRenaming = useIsRenaming(property.id)
   const handleRef = useRef<HTMLButtonElement>(null)
   const isHandleFocusOwed = useRef(false)
+  const t = useT()
 
   // The handle mounts again when a rename ends: focus it before anything else can move focus.
   useLayoutEffect(() => {
@@ -143,7 +138,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                 static
                 variant="ghost"
                 size="icon-xs"
-                aria-label={DETAILS_LABEL}
+                aria-label={t('property.details')}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <DisclosureChevron isOpen={isOpen} />
@@ -151,7 +146,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
             </CollapsibleTrigger>
             {isRenaming ? (
               <PropertyTextField
-                accessibleName={RENAME_FIELD_LABEL}
+                accessibleName={t('property.renameField')}
                 font="sans"
                 isAutoFocused
                 className="flex-1"
@@ -182,7 +177,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                   static
                   variant="ghost"
                   size="icon-xs"
-                  aria-label={`Add ${property.label} to canvas`}
+                  aria-label={t('property.addNamedToCanvas', { name: property.label })}
                   className="text-muted-foreground hover:text-foreground"
                   onClick={() => {
                     actions.addToCanvas(property.id)
@@ -191,7 +186,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                   <SquarePlus aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{ADD_TO_CANVAS_HINT}</TooltipContent>
+              <TooltipContent side="top">{t('property.addToCanvas')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -199,14 +194,14 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
                   static
                   variant="ghost"
                   size="icon-xs"
-                  aria-label={DELETE_LABEL}
+                  aria-label={t('property.delete')}
                   className="text-muted-foreground hover:text-destructive"
                   onClick={onDelete}
                 >
                   <Trash2 aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{DELETE_LABEL}</TooltipContent>
+              <TooltipContent side="top">{t('property.delete')}</TooltipContent>
             </Tooltip>
           </div>
           <div className="flex min-h-7 flex-wrap items-center gap-x-1.5 pr-2 pb-1 pl-8">

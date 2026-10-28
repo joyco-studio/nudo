@@ -3,6 +3,7 @@ import { NodeResizer } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
 
 import { cn } from '@/shared/lib/utils'
+import { useT } from '@/i18n/use-t'
 
 import { CommentBodyField } from './comment-body-field'
 import { commentBody } from './comment-params'
@@ -20,6 +21,7 @@ import type { FlowNode } from './to-flow'
  */
 function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const frame = frameOf(data.node, data.definition)
+  const t = useT()
 
   return (
     <>
@@ -50,7 +52,7 @@ function CommentNodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
             <CommentTitleField
               nodeId={data.node.id}
               title={data.title}
-              ariaLabel="Comment title"
+              ariaLabel={t('comment.title')}
               className="nodrag h-full w-auto max-w-full min-w-0 field-sizing-content rounded-none border-transparent bg-transparent px-[7px] py-0 font-heading text-base font-semibold tracking-wide uppercase shadow-none md:text-xs dark:bg-transparent"
             />
           </header>

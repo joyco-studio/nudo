@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { MaterialValidation } from './validate-material'
 import { useValidatedMaterial } from './use-validated-material'
+import type { MaterialStatusHandler } from './use-validated-material'
 
 const mocks = vi.hoisted(() => ({
   validateMaterial: vi.fn(),
@@ -23,7 +24,7 @@ type Candidate = RuntimeMaterial | null
 interface HarnessProps {
   candidate: Candidate
   onAccepted: (accepted: Candidate) => void
-  onStatus: (rejection: string | null) => void
+  onStatus: MaterialStatusHandler
 }
 
 function Harness({ candidate, onAccepted, onStatus }: HarnessProps) {
@@ -39,7 +40,7 @@ const ACCEPTED: MaterialValidation = { ok: true }
 describe('useValidatedMaterial', () => {
   let root: Root
   let accepted: Candidate = null
-  const onStatus = vi.fn<(rejection: string | null) => void>()
+  const onStatus = vi.fn<MaterialStatusHandler>()
 
   const show = async (candidate: Candidate): Promise<void> => {
     await act(() => {
@@ -87,11 +88,14 @@ describe('useValidatedMaterial', () => {
     mocks.validateMaterial.mockResolvedValueOnce(ACCEPTED)
     await show(first)
 
-    mocks.validateMaterial.mockResolvedValueOnce({ ok: false, message: 'shader exploded' })
+    mocks.validateMaterial.mockResolvedValueOnce({
+      ok: false,
+      rejection: { text: 'shader exploded' },
+    })
     await show(second)
 
     expect(accepted).toBe(first)
-    expect(onStatus).toHaveBeenLastCalledWith('shader exploded')
+    expect(onStatus).toHaveBeenLastCalledWith({ text: 'shader exploded' })
   })
 
   it('tells a queued validation to skip once its candidate is superseded', async () => {

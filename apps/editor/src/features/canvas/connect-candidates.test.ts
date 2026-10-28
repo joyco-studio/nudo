@@ -3,7 +3,7 @@ import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 
 import { registry } from '../../store/registry'
-import { edgesAttachedTo, listConnectCandidates } from './connect-candidates'
+import { edgesAttachedTo, listConnectCandidates, matchesConnectQuery } from './connect-candidates'
 import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
 
 const TIME_ID = asNodeId('time')
@@ -127,5 +127,13 @@ describe('edgesAttachedTo', () => {
 
   it('finds nothing on a port with no edge', () => {
     expect(edgesAttachedTo(connected, output(SINE_ID))).toEqual([])
+  })
+})
+
+describe('matchesConnectQuery', () => {
+  it('matches a substring, ignoring case and accents', () => {
+    expect(matchesConnectQuery('Rotar 2D › Ángulo · float', 'angulo')).toBe(true)
+    expect(matchesConnectQuery('Sine › Out · float', ' SIN ')).toBe(true)
+    expect(matchesConnectQuery('Sine › Out · float', 'cos')).toBe(false)
   })
 })

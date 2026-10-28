@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
 
+import { keyCapLabel } from '@/features/shortcuts/key-chord'
+import type { MessageKey, Translate } from '@/i18n/translate'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 import { KeyHints } from '@/shared/components/key-hints'
 import type { KeyHint } from '@/shared/components/key-hints'
 import {
@@ -14,23 +18,20 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/ui/dialog'
 import { Kbd, KbdGroup } from '@/shared/ui/kbd'
 import { useEditorStore } from '@/store/editor-store'
-import { registry } from '@/store/registry'
 
 import { PALETTE_COMMANDS, invocationFrom } from './command-registry'
+import { commandLabelKey } from './command-text'
 import { paletteResults } from './palette-results'
 import type { PaletteGroupId, PaletteItem } from './palette-results'
 
-const GROUP_HEADINGS: Readonly<Record<PaletteGroupId, string>> = {
-  actions: 'Actions',
-  view: 'View',
-  'nodes-in-graph': 'Nodes in graph',
-  'add-node': 'Add node',
+function groupHeadingKey(group: PaletteGroupId): MessageKey {
+  return `palette.group.${group}`
 }
 
 const KEY_HINTS: readonly KeyHint[] = [
-  { keys: '↑ ↓', action: 'Move' },
-  { keys: 'Enter', action: 'Run' },
-  { keys: 'Esc', action: 'Close' },
+  { keys: '↑ ↓', action: 'keyHint.move' },
+  { keys: 'Enter', action: 'keyHint.run' },
+  { keys: 'Esc', action: 'keyHint.close' },
 ]
 
 export interface CommandPaletteProps {
@@ -55,6 +56,7 @@ export function CommandPalette({
   opener,
   onRun,
 }: CommandPaletteProps) {
+  const t = useT()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -64,10 +66,8 @@ export function CommandPalette({
         className="top-[20%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-lg"
         onCloseAutoFocus={onCloseAutoFocus}
       >
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
-        <DialogDescription className="sr-only">
-          Search commands and nodes, then press Enter to run the highlighted one.
-        </DialogDescription>
+        <DialogTitle className="sr-only">{t('palette.title')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('palette.description')}</DialogDescription>
         <PaletteSearch opener={opener} onRun={onRun} />
       </DialogContent>
     </Dialog>
@@ -83,29 +83,31 @@ interface PaletteSearchProps {
 function PaletteSearch({ opener, onRun }: PaletteSearchProps) {
   const [query, setQuery] = useState('')
   const graph = useEditorStore((state) => state.graph)
+  const t = useT()
+  const registry = useNodeRegistry()
   // Commands with nothing to act on (Undo with no history, Copy with no node) are left out.
   const commands = useMemo(() => {
     const { nodeId } = invocationFrom(opener)
     return PALETTE_COMMANDS.filter((command) => command.isAvailable?.(nodeId) ?? true)
   }, [opener])
-  const groups = paletteResults({ query, graph, registry, commands })
+  const groups = paletteResults({ query, graph, registry, commands, t })
 
   return (
-    <Command shouldFilter={false} loop label="Command palette" className="gap-1">
+    <Command shouldFilter={false} loop label={t('palette.title')} className="gap-1">
       <CommandInput
         value={query}
         onValueChange={setQuery}
-        placeholder="Type a command or a node name"
-        aria-label="Search commands and nodes"
+        placeholder={t('palette.placeholder')}
+        aria-label={t('palette.search')}
         className="h-full pr-1.5"
       />
       {/* 23rem lets the next row peek past the edge, so the list reads as scrollable. */}
-      <CommandList label="Commands and nodes" className="max-h-[min(23rem,50dvh)]">
+      <CommandList label={t('palette.list')} className="max-h-[min(23rem,50dvh)]">
         <CommandEmpty className="text-muted-foreground">
-          Nothing matches "{query.trim()}". Try a command like split, or a node like time.
+          {t('palette.empty', { query: query.trim() })}
         </CommandEmpty>
         {groups.map((group) => (
-          <CommandGroup key={group.id} heading={GROUP_HEADINGS[group.id]}>
+          <CommandGroup key={group.id} heading={t(groupHeadingKey(group.id))}>
             {group.items.map((item) => (
               <PaletteRow key={item.key} item={item} onRun={onRun} />
             ))}
@@ -128,14 +130,16 @@ interface PaletteRowProps {
   onRun: (item: PaletteItem) => void
 }
 
-function rowText(item: PaletteItem): { label: string; detail: string | undefined } {
-  if (item.kind === 'command') return { label: item.command.label, detail: undefined }
+function rowText(item: PaletteItem, t: Translate): { label: string; detail: string | undefined } {
+  if (item.kind === 'command')
+    return { label: t(commandLabelKey(item.command.id)), detail: undefined }
   return { label: item.label, detail: item.detail }
 }
 
 /** A row: the name, what kind of node it is (for nodes), and the first chord that runs it. */
 function PaletteRow({ item, onRun }: PaletteRowProps) {
-  const { label, detail } = rowText(item)
+  const t = useT()
+  const { label, detail } = rowText(item, t)
   const chord = item.kind === 'command' ? item.command.shortcut[0] : undefined
 
   return (
@@ -154,11 +158,11 @@ function PaletteRow({ item, onRun }: PaletteRowProps) {
       )}
       {chord !== undefined && (
         <CommandShortcut className="tracking-normal">
-          <span className="sr-only">, shortcut </span>
+          <span className="sr-only">, {t('palette.shortcut')} </span>
           <KbdGroup>
             {chord.map((key) => (
               <Kbd key={key} className="group-data-selected/command-item:bg-background">
-                {key}
+                {keyCapLabel(key, t)}
               </Kbd>
             ))}
           </KbdGroup>

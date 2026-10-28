@@ -8,11 +8,10 @@ import type { TextureSnapshot } from '@/features/assets/texture-cache'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import type { MessageKey, Translate } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 export type TextureSlotState = TextureSnapshot['state']
-
-const DROP_HINT = 'Or drop one here'
-const MISSING_HINT = 'Saved image not found'
 
 export interface TextureSlotProps {
   ref?: Ref<HTMLButtonElement>
@@ -31,13 +30,13 @@ function carriesFiles(event: DragEvent): boolean {
   return event.dataTransfer.types.includes('Files')
 }
 
-function slotAction(state: TextureSlotState): string {
-  return state === 'empty' || state === 'missing' ? 'Choose image' : 'Change image'
+function slotAction(state: TextureSlotState): MessageKey {
+  return state === 'empty' || state === 'missing' ? 'texture.choose' : 'texture.change'
 }
 
-function slotHint(state: TextureSlotState, size: ImageSize | null): string | null {
-  if (state === 'missing') return MISSING_HINT
-  if (state === 'empty') return DROP_HINT
+function slotHint(state: TextureSlotState, size: ImageSize | null, t: Translate): string | null {
+  if (state === 'missing') return t('texture.missingHint')
+  if (state === 'empty') return t('texture.dropHint')
   return size === null ? null : formatImageSize(size)
 }
 
@@ -73,8 +72,9 @@ export function TextureSlot({
   onDropFile,
 }: TextureSlotProps) {
   const [isDropTarget, setIsDropTarget] = useState(false)
-  const action = slotAction(state)
-  const hint = slotHint(state, size)
+  const t = useT()
+  const action = t(slotAction(state))
+  const hint = slotHint(state, size, t)
   const showsImage = state === 'ready' || state === 'loading'
 
   const onDragOver = (event: DragEvent<HTMLButtonElement>): void => {
@@ -100,7 +100,7 @@ export function TextureSlot({
           ref={ref}
           type="button"
           variant="ghost"
-          aria-label={`${action} for ${label}`}
+          aria-label={t('texture.slot', { action, port: label })}
           data-texture-state={state}
           data-drop-target={isDropTarget || undefined}
           className={cn(

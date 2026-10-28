@@ -1,3 +1,4 @@
+import { useT } from '@/i18n/use-t'
 import { ResizableHandle } from '@/shared/ui/resizable'
 import { useEditorStore } from '@/store/editor-store'
 
@@ -10,12 +11,13 @@ import { FULL_PERCENT } from './panel-state'
  */
 export function SplitHandle() {
   const percent = useEditorStore((state) => state.splitDraftPercent ?? state.panels.splitPercent)
+  const t = useT()
 
   return (
     <ResizableHandle
       withHandle
-      aria-label="Resize preview"
-      aria-valuetext={`Canvas ${String(percent)}%, preview ${String(FULL_PERCENT - percent)}%`}
+      aria-label={t('splitHandle.label')}
+      aria-valuetext={t('splitHandle.value', { canvas: percent, preview: FULL_PERCENT - percent })}
       className="z-20 data-[separator=active]:bg-primary data-[separator=hover]:bg-muted-foreground"
     />
   )

@@ -3,7 +3,8 @@ import type { Graph, ResolvedTypes } from '@nudo-tsl/core'
 
 import { groupInputs } from '@/features/canvas/node-port-layout'
 import { ParamField, bodyParams } from '@/features/canvas/param-field'
-import { registry } from '@/store/registry'
+import { useNodeRegistry } from '@/i18n/use-node-registry'
+import { useT } from '@/i18n/use-t'
 
 import { INSPECTOR_ROW_CLASS, InspectorInputRows } from './inspector-input-row'
 import { InspectorHeader, InspectorSection } from './inspector-section'
@@ -22,6 +23,8 @@ export interface GraphInspectorProps {
  */
 export function GraphInspector({ graph, types }: GraphInspectorProps) {
   const master = graph.nodes[MASTER_NODE_ID]
+  const registry = useNodeRegistry()
+  const t = useT()
   const definition = master === undefined ? undefined : registry.get(master.type)
   if (master === undefined || definition === undefined) return null
 
@@ -33,12 +36,10 @@ export function GraphInspector({ graph, types }: GraphInspectorProps) {
 
   return (
     <div>
-      <InspectorHeader title="Graph settings">
-        <p className="text-xs text-pretty text-muted-foreground">
-          No node selected. These settings apply to the whole material.
-        </p>
+      <InspectorHeader title={t('inspector.graphSettings')}>
+        <p className="text-xs text-pretty text-muted-foreground">{t('inspector.graphHint')}</p>
       </InspectorHeader>
-      <InspectorSection title="Material">
+      <InspectorSection title={t('inspector.material')}>
         <ul>
           {params.map((param) => (
             <ParamField key={param.id} node={master} param={param} />
@@ -46,10 +47,10 @@ export function GraphInspector({ graph, types }: GraphInspectorProps) {
           <InspectorInputRows graph={graph} node={master} rows={settingRows} types={types} />
         </ul>
       </InspectorSection>
-      <InspectorSection title="File">
+      <InspectorSection title={t('inspector.file')}>
         <dl>
           <div className={INSPECTOR_ROW_CLASS}>
-            <dt className="min-w-0 flex-1 text-xs">Schema version</dt>
+            <dt className="min-w-0 flex-1 text-xs">{t('inspector.schemaVersion')}</dt>
             <dd className="font-mono text-xs text-muted-foreground tabular-nums">
               {graph.schemaVersion}
             </dd>

@@ -91,7 +91,7 @@ describe('history', () => {
     const entries = historyLength()
 
     getState().setSelection([id])
-    getState().showNotice({ kind: 'info', message: 'hello' })
+    getState().showNotice({ kind: 'info', messageKey: 'notice.masterDelete' })
     getState().dismissNotice()
 
     expect(historyLength()).toBe(entries)
@@ -267,7 +267,7 @@ describe('rejected operations', () => {
     expect(historyLength()).toBe(0)
     expect(getState().notice).toEqual({
       kind: 'info',
-      message: "The Master Stack can't be deleted.",
+      messageKey: 'notice.masterDelete',
     })
   })
 
@@ -348,7 +348,7 @@ describe('pasteFragment', () => {
       expect(Object.keys(getState().graph.nodes)).toEqual([MASTER_NODE_ID])
       expect(getState().notice).toEqual({
         kind: 'info',
-        message: "Some pasted nodes referenced properties that don't exist here and were skipped.",
+        messageKey: 'notice.droppedReaders',
       })
       expect(historyLength()).toBe(entriesBefore)
     })
@@ -425,7 +425,7 @@ describe('removeSelection', () => {
     expect(getState().graph.nodes[id]).toBeUndefined()
     expect(getState().notice).toEqual({
       kind: 'info',
-      message: "The Master Stack can't be deleted.",
+      messageKey: 'notice.masterDelete',
     })
   })
 
@@ -436,7 +436,7 @@ describe('removeSelection', () => {
     getState().removeSelection([MASTER_NODE_ID], [])
 
     expect(getState().graph).toBe(graphBefore)
-    expect(getState().notice?.message).toBe("The Master Stack can't be deleted.")
+    expect(getState().notice?.messageKey).toBe('notice.masterDelete')
     expect(historyLength()).toBe(entriesBefore)
   })
 

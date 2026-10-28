@@ -5,6 +5,7 @@ import type { EdgeProps } from '@xyflow/react'
 
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { useT } from '@/i18n/use-t'
 
 import { describeConversion } from './describe-conversion'
 import { EdgeContextMenu } from './edge-context-menu'
@@ -32,7 +33,8 @@ interface ConversionMarkerProps {
  * what happens to the value; the edge's accessible name carries the same sentence.
  */
 function ConversionMarker({ conversion, x, y, isEdgeFocused }: ConversionMarkerProps) {
-  const description = describeConversion(conversion)
+  const t = useT()
+  const description = describeConversion(conversion, t)
   const tooltipOpen = useForcedTooltipOpen(isEdgeFocused ? true : null)
   return (
     <EdgeLabelRenderer>

@@ -1,31 +1,34 @@
 import { findCommand } from '@/features/command-palette/command-registry'
 import type { CommandId } from '@/features/command-palette/command-registry'
+import { commandLabelKey } from '@/features/command-palette/command-text'
+import type { MessageKey } from '@/i18n/translate'
 
 import type { KeyChord } from './key-chord'
 
 /**
  * A row of the catalog. A command row takes its words and keys from the command registry. A key
  * row describes a key that acts on whatever has focus (move a node, pan, connect a port): there
- * is no command to run from elsewhere.
+ * is no command to run from elsewhere. Words are message keys: the catalog's English source is
+ * what the README lists, and the shortcuts dialog shows them in the UI language.
  */
 export type CatalogEntry =
   | { readonly kind: 'command'; readonly commandId: CommandId }
-  | { readonly kind: 'key'; readonly action: string; readonly chords: readonly KeyChord[] }
+  | { readonly kind: 'key'; readonly action: MessageKey; readonly chords: readonly KeyChord[] }
 
 export interface CatalogSection {
-  readonly title: string
+  readonly title: MessageKey
   readonly entries: readonly CatalogEntry[]
 }
 
 /** A resolved row, as the shortcuts dialog and the README show it. */
 export interface ShortcutEntry {
-  readonly action: string
+  readonly action: MessageKey
   /** Alternative chords for the same action. */
   readonly chords: readonly KeyChord[]
 }
 
 export interface ShortcutSection {
-  readonly title: string
+  readonly title: MessageKey
   readonly entries: readonly ShortcutEntry[]
 }
 
@@ -33,14 +36,14 @@ function command(commandId: CommandId): CatalogEntry {
   return { kind: 'command', commandId }
 }
 
-function key(action: string, chords: readonly KeyChord[]): CatalogEntry {
+function key(action: MessageKey, chords: readonly KeyChord[]): CatalogEntry {
   return { kind: 'key', action, chords }
 }
 
 /** Every keyboard shortcut in the editor, by where it works. */
 export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
   {
-    title: 'Anywhere',
+    title: 'shortcuts.section.anywhere',
     entries: [
       command('undo'),
       command('redo'),
@@ -51,11 +54,11 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
       command('new-graph'),
       command('open-command-palette'),
       command('show-shortcuts'),
-      key('Move focus to the notifications', [['Alt', 'T']]),
+      key('shortcuts.key.focusNotifications', [['Alt', 'T']]),
     ],
   },
   {
-    title: 'Panels (canvas, node or panel header)',
+    title: 'shortcuts.section.panels',
     entries: [
       command('toggle-blackboard'),
       command('toggle-inspector'),
@@ -65,62 +68,62 @@ export const SHORTCUT_CATALOG: readonly CatalogSection[] = [
     ],
   },
   {
-    title: 'Preview layout',
+    title: 'shortcuts.section.previewLayout',
     entries: [
-      key('Leave the full preview', [['Esc']]),
-      key('Move the split handle 5%', [['Arrow keys']]),
-      key('Smallest or largest canvas in split', [['Home'], ['End']]),
+      key('shortcuts.key.leaveFullPreview', [['Esc']]),
+      key('shortcuts.key.moveSplit', [['Arrow keys']]),
+      key('shortcuts.key.splitExtremes', [['Home'], ['End']]),
     ],
   },
   {
-    title: 'Notifications',
+    title: 'shortcuts.section.notifications',
     entries: [
-      key('Move between the notification and its button', [['Tab'], ['Shift', 'Tab']]),
-      key('Close the notifications and return', [['Esc']]),
+      key('shortcuts.key.notificationMove', [['Tab'], ['Shift', 'Tab']]),
+      key('shortcuts.key.notificationClose', [['Esc']]),
     ],
   },
   {
-    title: 'Canvas',
+    title: 'shortcuts.section.canvas',
     entries: [
       command('add-node'),
-      key('Pan the view 40 px', [['Arrow keys']]),
-      key('Pan the view 160 px', [['Shift', 'Arrow keys']]),
-      key('Delete the selected nodes and connections', [['Delete']]),
-      key('Open the canvas menu', [['Shift', 'F10'], ['Menu']]),
+      key('shortcuts.key.panSmall', [['Arrow keys']]),
+      key('shortcuts.key.panLarge', [['Shift', 'Arrow keys']]),
+      key('shortcuts.key.deleteSelection', [['Delete']]),
+      key('shortcuts.key.canvasMenu', [['Shift', 'F10'], ['Menu']]),
     ],
   },
   {
-    title: 'Node',
+    title: 'shortcuts.section.node',
     entries: [
-      key('Move the node 10 px', [['Arrow keys']]),
-      key('Move the node 50 px', [['Shift', 'Arrow keys']]),
-      key('Delete the node', [['Delete'], ['Backspace']]),
-      key('Edit its first field', [['Enter']]),
-      key('Leave a field and return to the node', [['Esc']]),
-      key('Next or previous port and field', [['Tab'], ['Shift', 'Tab']]),
-      key('Open its menu: copy, duplicate, preview mode, delete', [['Shift', 'F10'], ['Menu']]),
+      key('shortcuts.key.moveNodeSmall', [['Arrow keys']]),
+      key('shortcuts.key.moveNodeLarge', [['Shift', 'Arrow keys']]),
+      key('shortcuts.key.deleteNode', [['Delete'], ['Backspace']]),
+      key('shortcuts.key.editFirstField', [['Enter']]),
+      key('shortcuts.key.leaveField', [['Esc']]),
+      key('shortcuts.key.nextPort', [['Tab'], ['Shift', 'Tab']]),
+      key('shortcuts.key.nodeMenu', [['Shift', 'F10'], ['Menu']]),
     ],
   },
   {
-    title: 'Comment',
+    title: 'shortcuts.section.comment',
     entries: [
-      key('Write in its note', [['Enter']]),
-      key('Edit its title', [['Tab']]),
-      key('Resize the frame 20 px', [['Alt', 'Arrow keys']]),
+      key('shortcuts.key.commentNote', [['Enter']]),
+      key('shortcuts.key.commentTitle', [['Tab']]),
+      key('shortcuts.key.commentResize', [['Alt', 'Arrow keys']]),
     ],
   },
   {
-    title: 'Port',
+    title: 'shortcuts.section.port',
     entries: [
-      key('Connect to another port', [['Enter']]),
-      key('Remove its connections', [['Delete']]),
+      key('shortcuts.key.portConnect', [['Enter']]),
+      key('shortcuts.key.portDisconnect', [['Delete']]),
     ],
   },
   {
-    title: 'Connection',
+    title: 'shortcuts.section.connection',
     entries: [
-      key('Delete the connection', [['Delete']]),
-      key('Open its menu', [['Shift', 'F10'], ['Menu']]),
+      key('shortcuts.key.connectionDelete', [['Delete']]),
+      key('shortcuts.key.connectionMenu', [['Shift', 'F10'], ['Menu']]),
     ],
   },
 ]
@@ -137,7 +140,7 @@ function resolveEntry(entry: CatalogEntry): readonly ShortcutEntry[] {
   const found = findCommand(entry.commandId)
   // The registry test keeps every listed command present; a missing one would just drop its row.
   if (found === undefined) return []
-  return [{ action: found.label, chords: found.shortcut }]
+  return [{ action: commandLabelKey(found.id), chords: found.shortcut }]
 }
 
 /** The catalog with every command row resolved, for the shortcuts dialog. */

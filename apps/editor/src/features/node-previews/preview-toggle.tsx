@@ -2,6 +2,8 @@ import type { AnyNodeDefinition, GraphNode } from '@nudo-tsl/core'
 import { Eye, EyeOff } from 'lucide-react'
 
 import { useNodeFieldActions } from '@/features/canvas/node-field-actions'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -9,12 +11,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { SHOW_PREVIEW_PARAM, hasNodePreview, isPreviewShown } from './preview-graph'
 
-/** The toggle's accessible name; `aria-pressed` carries whether the preview is showing. */
-export const PREVIEW_TOGGLE_LABEL = 'Preview'
-
 /** The action the toggle performs, worded the same in its tooltip and in the node's menu. */
-export function previewToggleAction(isShown: boolean): string {
-  return isShown ? 'Hide preview' : 'Show preview'
+export function previewToggleAction(isShown: boolean): MessageKey {
+  return isShown ? 'nodePreview.hide' : 'nodePreview.show'
 }
 
 interface PreviewToggleProps {
@@ -29,6 +28,7 @@ interface PreviewToggleProps {
  */
 export function PreviewToggle({ node, definition, className }: PreviewToggleProps) {
   const { setParam } = useNodeFieldActions()
+  const t = useT()
   if (!hasNodePreview(node, definition)) return null
   const isShown = isPreviewShown(node)
 
@@ -39,7 +39,8 @@ export function PreviewToggle({ node, definition, className }: PreviewToggleProp
           static
           variant="ghost"
           size="icon-xs"
-          aria-label={PREVIEW_TOGGLE_LABEL}
+          // The name stays put; `aria-pressed` says whether the preview is showing.
+          aria-label={t('nodePreview.toggle')}
           aria-pressed={isShown}
           onClick={() => {
             setParam({ nodeId: node.id, paramId: SHOW_PREVIEW_PARAM }, !isShown)
@@ -51,7 +52,7 @@ export function PreviewToggle({ node, definition, className }: PreviewToggleProp
           </IconSwap>
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">{previewToggleAction(isShown)}</TooltipContent>
+      <TooltipContent side="top">{t(previewToggleAction(isShown))}</TooltipContent>
     </Tooltip>
   )
 }

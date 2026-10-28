@@ -13,6 +13,19 @@
         }
       } catch {}
     </script>
+    <!-- Sets <html lang> before first paint, like I18nProvider does after. Key mirrors LOCALE_STORAGE_KEY in src/i18n/locale.ts. -->
+    <script>
+      try {
+        var savedLocale = localStorage.getItem('nudo-tsl:locale')
+        var locale =
+          savedLocale === 'en' || savedLocale === 'es'
+            ? savedLocale
+            : /^es/i.test(navigator.language || '')
+              ? 'es'
+              : 'en'
+        document.documentElement.lang = locale
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

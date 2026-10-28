@@ -229,4 +229,25 @@ test.describe('node previews', () => {
       }),
     })
   })
+
+  test('preview controls speak Spanish', async ({ page }) => {
+    await seedAutosave(page, GREEN_COLOR)
+    await page.addInitScript(() => {
+      localStorage.setItem('nudo-tsl:locale', 'es')
+    })
+    await page.goto('/')
+    const color = page.getByRole('group', { name: 'Color', exact: true })
+    await expect(color.getByRole('button', { name: 'Vista previa', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await expect(page.getByRole('img', { name: 'Vista previa de Color' })).toBeVisible()
+
+    await color.locator('header').click()
+    const section = page
+      .getByRole('region', { name: 'Inspector' })
+      .getByRole('group', { name: 'Vista previa' })
+    await expect(section.getByRole('switch', { name: 'Mostrar' })).toBeChecked()
+    await expect(section.getByRole('combobox', { name: 'Modo' })).toHaveText('Automático')
+  })
 })

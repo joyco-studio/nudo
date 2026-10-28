@@ -1,5 +1,7 @@
 import type { KeyboardEvent, PointerEvent } from 'react'
 
+import { useT } from '@/i18n/use-t'
+
 import type { Hsv } from './color-math'
 import { areaAxisForKey, fractionAlong, valueForKey } from './slider-input'
 import type { SliderRange } from './slider-input'
@@ -34,6 +36,7 @@ function fromPointer(event: PointerEvent<HTMLDivElement>): SaturationValue {
 export function SaturationArea({ hsv, onChange }: SaturationAreaProps) {
   const saturation = toPercent(hsv.saturation)
   const brightness = toPercent(hsv.value)
+  const t = useT()
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0) return
@@ -68,11 +71,11 @@ export function SaturationArea({ hsv, onChange }: SaturationAreaProps) {
     <div
       role="slider"
       tabIndex={0}
-      aria-label="Saturation and brightness"
+      aria-label={t('color.area')}
       aria-valuemin={PERCENT_RANGE.min}
       aria-valuemax={PERCENT_RANGE.max}
       aria-valuenow={saturation}
-      aria-valuetext={`Saturation ${String(saturation)}%, brightness ${String(brightness)}%`}
+      aria-valuetext={t('color.areaValue', { saturation, brightness })}
       className="relative h-32 w-full cursor-crosshair touch-none border border-border select-none"
       style={{
         backgroundColor: `hsl(${String(hsv.hue)} 100% 50%)`,

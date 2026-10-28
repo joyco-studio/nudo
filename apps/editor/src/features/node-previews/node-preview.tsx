@@ -1,5 +1,6 @@
 import type { AnyNodeDefinition, GraphNode, NodeId } from '@nudo-tsl/core'
 
+import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
 
 import type { NodePreviewStatus } from './preview-engine'
@@ -7,8 +8,6 @@ import { isPreviewShown, previewPortRef } from './preview-graph'
 import type { PreviewShape } from './preview-graph'
 import { NODE_PREVIEW_SIZE, nodePreviewPixelRatio } from './shared-preview-engine'
 import { useNodePreview } from './use-node-preview'
-
-const NO_PREVIEW_TEXT = 'No preview'
 
 /** The square a 2D preview fills, or the circle a 3D one is drawn in, like Unity's previews. */
 const SHAPE_CLASS: Readonly<Record<PreviewShape, string>> = {
@@ -30,6 +29,7 @@ interface PreviewCanvasProps {
 }
 
 function PreviewCanvas({ nodeId, portId, title }: PreviewCanvasProps) {
+  const t = useT()
   const { canvasRef, snapshot } = useNodePreview(nodeId, portId)
   const shape = snapshot?.shape ?? '2d'
   const isMissing = hasNoPicture(snapshot?.status)
@@ -51,13 +51,13 @@ function PreviewCanvas({ nodeId, portId, title }: PreviewCanvasProps) {
         width={pixels}
         height={pixels}
         role="img"
-        aria-label={`${title} preview`}
+        aria-label={t('nodePreview.canvas', { title })}
         aria-hidden={isMissing || undefined}
         className={cn('col-start-1 row-start-1 size-24', isMissing && 'invisible')}
       />
       {isMissing && (
         <p className="col-start-1 row-start-1 bg-card px-1 font-mono text-micro text-muted-foreground uppercase">
-          {NO_PREVIEW_TEXT}
+          {t('nodePreview.none')}
         </p>
       )}
     </div>

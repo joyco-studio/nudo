@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useConnection } from '@xyflow/react'
 
+import { useT } from '@/i18n/use-t'
 import { TypeChip } from '@/shared/components/type-chip'
 import { PORT_COLORS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -25,6 +26,7 @@ interface PortTooltipProps {
 export function PortTooltip({ explanation, hint, children }: PortTooltipProps) {
   const isConnecting = useConnection((connection) => connection.inProgress)
   const tooltipOpen = useForcedTooltipOpen(isConnecting ? false : null)
+  const t = useT()
   const { label, dataType, description, source } = explanation
 
   return (
@@ -32,7 +34,7 @@ export function PortTooltip({ explanation, hint, children }: PortTooltipProps) {
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent
         side="top"
-        aria-label={portAccessibleDescription(explanation) ?? undefined}
+        aria-label={portAccessibleDescription(explanation, t) ?? undefined}
         className="pointer-events-none max-w-60 flex-col items-start gap-1 p-2"
       >
         <span className="flex items-center gap-1">
@@ -47,7 +49,7 @@ export function PortTooltip({ explanation, hint, children }: PortTooltipProps) {
         {description !== null && <span className="text-pretty">{description}</span>}
         {source !== null && (
           <span className="font-mono text-micro text-background/70">
-            {describePortSource(source)}
+            {describePortSource(source, t)}
           </span>
         )}
         {hint !== undefined && <span className="text-background/70">{hint}</span>}

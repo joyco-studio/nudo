@@ -10,6 +10,8 @@ import type {
   ResolvedTypes,
 } from '@nudo-tsl/core'
 
+import { foldForSearch } from '@/shared/lib/fold-for-search'
+
 import { nodeTitle } from './to-flow'
 
 export type PortSide = 'input' | 'output'
@@ -94,6 +96,14 @@ export function listConnectCandidates(
         origin.side === 'output' ? [origin.ref, candidate.ref] : [candidate.ref, origin.ref]
       return checkConnection(graph, registry, from, to, types).ok
     })
+}
+
+/**
+ * The connect list's matcher: a plain substring, so "sin" finds "Sine" and not every label with an
+ * s, an i and an n. Accents and case are ignored: "angulo" finds "Rotar 2D › Ángulo".
+ */
+export function matchesConnectQuery(label: string, query: string): boolean {
+  return foldForSearch(label).includes(foldForSearch(query.trim()))
 }
 
 /** The edges attached to a port: at most one for an input, any number for an output. */

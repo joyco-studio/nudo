@@ -1,22 +1,25 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { GraphNode, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
 
+import type { MessageKey } from '@/i18n/translate'
+
 import type { FlowNodeData } from './to-flow'
 
 /** Master Stack inputs that run in the vertex stage; every other input is a fragment input. */
 const VERTEX_INPUT_IDS: ReadonlySet<string> = new Set(['position'])
 /** Master Stack inputs an unlit material ignores (it has no lighting to feed). */
 const UNLIT_IGNORED_INPUT_IDS: ReadonlySet<string> = new Set(['metalness', 'roughness', 'normal'])
-export const UNLIT_IGNORED_HINT = 'Unlit ignores this'
+export const UNLIT_IGNORED_HINT: MessageKey = 'node.unlitIgnores'
 
 export interface InputRowModel {
   readonly input: InputDefinition<string>
   /** Why the row has no effect right now, shown in place of its field; null when it applies. */
-  readonly disabledHint: string | null
+  readonly disabledHint: MessageKey | null
 }
 
 export interface PortGroup {
-  readonly title: string | null
+  /** The group's heading (the Master Stack's "Vertex", "Fragment"); null for a plain list. */
+  readonly title: MessageKey | null
   readonly rows: readonly InputRowModel[]
 }
 
@@ -29,8 +32,8 @@ export function isNodeCollapsed(data: FlowNodeData): boolean {
 }
 
 /** The collapse action, worded the same on the header toggle and in the context menu. */
-export function portsToggleLabel(isCollapsed: boolean): string {
-  return isCollapsed ? 'Show unconnected ports' : 'Hide unconnected ports'
+export function portsToggleLabel(isCollapsed: boolean): MessageKey {
+  return isCollapsed ? 'node.showPorts' : 'node.hidePorts'
 }
 
 function isUnlitMaster(node: GraphNode): boolean {
@@ -66,7 +69,13 @@ export function groupInputs(
   }))
   if (node.id !== MASTER_NODE_ID) return [{ title: null, rows }]
   return [
-    { title: 'Vertex', rows: rows.filter((row) => VERTEX_INPUT_IDS.has(row.input.id)) },
-    { title: 'Fragment', rows: rows.filter((row) => !VERTEX_INPUT_IDS.has(row.input.id)) },
+    {
+      title: 'node.group.vertex',
+      rows: rows.filter((row) => VERTEX_INPUT_IDS.has(row.input.id)),
+    },
+    {
+      title: 'node.group.fragment',
+      rows: rows.filter((row) => !VERTEX_INPUT_IDS.has(row.input.id)),
+    },
   ]
 }

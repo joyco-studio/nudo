@@ -9,6 +9,7 @@ import { focusFlowNode } from '@/features/canvas/focus-flow-node'
 import type { FlowNode } from '@/features/canvas/to-flow'
 import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
 import { useOpenShortcutsDialog } from '@/features/shortcuts/shortcuts-dialog-context'
+import type { Locale } from '@/i18n/locale'
 import { useEditorStore } from '@/store/editor-store'
 
 import { CommandsContext } from './command-context'
@@ -22,6 +23,8 @@ import { useCommandPalette } from './use-command-palette'
 interface CommandPaletteProviderProps {
   /** The theme lives above the editor providers; the app passes its switch in. */
   toggleTheme: () => void
+  /** So does the language. */
+  setLocale: (locale: Locale) => void
   children: ReactNode
 }
 
@@ -29,7 +32,11 @@ interface CommandPaletteProviderProps {
  * Runs registry commands for the keyboard, the context menus and the palette, and owns the palette
  * itself. Must sit inside the React Flow, add-node menu, shortcuts dialog and new-graph providers.
  */
-export function CommandPaletteProvider({ toggleTheme, children }: CommandPaletteProviderProps) {
+export function CommandPaletteProvider({
+  toggleTheme,
+  setLocale,
+  children,
+}: CommandPaletteProviderProps) {
   const { fitView, getNode, getZoom, setCenter } = useReactFlow<FlowNode>()
   const openShortcutsDialog = useOpenShortcutsDialog()
   const requestNewGraph = useRequestNewGraph()
@@ -44,6 +51,7 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
         void fitView(fitViewOptionsFor(window.innerWidth))
       },
       toggleTheme,
+      setLocale,
       openShortcutsDialog,
       requestNewGraph,
       openAddNodeMenu,
@@ -53,6 +61,7 @@ export function CommandPaletteProvider({ toggleTheme, children }: CommandPalette
     [
       fitView,
       toggleTheme,
+      setLocale,
       openShortcutsDialog,
       requestNewGraph,
       openAddNodeMenu,

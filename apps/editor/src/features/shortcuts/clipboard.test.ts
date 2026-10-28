@@ -9,7 +9,7 @@ import { copySelection, pasteFromClipboard } from './clipboard'
 
 const FLOAT_NODE = 'input/float'
 const SINE_NODE = 'math/sin'
-const NOT_NUDO_NOTICE = "Clipboard doesn't contain nudo-tsl nodes"
+const NOT_NUDO_NOTICE = 'notice.notNudo'
 
 const getState = () => useEditorStore.getState()
 const historyLength = () => useEditorStore.temporal.getState().pastStates.length
@@ -92,7 +92,7 @@ describe('copySelection', () => {
 
     await copySelection()
 
-    expect(getState().notice).toEqual({ kind: 'error', message: "Couldn't copy to the clipboard" })
+    expect(getState().notice).toEqual({ kind: 'error', messageKey: 'notice.copyFailed' })
   })
 })
 
@@ -139,7 +139,7 @@ describe('pasteFromClipboard', () => {
 
     await pasteFromClipboard()
 
-    expect(getState().notice).toEqual({ kind: 'info', message: NOT_NUDO_NOTICE })
+    expect(getState().notice).toEqual({ kind: 'info', messageKey: NOT_NUDO_NOTICE })
     expect(getState().graph).toBe(graphBefore)
     expect(historyLength()).toBe(entriesBefore)
   })
@@ -150,7 +150,7 @@ describe('pasteFromClipboard', () => {
 
     await pasteFromClipboard()
 
-    expect(getState().notice?.message).toBe(NOT_NUDO_NOTICE)
+    expect(getState().notice?.messageKey).toBe(NOT_NUDO_NOTICE)
     expect(getState().graph).toBe(graphBefore)
   })
 
@@ -160,7 +160,7 @@ describe('pasteFromClipboard', () => {
 
     await pasteFromClipboard()
 
-    expect(getState().notice).toEqual({ kind: 'error', message: "Couldn't read the clipboard" })
+    expect(getState().notice).toEqual({ kind: 'error', messageKey: 'notice.pasteFailed' })
     expect(getState().graph).toBe(graphBefore)
   })
 })

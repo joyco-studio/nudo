@@ -1,6 +1,8 @@
 import { float, texture } from '@nudo-tsl/core'
 import type { DataType, GraphNode, InputDefinition, PortValue } from '@nudo-tsl/core'
 
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
 
 import { ColorField } from './color-field'
@@ -15,14 +17,15 @@ import { PortLabel } from './port-label'
 import { TextureField } from './texture-field'
 import { VectorField } from './vector-field'
 
-const OPTIONAL_HINT = 'Mesh default'
+const OPTIONAL_HINT: MessageKey = 'node.meshDefault'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
-const OPTIONAL_HINTS: Readonly<Record<string, string>> = { alphaClip: 'Off' }
+const OPTIONAL_HINTS: Readonly<Record<string, MessageKey>> = { alphaClip: 'node.off' }
 
 const HINT_TEXT: Readonly<Record<FieldSize, string>> = {
   compact: 'text-micro',
   comfortable: 'text-xs',
 }
+/** A short muted note in place of a field ("Mesh default", "Off"). */
 export function MutedHint({ children }: { children: string }) {
   const size = useFieldSize()
   return (
@@ -43,11 +46,12 @@ export interface InlineFieldProps {
 /** The label and editor of an unconnected input, picked by widget and resolved type. */
 export function InlineField({ node, input, dataType, explanation }: InlineFieldProps) {
   const { setInputValue, previewInputValue, endInputPreview } = useNodeFieldActions()
+  const t = useT()
   if (input.optional === true) {
     return (
       <>
         <PortLabel label={input.label} explanation={explanation} />
-        <MutedHint>{OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT}</MutedHint>
+        <MutedHint>{t(OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT)}</MutedHint>
       </>
     )
   }
@@ -56,7 +60,7 @@ export function InlineField({ node, input, dataType, explanation }: InlineFieldP
     return (
       <>
         <PortLabel label={input.label} explanation={explanation} />
-        <MutedHint>{fallbackLabel(input.fallback)}</MutedHint>
+        <MutedHint>{t(fallbackLabel(input.fallback))}</MutedHint>
       </>
     )
   }

@@ -1,13 +1,6 @@
 import type { PropertyError } from '@nudo-tsl/core'
 
-const EMPTY_LABEL_MESSAGE = 'Enter a name.'
-const EMPTY_REFERENCE_MESSAGE = 'Enter a reference name.'
-/** Mirrors core `isValidIdentifier`: identifier syntax, at most 64 characters, no reserved word. */
-const INVALID_REFERENCE_MESSAGE =
-  'Use up to 64 letters, digits, _ or $. Start with a letter, _ or $, and avoid code words like class.'
-const DUPLICATE_REFERENCE_MESSAGE = 'Another property already uses this reference.'
-const MISSING_PROPERTY_MESSAGE = 'This property no longer exists.'
-const RENAME_FAILED_MESSAGE = "Couldn't rename this property."
+import type { MessageKey } from '@/i18n/translate'
 
 /**
  * Applies a new label, or says why it can't be: labels are free text but never empty. The reference
@@ -16,22 +9,25 @@ const RENAME_FAILED_MESSAGE = "Couldn't rename this property."
 export function renameLabelOrExplain(
   renameLabel: (label: string) => PropertyError | null,
   label: string,
-): string | null {
-  if (label === '') return EMPTY_LABEL_MESSAGE
-  return renameLabel(label) === null ? null : RENAME_FAILED_MESSAGE
+): MessageKey | null {
+  if (label === '') return 'property.error.emptyLabel'
+  return renameLabel(label) === null ? null : 'property.error.renameFailed'
 }
 
-/** Why a reference name was rejected, in words for the field's message. */
-export function referenceErrorMessage(error: PropertyError, name: string): string {
+/**
+ * Why a reference name was rejected, as the message key the field shows. The invalid-name message
+ * mirrors core `isValidIdentifier`: identifier syntax, at most 64 characters, no reserved word.
+ */
+export function referenceErrorMessage(error: PropertyError, name: string): MessageKey {
   switch (error.code) {
     case 'invalid-name':
-      return name === '' ? EMPTY_REFERENCE_MESSAGE : INVALID_REFERENCE_MESSAGE
+      return name === '' ? 'property.error.emptyReference' : 'property.error.invalidReference'
     case 'duplicate-name':
-      return DUPLICATE_REFERENCE_MESSAGE
+      return 'property.error.duplicateReference'
     case 'property-not-found':
-      return MISSING_PROPERTY_MESSAGE
+      return 'property.error.missing'
     case 'duplicate-id':
     case 'type-mismatch':
-      return RENAME_FAILED_MESSAGE
+      return 'property.error.renameFailed'
   }
 }

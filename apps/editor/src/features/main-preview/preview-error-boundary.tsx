@@ -3,19 +3,22 @@ import type { ReactNode } from 'react'
 import { MonitorX } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/shared/ui/alert'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { RendererUnavailableError } from './renderer-unavailable-error'
 
-export const RENDERER_UNAVAILABLE_MESSAGE =
-  'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
-export const PREVIEW_CRASHED_MESSAGE =
-  'Preview stopped unexpectedly. Reload the page to restart it.'
-
 type PreviewFailure = 'renderer-unavailable' | 'crashed'
 
-const FAILURE_MESSAGES: Readonly<Record<PreviewFailure, string>> = {
-  'renderer-unavailable': RENDERER_UNAVAILABLE_MESSAGE,
-  crashed: PREVIEW_CRASHED_MESSAGE,
+const FAILURE_MESSAGES: Readonly<Record<PreviewFailure, MessageKey>> = {
+  'renderer-unavailable': 'preview.unavailable',
+  crashed: 'preview.crashed',
+}
+
+/** The failure in the UI language (the boundary is a class, so a function component reads it). */
+function FailureMessage({ failure }: { failure: PreviewFailure }) {
+  const t = useT()
+  return <>{t(FAILURE_MESSAGES[failure])}</>
 }
 
 interface PreviewErrorBoundaryProps {
@@ -50,7 +53,7 @@ export class PreviewErrorBoundary extends Component<
         <Alert>
           <MonitorX aria-hidden="true" />
           <AlertDescription className="text-xs text-foreground">
-            {FAILURE_MESSAGES[failure]}
+            <FailureMessage failure={failure} />
           </AlertDescription>
         </Alert>
       </div>

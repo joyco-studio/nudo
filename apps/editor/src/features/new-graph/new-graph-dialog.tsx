@@ -1,3 +1,4 @@
+import { useT } from '@/i18n/use-t'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ export function NewGraphDialog({
   onConfirm,
   restoreFocus,
 }: NewGraphDialogProps) {
+  const t = useT()
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
@@ -40,17 +42,16 @@ export function NewGraphDialog({
       >
         <AlertDialogHeader>
           <AlertDialogTitle className="font-heading text-sm font-semibold tracking-wide uppercase">
-            Start a new graph?
+            {t('newGraph.title')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This removes {contentsLabel} and keeps only the Master Stack. Undo (Ctrl/⌘ Z) brings
-            them back.
+            {t('newGraph.description', { contents: contentsLabel })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+          <AlertDialogCancel size="sm">{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" size="sm" onClick={onConfirm}>
-            Start new graph
+            {t('newGraph.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

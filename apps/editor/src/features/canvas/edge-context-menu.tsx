@@ -7,6 +7,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu'
+import { useT } from '@/i18n/use-t'
 
 import { CanvasMenuContent } from './canvas-menu-content'
 import { useGraphCanvasActions } from './graph-canvas-actions'
@@ -23,6 +24,7 @@ interface EdgeContextMenuProps {
 export function EdgeContextMenu({ edgeId, children }: EdgeContextMenuProps) {
   const { deleteEdge } = useGraphCanvasActions()
   const menu = useCanvasMenu()
+  const t = useT()
 
   return (
     <ContextMenu onOpenChange={menu.onOpenChange}>
@@ -42,7 +44,7 @@ export function EdgeContextMenu({ edgeId, children }: EdgeContextMenuProps) {
             })
           }}
         >
-          Delete connection
+          {t('edge.delete')}
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
       </CanvasMenuContent>

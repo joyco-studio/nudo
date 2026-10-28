@@ -1,5 +1,5 @@
 import { UNIVERSAL_PARAMS } from '@nudo-tsl/core'
-import type { AnyNodeDefinition, GraphNode } from '@nudo-tsl/core'
+import type { AnyNodeDefinition, GraphNode, ParamDefinition } from '@nudo-tsl/core'
 
 import { ParamField } from '@/features/canvas/param-field'
 import type { BodyParam } from '@/features/canvas/param-field'
@@ -8,24 +8,39 @@ import {
   SHOW_PREVIEW_PARAM,
   hasNodePreview,
 } from '@/features/node-previews/preview-graph'
+import { useUniversalParam } from '@/i18n/use-node-registry'
+import type { MessageKey } from '@/i18n/translate'
+import { useT } from '@/i18n/use-t'
 
 import { InspectorSection } from './inspector-section'
 
-const PREVIEW_TITLE = 'Preview'
-
 /** Row labels inside the Preview section, where the section title already says "preview". */
-const ROW_LABELS: Readonly<Record<string, string>> = {
-  [SHOW_PREVIEW_PARAM]: 'Show',
-  [PREVIEW_MODE_PARAM]: 'Mode',
+const ROW_LABELS: Readonly<Record<string, MessageKey>> = {
+  [SHOW_PREVIEW_PARAM]: 'inspector.preview.show',
+  [PREVIEW_MODE_PARAM]: 'inspector.preview.mode',
 }
 
-const isPreviewParam = (param: (typeof UNIVERSAL_PARAMS)[number]): param is BodyParam =>
-  (param.kind === 'boolean' || param.kind === 'enum') && param.id in ROW_LABELS
+const PREVIEW_PARAM_IDS = [SHOW_PREVIEW_PARAM, PREVIEW_MODE_PARAM] as const
 
-/** The universal preview params (on/off, Auto/2D/3D), with the labels this section uses. */
-const PREVIEW_PARAMS: readonly BodyParam[] = UNIVERSAL_PARAMS.filter(isPreviewParam).map(
-  (param) => ({ ...param, label: ROW_LABELS[param.id] ?? param.label }),
-)
+const isBodyParam = (param: ParamDefinition | undefined): param is BodyParam =>
+  param?.kind === 'boolean' || param?.kind === 'enum'
+
+const universalParam = (id: string): ParamDefinition | undefined =>
+  UNIVERSAL_PARAMS.find((param) => param.id === id)
+
+interface PreviewParamRowProps {
+  node: GraphNode
+  paramId: (typeof PREVIEW_PARAM_IDS)[number]
+}
+
+/** One universal preview param, in the UI language, labelled for this section. */
+function PreviewParamRow({ node, paramId }: PreviewParamRowProps) {
+  const t = useT()
+  const param = useUniversalParam(universalParam(paramId))
+  const labelKey = ROW_LABELS[paramId]
+  if (!isBodyParam(param) || labelKey === undefined) return null
+  return <ParamField node={node} param={{ ...param, label: t(labelKey) }} />
+}
 
 interface PreviewSettingsProps {
   node: GraphNode
@@ -37,13 +52,14 @@ interface PreviewSettingsProps {
  * draws on a quad, a sphere or picks one by itself. Nodes without a preview have no section.
  */
 export function PreviewSettings({ node, definition }: PreviewSettingsProps) {
+  const t = useT()
   if (!hasNodePreview(node, definition)) return null
 
   return (
-    <InspectorSection title={PREVIEW_TITLE}>
+    <InspectorSection title={t('inspector.preview')}>
       <ul>
-        {PREVIEW_PARAMS.map((param) => (
-          <ParamField key={param.id} node={node} param={param} />
+        {PREVIEW_PARAM_IDS.map((paramId) => (
+          <PreviewParamRow key={paramId} node={node} paramId={paramId} />
         ))}
       </ul>
     </InspectorSection>
