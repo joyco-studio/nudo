@@ -1,12 +1,12 @@
 import { MASTER_NODE_ID, addNode, asNodeId, moveNodes, setParam } from '@nudo-tsl/core'
 import type { Graph, NodeId, NodeRegistry, ParamValue, Result, XY } from '@nudo-tsl/core'
+import { commentNode } from '@nudo-tsl/nodes'
 
 import { boundsOf } from '@/features/canvas/tidy-up/bounds'
 import { layeredLayout } from '@/features/canvas/tidy-up/layered-layout'
 import type { LayoutLink } from '@/features/canvas/tidy-up/layered-layout'
 import { planTidyUp } from '@/features/canvas/tidy-up/plan-tidy-up'
 import type { NodeGeometry } from '@/features/canvas/tidy-up/plan-tidy-up'
-import { COMMENT_TYPE } from '@/features/canvas/to-flow'
 
 import { frameIdOf } from './example-spec'
 import type { ExampleSpec, GroupSpec } from './example-spec'
@@ -118,7 +118,11 @@ function placeGroup(
 
 function withFrame(graph: Graph, registry: NodeRegistry, group: GroupSpec, placed: PlacedGroup) {
   const added = expectOk(
-    addNode(graph, registry, { id: placed.frameId, type: COMMENT_TYPE, position: { x: 0, y: 0 } }),
+    addNode(graph, registry, {
+      id: placed.frameId,
+      type: commentNode.type,
+      position: { x: 0, y: 0 },
+    }),
     placed.frameId,
   )
   const params: Readonly<Record<string, ParamValue>> = {

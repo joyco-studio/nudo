@@ -1,13 +1,9 @@
-import { UNIVERSAL_PARAMS } from '@nudo-tsl/core'
+import { PREVIEW_MODE_PARAM, SHOW_PREVIEW_PARAM, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
 import type { AnyNodeDefinition, GraphNode, ParamDefinition } from '@nudo-tsl/core'
 
 import { ParamField } from '@/features/canvas/param-field'
 import type { BodyParam } from '@/features/canvas/param-field'
-import {
-  PREVIEW_MODE_PARAM,
-  SHOW_PREVIEW_PARAM,
-  hasNodePreview,
-} from '@/features/node-previews/preview-graph'
+import { hasNodePreview } from '@/features/node-previews/preview-graph'
 import { useUniversalParam } from '@/i18n/use-node-registry'
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'

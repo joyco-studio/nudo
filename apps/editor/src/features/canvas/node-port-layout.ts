@@ -1,4 +1,4 @@
-import { MASTER_NODE_ID } from '@nudo-tsl/core'
+import { COLLAPSED_PARAM, MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { GraphNode, InputDefinition, OutputDefinition } from '@nudo-tsl/core'
 
 import type { MessageKey } from '@/i18n/translate'
@@ -22,9 +22,6 @@ export interface PortGroup {
   readonly title: MessageKey | null
   readonly rows: readonly InputRowModel[]
 }
-
-/** Universal params every node accepts (see `UNIVERSAL_PARAMS` in core). */
-export const COLLAPSED_PARAM = 'collapsed'
 
 /** The universal `collapsed` param: a collapsed node shows only its connected ports. */
 export function isNodeCollapsed(data: FlowNodeData): boolean {

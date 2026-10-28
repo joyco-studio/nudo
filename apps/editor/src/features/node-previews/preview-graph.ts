@@ -1,4 +1,4 @@
-import { MASTER_NODE_ID, topologyKey } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, PREVIEW_MODE_PARAM, SHOW_PREVIEW_PARAM, topologyKey } from '@nudo-tsl/core'
 import type {
   AnyNodeDefinition,
   Graph,
@@ -9,14 +9,16 @@ import type {
   NodeTypeId,
   PortRef,
 } from '@nudo-tsl/core'
-import { rerouteNode } from '@nudo-tsl/nodes'
-
-import { COMMENT_TYPE } from '@/features/canvas/to-flow'
-
-/** The universal param that shows or hides a node's preview (see `UNIVERSAL_PARAMS` in core). */
-export const SHOW_PREVIEW_PARAM = 'showPreview'
-/** The universal param that forces a preview to 2D or 3D, or leaves it on `auto`. */
-export const PREVIEW_MODE_PARAM = 'previewMode'
+import {
+  commentNode,
+  fresnelNode,
+  normalFromHeightNode,
+  normalNode,
+  positionNode,
+  rerouteNode,
+  timeNode,
+  viewDirectionNode,
+} from '@nudo-tsl/nodes'
 
 /** A flat quad (2D, drawn square) or a sphere (3D, drawn as a circle like Unity's previews). */
 export type PreviewShape = '2d' | '3d'
@@ -25,19 +27,19 @@ export type PreviewShape = '2d' | '3d'
  * Nodes that pass a value along without shaping it have nothing of their own to show: a reroute
  * is a dot on a wire, and a comment has no output.
  */
-const NO_PREVIEW_TYPES: ReadonlySet<NodeTypeId> = new Set([COMMENT_TYPE, rerouteNode.type])
+const NO_PREVIEW_TYPES: ReadonlySet<NodeTypeId> = new Set([commentNode.type, rerouteNode.type])
 
 /** Upstream nodes whose value only makes sense on a curved surface, so `auto` picks the sphere. */
 const SURFACE_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([
-  'input/normal',
-  'input/position',
-  'input/view-direction',
-  'effects/fresnel',
-  'normal/normal-from-height',
+  normalNode.type,
+  positionNode.type,
+  viewDirectionNode.type,
+  fresnelNode.type,
+  normalFromHeightNode.type,
 ])
 
 /** Upstream nodes that change every frame, so the preview keeps rendering while it is visible. */
-const ANIMATED_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set(['input/time'])
+const ANIMATED_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([timeNode.type])
 
 /**
  * Whether a node can show a preview at all: never the master (the Main Preview is its preview),

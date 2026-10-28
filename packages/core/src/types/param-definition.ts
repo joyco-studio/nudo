@@ -44,6 +44,13 @@ export type ParamDefinition =
  */
 export const PROPERTY_ID_PARAM = 'propertyId'
 
+/** Universal param: a collapsed node shows only its connected ports. */
+export const COLLAPSED_PARAM = 'collapsed'
+/** Universal param that shows or hides a node's preview. */
+export const SHOW_PREVIEW_PARAM = 'showPreview'
+/** Universal param that forces a node preview to 2D or 3D, or leaves it on `auto`. */
+export const PREVIEW_MODE_PARAM = 'previewMode'
+
 /**
  * Editor-managed params every node accepts implicitly. They are never part of `topologyKey`
  * (toggling them never recompiles), and `addNode` does not write them: absence means the default.
@@ -51,10 +58,10 @@ export const PROPERTY_ID_PARAM = 'propertyId'
  * one is ignored in favor of the universal definition.
  */
 export const UNIVERSAL_PARAMS: readonly ParamDefinition[] = [
-  { id: 'collapsed', label: 'Collapsed', kind: 'boolean', default: false },
-  { id: 'showPreview', label: 'Show preview', kind: 'boolean', default: true },
+  { id: COLLAPSED_PARAM, label: 'Collapsed', kind: 'boolean', default: false },
+  { id: SHOW_PREVIEW_PARAM, label: 'Show preview', kind: 'boolean', default: true },
   {
-    id: 'previewMode',
+    id: PREVIEW_MODE_PARAM,
     label: 'Preview mode',
     kind: 'enum',
     options: [

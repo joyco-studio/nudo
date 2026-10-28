@@ -11,7 +11,7 @@ import type {
   NodeRegistry,
   ResolvedTypes,
 } from '@nudo-tsl/core'
-import { rerouteNode } from '@nudo-tsl/nodes'
+import { commentNode, rerouteNode } from '@nudo-tsl/nodes'
 import type { Edge, Node } from '@xyflow/react'
 
 import { translateEnglish } from '@/i18n/translate'
@@ -29,7 +29,6 @@ export const COMMENT_NODE_TYPE = 'comment'
 export const REROUTE_NODE_TYPE = 'reroute'
 export const TYPED_EDGE_TYPE = 'typed'
 const MASTER_TITLE = 'Master Stack'
-export const COMMENT_TYPE = 'utility/comment'
 /**
  * Comment frames sit behind every other node, even while selected: React Flow lifts a selected
  * node by 1000, which still leaves the frame below unselected nodes at 0.
@@ -81,7 +80,7 @@ export function nodeTitle(
   properties: readonly BlackboardProperty[],
 ): string {
   if (node.id === MASTER_NODE_ID) return MASTER_TITLE
-  if (node.type === COMMENT_TYPE) {
+  if (node.type === commentNode.type) {
     const title = stringParam(node, COMMENT_TITLE_PARAM)?.trim() ?? ''
     return title === '' ? definition.label : title
   }
@@ -216,7 +215,7 @@ function toFlowEdge(
 
 /** The view that draws a node: a comment frame, a reroute dot, or the regular node card. */
 function flowTypeOf(node: GraphNode): FlowNodeType {
-  if (node.type === COMMENT_TYPE) return COMMENT_NODE_TYPE
+  if (node.type === commentNode.type) return COMMENT_NODE_TYPE
   return node.type === rerouteNode.type ? REROUTE_NODE_TYPE : GRAPH_NODE_TYPE
 }
 

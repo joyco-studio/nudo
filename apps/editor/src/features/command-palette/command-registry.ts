@@ -1,5 +1,6 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeId, NodeTypeId } from '@nudo-tsl/core'
+import { commentNode } from '@nudo-tsl/nodes'
 
 import { EXAMPLE_IDS } from '@/examples'
 import type { ExampleId } from '@/examples'
@@ -7,7 +8,6 @@ import type { PlacementOrigin } from '@/features/add-node-menu/add-node-placemen
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
 import { duplicateNodes, selectAllNodes } from '@/features/canvas/node-commands'
-import { COMMENT_TYPE } from '@/features/canvas/to-flow'
 import { PANEL_SHORTCUT_KEYS } from '@/features/panels/panel-shortcut-action'
 import type { PanelShortcutAction } from '@/features/panels/panel-shortcut-action'
 import type { PanelId, PreviewLayout } from '@/features/panels/panel-state'
@@ -203,7 +203,7 @@ const ACTION_COMMANDS: readonly Command[] = [
     menuLabel: 'command.add-comment.menu',
     shortcut: [],
     run: ({ nodeId, services }) => {
-      const commentId = services.addNode(COMMENT_TYPE, placementNear(nodeId))
+      const commentId = services.addNode(commentNode.type, placementNear(nodeId))
       if (commentId !== null) focusFlowNode(commentId)
     },
   },

@@ -1,8 +1,8 @@
 import { asNodeId } from '@nudo-tsl/core'
 import type { Graph, GraphNode } from '@nudo-tsl/core'
+import { commentNode } from '@nudo-tsl/nodes'
 
 import { COMMENT_BODY_PARAM, COMMENT_TITLE_PARAM } from '@/features/canvas/comment-params'
-import { COMMENT_TYPE } from '@/features/canvas/to-flow'
 
 import type { CommentText } from './build/example-spec'
 
@@ -10,7 +10,7 @@ import type { CommentText } from './build/example-spec'
 export type CommentTexts = Readonly<Record<string, CommentText>>
 
 function localized(node: GraphNode, text: CommentText | undefined): GraphNode {
-  if (text === undefined || node.type !== COMMENT_TYPE) return node
+  if (text === undefined || node.type !== commentNode.type) return node
   return {
     ...node,
     params: { ...node.params, [COMMENT_TITLE_PARAM]: text.title, [COMMENT_BODY_PARAM]: text.body },

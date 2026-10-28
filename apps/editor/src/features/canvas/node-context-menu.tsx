@@ -1,16 +1,17 @@
 import type { ReactElement } from 'react'
-import { MASTER_NODE_ID, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
+import {
+  COLLAPSED_PARAM,
+  MASTER_NODE_ID,
+  PREVIEW_MODE_PARAM,
+  SHOW_PREVIEW_PARAM,
+  UNIVERSAL_PARAMS,
+} from '@nudo-tsl/core'
 import type { NodeId } from '@nudo-tsl/core'
-import { rerouteNode } from '@nudo-tsl/nodes'
+import { commentNode, rerouteNode } from '@nudo-tsl/nodes'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
 import { MIN_TIDY_SELECTION } from '@/features/command-palette/command-registry'
-import {
-  PREVIEW_MODE_PARAM,
-  SHOW_PREVIEW_PARAM,
-  hasNodePreview,
-  isPreviewShown,
-} from '@/features/node-previews/preview-graph'
+import { hasNodePreview, isPreviewShown } from '@/features/node-previews/preview-graph'
 import { previewToggleAction } from '@/features/node-previews/preview-toggle'
 import { useUniversalParam } from '@/i18n/use-node-registry'
 import { useT } from '@/i18n/use-t'
@@ -32,10 +33,9 @@ import { useEditorStore } from '@/store/editor-store'
 import { CanvasMenuContent } from './canvas-menu-content'
 import { CommandMenuLabel } from './command-menu-label'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import { COLLAPSED_PARAM, isNodeCollapsed, portsToggleLabel } from './node-port-layout'
+import { isNodeCollapsed, portsToggleLabel } from './node-port-layout'
 import { isEnumParam } from './param-kinds'
 import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-context-menu'
-import { COMMENT_TYPE } from './to-flow'
 import type { FlowNodeData } from './to-flow'
 import { useCanvasMenu } from './use-canvas-menu'
 import type { CanvasMenu } from './use-canvas-menu'
@@ -74,7 +74,7 @@ interface NodeMenuModel {
 
 function nodeMenuModel(data: FlowNodeData): NodeMenuModel {
   const { node, definition } = data
-  const isComment = node.type === COMMENT_TYPE
+  const isComment = node.type === commentNode.type
   const isPill = definition.reads === 'property'
   const isReroute = node.type === rerouteNode.type
   const hasPorts = definition.inputs.length + definition.outputs.length > 0

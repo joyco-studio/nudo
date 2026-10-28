@@ -1,6 +1,6 @@
 import { memo, useId } from 'react'
 import type { DataType, OutputDefinition } from '@nudo-tsl/core'
-import { MASTER_NODE_ID } from '@nudo-tsl/core'
+import { COLLAPSED_PARAM, MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { TriangleAlert } from 'lucide-react'
 
@@ -24,13 +24,7 @@ import { PortTooltip } from './port-tooltip'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { ConnectablePort } from './connectable-port'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import {
-  COLLAPSED_PARAM,
-  inputGroups,
-  isNodeCollapsed,
-  portsToggleLabel,
-  visibleOutputs,
-} from './node-port-layout'
+import { inputGroups, isNodeCollapsed, portsToggleLabel, visibleOutputs } from './node-port-layout'
 import type { InputRowModel, PortGroup } from './node-port-layout'
 import { ParamFields, bodyParams } from './param-field'
 import { PortTypeLabel } from './port-handle'

@@ -1,3 +1,4 @@
+import { SHOW_PREVIEW_PARAM } from '@nudo-tsl/core'
 import type { AnyNodeDefinition, GraphNode } from '@nudo-tsl/core'
 import { Eye, EyeOff } from 'lucide-react'
 
@@ -9,7 +10,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { SHOW_PREVIEW_PARAM, hasNodePreview, isPreviewShown } from './preview-graph'
+import { hasNodePreview, isPreviewShown } from './preview-graph'
 
 /** The action the toggle performs, worded the same in its tooltip and in the node's menu. */
 export function previewToggleAction(isShown: boolean): MessageKey {

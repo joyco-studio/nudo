@@ -11,6 +11,7 @@ import type {
   OnEdgesChange,
   OnNodesChange,
 } from '@xyflow/react'
+import { commentNode } from '@nudo-tsl/nodes'
 import { useReactFlow } from '@xyflow/react'
 
 import { useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
@@ -34,7 +35,7 @@ import { storeFieldActions } from './store-field-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
 import { REROUTE_SIZE, canReroute } from './reroute'
 import { createUnchangedSharer } from './share-unchanged'
-import { COMMENT_NODE_TYPE, COMMENT_TYPE, toFlow } from './to-flow'
+import { COMMENT_NODE_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
 
@@ -250,7 +251,7 @@ export function GraphCanvasContainer() {
       addCommentAt: (point) => {
         const store = getStore()
         const position = screenToFlowPosition({ x: point.clientX, y: point.clientY })
-        const nodeId = store.addNode(COMMENT_TYPE, position)
+        const nodeId = store.addNode(commentNode.type, position)
         if (nodeId === null) return
         store.setSelection([nodeId])
         focusFlowNode(nodeId)
