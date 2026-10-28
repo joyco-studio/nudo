@@ -38,7 +38,7 @@ Everything in the phase-1 plan's Global Constraints still applies (`docs/superpo
   - Per-node previews of Time-dependent nodes animate at ≤ 20 fps and only while visible in the viewport.
   - Static previews re-render only when dirty.
 - **lettra quality target:** the pond example must render without node errors and visually show rosettes, lace lines, toned stamps, a sun band and animated refraction. Ripples are out of scope.
-- localStorage keys are unchanged. Texture assets live in IndexedDB database `nudo-tsl`, store `assets`, keyed by lowercase hex SHA-256 of the file bytes.
+- localStorage keys: phase 1's (`nudo-tsl:autosave`, `nudo-tsl:autosave:corrupt`, `nudo-tsl:theme`) are unchanged. Phase 2 adds two UI-preference keys: `nudo-tsl:panels` (panel layout, ruling P2-R2) and `nudo-tsl:locale` (UI language, Task 7e). Texture assets live in IndexedDB database `nudo-tsl`, store `assets`, keyed by lowercase hex SHA-256 of the file bytes.
 
 ## Review Focus
 
