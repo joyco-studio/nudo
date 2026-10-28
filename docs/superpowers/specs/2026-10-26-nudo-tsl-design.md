@@ -464,9 +464,9 @@ Fuente: https://github.com/joyco-studio/gltf (live: https://gltf.joyco.studio).
 
 El usuario pidió avanzar con todas las fases que faltan con una meta explícita: que quede **un producto increíble**. Esta sección fija el alcance. Las decisiones marcadas *(autor)* son mías; el resto viene del chat.
 
-### 15.1 Meta de calidad: el pond de lettra
+### 15.1 Meta de calidad: el ejemplo Pond
 
-El agua ilustrada de `joyco-studio/lettra-landing` (`src/lib/scenes/models/water.ts`) es el **shader de referencia**. La fase 2 se considera completa cuando nudo puede recrear esa estética como grafo y el ejemplo está incluido en el repo:
+El ejemplo Pond (id `pond`), un shader de agua de estanque estilizado, es el **shader de referencia**: UV en espacio del estanque, dos lecturas de ruido con scroll para la refracción, rosetas y lace con Voronoi, lecturas de stamps rotadas, banda de sol, selección de tono por umbrales de luz, viñeta con Screen UV y material unlit. La fase 2 se considera completa cuando nudo puede recrear esa estética como grafo y el ejemplo está incluido en el repo:
 - rosetas Voronoi, lace, stamps, banda de sol, tonos posterizados, refracción por ruido animado y viñeta en screen-space;
 - material unlit;
 - sin los ripples interactivos, que son una simulación con render targets y no un shader.
@@ -529,7 +529,7 @@ Paridad verificada en tests importando el módulo generado contra `three/tsl` re
 
 ### 15.5 Fase 5: comunidad e IA
 
-- **Galería de ejemplos** dentro del editor: el pond de lettra, agua simple, holograma, disolución, toon, fresnel glow. Cada uno es un `.graph.json` versionado.
+- **Galería de ejemplos** dentro del editor: el ejemplo Pond, agua simple (eliminado por pedido del usuario el 2026-10-28), holograma, disolución, toon, fresnel glow. Cada uno es un `.graph.json` versionado.
 - **Presets** para artistas: los ejemplos se abren como punto de partida.
 - **Plugins de la comunidad:** registrar nodos propios con la API de `defineNode`, cargados como módulos.
 - **Servidor MCP** *(idea del usuario, ver la memoria de competidores)*: para que un agente (Claude Code) lea, cree y edite grafos con las operaciones puras de `core` y el formato JSON, y el usuario retoque visualmente. Es el diferencial frente a TSL Graph.
