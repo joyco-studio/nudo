@@ -4,6 +4,7 @@ import {
   DEFAULT_PANEL_PREFS,
   PANELS_STORAGE_KEY,
   parsePanelPrefs,
+  serializePanelPrefs,
 } from '../features/panels/panel-state'
 import { AUTOSAVE_KEY } from '../store/autosave'
 import { useEditorStore } from '../store/editor-store'
@@ -85,7 +86,7 @@ describe('bootstrapEditor panel preferences', () => {
       layout: 'split' as const,
       backdrop: 'checker-room' as const,
     }
-    localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(stored))
+    localStorage.setItem(PANELS_STORAGE_KEY, serializePanelPrefs(stored))
 
     stop = bootstrapEditor(localStorage, window)
     expect(useEditorStore.getState().panels).toEqual(stored)
@@ -94,5 +95,16 @@ describe('bootstrapEditor panel preferences', () => {
     expect(parsePanelPrefs(localStorage.getItem(PANELS_STORAGE_KEY)).open.code).toBe(
       !stored.open.code,
     )
+  })
+
+  it('moves prefs saved before the grid to the grid, then keeps the next choice', () => {
+    const legacyPrefs = { ...DEFAULT_PANEL_PREFS, backdrop: 'checker-room' as const }
+    localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(legacyPrefs))
+
+    stop = bootstrapEditor(localStorage, window)
+    expect(useEditorStore.getState().panels.backdrop).toBe('grid')
+
+    useEditorStore.getState().setPreviewBackdrop('checker-room')
+    expect(parsePanelPrefs(localStorage.getItem(PANELS_STORAGE_KEY)).backdrop).toBe('checker-room')
   })
 })

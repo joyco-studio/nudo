@@ -327,6 +327,42 @@ test.describe('preview layout', () => {
     await expect(preview(page).getByRole('combobox', { name: 'Backdrop' })).toHaveText('None')
   })
 
+  test('prefs saved before the grid move to it once, then later choices stick', async ({
+    page,
+  }) => {
+    await seedAutosave(page, COLOR_TO_BASE_COLOR)
+    await page.goto('/')
+    // Prefs as an older build saved them: a checker room choice and no version stamp.
+    await page.evaluate(
+      ([key, prefs]) => {
+        localStorage.setItem(key, prefs)
+      },
+      [PANELS_STORAGE_KEY, JSON.stringify({ backdrop: 'checker-room' })] as const,
+    )
+    await page.reload()
+
+    const viewportCanvas = preview(page).locator('canvas')
+    const backdrop = preview(page).getByRole('combobox', { name: 'Backdrop' })
+    await expect(preview(page).getByText(/^(WebGPU|WebGL2)$/)).toBeVisible()
+    await expect(backdrop).toHaveText('Grid')
+    await expect
+      .poll(async () => {
+        const band = await bottomBandAgainstBackground(page, await viewportCanvas.screenshot())
+        return band.differing
+      })
+      .toBeGreaterThan(GRID_PIXELS_MIN)
+
+    await backdrop.focus()
+    // Type-ahead on the closed select picks the option that starts with the letter.
+    await page.keyboard.press('c')
+    await expect(backdrop).toHaveText('Checker room')
+
+    await page.reload()
+    await expect(preview(page).getByRole('combobox', { name: 'Backdrop' })).toHaveText(
+      'Checker room',
+    )
+  })
+
   test('checker room backdrop renders behind the preview mesh', async ({ page }) => {
     await seedAutosave(page, COLOR_TO_BASE_COLOR)
     await page.goto('/')
