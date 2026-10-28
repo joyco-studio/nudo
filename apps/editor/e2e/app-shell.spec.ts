@@ -98,6 +98,8 @@ test.describe('default theme', () => {
 
   test('skip link moves focus to the canvas', async ({ page }) => {
     const { skipLink, canvas } = shellControls(page)
+    // On a cold, loaded dev server the shell can still be mounting: a Tab sent then lands nowhere.
+    await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
 
     await page.keyboard.press('Tab')
     await expect(skipLink).toBeFocused()
