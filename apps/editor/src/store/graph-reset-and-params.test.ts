@@ -107,3 +107,35 @@ describe('resetGraph', () => {
     expect(getState().graph).toBe(graphBefore)
   })
 })
+
+describe('replaceGraph', () => {
+  it('loads another graph in one entry, clears the selection, and undo restores the old one', () => {
+    const id = addNodeOrFail('math/sin')
+    getState().setSelection([id])
+    const graphBefore = getState().graph
+    const entriesBefore = historyLength()
+    const replacement = createGraph()
+
+    getState().replaceGraph(replacement)
+
+    expect(getState().graph).toBe(replacement)
+    expect(getState().selectedNodeIds).toEqual([])
+    expect(historyLength()).toBe(entriesBefore + 1)
+
+    undo()
+    expect(getState().graph).toBe(graphBefore)
+  })
+})
+
+describe('previewShape', () => {
+  it('starts on the sphere and changes without a history entry', () => {
+    const entriesBefore = historyLength()
+    expect(getState().previewShape).toBe('sphere')
+
+    getState().setPreviewShape('plane')
+
+    expect(getState().previewShape).toBe('plane')
+    expect(historyLength()).toBe(entriesBefore)
+    getState().setPreviewShape('sphere')
+  })
+})

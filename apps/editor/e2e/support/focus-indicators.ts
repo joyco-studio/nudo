@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
-const MAX_TAB_PRESSES = 40
+/** Room for the header, the panels and a few nodes before giving up. */
+const MAX_TAB_PRESSES = 60
 
 export async function tabUntilFocused(page: Page, target: Locator): Promise<void> {
   for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {

@@ -19,6 +19,7 @@ import type { StateCreator } from 'zustand'
 import type { MessageKey } from '@/i18n/translate'
 
 import type { PropertyKind } from '@/features/blackboard/property-kinds'
+import type { PreviewShape } from '@/features/main-preview/preview-shape'
 import type {
   NonFullPreviewLayout,
   PanelId,
@@ -60,6 +61,8 @@ export interface GraphSlice {
   commitResize(nodeId: NodeId, frame: NodeFrame): void
   /** Replaces the graph with a fresh one (master only, no properties) as one history entry. */
   resetGraph(): void
+  /** Replaces the graph with another one (an example) as one history entry. */
+  replaceGraph(graph: Graph): void
 }
 
 /**
@@ -126,6 +129,8 @@ export interface UiSlice {
   layoutBeforeFull: NonFullPreviewLayout
   /** The split while its handle is being dragged; stored (and persisted) only on release. */
   splitDraftPercent: number | null
+  /** The mesh the Main Preview draws the material on. Not saved: a preview choice, not the graph. */
+  previewShape: PreviewShape
   setSelection(ids: readonly NodeId[]): void
   setDraftPositions(positions: UiSlice['draftPositions']): void
   previewInputValue(ref: PortRef, value: PortValue): void
@@ -146,6 +151,7 @@ export interface UiSlice {
   /** Ends a draft that no person made (a layout the library adjusted on its own). */
   discardSplitDraft(): void
   setPreviewBackdrop(backdrop: PreviewBackdrop): void
+  setPreviewShape(shape: PreviewShape): void
 }
 
 export interface CompileSlice {

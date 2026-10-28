@@ -1,6 +1,8 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeId, NodeTypeId } from '@nudo-tsl/core'
 
+import { EXAMPLE_IDS } from '@/examples'
+import type { ExampleId } from '@/examples'
 import type { PlacementOrigin } from '@/features/add-node-menu/add-node-placement'
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
@@ -19,17 +21,19 @@ import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { redo, undo, useEditorStore } from '@/store/editor-store'
 
 /** The palette's command groups, in palette order. Nodes are listed by the palette itself. */
-export type CommandGroupId = 'actions' | 'view'
+export type CommandGroupId = 'actions' | 'view' | 'examples'
 
 type PanelCommandId = `toggle-${PanelId}`
 type LayoutCommandId = `preview-${PreviewLayout}`
 type LanguageCommandId = `language-${Locale}`
+type ExampleCommandId = `example-${ExampleId}`
 
 export type CommandId =
   | GlobalShortcutAction
   | PanelCommandId
   | LayoutCommandId
   | LanguageCommandId
+  | ExampleCommandId
   | 'duplicate'
   | 'delete'
   | 'add-node'
@@ -55,6 +59,8 @@ export interface CommandServices {
   /** Adds and selects a node near the origin, clear of other nodes. Null when it can't be added. */
   addNode: (type: NodeTypeId, origin: PlacementOrigin) => NodeId | null
   openCommandPalette: (opener: HTMLElement | null) => void
+  /** Opens an example, asking first when that would replace work. */
+  openExample: (id: ExampleId, opener: HTMLElement | null) => void
 }
 
 /** Where a command was asked for. */
@@ -149,6 +155,17 @@ function languageCommand(locale: Locale): Command {
     shortcut: [],
     run: ({ services }) => {
       services.setLocale(locale)
+    },
+  }
+}
+
+function exampleCommand(id: ExampleId): Command {
+  return {
+    id: `example-${id}`,
+    group: 'examples',
+    shortcut: [],
+    run: ({ opener, services }) => {
+      services.openExample(id, opener)
     },
   }
 }
@@ -334,7 +351,11 @@ const VIEW_COMMANDS: readonly Command[] = [
 ]
 
 /** Every editor action, defined once for the palette, the shortcuts catalog and the menus. */
-export const COMMANDS: readonly Command[] = [...ACTION_COMMANDS, ...VIEW_COMMANDS]
+export const COMMANDS: readonly Command[] = [
+  ...ACTION_COMMANDS,
+  ...VIEW_COMMANDS,
+  ...EXAMPLE_IDS.map(exampleCommand),
+]
 
 const COMMANDS_BY_ID: ReadonlyMap<string, Command> = new Map(
   COMMANDS.map((command) => [command.id, command]),

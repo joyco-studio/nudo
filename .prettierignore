@@ -6,3 +6,6 @@ docs
 
 # Generated modules are snapshots of codegen output, not hand-formatted code.
 packages/codegen/src/__snapshots__
+
+# Example graphs are written by their builder (src/examples/build), in the editor's own JSON format.
+apps/editor/src/examples/*.graph.json

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { es } from '@/i18n/messages/es'
 import { createTranslator, isMessageKey, translateEnglish } from '@/i18n/translate'
+import { EXAMPLE_IDS } from '@/examples'
 import { useEditorStore } from '@/store/editor-store'
 import { PANEL_IDS } from '@/features/panels/panel-state'
 import { PANEL_SHORTCUT_KEYS } from '@/features/panels/panel-shortcut-action'
@@ -103,6 +104,24 @@ describe('command registry', () => {
     ])
   })
 
+  it('opens each example through the services, from the Examples group', () => {
+    const opened: string[] = []
+    const services: CommandServices = {
+      ...NO_SERVICES,
+      openExample: (id) => opened.push(id),
+    }
+    for (const id of EXAMPLE_IDS) {
+      const command = findCommand(`example-${id}`)
+      expect(command?.group, id).toBe('examples')
+      command?.run({ ...UNTARGETED, services })
+    }
+    expect(opened).toEqual([...EXAMPLE_IDS])
+    const spanish = createTranslator(es)
+    expect(searchCommands(PALETTE_COMMANDS, 'estanque', spanish).map((c) => c.id)).toEqual([
+      'example-lettra-pond',
+    ])
+  })
+
   it('keeps the palette command itself out of the palette', () => {
     expect(idsOf(PALETTE_COMMANDS)).not.toContain('open-command-palette')
     expect(idsOf(PALETTE_COMMANDS)).toContain('toggle-theme')
@@ -120,6 +139,7 @@ const NO_SERVICES: CommandServices = {
   openAddNodeMenu: () => undefined,
   addNode: () => null,
   openCommandPalette: () => undefined,
+  openExample: () => undefined,
 }
 
 function addSine(x: number): NodeId {

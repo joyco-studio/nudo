@@ -8,6 +8,7 @@ import { focusFlowNode } from '@/features/canvas/focus-flow-node'
 import type { FlowNode } from '@/features/canvas/to-flow'
 import { useTidyUp } from '@/features/canvas/tidy-up/use-tidy-up'
 import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
+import { useRequestExample } from '@/features/examples/examples-context'
 import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
 import { useOpenShortcutsDialog } from '@/features/shortcuts/shortcuts-dialog-context'
 import type { Locale } from '@/i18n/locale'
@@ -31,7 +32,8 @@ interface CommandPaletteProviderProps {
 
 /**
  * Runs registry commands for the keyboard, the context menus and the palette, and owns the palette
- * itself. Must sit inside the React Flow, add-node menu, shortcuts dialog and new-graph providers.
+ * itself. Must sit inside the React Flow, add-node menu, shortcuts dialog, new-graph and examples
+ * providers.
  */
 export function CommandPaletteProvider({
   toggleTheme,
@@ -43,6 +45,7 @@ export function CommandPaletteProvider({
   const tidyUp = useTidyUp()
   const openShortcutsDialog = useOpenShortcutsDialog()
   const requestNewGraph = useRequestNewGraph()
+  const requestExample = useRequestExample()
   const openAddNodeMenu = useOpenAddNodeMenu()
   const addNodeAt = useAddNodeAt()
   const palette = useCommandPalette()
@@ -60,6 +63,7 @@ export function CommandPaletteProvider({
       openAddNodeMenu,
       addNode: addNodeAt,
       openCommandPalette,
+      openExample: requestExample,
     }),
     [
       view,
@@ -71,6 +75,7 @@ export function CommandPaletteProvider({
       openAddNodeMenu,
       addNodeAt,
       openCommandPalette,
+      requestExample,
     ],
   )
 

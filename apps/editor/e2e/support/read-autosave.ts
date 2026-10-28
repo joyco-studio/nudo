@@ -70,3 +70,11 @@ export async function readStoredProperties(page: Page): Promise<readonly StoredP
       : [],
   )
 }
+
+/** The schema version of the autosave document in localStorage (null while nothing is saved). */
+export async function readStoredSchemaVersion(page: Page): Promise<unknown> {
+  const rawText = await page.evaluate((key) => localStorage.getItem(key), AUTOSAVE_KEY)
+  if (rawText === null) return null
+  const document: unknown = JSON.parse(rawText)
+  return isRecord(document) ? document.schemaVersion : null
+}

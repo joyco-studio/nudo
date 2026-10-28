@@ -1,0 +1,4808 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "across": {
+      "id": "across",
+      "type": "vector/dot",
+      "position": {
+        "x": -9224,
+        "y": -1075
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "across2": {
+      "id": "across2",
+      "type": "math/multiply",
+      "position": {
+        "x": -8584,
+        "y": -1163
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "acrossDir": {
+      "id": "acrossDir",
+      "type": "vector/combine",
+      "position": {
+        "x": -9928,
+        "y": -613
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "acrossN": {
+      "id": "acrossN",
+      "type": "math/divide",
+      "position": {
+        "x": -8904,
+        "y": -1112
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 8
+        }
+      },
+      "params": {}
+    },
+    "ahead": {
+      "id": "ahead",
+      "type": "math/max",
+      "position": {
+        "x": -7944,
+        "y": -772
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "along": {
+      "id": "along",
+      "type": "vector/dot",
+      "position": {
+        "x": -8584,
+        "y": -696
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "alongN": {
+      "id": "alongN",
+      "type": "math/divide",
+      "position": {
+        "x": -8264,
+        "y": -733
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 3.5
+        }
+      },
+      "params": {}
+    },
+    "ambient": {
+      "id": "ambient",
+      "type": "math/multiply",
+      "position": {
+        "x": -12184,
+        "y": 1888
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.185
+        }
+      },
+      "params": {}
+    },
+    "band": {
+      "id": "band",
+      "type": "math/multiply",
+      "position": {
+        "x": -6664,
+        "y": -1049
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "bandLit": {
+      "id": "bandLit",
+      "type": "math/multiply",
+      "position": {
+        "x": -6344,
+        "y": -974
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "bite": {
+      "id": "bite",
+      "type": "math/multiply",
+      "position": {
+        "x": -5000,
+        "y": 2082
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.132
+        }
+      },
+      "params": {}
+    },
+    "body": {
+      "id": "body",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2696,
+        "y": 230
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "breath": {
+      "id": "breath",
+      "type": "math/multiply",
+      "position": {
+        "x": -5320,
+        "y": 1623
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.0175
+        }
+      },
+      "params": {}
+    },
+    "bumpCells": {
+      "id": "bumpCells",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -10888,
+        "y": 2375
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 7.4
+        }
+      },
+      "params": {}
+    },
+    "cells": {
+      "id": "cells",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -10888,
+        "y": 1837
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "centered": {
+      "id": "centered",
+      "type": "math/subtract",
+      "position": {
+        "x": -15128,
+        "y": 1156
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "core": {
+      "id": "core",
+      "type": "math/exp",
+      "position": {
+        "x": -7624,
+        "y": -1387
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "coreArg": {
+      "id": "coreArg",
+      "type": "math/multiply",
+      "position": {
+        "x": -7944,
+        "y": -1364
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "coreEdge": {
+      "id": "coreEdge",
+      "type": "math/add",
+      "position": {
+        "x": -4360,
+        "y": 1994
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -0.028
+        }
+      },
+      "params": {}
+    },
+    "coreMask": {
+      "id": "coreMask",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3720,
+        "y": 1906
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "coreStep": {
+      "id": "coreStep",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -4040,
+        "y": 1957
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cosAngle": {
+      "id": "cosAngle",
+      "type": "math/cos",
+      "position": {
+        "x": -10568,
+        "y": -675
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crease": {
+      "id": "crease",
+      "type": "math/remap",
+      "position": {
+        "x": -10248,
+        "y": 1706
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 3.85
+        },
+        "outMin": {
+          "type": "float",
+          "value": -0.15
+        }
+      },
+      "params": {}
+    },
+    "darkened": {
+      "id": "darkened",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 82
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.214
+        }
+      },
+      "params": {}
+    },
+    "darkness": {
+      "id": "darkness",
+      "type": "math/subtract",
+      "position": {
+        "x": -4040,
+        "y": 819
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "depth": {
+      "id": "depth",
+      "type": "math/min",
+      "position": {
+        "x": -9928,
+        "y": 1849
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeFade": {
+      "id": "edgeFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -392,
+        "y": 422
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.32
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.95
+        }
+      },
+      "params": {}
+    },
+    "entry": {
+      "id": "entry",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6984,
+        "y": -846
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": -1.5
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "fade": {
+      "id": "fade",
+      "type": "math/exp",
+      "position": {
+        "x": -7304,
+        "y": -947
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fadeArg": {
+      "id": "fadeArg",
+      "type": "math/multiply",
+      "position": {
+        "x": -7624,
+        "y": -809
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "faded": {
+      "id": "faded",
+      "type": "math/multiply",
+      "position": {
+        "x": -6984,
+        "y": -1149
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fillHigh": {
+      "id": "fillHigh",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -2134
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "fillLow": {
+      "id": "fillLow",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -2345
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "fillMid": {
+      "id": "fillMid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2137
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "fillMid"
+      }
+    },
+    "fillShade": {
+      "id": "fillShade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2257
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "fillShade"
+      }
+    },
+    "fillSun": {
+      "id": "fillSun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2018
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "fillSun"
+      }
+    },
+    "fillTone": {
+      "id": "fillTone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -2331
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "final": {
+      "id": "final",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": 155
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "focus": {
+      "id": "focus",
+      "type": "math/add",
+      "position": {
+        "x": -11544,
+        "y": 2259
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "frame-body": {
+      "id": "frame-body",
+      "type": "utility/comment",
+      "position": {
+        "x": -3368,
+        "y": 35
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Flat painted tones, lightest to darkest by the darkness thresholds, then the lace and its core layered over them with Lerp.",
+        "height": 779,
+        "title": "Body and lace",
+        "width": 1568
+      }
+    },
+    "frame-darkness": {
+      "id": "frame-darkness",
+      "type": "utility/comment",
+      "position": {
+        "x": -5032,
+        "y": 219
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The stamp count plus a slow noise, thinned out by the sun. Each AA Step threshold moves to the next, darker tone.",
+        "height": 1292,
+        "title": "Darkness",
+        "width": 1568
+      }
+    },
+    "frame-lace": {
+      "id": "frame-lace",
+      "type": "utility/comment",
+      "position": {
+        "x": -5352,
+        "y": 1543
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The open water between rosettes and the creases where they touch, as crisp masks. The lace breathes with the refraction focus, widens under the sun and gets bitten by stamps.",
+        "height": 1017,
+        "title": "Lace",
+        "width": 1888
+      }
+    },
+    "frame-light-direction": {
+      "id": "frame-light-direction",
+      "type": "utility/comment",
+      "position": {
+        "x": -11192,
+        "y": -1108
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The light angle, in degrees, as a direction, and the direction across it.",
+        "height": 932,
+        "title": "Light direction",
+        "width": 1520
+      }
+    },
+    "frame-pond-space": {
+      "id": "frame-pond-space",
+      "type": "utility/comment",
+      "position": {
+        "x": -15480,
+        "y": 1002
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The mesh UV in pond units, +y toward the bottom like the reference. p is the pattern space every layer reads.",
+        "height": 457,
+        "title": "Pond space",
+        "width": 1248
+      }
+    },
+    "frame-refraction": {
+      "id": "frame-refraction",
+      "type": "utility/comment",
+      "position": {
+        "x": -14136,
+        "y": 1573
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water. Their sum is the focus that makes the lace breathe.",
+        "height": 1353,
+        "title": "Refraction",
+        "width": 2848
+      }
+    },
+    "frame-rosettes": {
+      "id": "frame-rosettes",
+      "type": "utility/comment",
+      "position": {
+        "x": -10920,
+        "y": 1610
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Voronoi F1 grows a round disc around each cell center; a finer Voronoi scallops the rim with bumps. Where two rosettes touch, the cell edge (F2 − F1) cuts a thin crease. depth is how far inside a rosette a point lies.",
+        "height": 1152,
+        "title": "Rosettes",
+        "width": 1248
+      }
+    },
+    "frame-stamps": {
+      "id": "frame-stamps",
+      "type": "utility/comment",
+      "position": {
+        "x": -7656,
+        "y": 1138
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Three more Voronoi reads, at other scales and two of them rotated, cut into round dabs with AA Step. Their count, only inside the rosettes, darkens the water.",
+        "height": 1185,
+        "title": "Stamps",
+        "width": 2208
+      }
+    },
+    "frame-sun-band": {
+      "id": "frame-sun-band",
+      "type": "utility/comment",
+      "position": {
+        "x": -9576,
+        "y": -1467
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A long band of light: a sharp Gaussian core (Exp of −x²) plus a wide soft glow across the light direction, strongest where it enters and fading along it. A slight left-to-right gradient keeps the shade from going flat.",
+        "height": 1192,
+        "title": "Sun band",
+        "width": 4128
+      }
+    },
+    "frame-tones": {
+      "id": "frame-tones",
+      "type": "utility/comment",
+      "position": {
+        "x": -4392,
+        "y": -2863
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Each tone blends its shade, mid and sun colors by the light. Select takes the shade-to-mid blend below the mid light (0.3) and the mid-to-sun blend above it.",
+        "height": 3050,
+        "title": "Tones",
+        "width": 928
+      }
+    },
+    "frame-vignette": {
+      "id": "frame-vignette",
+      "type": "utility/comment",
+      "position": {
+        "x": -1704,
+        "y": 2
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The pond deepens and darkens toward the edges of the view, in screen space.",
+        "height": 890,
+        "title": "Vignette",
+        "width": 2208
+      }
+    },
+    "fromLight": {
+      "id": "fromLight",
+      "type": "math/subtract",
+      "position": {
+        "x": -9544,
+        "y": -848
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            8,
+            -5
+          ]
+        }
+      },
+      "params": {}
+    },
+    "glow": {
+      "id": "glow",
+      "type": "math/multiply",
+      "position": {
+        "x": -7624,
+        "y": -1112
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.76
+        }
+      },
+      "params": {}
+    },
+    "glowArg": {
+      "id": "glowArg",
+      "type": "math/multiply",
+      "position": {
+        "x": -8264,
+        "y": -1036
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -0.08
+        }
+      },
+      "params": {}
+    },
+    "glowExp": {
+      "id": "glowExp",
+      "type": "math/exp",
+      "position": {
+        "x": -7944,
+        "y": -1061
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "gradient": {
+      "id": "gradient",
+      "type": "math/remap",
+      "position": {
+        "x": -6344,
+        "y": -671
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0.07100000000000001
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.05
+        }
+      },
+      "params": {}
+    },
+    "grow": {
+      "id": "grow",
+      "type": "math/subtract",
+      "position": {
+        "x": -4680,
+        "y": 1879
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "growing": {
+      "id": "growing",
+      "type": "math/add",
+      "position": {
+        "x": -5000,
+        "y": 1779
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "inside": {
+      "id": "inside",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6024,
+        "y": 1713
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.01
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.05
+        }
+      },
+      "params": {}
+    },
+    "laceCoreHigh": {
+      "id": "laceCoreHigh",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -24
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "laceCoreLow": {
+      "id": "laceCoreLow",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -235
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "laceCoreMid": {
+      "id": "laceCoreMid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -27
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceCoreMid"
+      }
+    },
+    "laceCoreShade": {
+      "id": "laceCoreShade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -147
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceCoreShade"
+      }
+    },
+    "laceCoreSun": {
+      "id": "laceCoreSun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": 92
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceCoreSun"
+      }
+    },
+    "laceCoreTone": {
+      "id": "laceCoreTone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -351
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "laceEdge": {
+      "id": "laceEdge",
+      "type": "math/add",
+      "position": {
+        "x": -4360,
+        "y": 1691
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -0.13
+        }
+      },
+      "params": {}
+    },
+    "laceHigh": {
+      "id": "laceHigh",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -446
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "laceLow": {
+      "id": "laceLow",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -657
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "laceMask": {
+      "id": "laceMask",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3720,
+        "y": 1631
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "laceMid": {
+      "id": "laceMid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -449
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceMid"
+      }
+    },
+    "laceShade": {
+      "id": "laceShade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -569
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceShade"
+      }
+    },
+    "laceStep": {
+      "id": "laceStep",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -4040,
+        "y": 1654
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "laceSun": {
+      "id": "laceSun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -330
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "laceSun"
+      }
+    },
+    "laceTone": {
+      "id": "laceTone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -747
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "lightAngle": {
+      "id": "lightAngle",
+      "type": "property/float",
+      "position": {
+        "x": -11160,
+        "y": -589
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lightAngle"
+      }
+    },
+    "lightDir": {
+      "id": "lightDir",
+      "type": "vector/combine",
+      "position": {
+        "x": -9928,
+        "y": -1028
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lightStrength": {
+      "id": "lightStrength",
+      "type": "property/float",
+      "position": {
+        "x": -6616,
+        "y": -746
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lightStrength"
+      }
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "negCos": {
+      "id": "negCos",
+      "type": "math/multiply",
+      "position": {
+        "x": -10248,
+        "y": -479
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "noiseA": {
+      "id": "noiseA",
+      "type": "effects/noise",
+      "position": {
+        "x": -12824,
+        "y": 1964
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 0.97
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "noiseAt": {
+      "id": "noiseAt",
+      "type": "math/add",
+      "position": {
+        "x": -13144,
+        "y": 2038
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "noiseB": {
+      "id": "noiseB",
+      "type": "effects/noise",
+      "position": {
+        "x": -12824,
+        "y": 2304
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "noiseBt": {
+      "id": "noiseBt",
+      "type": "math/add",
+      "position": {
+        "x": -13144,
+        "y": 2378
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "offset": {
+      "id": "offset",
+      "type": "vector/combine",
+      "position": {
+        "x": -12504,
+        "y": 1925
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outsideA": {
+      "id": "outsideA",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -6984,
+        "y": 1228
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.33333333333333337
+        }
+      },
+      "params": {}
+    },
+    "outsideAB": {
+      "id": "outsideAB",
+      "type": "math/add",
+      "position": {
+        "x": -6664,
+        "y": 1374
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outsideABC": {
+      "id": "outsideABC",
+      "type": "math/add",
+      "position": {
+        "x": -6344,
+        "y": 1475
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outsideB": {
+      "id": "outsideB",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -6984,
+        "y": 1531
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.33333333333333337
+        }
+      },
+      "params": {}
+    },
+    "outsideC": {
+      "id": "outsideC",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -6664,
+        "y": 1677
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.33333333333333337
+        }
+      },
+      "params": {}
+    },
+    "p": {
+      "id": "p",
+      "type": "math/multiply",
+      "position": {
+        "x": -14488,
+        "y": 1082
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.81
+        }
+      },
+      "params": {}
+    },
+    "pf": {
+      "id": "pf",
+      "type": "math/add",
+      "position": {
+        "x": -11544,
+        "y": 1653
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pl": {
+      "id": "pl",
+      "type": "math/add",
+      "position": {
+        "x": -11544,
+        "y": 1956
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "profile": {
+      "id": "profile",
+      "type": "math/add",
+      "position": {
+        "x": -7304,
+        "y": -1250
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "radians": {
+      "id": "radians",
+      "type": "math/multiply",
+      "position": {
+        "x": -10888,
+        "y": -677
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.017453292519943295
+        }
+      },
+      "params": {}
+    },
+    "rimFill": {
+      "id": "rimFill",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -3016,
+        "y": 115
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rimHigh": {
+      "id": "rimHigh",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -2556
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "rimLow": {
+      "id": "rimLow",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -2767
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "rimMid": {
+      "id": "rimMid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2559
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rimMid"
+      }
+    },
+    "rimShade": {
+      "id": "rimShade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2679
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rimShade"
+      }
+    },
+    "rimSun": {
+      "id": "rimSun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -2440
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rimSun"
+      }
+    },
+    "rimTone": {
+      "id": "rimTone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -2727
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "roseBumps": {
+      "id": "roseBumps",
+      "type": "math/remap",
+      "position": {
+        "x": -10568,
+        "y": 2338
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": -0.2475
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.0825
+        }
+      },
+      "params": {}
+    },
+    "roseCore": {
+      "id": "roseCore",
+      "type": "math/remap",
+      "position": {
+        "x": -10568,
+        "y": 1951
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": -0.8499999999999999
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "rosette": {
+      "id": "rosette",
+      "type": "math/add",
+      "position": {
+        "x": -10248,
+        "y": 2093
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "screenCentered": {
+      "id": "screenCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -1352,
+        "y": 589
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "screenDistance": {
+      "id": "screenDistance",
+      "type": "vector/length",
+      "position": {
+        "x": -712,
+        "y": 515
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "screenStretched": {
+      "id": "screenStretched",
+      "type": "math/multiply",
+      "position": {
+        "x": -1032,
+        "y": 552
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            1.4375,
+            1.15
+          ]
+        }
+      },
+      "params": {}
+    },
+    "screenUv": {
+      "id": "screenUv",
+      "type": "input/screen-uv",
+      "position": {
+        "x": -1672,
+        "y": 640
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "scrollA": {
+      "id": "scrollA",
+      "type": "math/multiply",
+      "position": {
+        "x": -13464,
+        "y": 2017
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.04006,
+            0.02465
+          ]
+        }
+      },
+      "params": {}
+    },
+    "scrollB": {
+      "id": "scrollB",
+      "type": "math/multiply",
+      "position": {
+        "x": -13464,
+        "y": 2623
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            -0.006,
+            0.012
+          ]
+        }
+      },
+      "params": {}
+    },
+    "sinAngle": {
+      "id": "sinAngle",
+      "type": "math/sin",
+      "position": {
+        "x": -10248,
+        "y": -754
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "spots": {
+      "id": "spots",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -3016,
+        "y": 446
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "spots12": {
+      "id": "spots12",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -3336,
+        "y": 483
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stacked": {
+      "id": "stacked",
+      "type": "math/add",
+      "position": {
+        "x": -4360,
+        "y": 718
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stamp1High": {
+      "id": "stamp1High",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -1712
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp1Low": {
+      "id": "stamp1Low",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -1923
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp1Mid": {
+      "id": "stamp1Mid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -1793
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp1Mid"
+      }
+    },
+    "stamp1Shade": {
+      "id": "stamp1Shade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -1855
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp1Shade"
+      }
+    },
+    "stamp1Sun": {
+      "id": "stamp1Sun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -1731
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp1Sun"
+      }
+    },
+    "stamp1Tone": {
+      "id": "stamp1Tone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -1935
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "stamp2High": {
+      "id": "stamp2High",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -1290
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp2Low": {
+      "id": "stamp2Low",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -1501
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp2Mid": {
+      "id": "stamp2Mid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -1304
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp2Mid"
+      }
+    },
+    "stamp2Shade": {
+      "id": "stamp2Shade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -1669
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp2Shade"
+      }
+    },
+    "stamp2Sun": {
+      "id": "stamp2Sun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -855
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp2Sun"
+      }
+    },
+    "stamp2Tone": {
+      "id": "stamp2Tone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -1539
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "stamp3High": {
+      "id": "stamp3High",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -868
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp3Low": {
+      "id": "stamp3Low",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4040,
+        "y": -1079
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stamp3Mid": {
+      "id": "stamp3Mid",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -731
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp3Mid"
+      }
+    },
+    "stamp3Shade": {
+      "id": "stamp3Shade",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -793
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp3Shade"
+      }
+    },
+    "stamp3Sun": {
+      "id": "stamp3Sun",
+      "type": "property/vec3",
+      "position": {
+        "x": -4312,
+        "y": -669
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stamp3Sun"
+      }
+    },
+    "stamp3Tone": {
+      "id": "stamp3Tone",
+      "type": "logic/select",
+      "position": {
+        "x": -3720,
+        "y": -1143
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {
+        "op": "lt"
+      }
+    },
+    "stampCellsA": {
+      "id": "stampCellsA",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -7304,
+        "y": 1218
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 3.65
+        }
+      },
+      "params": {}
+    },
+    "stampCellsB": {
+      "id": "stampCellsB",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -7304,
+        "y": 1605
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 5
+        }
+      },
+      "params": {}
+    },
+    "stampCellsC": {
+      "id": "stampCellsC",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -6984,
+        "y": 1834
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1.95
+        }
+      },
+      "params": {}
+    },
+    "stampCount": {
+      "id": "stampCount",
+      "type": "math/multiply",
+      "position": {
+        "x": -5704,
+        "y": 1510
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stampsHit": {
+      "id": "stampsHit",
+      "type": "math/subtract",
+      "position": {
+        "x": -6024,
+        "y": 1410
+      },
+      "inputValues": {
+        "a": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {}
+    },
+    "sun": {
+      "id": "sun",
+      "type": "math/clamp",
+      "position": {
+        "x": -5704,
+        "y": -910
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "sunRaw": {
+      "id": "sunRaw",
+      "type": "math/add",
+      "position": {
+        "x": -6024,
+        "y": -873
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "sunThin": {
+      "id": "sunThin",
+      "type": "math/multiply",
+      "position": {
+        "x": -4360,
+        "y": 1021
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1.88
+        }
+      },
+      "params": {}
+    },
+    "time": {
+      "id": "time",
+      "type": "input/time",
+      "position": {
+        "x": -14104,
+        "y": 2287
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "toFill": {
+      "id": "toFill",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -3720,
+        "y": 299
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": -0.5
+        }
+      },
+      "params": {}
+    },
+    "toStamp2": {
+      "id": "toStamp2",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -3720,
+        "y": 905
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 1.5
+        }
+      },
+      "params": {}
+    },
+    "toStamp3": {
+      "id": "toStamp3",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -3720,
+        "y": 1208
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 2.5
+        }
+      },
+      "params": {}
+    },
+    "toStamps": {
+      "id": "toStamps",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -3720,
+        "y": 602
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneHigh": {
+      "id": "toneHigh",
+      "type": "math/remap",
+      "position": {
+        "x": -4360,
+        "y": -1242
+      },
+      "inputValues": {
+        "inMin": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "toneLow": {
+      "id": "toneLow",
+      "type": "math/divide",
+      "position": {
+        "x": -4360,
+        "y": -1607
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "touching": {
+      "id": "touching",
+      "type": "math/clamp",
+      "position": {
+        "x": -5320,
+        "y": 2229
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "turnB": {
+      "id": "turnB",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -7624,
+        "y": 1698
+      },
+      "inputValues": {
+        "angle": {
+          "type": "float",
+          "value": -0.6435
+        }
+      },
+      "params": {}
+    },
+    "turnC": {
+      "id": "turnC",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -7304,
+        "y": 1992
+      },
+      "inputValues": {
+        "angle": {
+          "type": "float",
+          "value": 0.9273
+        }
+      },
+      "params": {}
+    },
+    "turnedB": {
+      "id": "turnedB",
+      "type": "math/multiply",
+      "position": {
+        "x": -13464,
+        "y": 2320
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            -0.73,
+            0.8
+          ]
+        }
+      },
+      "params": {}
+    },
+    "uv": {
+      "id": "uv",
+      "type": "input/uv",
+      "position": {
+        "x": -15448,
+        "y": 1207
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "variation": {
+      "id": "variation",
+      "type": "math/remap",
+      "position": {
+        "x": -4680,
+        "y": 783
+      },
+      "inputValues": {
+        "inMin": {
+          "type": "float",
+          "value": -1
+        },
+        "outMax": {
+          "type": "float",
+          "value": 3
+        },
+        "outMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "variationNoise": {
+      "id": "variationNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -5000,
+        "y": 783
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 0.05
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "vignette": {
+      "id": "vignette",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 385
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.4457
+        }
+      },
+      "params": {}
+    },
+    "waveSpeed": {
+      "id": "waveSpeed",
+      "type": "property/float",
+      "position": {
+        "x": -14056,
+        "y": 2595
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "waveSpeed"
+      }
+    },
+    "waveTime": {
+      "id": "waveTime",
+      "type": "math/multiply",
+      "position": {
+        "x": -13784,
+        "y": 2357
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "widen": {
+      "id": "widen",
+      "type": "math/multiply",
+      "position": {
+        "x": -5320,
+        "y": 1926
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.1
+        }
+      },
+      "params": {}
+    },
+    "withCore": {
+      "id": "withCore",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2056,
+        "y": 156
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "withLace": {
+      "id": "withLace",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2376,
+        "y": 193
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "math/multiply",
+      "position": {
+        "x": -11864,
+        "y": 2021
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1.7
+        }
+      },
+      "params": {}
+    },
+    "world": {
+      "id": "world",
+      "type": "math/multiply",
+      "position": {
+        "x": -14808,
+        "y": 1119
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            13,
+            -13
+          ]
+        }
+      },
+      "params": {}
+    },
+    "worldSplit": {
+      "id": "worldSplit",
+      "type": "vector/split",
+      "position": {
+        "x": -6664,
+        "y": -634
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "across.out-acrossN.a": {
+      "id": "across.out-acrossN.a",
+      "from": {
+        "nodeId": "across",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "acrossN",
+        "portId": "a"
+      }
+    },
+    "across2.out-coreArg.a": {
+      "id": "across2.out-coreArg.a",
+      "from": {
+        "nodeId": "across2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coreArg",
+        "portId": "a"
+      }
+    },
+    "across2.out-glowArg.a": {
+      "id": "across2.out-glowArg.a",
+      "from": {
+        "nodeId": "across2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowArg",
+        "portId": "a"
+      }
+    },
+    "acrossDir.vec2-across.b": {
+      "id": "acrossDir.vec2-across.b",
+      "from": {
+        "nodeId": "acrossDir",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "across",
+        "portId": "b"
+      }
+    },
+    "acrossN.out-across2.a": {
+      "id": "acrossN.out-across2.a",
+      "from": {
+        "nodeId": "acrossN",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "across2",
+        "portId": "a"
+      }
+    },
+    "acrossN.out-across2.b": {
+      "id": "acrossN.out-across2.b",
+      "from": {
+        "nodeId": "acrossN",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "across2",
+        "portId": "b"
+      }
+    },
+    "ahead.out-fadeArg.a": {
+      "id": "ahead.out-fadeArg.a",
+      "from": {
+        "nodeId": "ahead",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadeArg",
+        "portId": "a"
+      }
+    },
+    "along.out-alongN.a": {
+      "id": "along.out-alongN.a",
+      "from": {
+        "nodeId": "along",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "alongN",
+        "portId": "a"
+      }
+    },
+    "alongN.out-ahead.a": {
+      "id": "alongN.out-ahead.a",
+      "from": {
+        "nodeId": "alongN",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ahead",
+        "portId": "a"
+      }
+    },
+    "alongN.out-entry.in": {
+      "id": "alongN.out-entry.in",
+      "from": {
+        "nodeId": "alongN",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "entry",
+        "portId": "in"
+      }
+    },
+    "ambient.out-pf.b": {
+      "id": "ambient.out-pf.b",
+      "from": {
+        "nodeId": "ambient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pf",
+        "portId": "b"
+      }
+    },
+    "ambient.out-wobble.a": {
+      "id": "ambient.out-wobble.a",
+      "from": {
+        "nodeId": "ambient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobble",
+        "portId": "a"
+      }
+    },
+    "band.out-bandLit.a": {
+      "id": "band.out-bandLit.a",
+      "from": {
+        "nodeId": "band",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bandLit",
+        "portId": "a"
+      }
+    },
+    "bandLit.out-sunRaw.a": {
+      "id": "bandLit.out-sunRaw.a",
+      "from": {
+        "nodeId": "bandLit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sunRaw",
+        "portId": "a"
+      }
+    },
+    "bite.out-grow.b": {
+      "id": "bite.out-grow.b",
+      "from": {
+        "nodeId": "bite",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grow",
+        "portId": "b"
+      }
+    },
+    "body.out-withLace.a": {
+      "id": "body.out-withLace.a",
+      "from": {
+        "nodeId": "body",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withLace",
+        "portId": "a"
+      }
+    },
+    "breath.out-growing.a": {
+      "id": "breath.out-growing.a",
+      "from": {
+        "nodeId": "breath",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growing",
+        "portId": "a"
+      }
+    },
+    "bumpCells.f1-roseBumps.in": {
+      "id": "bumpCells.f1-roseBumps.in",
+      "from": {
+        "nodeId": "bumpCells",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "roseBumps",
+        "portId": "in"
+      }
+    },
+    "cells.edge-crease.in": {
+      "id": "cells.edge-crease.in",
+      "from": {
+        "nodeId": "cells",
+        "portId": "edge"
+      },
+      "to": {
+        "nodeId": "crease",
+        "portId": "in"
+      }
+    },
+    "cells.f1-roseCore.in": {
+      "id": "cells.f1-roseCore.in",
+      "from": {
+        "nodeId": "cells",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "roseCore",
+        "portId": "in"
+      }
+    },
+    "centered.out-world.a": {
+      "id": "centered.out-world.a",
+      "from": {
+        "nodeId": "centered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "world",
+        "portId": "a"
+      }
+    },
+    "core.out-profile.a": {
+      "id": "core.out-profile.a",
+      "from": {
+        "nodeId": "core",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "profile",
+        "portId": "a"
+      }
+    },
+    "coreArg.out-core.in": {
+      "id": "coreArg.out-core.in",
+      "from": {
+        "nodeId": "coreArg",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "core",
+        "portId": "in"
+      }
+    },
+    "coreEdge.out-coreStep.edge": {
+      "id": "coreEdge.out-coreStep.edge",
+      "from": {
+        "nodeId": "coreEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coreStep",
+        "portId": "edge"
+      }
+    },
+    "coreMask.out-withCore.t": {
+      "id": "coreMask.out-withCore.t",
+      "from": {
+        "nodeId": "coreMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withCore",
+        "portId": "t"
+      }
+    },
+    "coreStep.out-coreMask.in": {
+      "id": "coreStep.out-coreMask.in",
+      "from": {
+        "nodeId": "coreStep",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coreMask",
+        "portId": "in"
+      }
+    },
+    "cosAngle.out-lightDir.y": {
+      "id": "cosAngle.out-lightDir.y",
+      "from": {
+        "nodeId": "cosAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightDir",
+        "portId": "y"
+      }
+    },
+    "cosAngle.out-negCos.a": {
+      "id": "cosAngle.out-negCos.a",
+      "from": {
+        "nodeId": "cosAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "negCos",
+        "portId": "a"
+      }
+    },
+    "crease.out-depth.a": {
+      "id": "crease.out-depth.a",
+      "from": {
+        "nodeId": "crease",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "depth",
+        "portId": "a"
+      }
+    },
+    "darkened.out-final.b": {
+      "id": "darkened.out-final.b",
+      "from": {
+        "nodeId": "darkened",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "final",
+        "portId": "b"
+      }
+    },
+    "darkness.out-toFill.in": {
+      "id": "darkness.out-toFill.in",
+      "from": {
+        "nodeId": "darkness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toFill",
+        "portId": "in"
+      }
+    },
+    "darkness.out-toStamp2.in": {
+      "id": "darkness.out-toStamp2.in",
+      "from": {
+        "nodeId": "darkness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toStamp2",
+        "portId": "in"
+      }
+    },
+    "darkness.out-toStamp3.in": {
+      "id": "darkness.out-toStamp3.in",
+      "from": {
+        "nodeId": "darkness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toStamp3",
+        "portId": "in"
+      }
+    },
+    "darkness.out-toStamps.in": {
+      "id": "darkness.out-toStamps.in",
+      "from": {
+        "nodeId": "darkness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toStamps",
+        "portId": "in"
+      }
+    },
+    "depth.out-coreStep.in": {
+      "id": "depth.out-coreStep.in",
+      "from": {
+        "nodeId": "depth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coreStep",
+        "portId": "in"
+      }
+    },
+    "depth.out-inside.in": {
+      "id": "depth.out-inside.in",
+      "from": {
+        "nodeId": "depth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inside",
+        "portId": "in"
+      }
+    },
+    "depth.out-laceStep.in": {
+      "id": "depth.out-laceStep.in",
+      "from": {
+        "nodeId": "depth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceStep",
+        "portId": "in"
+      }
+    },
+    "edgeFade.out-vignette.a": {
+      "id": "edgeFade.out-vignette.a",
+      "from": {
+        "nodeId": "edgeFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "vignette",
+        "portId": "a"
+      }
+    },
+    "entry.out-band.b": {
+      "id": "entry.out-band.b",
+      "from": {
+        "nodeId": "entry",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "band",
+        "portId": "b"
+      }
+    },
+    "fade.out-faded.b": {
+      "id": "fade.out-faded.b",
+      "from": {
+        "nodeId": "fade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "faded",
+        "portId": "b"
+      }
+    },
+    "fadeArg.out-fade.in": {
+      "id": "fadeArg.out-fade.in",
+      "from": {
+        "nodeId": "fadeArg",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fade",
+        "portId": "in"
+      }
+    },
+    "faded.out-band.a": {
+      "id": "faded.out-band.a",
+      "from": {
+        "nodeId": "faded",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "band",
+        "portId": "a"
+      }
+    },
+    "fillHigh.out-fillTone.whenFalse": {
+      "id": "fillHigh.out-fillTone.whenFalse",
+      "from": {
+        "nodeId": "fillHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillTone",
+        "portId": "whenFalse"
+      }
+    },
+    "fillLow.out-fillTone.whenTrue": {
+      "id": "fillLow.out-fillTone.whenTrue",
+      "from": {
+        "nodeId": "fillLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillTone",
+        "portId": "whenTrue"
+      }
+    },
+    "fillMid.out-fillHigh.a": {
+      "id": "fillMid.out-fillHigh.a",
+      "from": {
+        "nodeId": "fillMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillHigh",
+        "portId": "a"
+      }
+    },
+    "fillMid.out-fillLow.b": {
+      "id": "fillMid.out-fillLow.b",
+      "from": {
+        "nodeId": "fillMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillLow",
+        "portId": "b"
+      }
+    },
+    "fillShade.out-fillLow.a": {
+      "id": "fillShade.out-fillLow.a",
+      "from": {
+        "nodeId": "fillShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillLow",
+        "portId": "a"
+      }
+    },
+    "fillSun.out-fillHigh.b": {
+      "id": "fillSun.out-fillHigh.b",
+      "from": {
+        "nodeId": "fillSun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillHigh",
+        "portId": "b"
+      }
+    },
+    "fillTone.out-rimFill.b": {
+      "id": "fillTone.out-rimFill.b",
+      "from": {
+        "nodeId": "fillTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimFill",
+        "portId": "b"
+      }
+    },
+    "final.out-master.baseColor": {
+      "id": "final.out-master.baseColor",
+      "from": {
+        "nodeId": "final",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "focus.out-breath.a": {
+      "id": "focus.out-breath.a",
+      "from": {
+        "nodeId": "focus",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "breath",
+        "portId": "a"
+      }
+    },
+    "fromLight.out-across.a": {
+      "id": "fromLight.out-across.a",
+      "from": {
+        "nodeId": "fromLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "across",
+        "portId": "a"
+      }
+    },
+    "fromLight.out-along.a": {
+      "id": "fromLight.out-along.a",
+      "from": {
+        "nodeId": "fromLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "along",
+        "portId": "a"
+      }
+    },
+    "glow.out-profile.b": {
+      "id": "glow.out-profile.b",
+      "from": {
+        "nodeId": "glow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "profile",
+        "portId": "b"
+      }
+    },
+    "glowArg.out-glowExp.in": {
+      "id": "glowArg.out-glowExp.in",
+      "from": {
+        "nodeId": "glowArg",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowExp",
+        "portId": "in"
+      }
+    },
+    "glowExp.out-glow.a": {
+      "id": "glowExp.out-glow.a",
+      "from": {
+        "nodeId": "glowExp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glow",
+        "portId": "a"
+      }
+    },
+    "gradient.out-sunRaw.b": {
+      "id": "gradient.out-sunRaw.b",
+      "from": {
+        "nodeId": "gradient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sunRaw",
+        "portId": "b"
+      }
+    },
+    "grow.out-coreEdge.a": {
+      "id": "grow.out-coreEdge.a",
+      "from": {
+        "nodeId": "grow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coreEdge",
+        "portId": "a"
+      }
+    },
+    "grow.out-laceEdge.a": {
+      "id": "grow.out-laceEdge.a",
+      "from": {
+        "nodeId": "grow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceEdge",
+        "portId": "a"
+      }
+    },
+    "growing.out-grow.a": {
+      "id": "growing.out-grow.a",
+      "from": {
+        "nodeId": "growing",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grow",
+        "portId": "a"
+      }
+    },
+    "inside.out-stampCount.b": {
+      "id": "inside.out-stampCount.b",
+      "from": {
+        "nodeId": "inside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampCount",
+        "portId": "b"
+      }
+    },
+    "laceCoreHigh.out-laceCoreTone.whenFalse": {
+      "id": "laceCoreHigh.out-laceCoreTone.whenFalse",
+      "from": {
+        "nodeId": "laceCoreHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreTone",
+        "portId": "whenFalse"
+      }
+    },
+    "laceCoreLow.out-laceCoreTone.whenTrue": {
+      "id": "laceCoreLow.out-laceCoreTone.whenTrue",
+      "from": {
+        "nodeId": "laceCoreLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreTone",
+        "portId": "whenTrue"
+      }
+    },
+    "laceCoreMid.out-laceCoreHigh.a": {
+      "id": "laceCoreMid.out-laceCoreHigh.a",
+      "from": {
+        "nodeId": "laceCoreMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreHigh",
+        "portId": "a"
+      }
+    },
+    "laceCoreMid.out-laceCoreLow.b": {
+      "id": "laceCoreMid.out-laceCoreLow.b",
+      "from": {
+        "nodeId": "laceCoreMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreLow",
+        "portId": "b"
+      }
+    },
+    "laceCoreShade.out-laceCoreLow.a": {
+      "id": "laceCoreShade.out-laceCoreLow.a",
+      "from": {
+        "nodeId": "laceCoreShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreLow",
+        "portId": "a"
+      }
+    },
+    "laceCoreSun.out-laceCoreHigh.b": {
+      "id": "laceCoreSun.out-laceCoreHigh.b",
+      "from": {
+        "nodeId": "laceCoreSun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreHigh",
+        "portId": "b"
+      }
+    },
+    "laceCoreTone.out-withCore.b": {
+      "id": "laceCoreTone.out-withCore.b",
+      "from": {
+        "nodeId": "laceCoreTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withCore",
+        "portId": "b"
+      }
+    },
+    "laceEdge.out-laceStep.edge": {
+      "id": "laceEdge.out-laceStep.edge",
+      "from": {
+        "nodeId": "laceEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceStep",
+        "portId": "edge"
+      }
+    },
+    "laceHigh.out-laceTone.whenFalse": {
+      "id": "laceHigh.out-laceTone.whenFalse",
+      "from": {
+        "nodeId": "laceHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceTone",
+        "portId": "whenFalse"
+      }
+    },
+    "laceLow.out-laceTone.whenTrue": {
+      "id": "laceLow.out-laceTone.whenTrue",
+      "from": {
+        "nodeId": "laceLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceTone",
+        "portId": "whenTrue"
+      }
+    },
+    "laceMask.out-withLace.t": {
+      "id": "laceMask.out-withLace.t",
+      "from": {
+        "nodeId": "laceMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withLace",
+        "portId": "t"
+      }
+    },
+    "laceMid.out-laceHigh.a": {
+      "id": "laceMid.out-laceHigh.a",
+      "from": {
+        "nodeId": "laceMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceHigh",
+        "portId": "a"
+      }
+    },
+    "laceMid.out-laceLow.b": {
+      "id": "laceMid.out-laceLow.b",
+      "from": {
+        "nodeId": "laceMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceLow",
+        "portId": "b"
+      }
+    },
+    "laceShade.out-laceLow.a": {
+      "id": "laceShade.out-laceLow.a",
+      "from": {
+        "nodeId": "laceShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceLow",
+        "portId": "a"
+      }
+    },
+    "laceStep.out-laceMask.in": {
+      "id": "laceStep.out-laceMask.in",
+      "from": {
+        "nodeId": "laceStep",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceMask",
+        "portId": "in"
+      }
+    },
+    "laceSun.out-laceHigh.b": {
+      "id": "laceSun.out-laceHigh.b",
+      "from": {
+        "nodeId": "laceSun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceHigh",
+        "portId": "b"
+      }
+    },
+    "laceTone.out-withLace.b": {
+      "id": "laceTone.out-withLace.b",
+      "from": {
+        "nodeId": "laceTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withLace",
+        "portId": "b"
+      }
+    },
+    "lightAngle.out-radians.a": {
+      "id": "lightAngle.out-radians.a",
+      "from": {
+        "nodeId": "lightAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "radians",
+        "portId": "a"
+      }
+    },
+    "lightDir.vec2-along.b": {
+      "id": "lightDir.vec2-along.b",
+      "from": {
+        "nodeId": "lightDir",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "along",
+        "portId": "b"
+      }
+    },
+    "lightStrength.out-bandLit.b": {
+      "id": "lightStrength.out-bandLit.b",
+      "from": {
+        "nodeId": "lightStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bandLit",
+        "portId": "b"
+      }
+    },
+    "negCos.out-acrossDir.x": {
+      "id": "negCos.out-acrossDir.x",
+      "from": {
+        "nodeId": "negCos",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "acrossDir",
+        "portId": "x"
+      }
+    },
+    "noiseA.out-focus.a": {
+      "id": "noiseA.out-focus.a",
+      "from": {
+        "nodeId": "noiseA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "focus",
+        "portId": "a"
+      }
+    },
+    "noiseA.out-offset.x": {
+      "id": "noiseA.out-offset.x",
+      "from": {
+        "nodeId": "noiseA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "offset",
+        "portId": "x"
+      }
+    },
+    "noiseAt.out-noiseA.p": {
+      "id": "noiseAt.out-noiseA.p",
+      "from": {
+        "nodeId": "noiseAt",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseA",
+        "portId": "p"
+      }
+    },
+    "noiseB.out-focus.b": {
+      "id": "noiseB.out-focus.b",
+      "from": {
+        "nodeId": "noiseB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "focus",
+        "portId": "b"
+      }
+    },
+    "noiseB.out-offset.y": {
+      "id": "noiseB.out-offset.y",
+      "from": {
+        "nodeId": "noiseB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "offset",
+        "portId": "y"
+      }
+    },
+    "noiseBt.out-noiseB.p": {
+      "id": "noiseBt.out-noiseB.p",
+      "from": {
+        "nodeId": "noiseBt",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseB",
+        "portId": "p"
+      }
+    },
+    "offset.vec2-ambient.a": {
+      "id": "offset.vec2-ambient.a",
+      "from": {
+        "nodeId": "offset",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "ambient",
+        "portId": "a"
+      }
+    },
+    "outsideA.out-outsideAB.a": {
+      "id": "outsideA.out-outsideAB.a",
+      "from": {
+        "nodeId": "outsideA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideAB",
+        "portId": "a"
+      }
+    },
+    "outsideAB.out-outsideABC.a": {
+      "id": "outsideAB.out-outsideABC.a",
+      "from": {
+        "nodeId": "outsideAB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideABC",
+        "portId": "a"
+      }
+    },
+    "outsideABC.out-stampsHit.b": {
+      "id": "outsideABC.out-stampsHit.b",
+      "from": {
+        "nodeId": "outsideABC",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampsHit",
+        "portId": "b"
+      }
+    },
+    "outsideB.out-outsideAB.b": {
+      "id": "outsideB.out-outsideAB.b",
+      "from": {
+        "nodeId": "outsideB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideAB",
+        "portId": "b"
+      }
+    },
+    "outsideC.out-outsideABC.b": {
+      "id": "outsideC.out-outsideABC.b",
+      "from": {
+        "nodeId": "outsideC",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideABC",
+        "portId": "b"
+      }
+    },
+    "p.out-noiseAt.a": {
+      "id": "p.out-noiseAt.a",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseAt",
+        "portId": "a"
+      }
+    },
+    "p.out-pf.a": {
+      "id": "p.out-pf.a",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pf",
+        "portId": "a"
+      }
+    },
+    "p.out-pl.a": {
+      "id": "p.out-pl.a",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pl",
+        "portId": "a"
+      }
+    },
+    "p.out-turnedB.a": {
+      "id": "p.out-turnedB.a",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turnedB",
+        "portId": "a"
+      }
+    },
+    "p.out-variationNoise.p": {
+      "id": "p.out-variationNoise.p",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "variationNoise",
+        "portId": "p"
+      }
+    },
+    "pf.out-stampCellsA.uv": {
+      "id": "pf.out-stampCellsA.uv",
+      "from": {
+        "nodeId": "pf",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampCellsA",
+        "portId": "uv"
+      }
+    },
+    "pf.out-turnB.in": {
+      "id": "pf.out-turnB.in",
+      "from": {
+        "nodeId": "pf",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turnB",
+        "portId": "in"
+      }
+    },
+    "pf.out-turnC.in": {
+      "id": "pf.out-turnC.in",
+      "from": {
+        "nodeId": "pf",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turnC",
+        "portId": "in"
+      }
+    },
+    "pl.out-bumpCells.uv": {
+      "id": "pl.out-bumpCells.uv",
+      "from": {
+        "nodeId": "pl",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bumpCells",
+        "portId": "uv"
+      }
+    },
+    "pl.out-cells.uv": {
+      "id": "pl.out-cells.uv",
+      "from": {
+        "nodeId": "pl",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cells",
+        "portId": "uv"
+      }
+    },
+    "profile.out-faded.a": {
+      "id": "profile.out-faded.a",
+      "from": {
+        "nodeId": "profile",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "faded",
+        "portId": "a"
+      }
+    },
+    "radians.out-cosAngle.in": {
+      "id": "radians.out-cosAngle.in",
+      "from": {
+        "nodeId": "radians",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cosAngle",
+        "portId": "in"
+      }
+    },
+    "radians.out-sinAngle.in": {
+      "id": "radians.out-sinAngle.in",
+      "from": {
+        "nodeId": "radians",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sinAngle",
+        "portId": "in"
+      }
+    },
+    "rimFill.out-body.a": {
+      "id": "rimFill.out-body.a",
+      "from": {
+        "nodeId": "rimFill",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "body",
+        "portId": "a"
+      }
+    },
+    "rimHigh.out-rimTone.whenFalse": {
+      "id": "rimHigh.out-rimTone.whenFalse",
+      "from": {
+        "nodeId": "rimHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimTone",
+        "portId": "whenFalse"
+      }
+    },
+    "rimLow.out-rimTone.whenTrue": {
+      "id": "rimLow.out-rimTone.whenTrue",
+      "from": {
+        "nodeId": "rimLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimTone",
+        "portId": "whenTrue"
+      }
+    },
+    "rimMid.out-rimHigh.a": {
+      "id": "rimMid.out-rimHigh.a",
+      "from": {
+        "nodeId": "rimMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimHigh",
+        "portId": "a"
+      }
+    },
+    "rimMid.out-rimLow.b": {
+      "id": "rimMid.out-rimLow.b",
+      "from": {
+        "nodeId": "rimMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimLow",
+        "portId": "b"
+      }
+    },
+    "rimShade.out-rimLow.a": {
+      "id": "rimShade.out-rimLow.a",
+      "from": {
+        "nodeId": "rimShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimLow",
+        "portId": "a"
+      }
+    },
+    "rimSun.out-rimHigh.b": {
+      "id": "rimSun.out-rimHigh.b",
+      "from": {
+        "nodeId": "rimSun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimHigh",
+        "portId": "b"
+      }
+    },
+    "rimTone.out-rimFill.a": {
+      "id": "rimTone.out-rimFill.a",
+      "from": {
+        "nodeId": "rimTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimFill",
+        "portId": "a"
+      }
+    },
+    "roseBumps.out-rosette.b": {
+      "id": "roseBumps.out-rosette.b",
+      "from": {
+        "nodeId": "roseBumps",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rosette",
+        "portId": "b"
+      }
+    },
+    "roseCore.out-rosette.a": {
+      "id": "roseCore.out-rosette.a",
+      "from": {
+        "nodeId": "roseCore",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rosette",
+        "portId": "a"
+      }
+    },
+    "rosette.out-depth.b": {
+      "id": "rosette.out-depth.b",
+      "from": {
+        "nodeId": "rosette",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "depth",
+        "portId": "b"
+      }
+    },
+    "screenCentered.out-screenStretched.a": {
+      "id": "screenCentered.out-screenStretched.a",
+      "from": {
+        "nodeId": "screenCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "screenStretched",
+        "portId": "a"
+      }
+    },
+    "screenDistance.out-edgeFade.in": {
+      "id": "screenDistance.out-edgeFade.in",
+      "from": {
+        "nodeId": "screenDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeFade",
+        "portId": "in"
+      }
+    },
+    "screenStretched.out-screenDistance.in": {
+      "id": "screenStretched.out-screenDistance.in",
+      "from": {
+        "nodeId": "screenStretched",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "screenDistance",
+        "portId": "in"
+      }
+    },
+    "screenUv.out-screenCentered.a": {
+      "id": "screenUv.out-screenCentered.a",
+      "from": {
+        "nodeId": "screenUv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "screenCentered",
+        "portId": "a"
+      }
+    },
+    "scrollA.out-noiseAt.b": {
+      "id": "scrollA.out-noiseAt.b",
+      "from": {
+        "nodeId": "scrollA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseAt",
+        "portId": "b"
+      }
+    },
+    "scrollB.out-noiseBt.b": {
+      "id": "scrollB.out-noiseBt.b",
+      "from": {
+        "nodeId": "scrollB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseBt",
+        "portId": "b"
+      }
+    },
+    "sinAngle.out-acrossDir.y": {
+      "id": "sinAngle.out-acrossDir.y",
+      "from": {
+        "nodeId": "sinAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "acrossDir",
+        "portId": "y"
+      }
+    },
+    "sinAngle.out-lightDir.x": {
+      "id": "sinAngle.out-lightDir.x",
+      "from": {
+        "nodeId": "sinAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightDir",
+        "portId": "x"
+      }
+    },
+    "spots.out-body.b": {
+      "id": "spots.out-body.b",
+      "from": {
+        "nodeId": "spots",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "body",
+        "portId": "b"
+      }
+    },
+    "spots12.out-spots.a": {
+      "id": "spots12.out-spots.a",
+      "from": {
+        "nodeId": "spots12",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots",
+        "portId": "a"
+      }
+    },
+    "stacked.out-darkness.a": {
+      "id": "stacked.out-darkness.a",
+      "from": {
+        "nodeId": "stacked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "darkness",
+        "portId": "a"
+      }
+    },
+    "stamp1High.out-stamp1Tone.whenFalse": {
+      "id": "stamp1High.out-stamp1Tone.whenFalse",
+      "from": {
+        "nodeId": "stamp1High",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Tone",
+        "portId": "whenFalse"
+      }
+    },
+    "stamp1Low.out-stamp1Tone.whenTrue": {
+      "id": "stamp1Low.out-stamp1Tone.whenTrue",
+      "from": {
+        "nodeId": "stamp1Low",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Tone",
+        "portId": "whenTrue"
+      }
+    },
+    "stamp1Mid.out-stamp1High.a": {
+      "id": "stamp1Mid.out-stamp1High.a",
+      "from": {
+        "nodeId": "stamp1Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1High",
+        "portId": "a"
+      }
+    },
+    "stamp1Mid.out-stamp1Low.b": {
+      "id": "stamp1Mid.out-stamp1Low.b",
+      "from": {
+        "nodeId": "stamp1Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Low",
+        "portId": "b"
+      }
+    },
+    "stamp1Shade.out-stamp1Low.a": {
+      "id": "stamp1Shade.out-stamp1Low.a",
+      "from": {
+        "nodeId": "stamp1Shade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Low",
+        "portId": "a"
+      }
+    },
+    "stamp1Sun.out-stamp1High.b": {
+      "id": "stamp1Sun.out-stamp1High.b",
+      "from": {
+        "nodeId": "stamp1Sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1High",
+        "portId": "b"
+      }
+    },
+    "stamp1Tone.out-spots12.a": {
+      "id": "stamp1Tone.out-spots12.a",
+      "from": {
+        "nodeId": "stamp1Tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots12",
+        "portId": "a"
+      }
+    },
+    "stamp2High.out-stamp2Tone.whenFalse": {
+      "id": "stamp2High.out-stamp2Tone.whenFalse",
+      "from": {
+        "nodeId": "stamp2High",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Tone",
+        "portId": "whenFalse"
+      }
+    },
+    "stamp2Low.out-stamp2Tone.whenTrue": {
+      "id": "stamp2Low.out-stamp2Tone.whenTrue",
+      "from": {
+        "nodeId": "stamp2Low",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Tone",
+        "portId": "whenTrue"
+      }
+    },
+    "stamp2Mid.out-stamp2High.a": {
+      "id": "stamp2Mid.out-stamp2High.a",
+      "from": {
+        "nodeId": "stamp2Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2High",
+        "portId": "a"
+      }
+    },
+    "stamp2Mid.out-stamp2Low.b": {
+      "id": "stamp2Mid.out-stamp2Low.b",
+      "from": {
+        "nodeId": "stamp2Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Low",
+        "portId": "b"
+      }
+    },
+    "stamp2Shade.out-stamp2Low.a": {
+      "id": "stamp2Shade.out-stamp2Low.a",
+      "from": {
+        "nodeId": "stamp2Shade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Low",
+        "portId": "a"
+      }
+    },
+    "stamp2Sun.out-stamp2High.b": {
+      "id": "stamp2Sun.out-stamp2High.b",
+      "from": {
+        "nodeId": "stamp2Sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2High",
+        "portId": "b"
+      }
+    },
+    "stamp2Tone.out-spots12.b": {
+      "id": "stamp2Tone.out-spots12.b",
+      "from": {
+        "nodeId": "stamp2Tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots12",
+        "portId": "b"
+      }
+    },
+    "stamp3High.out-stamp3Tone.whenFalse": {
+      "id": "stamp3High.out-stamp3Tone.whenFalse",
+      "from": {
+        "nodeId": "stamp3High",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Tone",
+        "portId": "whenFalse"
+      }
+    },
+    "stamp3Low.out-stamp3Tone.whenTrue": {
+      "id": "stamp3Low.out-stamp3Tone.whenTrue",
+      "from": {
+        "nodeId": "stamp3Low",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Tone",
+        "portId": "whenTrue"
+      }
+    },
+    "stamp3Mid.out-stamp3High.a": {
+      "id": "stamp3Mid.out-stamp3High.a",
+      "from": {
+        "nodeId": "stamp3Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3High",
+        "portId": "a"
+      }
+    },
+    "stamp3Mid.out-stamp3Low.b": {
+      "id": "stamp3Mid.out-stamp3Low.b",
+      "from": {
+        "nodeId": "stamp3Mid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Low",
+        "portId": "b"
+      }
+    },
+    "stamp3Shade.out-stamp3Low.a": {
+      "id": "stamp3Shade.out-stamp3Low.a",
+      "from": {
+        "nodeId": "stamp3Shade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Low",
+        "portId": "a"
+      }
+    },
+    "stamp3Sun.out-stamp3High.b": {
+      "id": "stamp3Sun.out-stamp3High.b",
+      "from": {
+        "nodeId": "stamp3Sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3High",
+        "portId": "b"
+      }
+    },
+    "stamp3Tone.out-spots.b": {
+      "id": "stamp3Tone.out-spots.b",
+      "from": {
+        "nodeId": "stamp3Tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots",
+        "portId": "b"
+      }
+    },
+    "stampCellsA.f1-outsideA.in": {
+      "id": "stampCellsA.f1-outsideA.in",
+      "from": {
+        "nodeId": "stampCellsA",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "outsideA",
+        "portId": "in"
+      }
+    },
+    "stampCellsB.f1-outsideB.in": {
+      "id": "stampCellsB.f1-outsideB.in",
+      "from": {
+        "nodeId": "stampCellsB",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "outsideB",
+        "portId": "in"
+      }
+    },
+    "stampCellsC.f1-outsideC.in": {
+      "id": "stampCellsC.f1-outsideC.in",
+      "from": {
+        "nodeId": "stampCellsC",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "outsideC",
+        "portId": "in"
+      }
+    },
+    "stampCount.out-stacked.a": {
+      "id": "stampCount.out-stacked.a",
+      "from": {
+        "nodeId": "stampCount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stacked",
+        "portId": "a"
+      }
+    },
+    "stampCount.out-touching.in": {
+      "id": "stampCount.out-touching.in",
+      "from": {
+        "nodeId": "stampCount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "touching",
+        "portId": "in"
+      }
+    },
+    "stampsHit.out-stampCount.a": {
+      "id": "stampsHit.out-stampCount.a",
+      "from": {
+        "nodeId": "stampsHit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampCount",
+        "portId": "a"
+      }
+    },
+    "sun.out-fillTone.a": {
+      "id": "sun.out-fillTone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillTone",
+        "portId": "a"
+      }
+    },
+    "sun.out-laceCoreTone.a": {
+      "id": "sun.out-laceCoreTone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreTone",
+        "portId": "a"
+      }
+    },
+    "sun.out-laceTone.a": {
+      "id": "sun.out-laceTone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceTone",
+        "portId": "a"
+      }
+    },
+    "sun.out-rimTone.a": {
+      "id": "sun.out-rimTone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimTone",
+        "portId": "a"
+      }
+    },
+    "sun.out-stamp1Tone.a": {
+      "id": "sun.out-stamp1Tone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Tone",
+        "portId": "a"
+      }
+    },
+    "sun.out-stamp2Tone.a": {
+      "id": "sun.out-stamp2Tone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Tone",
+        "portId": "a"
+      }
+    },
+    "sun.out-stamp3Tone.a": {
+      "id": "sun.out-stamp3Tone.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Tone",
+        "portId": "a"
+      }
+    },
+    "sun.out-sunThin.a": {
+      "id": "sun.out-sunThin.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sunThin",
+        "portId": "a"
+      }
+    },
+    "sun.out-toneHigh.in": {
+      "id": "sun.out-toneHigh.in",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneHigh",
+        "portId": "in"
+      }
+    },
+    "sun.out-toneLow.a": {
+      "id": "sun.out-toneLow.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneLow",
+        "portId": "a"
+      }
+    },
+    "sun.out-widen.a": {
+      "id": "sun.out-widen.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "widen",
+        "portId": "a"
+      }
+    },
+    "sunRaw.out-sun.in": {
+      "id": "sunRaw.out-sun.in",
+      "from": {
+        "nodeId": "sunRaw",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sun",
+        "portId": "in"
+      }
+    },
+    "sunThin.out-darkness.b": {
+      "id": "sunThin.out-darkness.b",
+      "from": {
+        "nodeId": "sunThin",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "darkness",
+        "portId": "b"
+      }
+    },
+    "time.out-waveTime.a": {
+      "id": "time.out-waveTime.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waveTime",
+        "portId": "a"
+      }
+    },
+    "toFill.out-rimFill.t": {
+      "id": "toFill.out-rimFill.t",
+      "from": {
+        "nodeId": "toFill",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimFill",
+        "portId": "t"
+      }
+    },
+    "toStamp2.out-spots12.t": {
+      "id": "toStamp2.out-spots12.t",
+      "from": {
+        "nodeId": "toStamp2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots12",
+        "portId": "t"
+      }
+    },
+    "toStamp3.out-spots.t": {
+      "id": "toStamp3.out-spots.t",
+      "from": {
+        "nodeId": "toStamp3",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spots",
+        "portId": "t"
+      }
+    },
+    "toStamps.out-body.t": {
+      "id": "toStamps.out-body.t",
+      "from": {
+        "nodeId": "toStamps",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "body",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-fillHigh.t": {
+      "id": "toneHigh.out-fillHigh.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillHigh",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-laceCoreHigh.t": {
+      "id": "toneHigh.out-laceCoreHigh.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreHigh",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-laceHigh.t": {
+      "id": "toneHigh.out-laceHigh.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceHigh",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-rimHigh.t": {
+      "id": "toneHigh.out-rimHigh.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimHigh",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-stamp1High.t": {
+      "id": "toneHigh.out-stamp1High.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1High",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-stamp2High.t": {
+      "id": "toneHigh.out-stamp2High.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2High",
+        "portId": "t"
+      }
+    },
+    "toneHigh.out-stamp3High.t": {
+      "id": "toneHigh.out-stamp3High.t",
+      "from": {
+        "nodeId": "toneHigh",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3High",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-fillLow.t": {
+      "id": "toneLow.out-fillLow.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fillLow",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-laceCoreLow.t": {
+      "id": "toneLow.out-laceCoreLow.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceCoreLow",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-laceLow.t": {
+      "id": "toneLow.out-laceLow.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceLow",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-rimLow.t": {
+      "id": "toneLow.out-rimLow.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimLow",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-stamp1Low.t": {
+      "id": "toneLow.out-stamp1Low.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Low",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-stamp2Low.t": {
+      "id": "toneLow.out-stamp2Low.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Low",
+        "portId": "t"
+      }
+    },
+    "toneLow.out-stamp3Low.t": {
+      "id": "toneLow.out-stamp3Low.t",
+      "from": {
+        "nodeId": "toneLow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Low",
+        "portId": "t"
+      }
+    },
+    "touching.out-bite.a": {
+      "id": "touching.out-bite.a",
+      "from": {
+        "nodeId": "touching",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bite",
+        "portId": "a"
+      }
+    },
+    "turnB.out-stampCellsB.uv": {
+      "id": "turnB.out-stampCellsB.uv",
+      "from": {
+        "nodeId": "turnB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampCellsB",
+        "portId": "uv"
+      }
+    },
+    "turnC.out-stampCellsC.uv": {
+      "id": "turnC.out-stampCellsC.uv",
+      "from": {
+        "nodeId": "turnC",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stampCellsC",
+        "portId": "uv"
+      }
+    },
+    "turnedB.out-noiseBt.a": {
+      "id": "turnedB.out-noiseBt.a",
+      "from": {
+        "nodeId": "turnedB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseBt",
+        "portId": "a"
+      }
+    },
+    "uv.out-centered.a": {
+      "id": "uv.out-centered.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "centered",
+        "portId": "a"
+      }
+    },
+    "variation.out-stacked.b": {
+      "id": "variation.out-stacked.b",
+      "from": {
+        "nodeId": "variation",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stacked",
+        "portId": "b"
+      }
+    },
+    "variationNoise.out-variation.in": {
+      "id": "variationNoise.out-variation.in",
+      "from": {
+        "nodeId": "variationNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "variation",
+        "portId": "in"
+      }
+    },
+    "vignette.out-final.t": {
+      "id": "vignette.out-final.t",
+      "from": {
+        "nodeId": "vignette",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "final",
+        "portId": "t"
+      }
+    },
+    "waveSpeed.out-waveTime.b": {
+      "id": "waveSpeed.out-waveTime.b",
+      "from": {
+        "nodeId": "waveSpeed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "waveTime",
+        "portId": "b"
+      }
+    },
+    "waveTime.out-scrollA.a": {
+      "id": "waveTime.out-scrollA.a",
+      "from": {
+        "nodeId": "waveTime",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scrollA",
+        "portId": "a"
+      }
+    },
+    "waveTime.out-scrollB.a": {
+      "id": "waveTime.out-scrollB.a",
+      "from": {
+        "nodeId": "waveTime",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scrollB",
+        "portId": "a"
+      }
+    },
+    "widen.out-growing.b": {
+      "id": "widen.out-growing.b",
+      "from": {
+        "nodeId": "widen",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growing",
+        "portId": "b"
+      }
+    },
+    "withCore.out-darkened.a": {
+      "id": "withCore.out-darkened.a",
+      "from": {
+        "nodeId": "withCore",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "darkened",
+        "portId": "a"
+      }
+    },
+    "withCore.out-final.a": {
+      "id": "withCore.out-final.a",
+      "from": {
+        "nodeId": "withCore",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "final",
+        "portId": "a"
+      }
+    },
+    "withLace.out-withCore.a": {
+      "id": "withLace.out-withCore.a",
+      "from": {
+        "nodeId": "withLace",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "withCore",
+        "portId": "a"
+      }
+    },
+    "wobble.out-pl.b": {
+      "id": "wobble.out-pl.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pl",
+        "portId": "b"
+      }
+    },
+    "world.out-fromLight.a": {
+      "id": "world.out-fromLight.a",
+      "from": {
+        "nodeId": "world",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fromLight",
+        "portId": "a"
+      }
+    },
+    "world.out-p.a": {
+      "id": "world.out-p.a",
+      "from": {
+        "nodeId": "world",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "p",
+        "portId": "a"
+      }
+    },
+    "world.out-worldSplit.in": {
+      "id": "world.out-worldSplit.in",
+      "from": {
+        "nodeId": "world",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "worldSplit",
+        "portId": "in"
+      }
+    },
+    "worldSplit.x-gradient.in": {
+      "id": "worldSplit.x-gradient.in",
+      "from": {
+        "nodeId": "worldSplit",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "gradient",
+        "portId": "in"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "waveSpeed",
+      "label": "Wave speed",
+      "name": "waveSpeed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 2.15
+      }
+    },
+    {
+      "id": "lightAngle",
+      "label": "Light angle",
+      "name": "lightAngle",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": -84
+      }
+    },
+    {
+      "id": "lightStrength",
+      "label": "Light strength",
+      "name": "lightStrength",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.2
+      }
+    },
+    {
+      "id": "rimShade",
+      "label": "Rim · shade",
+      "name": "rimShade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.004391,
+          0.187821,
+          0.06301
+        ]
+      }
+    },
+    {
+      "id": "rimMid",
+      "label": "Rim · mid",
+      "name": "rimMid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.016807,
+          0.287441,
+          0.072272
+        ]
+      }
+    },
+    {
+      "id": "rimSun",
+      "label": "Rim · sun",
+      "name": "rimSun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.456411,
+          0.584078,
+          0.097587
+        ]
+      }
+    },
+    {
+      "id": "fillShade",
+      "label": "Fill · shade",
+      "name": "fillShade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.001518,
+          0.132868,
+          0.061246
+        ]
+      }
+    },
+    {
+      "id": "fillMid",
+      "label": "Fill · mid",
+      "name": "fillMid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.006049,
+          0.219526,
+          0.068478
+        ]
+      }
+    },
+    {
+      "id": "fillSun",
+      "label": "Fill · sun",
+      "name": "fillSun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.309469,
+          0.502886,
+          0.0865
+        ]
+      }
+    },
+    {
+      "id": "stamp1Shade",
+      "label": "Stamp 1 · shade",
+      "name": "stamp1Shade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.001214,
+          0.097587,
+          0.05448
+        ]
+      }
+    },
+    {
+      "id": "stamp1Mid",
+      "label": "Stamp 1 · mid",
+      "name": "stamp1Mid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.002428,
+          0.168269,
+          0.068478
+        ]
+      }
+    },
+    {
+      "id": "stamp1Sun",
+      "label": "Stamp 1 · sun",
+      "name": "stamp1Sun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.14996,
+          0.417885,
+          0.078187
+        ]
+      }
+    },
+    {
+      "id": "stamp2Shade",
+      "label": "Stamp 2 · shade",
+      "name": "stamp2Shade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.001214,
+          0.074214,
+          0.048172
+        ]
+      }
+    },
+    {
+      "id": "stamp2Mid",
+      "label": "Stamp 2 · mid",
+      "name": "stamp2Mid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.002428,
+          0.127438,
+          0.057805
+        ]
+      }
+    },
+    {
+      "id": "stamp2Sun",
+      "label": "Stamp 2 · sun",
+      "name": "stamp2Sun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.068478,
+          0.346704,
+          0.072272
+        ]
+      }
+    },
+    {
+      "id": "stamp3Shade",
+      "label": "Stamp 3 · shade",
+      "name": "stamp3Shade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.002428,
+          0.056128,
+          0.036889
+        ]
+      }
+    },
+    {
+      "id": "stamp3Mid",
+      "label": "Stamp 3 · mid",
+      "name": "stamp3Mid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.002125,
+          0.102242,
+          0.051269
+        ]
+      }
+    },
+    {
+      "id": "stamp3Sun",
+      "label": "Stamp 3 · sun",
+      "name": "stamp3Sun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.027321,
+          0.287441,
+          0.068478
+        ]
+      }
+    },
+    {
+      "id": "laceShade",
+      "label": "Lace · shade",
+      "name": "laceShade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.004391,
+          0.187821,
+          0.06301
+        ]
+      }
+    },
+    {
+      "id": "laceMid",
+      "label": "Lace · mid",
+      "name": "laceMid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.059511,
+          0.346704,
+          0.072272
+        ]
+      }
+    },
+    {
+      "id": "laceSun",
+      "label": "Lace · sun",
+      "name": "laceSun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.57758,
+          0.630757,
+          0.109462
+        ]
+      }
+    },
+    {
+      "id": "laceCoreShade",
+      "label": "Lace core · shade",
+      "name": "laceCoreShade",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.052861,
+          0.270498,
+          0.059511
+        ]
+      }
+    },
+    {
+      "id": "laceCoreMid",
+      "label": "Lace core · mid",
+      "name": "laceCoreMid",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.274677,
+          0.502886,
+          0.084376
+        ]
+      }
+    },
+    {
+      "id": "laceCoreSun",
+      "label": "Lace core · sun",
+      "name": "laceCoreSun",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.947307,
+          0.887923,
+          0.502886
+        ]
+      }
+    }
+  ]
+}

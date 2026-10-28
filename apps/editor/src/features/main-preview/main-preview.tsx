@@ -25,7 +25,7 @@ import { ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR, zoomView } from './orbit-view'
 import type { OrbitView } from './orbit-view'
 import { PreviewErrorBoundary } from './preview-error-boundary'
 import { PreviewScene } from './preview-scene'
-import { DEFAULT_SHAPE, PRIMITIVE_SHAPES, isPreviewShape, shapeLabelKey } from './preview-shape'
+import { PRIMITIVE_SHAPES, isPreviewShape, shapeLabelKey } from './preview-shape'
 import type { PreviewShape } from './preview-shape'
 import { RendererUnavailableError } from './renderer-unavailable-error'
 import type { MaterialRejection } from './validate-material'
@@ -225,7 +225,7 @@ interface PreviewWorkspaceProps {
 }
 
 function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspaceProps) {
-  const [shape, setShape] = useState<PreviewShape>(DEFAULT_SHAPE)
+  const shape = useEditorStore((state) => state.previewShape)
   const [model, setModel] = useState<Group | null>(null)
   const [backend, setBackend] = useState<RendererBackend | null>(null)
   const [rejection, setRejection] = useState<MaterialRejection | null>(null)
@@ -252,7 +252,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
 
   const selectShape = (next: PreviewShape): void => {
     setLoadError(null)
-    setShape(next)
+    useEditorStore.getState().setPreviewShape(next)
   }
 
   return (

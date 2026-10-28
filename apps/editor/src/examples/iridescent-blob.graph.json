@@ -1,0 +1,675 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "add1": {
+      "id": "add1",
+      "type": "math/add",
+      "position": {
+        "x": -1736,
+        "y": 163
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "add2": {
+      "id": "add2",
+      "type": "math/add",
+      "position": {
+        "x": 248,
+        "y": -620
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "deep": {
+      "id": "deep",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 365
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "deepColor"
+      }
+    },
+    "frame-animated-noise": {
+      "id": "frame-animated-noise",
+      "type": "utility/comment",
+      "position": {
+        "x": -2408,
+        "y": -8
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Position + (Time × speed) gives the Noise a coordinate that slides over time, so the blotches move on their own. The Remap takes the noise from -1…1 to 0…1: the mask.",
+        "height": 644,
+        "title": "1 · Animated noise",
+        "width": 1568
+      }
+    },
+    "frame-base-color": {
+      "id": "frame-base-color",
+      "type": "utility/comment",
+      "position": {
+        "x": -104,
+        "y": 285
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The mask picks between the two colors, point by point.",
+        "height": 535,
+        "title": "3 · Base color",
+        "width": 608
+      }
+    },
+    "frame-deform": {
+      "id": "frame-deform",
+      "type": "utility/comment",
+      "position": {
+        "x": -744,
+        "y": -710
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Pushes each vertex out along its normal by the noise. wobble sets how far.",
+        "height": 458,
+        "title": "2 · Deform the shape",
+        "width": 1248
+      }
+    },
+    "frame-material": {
+      "id": "frame-material",
+      "type": "utility/comment",
+      "position": {
+        "x": 104,
+        "y": 852
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Glossy in some areas, matte in others.",
+        "height": 411,
+        "title": "5 · Material",
+        "width": 400
+      }
+    },
+    "frame-rim-glow": {
+      "id": "frame-rim-glow",
+      "type": "utility/comment",
+      "position": {
+        "x": -104,
+        "y": -220
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Fresnel is 1 at the edges and 0 facing you: a glow around the rim.",
+        "height": 473,
+        "title": "4 · Rim glow",
+        "width": 608
+      }
+    },
+    "fresnel": {
+      "id": "fresnel",
+      "type": "effects/fresnel",
+      "position": {
+        "x": -72,
+        "y": -140
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {}
+    },
+    "hot": {
+      "id": "hot",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 758
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "hotColor"
+      }
+    },
+    "lerp1": {
+      "id": "lerp1",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": 418
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lerp2": {
+      "id": "lerp2",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 192,
+        "y": 932
+      },
+      "inputValues": {
+        "a": {
+          "type": "float",
+          "value": 0.15
+        },
+        "b": {
+          "type": "float",
+          "value": 0.6
+        }
+      },
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {
+        "metalness": {
+          "type": "float",
+          "value": 0.2
+        }
+      },
+      "params": {
+        "lighting": "standard"
+      }
+    },
+    "mul1": {
+      "id": "mul1",
+      "type": "math/multiply",
+      "position": {
+        "x": -2056,
+        "y": 333
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "mul2": {
+      "id": "mul2",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": -630
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "mul3": {
+      "id": "mul3",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": -555
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "mul4": {
+      "id": "mul4",
+      "type": "math/multiply",
+      "position": {
+        "x": 248,
+        "y": -51
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "noise": {
+      "id": "noise",
+      "type": "effects/noise",
+      "position": {
+        "x": -1416,
+        "y": 89
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 2.5
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "normal": {
+      "id": "normal",
+      "type": "input/normal",
+      "position": {
+        "x": -712,
+        "y": -579
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pos": {
+      "id": "pos",
+      "type": "input/position",
+      "position": {
+        "x": -2056,
+        "y": 72
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "remap": {
+      "id": "remap",
+      "type": "math/remap",
+      "position": {
+        "x": -1096,
+        "y": 89
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "rim": {
+      "id": "rim",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 191
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rimColor"
+      }
+    },
+    "smooth": {
+      "id": "smooth",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -72,
+        "y": 427
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.35
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.65
+        }
+      },
+      "params": {}
+    },
+    "speed": {
+      "id": "speed",
+      "type": "property/float",
+      "position": {
+        "x": -2328,
+        "y": 571
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "speed"
+      }
+    },
+    "time": {
+      "id": "time",
+      "type": "input/time",
+      "position": {
+        "x": -2376,
+        "y": 263
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "property/float",
+      "position": {
+        "x": -344,
+        "y": -327
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wobble"
+      }
+    }
+  },
+  "edges": {
+    "add1.out-noise.p": {
+      "id": "add1.out-noise.p",
+      "from": {
+        "nodeId": "add1",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noise",
+        "portId": "p"
+      }
+    },
+    "add2.out-master.position": {
+      "id": "add2.out-master.position",
+      "from": {
+        "nodeId": "add2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "position"
+      }
+    },
+    "deep.out-lerp1.a": {
+      "id": "deep.out-lerp1.a",
+      "from": {
+        "nodeId": "deep",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lerp1",
+        "portId": "a"
+      }
+    },
+    "fresnel.out-mul4.a": {
+      "id": "fresnel.out-mul4.a",
+      "from": {
+        "nodeId": "fresnel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul4",
+        "portId": "a"
+      }
+    },
+    "hot.out-lerp1.b": {
+      "id": "hot.out-lerp1.b",
+      "from": {
+        "nodeId": "hot",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lerp1",
+        "portId": "b"
+      }
+    },
+    "lerp1.out-master.baseColor": {
+      "id": "lerp1.out-master.baseColor",
+      "from": {
+        "nodeId": "lerp1",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "lerp2.out-master.roughness": {
+      "id": "lerp2.out-master.roughness",
+      "from": {
+        "nodeId": "lerp2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "roughness"
+      }
+    },
+    "mul1.out-add1.b": {
+      "id": "mul1.out-add1.b",
+      "from": {
+        "nodeId": "mul1",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "add1",
+        "portId": "b"
+      }
+    },
+    "mul2.out-mul3.a": {
+      "id": "mul2.out-mul3.a",
+      "from": {
+        "nodeId": "mul2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul3",
+        "portId": "a"
+      }
+    },
+    "mul3.out-add2.b": {
+      "id": "mul3.out-add2.b",
+      "from": {
+        "nodeId": "mul3",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "add2",
+        "portId": "b"
+      }
+    },
+    "mul4.out-master.emission": {
+      "id": "mul4.out-master.emission",
+      "from": {
+        "nodeId": "mul4",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "emission"
+      }
+    },
+    "noise.out-mul2.b": {
+      "id": "noise.out-mul2.b",
+      "from": {
+        "nodeId": "noise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul2",
+        "portId": "b"
+      }
+    },
+    "noise.out-remap.in": {
+      "id": "noise.out-remap.in",
+      "from": {
+        "nodeId": "noise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "remap",
+        "portId": "in"
+      }
+    },
+    "normal.out-mul2.a": {
+      "id": "normal.out-mul2.a",
+      "from": {
+        "nodeId": "normal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul2",
+        "portId": "a"
+      }
+    },
+    "pos.out-add1.a": {
+      "id": "pos.out-add1.a",
+      "from": {
+        "nodeId": "pos",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "add1",
+        "portId": "a"
+      }
+    },
+    "pos.out-add2.a": {
+      "id": "pos.out-add2.a",
+      "from": {
+        "nodeId": "pos",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "add2",
+        "portId": "a"
+      }
+    },
+    "remap.out-lerp2.t": {
+      "id": "remap.out-lerp2.t",
+      "from": {
+        "nodeId": "remap",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lerp2",
+        "portId": "t"
+      }
+    },
+    "remap.out-smooth.in": {
+      "id": "remap.out-smooth.in",
+      "from": {
+        "nodeId": "remap",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "smooth",
+        "portId": "in"
+      }
+    },
+    "rim.out-mul4.b": {
+      "id": "rim.out-mul4.b",
+      "from": {
+        "nodeId": "rim",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul4",
+        "portId": "b"
+      }
+    },
+    "smooth.out-lerp1.t": {
+      "id": "smooth.out-lerp1.t",
+      "from": {
+        "nodeId": "smooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lerp1",
+        "portId": "t"
+      }
+    },
+    "speed.out-mul1.b": {
+      "id": "speed.out-mul1.b",
+      "from": {
+        "nodeId": "speed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul1",
+        "portId": "b"
+      }
+    },
+    "time.out-mul1.a": {
+      "id": "time.out-mul1.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul1",
+        "portId": "a"
+      }
+    },
+    "wobble.out-mul3.b": {
+      "id": "wobble.out-mul3.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mul3",
+        "portId": "b"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "speed",
+      "label": "speed",
+      "name": "speed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.3
+      }
+    },
+    {
+      "id": "wobble",
+      "label": "wobble",
+      "name": "wobble",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.12
+      }
+    },
+    {
+      "id": "deepColor",
+      "label": "deepColor",
+      "name": "deepColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.01096,
+          0.013702,
+          0.147027
+        ]
+      }
+    },
+    {
+      "id": "hotColor",
+      "label": "hotColor",
+      "name": "hotColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          1,
+          0.078187,
+          0.366253
+        ]
+      }
+    },
+    {
+      "id": "rimColor",
+      "label": "rimColor",
+      "name": "rimColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.201556,
+          0.930111,
+          1
+        ]
+      }
+    }
+  ]
+}

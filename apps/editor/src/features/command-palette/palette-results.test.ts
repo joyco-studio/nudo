@@ -34,9 +34,9 @@ function summarize(groups: readonly PaletteGroup[]) {
 }
 
 describe('paletteResults', () => {
-  it('shows only the commands, Actions then View, before anything is typed', () => {
+  it('shows only the commands, Actions, View then Examples, before anything is typed', () => {
     const groups = search('')
-    expect(groups.map((group) => group.id)).toEqual(['actions', 'view'])
+    expect(groups.map((group) => group.id)).toEqual(['actions', 'view', 'examples'])
   })
 
   it('ranks commands above the node lists, so "split" runs the split layout first', () => {

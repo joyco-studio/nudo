@@ -213,8 +213,12 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   },
 
   resetGraph: () => {
+    get().replaceGraph(createGraph())
+  },
+
+  replaceGraph: (graph) => {
     set({
-      graph: createGraph(),
+      graph,
       selectedNodeIds: [],
       draftPositions: {},
       inputPreview: null,

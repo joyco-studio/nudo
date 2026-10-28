@@ -98,6 +98,12 @@ export const en = {
   'command.show-shortcuts.keywords': 'help keys hotkeys keyboard',
   'command.open-command-palette.label': 'Open the command palette',
   'command.open-command-palette.keywords': 'search commands',
+  'command.example-lettra-pond.label': 'Open example: Lettra pond',
+  'command.example-lettra-pond.keywords': 'example sample demo template pond lettra',
+  'command.example-simple-water.label': 'Open example: Simple water',
+  'command.example-simple-water.keywords': 'example sample demo template',
+  'command.example-iridescent-blob.label': 'Open example: Iridescent blob',
+  'command.example-iridescent-blob.keywords': 'example sample demo template tutorial',
 
   // Command palette
   'palette.button': 'Commands',
@@ -111,6 +117,7 @@ export const en = {
   'palette.shortcut': 'shortcut',
   'palette.group.actions': 'Actions',
   'palette.group.view': 'View',
+  'palette.group.examples': 'Examples',
   'palette.group.nodes-in-graph': 'Nodes in graph',
   'palette.group.add-node': 'Add node',
 
@@ -158,6 +165,21 @@ export const en = {
   'newGraph.properties.one': '{count} property',
   'newGraph.properties.other': '{count} properties',
   'newGraph.and': '{first} and {second}',
+
+  // Examples menu
+  'examples.button': 'Examples',
+  'examples.tooltip': 'Open an example graph',
+  'examples.menu': 'Examples',
+  'example.lettra-pond.title': 'Lettra pond',
+  'example.lettra-pond.description': 'Illustrated water: rosettes, lace and a sun band',
+  'example.simple-water.title': 'Simple water',
+  'example.simple-water.description': 'Rolling waves with a fresnel rim',
+  'example.iridescent-blob.title': 'Iridescent blob',
+  'example.iridescent-blob.description': 'A breathing blob that shifts color',
+  'openExample.title': 'Open “{title}”?',
+  'openExample.description':
+    'This replaces your graph ({contents}) with the example. Undo (Ctrl/⌘ Z) brings it back.',
+  'openExample.confirm': 'Open example',
   'common.cancel': 'Cancel',
   'common.close': 'Close',
   'common.breadcrumb': 'Breadcrumb',
@@ -219,6 +241,7 @@ export const en = {
   'notice.close': 'Close notification',
   'notice.dismiss': 'Dismiss',
   'notice.masterDelete': "The Master Stack can't be deleted.",
+  'notice.exampleFailed': "Couldn't open the example.",
   'notice.droppedReaders':
     "Some pasted nodes referenced properties that don't exist here and were skipped.",
   'notice.connectFailed': "Couldn't connect those ports.",

@@ -102,6 +102,12 @@ export const es = {
   'command.show-shortcuts.keywords': 'ayuda teclas atajos teclado',
   'command.open-command-palette.label': 'Abrir la paleta de comandos',
   'command.open-command-palette.keywords': 'buscar comandos',
+  'command.example-lettra-pond.label': 'Abrir ejemplo: Estanque de Lettra',
+  'command.example-lettra-pond.keywords': 'ejemplo muestra demo plantilla estanque lettra',
+  'command.example-simple-water.label': 'Abrir ejemplo: Agua simple',
+  'command.example-simple-water.keywords': 'ejemplo muestra demo plantilla',
+  'command.example-iridescent-blob.label': 'Abrir ejemplo: Blob iridiscente',
+  'command.example-iridescent-blob.keywords': 'ejemplo muestra demo plantilla tutorial',
 
   // Command palette
   'palette.button': 'Comandos',
@@ -116,6 +122,7 @@ export const es = {
   'palette.shortcut': 'atajo',
   'palette.group.actions': 'Acciones',
   'palette.group.view': 'Vista',
+  'palette.group.examples': 'Ejemplos',
   'palette.group.nodes-in-graph': 'Nodos del grafo',
   'palette.group.add-node': 'Agregar nodo',
 
@@ -164,6 +171,21 @@ export const es = {
   'newGraph.properties.one': '{count} propiedad',
   'newGraph.properties.other': '{count} propiedades',
   'newGraph.and': '{first} y {second}',
+
+  // Examples menu
+  'examples.button': 'Ejemplos',
+  'examples.tooltip': 'Abrir un grafo de ejemplo',
+  'examples.menu': 'Ejemplos',
+  'example.lettra-pond.title': 'Estanque de Lettra',
+  'example.lettra-pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
+  'example.simple-water.title': 'Agua simple',
+  'example.simple-water.description': 'Olas que ruedan con un borde fresnel',
+  'example.iridescent-blob.title': 'Blob iridiscente',
+  'example.iridescent-blob.description': 'Un blob que respira y cambia de color',
+  'openExample.title': '¿Abrir «{title}»?',
+  'openExample.description':
+    'Esto reemplaza tu grafo ({contents}) por el ejemplo. Deshacer (Ctrl/⌘ Z) lo recupera.',
+  'openExample.confirm': 'Abrir ejemplo',
   'common.cancel': 'Cancelar',
   'common.close': 'Cerrar',
   'common.breadcrumb': 'Ruta de navegación',
@@ -226,6 +248,7 @@ export const es = {
   'notice.close': 'Cerrar notificación',
   'notice.dismiss': 'Descartar',
   'notice.masterDelete': 'El Master Stack no se puede eliminar.',
+  'notice.exampleFailed': 'No se pudo abrir el ejemplo.',
   'notice.droppedReaders':
     'Se omitieron algunos nodos pegados: usaban propiedades que no existen en este grafo.',
   'notice.connectFailed': 'No se pudieron conectar esos puertos.',

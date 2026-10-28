@@ -109,7 +109,11 @@ export function paletteResults({
   t = translateEnglish,
 }: PaletteQuery): readonly PaletteGroup[] {
   const matches = searchCommands(commands, query, t)
-  const commandGroups = [...commandGroup(matches, 'actions'), ...commandGroup(matches, 'view')]
+  const commandGroups = [
+    ...commandGroup(matches, 'actions'),
+    ...commandGroup(matches, 'view'),
+    ...commandGroup(matches, 'examples'),
+  ]
   if (query.trim() === '') return commandGroups
   return [
     ...commandGroups,

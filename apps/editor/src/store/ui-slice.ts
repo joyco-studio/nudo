@@ -6,6 +6,8 @@ import {
 } from '@/features/panels/panel-state'
 import type { PanelPrefs, PreviewLayout } from '@/features/panels/panel-state'
 
+import { DEFAULT_SHAPE } from '@/features/main-preview/preview-shape'
+
 import type { EditorSliceCreator, UiSlice } from './store-types'
 
 type LayoutState = Pick<UiSlice, 'panels' | 'layoutBeforeFull'>
@@ -34,6 +36,7 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   panels: DEFAULT_PANEL_PREFS,
   layoutBeforeFull: 'docked',
   splitDraftPercent: null,
+  previewShape: DEFAULT_SHAPE,
   setSelection: (ids) => {
     set({ selectedNodeIds: ids })
   },
@@ -100,5 +103,8 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   },
   setPreviewBackdrop: (backdrop) => {
     set((state) => withPanels(state, { backdrop }))
+  },
+  setPreviewShape: (shape) => {
+    set({ previewShape: shape })
   },
 })

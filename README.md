@@ -2,9 +2,9 @@
 
 A node-based shader editor for [three.js shading language (TSL)](https://threejs.org/docs/pages/TSL.html). Wire nodes together, see the material update live on a mesh, and drive everything from the keyboard.
 
-The graph is the source of truth: the editor compiles it to a `MeshStandardNodeMaterial` and renders it in a live preview (WebGPU, with a WebGL2 fallback). Your work autosaves to the browser.
+The graph is the source of truth: the editor compiles it to a node material (lit or unlit) and renders it in a live preview (WebGPU, with a WebGL2 fallback). Your work autosaves to the browser.
 
-**Status: phase 1.** Editing, live compilation and the main preview work today. Export to TSL code and graph import come in phase 3. The design lives in [`docs/superpowers/specs/2026-10-26-nudo-tsl-design.md`](./docs/superpowers/specs/2026-10-26-nudo-tsl-design.md).
+**Status: phase 2.** Editing, live compilation, per-node previews, Blackboard properties, textures and the examples work today. Export to `.tsl.js` files and graph import come in phase 3. The design lives in [`docs/superpowers/specs/2026-10-26-nudo-tsl-design.md`](./docs/superpowers/specs/2026-10-26-nudo-tsl-design.md).
 
 ## Quick start
 
@@ -15,7 +15,42 @@ pnpm install
 pnpm dev
 ```
 
-Then open http://localhost:5173. Press `Space` on the canvas to add a node, `Tab` to a port and `Enter` to connect it, and `?` to see every shortcut.
+Then open http://localhost:5173. Press `Space` on the canvas to add a node, `Tab` to a port and `Enter` to connect it, and `?` to see every shortcut. To start from a finished graph, open **Examples** in the header.
+
+## Examples
+
+The header's **Examples** menu (also in the `Ctrl/⌘` `K` palette) opens a finished graph in place of yours, as one undo step. It asks first when your graph has nodes or properties. Each example is a versioned `.graph.json` in `apps/editor/src/examples`, built from a spec in `examples/build` with the core graph operations and laid out like **Tidy up**. After changing a spec, run `pnpm --filter @nudo-tsl/editor exec vitest run -u src/examples` to write the files again.
+
+| Example         | What it shows                                                                                                                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lettra pond     | The illustrated water of [lettra-landing](https://github.com/joyco-studio/lettra-landing): Voronoi rosettes and lace, rotated Voronoi stamps, a sun band, toned palette, refraction and a vignette. Unlit. |
+| Simple water    | Sine waves over the UV blend two colors, with a fresnel rim. Its colors and wave settings are properties.                                                                                                  |
+| Iridescent blob | The tutorial graph: Time-driven noise breathes the surface, a mask picks colors and roughness, and a fresnel adds a rim. Each step sits in a comment frame.                                                |
+
+## Panels
+
+| Panel      | Key | What it holds                                                                                                     |
+| ---------- | --- | ----------------------------------------------------------------------------------------------------------------- |
+| Properties | `B` | The Blackboard: named values (float, vectors, colors, textures) shared across the graph and exported as uniforms. |
+| Inspector  | `I` | The selected node's description, params, values and preview toggle; with nothing selected, the graph settings.    |
+| Preview    | `P` | The material on a mesh (sphere, cube, plane, torus, knot, Suzanne or your GLB), docked, split or full.            |
+| Code       | `C` | The TSL the graph generates.                                                                                      |
+
+## Node catalog
+
+| Category      | Nodes                                                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Input         | UV, Screen UV, Position, Normal, View Direction, Camera Position, Time, Float, Vector 2/3/4, Color, Blackboard properties              |
+| Math          | Add, Subtract, Multiply, Divide, Power, Exponential, Sine, Cosine, Absolute, Fract, Floor, Min, Max, Clamp, One Minus, Remap, Distance |
+| Interpolation | Lerp, Step, Smoothstep, AA Step                                                                                                        |
+| Logic         | Select                                                                                                                                 |
+| Vector        | Split, Combine, Dot Product, Length, Normalize, Rotate 2D                                                                              |
+| Effects       | Noise (simplex, Perlin), Voronoi, Checkerboard, Gradient, Fresnel                                                                      |
+| Texture       | Sample Texture 2D (images live in the browser's IndexedDB)                                                                             |
+| Color         | Color Space                                                                                                                            |
+| Normal, scene | Normal From Height, Depth Fade, Scene Color                                                                                            |
+| Utility       | Comment, Reroute                                                                                                                       |
+| Output        | Master Stack, standard (lit) or unlit                                                                                                  |
 
 ## Scripts
 
@@ -37,7 +72,8 @@ The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec
 | `packages/core`    | Pure graph model: validation, type inference, compiler, serialization and fragments. No React or three.js.                  |
 | `packages/nodes`   | The master stack and the built-in nodes. Depends only on `@nudo-tsl/core`.                                                  |
 | `packages/runtime` | The live TSL backend that turns a compiled graph into a `MeshStandardNodeMaterial`. Depends on `core`, `nodes` and `three`. |
-| `apps/editor`      | The Vite and React editor: canvas, add-node menu, shortcuts and main preview.                                               |
+| `packages/codegen` | Prints a graph as a readable TSL module. Depends only on `core` and `nodes`.                                                |
+| `apps/editor`      | The Vite and React editor: canvas, panels, node previews, examples, shortcuts and main preview.                             |
 
 ## Keyboard shortcuts
 
