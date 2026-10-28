@@ -34,6 +34,7 @@ import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-con
 import { COMMENT_TYPE } from './to-flow'
 import type { FlowNodeData } from './to-flow'
 import { useCanvasMenu } from './use-canvas-menu'
+import type { CanvasMenu } from './use-canvas-menu'
 
 /** Auto / 2D / 3D, read from the universal param so the menu and the graph never disagree. */
 const PREVIEW_MODE = UNIVERSAL_PARAMS.find((param) => param.id === PREVIEW_MODE_PARAM)
@@ -65,14 +66,16 @@ function nodeMenuModel(data: FlowNodeData): NodeMenuModel {
  * "Tidy up selection", while the selection holds this node and something else to arrange. Read
  * only while the menu is open, so selecting nodes never re-renders every node's menu.
  */
-function TidySelectionItem({ nodeId }: { nodeId: NodeId }) {
+function TidySelectionItem({ nodeId, menu }: { nodeId: NodeId; menu: CanvasMenu }) {
   const runCommand = useRunCommand()
   const selected = useEditorStore((state) => state.selectedNodeIds)
   if (!selected.includes(nodeId) || selected.length < MIN_TIDY_SELECTION) return null
   return (
     <ContextMenuItem
       onSelect={() => {
-        runCommand('tidy-up-selection', { opener: null, nodeId })
+        menu.runAfterClose(() => {
+          runCommand('tidy-up-selection', { opener: null, nodeId })
+        })
       }}
     >
       <CommandMenuLabel commandId="tidy-up-selection" />
@@ -136,7 +139,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
             </ContextMenuItem>
           </>
         )}
-        <TidySelectionItem nodeId={node.id} />
+        <TidySelectionItem nodeId={node.id} menu={menu} />
         {model.canTogglePorts && (
           <ContextMenuItem
             onSelect={() => {

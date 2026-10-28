@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { countReddishPixels } from './support/count-reddish-pixels'
 import { readStoredEdgeCount, readStoredNodes } from './support/read-autosave'
-import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
+import { COLOR_TO_BASE_COLOR, graphDocumentV2, seedAutosave } from './support/seed-graph'
 import { TUTORIAL_EDGES, TUTORIAL_GRAPH, TUTORIAL_NODE_COUNT } from './support/tutorial-graph'
 
 interface Box {
@@ -15,6 +15,9 @@ interface Box {
 const MIN_REDDISH_PIXELS = 200
 /** Longer than the compile debounce (150 ms), so a pending rebuild would have fired by then. */
 const PAST_DEBOUNCE_MS = 500
+/** Far enough ahead that pausing the page clock never moves it back. */
+const CLOCK_JUMP_MS = 1000
+const ONE_FRAME_MS = 20
 
 function canvas(page: Page): Locator {
   return page.getByRole('main', { name: 'Node canvas' })
@@ -164,6 +167,36 @@ test.describe('tidy up', () => {
     await expect.poll(() => storedPositions(page)).toEqual(tidied)
   })
 
+  test('undo during the glide stops it where the graph is', async ({ page }) => {
+    // A fake clock (running until paused below) needs a fresh load to take over the timers.
+    await page.clock.install()
+    await page.goto('/')
+    await waitForSettledView(page, TUTORIAL_NODE_COUNT)
+    await canvas(page).focus()
+    await page.keyboard.press('Shift+F10')
+    // Time stands still from here on, so the undo lands inside the 350 ms glide.
+    await page.clock.pauseAt(Date.now() + CLOCK_JUMP_MS)
+    // A click on the item: a pointer start, so the nodes glide.
+    await page.getByRole('menuitem', { name: 'Tidy up graph' }).click()
+    await page.clock.runFor(ONE_FRAME_MS)
+    const tidyStart = await flowNode(page, 'pos').evaluate(
+      (node) => getComputedStyle(node).transform,
+    )
+    expect(tidyStart).not.toBe('matrix(1, 0, 0, 1, 40, 120)')
+    // The closing menu still holds focus under the paused clock: the canvas gets the undo key.
+    await canvas(page).evaluate((element) => {
+      element.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', code: 'KeyZ', ctrlKey: true, bubbles: true }),
+      )
+    })
+    await page.clock.runFor(ONE_FRAME_MS)
+
+    await expect(flowNode(page, 'pos')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 40, 120)')
+    await page.clock.runFor(PAST_DEBOUNCE_MS)
+    await expect(flowNode(page, 'pos')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 40, 120)')
+    await expect(flowNode(page, 'lerp2')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 1540, 1150)')
+  })
+
   test('the canvas menu tidies up too, and the selection menu only the selected nodes', async ({
     page,
   }) => {
@@ -257,6 +290,43 @@ test.describe('reroute', () => {
     await expect(page.locator('.react-flow__edge')).toHaveCount(2)
   })
 
+  test('a texture connection offers no reroute: a reroute cannot carry a texture', async ({
+    page,
+  }) => {
+    await seedAutosave(
+      page,
+      graphDocumentV2(
+        [
+          {
+            id: 'reader',
+            type: 'property/texture',
+            position: { x: 0, y: 40 },
+            params: { propertyId: 'tex' },
+          },
+          { id: 'sample', type: 'texture/sample-texture-2d', position: { x: 260, y: 40 } },
+        ],
+        [{ id: 'tex-to-sample', from: ['reader', 'out'], to: ['sample', 'texture'] }],
+        [
+          {
+            id: 'tex',
+            label: 'tex',
+            name: 'tex',
+            exposed: true,
+            type: 'texture',
+            value: { type: 'texture', assetId: null },
+          },
+        ],
+      ),
+    )
+    await page.goto('/')
+    await waitForSettledView(page, 3)
+    await page.locator('.react-flow__edge[data-id="tex-to-sample"]').focus()
+    await page.keyboard.press('Shift+F10')
+
+    await expect(page.getByRole('menuitem', { name: 'Delete connection' })).toBeVisible()
+    await expect(page.getByRole('menuitem', { name: 'Insert reroute' })).toHaveCount(0)
+  })
+
   test('the add-node menu adds a reroute', async ({ page }) => {
     await canvas(page).focus()
     await page.keyboard.press('Space')
@@ -288,6 +358,13 @@ test.describe('chain highlight', () => {
     await expect(flowNode(page, 'time')).toHaveClass(/chain-dimmed/)
     await expect(flowNode(page, 'mul4')).not.toHaveClass(/chain-dimmed/)
     await expect(flowNode(page, 'master')).not.toHaveClass(/chain-dimmed/)
+
+    // A connection outside the chain that takes keyboard focus shows at full strength.
+    await page.keyboard.press('Tab')
+    await unrelated.focus()
+    await expect(unrelated).toBeFocused()
+    await expect(unrelated).toHaveClass(/chain-dimmed/)
+    await expect(unrelated).toHaveCSS('opacity', '1')
 
     // Clearing the selection brings everything back.
     await page.keyboard.press('Escape')

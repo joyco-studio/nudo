@@ -1,6 +1,7 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { GraphEdge, NodeId, XY } from '@nudo-tsl/core'
 
+import { boundsOf } from './bounds'
 import { layeredLayout } from './layered-layout'
 import type { LayoutBlock, LayoutLink } from './layered-layout'
 
@@ -67,11 +68,8 @@ function blocksOf(nodes: readonly NodeGeometry[]): readonly Block[] {
     membersByBlock.set(ownerId, [...(membersByBlock.get(ownerId) ?? []), item])
   }
   return [...membersByBlock].map(([id, members]): Block => {
-    const left = Math.min(...members.map((member) => member.position.x))
-    const top = Math.min(...members.map((member) => member.position.y))
-    const right = Math.max(...members.map((member) => member.position.x + member.width))
-    const bottom = Math.max(...members.map((member) => member.position.y + member.height))
-    return { id, position: { x: left, y: top }, width: right - left, height: bottom - top, members }
+    const { x, y, width, height } = boundsOf(members)
+    return { id, position: { x, y }, width, height, members }
   })
 }
 
@@ -106,17 +104,31 @@ function isInScope(block: Block, scope: TidyScope): boolean {
   return block.members.some((member) => scope.nodeIds.includes(member.id))
 }
 
+const blockOfOne = (item: NodeGeometry): Block => ({ ...item, members: [item] })
+
+/**
+ * What the layout arranges. For the graph, every block. For a selection, the blocks holding a
+ * selected node; when that is a single frame, the selected nodes on it instead, each on its own,
+ * so tidying nodes inside one frame rearranges them there.
+ */
+function scopedBlocks(nodes: readonly NodeGeometry[], scope: TidyScope): readonly Block[] {
+  const blocks = blocksOf(nodes).filter((block) => isInScope(block, scope))
+  if (scope.kind === 'graph' || blocks.length > 1) return blocks
+  return nodes.filter((item) => !item.isFrame && scope.nodeIds.includes(item.id)).map(blockOfOne)
+}
+
 /**
  * Where tidying up puts each node: a layered layout, left to right, with the Master Stack last and
  * unmoved. A comment frame moves as one block with every node on it, so a group stays a group. For
- * a selection, only the blocks holding a selected node move. Lists only the nodes that move.
+ * a selection, only the blocks holding a selected node move (or, within one frame, the selected
+ * nodes on it). Lists only the nodes that move.
  */
 export function planTidyUp(
   edges: readonly GraphEdge[],
   nodes: readonly NodeGeometry[],
   scope: TidyScope,
 ): TidyPlan {
-  const blocks = blocksOf(nodes).filter((block) => isInScope(block, scope))
+  const blocks = scopedBlocks(nodes, scope)
   if (blocks.length < 2) return {}
 
   const geometry = new Map(nodes.map((item) => [item.id, item]))

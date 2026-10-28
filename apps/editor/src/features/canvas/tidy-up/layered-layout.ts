@@ -1,5 +1,7 @@
 import type { XY } from '@nudo-tsl/core'
 
+import { boundsOf } from './bounds'
+
 /** Horizontal room between columns, in flow units: enough for a wire to curve. */
 export const COLUMN_GAP = 96
 /** Vertical room between neighbors in a column, in flow units. */
@@ -196,11 +198,10 @@ function translate(positions: Map<string, XY>, delta: XY): void {
 }
 
 function topLeftOf(blocks: readonly LayoutBlock[], positions: ReadonlyMap<string, XY>): XY {
-  const placed = blocks.map((block) => positions.get(block.id) ?? block.position)
-  return {
-    x: Math.min(...placed.map((position) => position.x)),
-    y: Math.min(...placed.map((position) => position.y)),
-  }
+  const { x, y } = boundsOf(
+    blocks.map((block) => ({ ...block, position: positions.get(block.id) ?? block.position })),
+  )
+  return { x, y }
 }
 
 /** Blocks with no links at all, in a row under everything else, left to right. */

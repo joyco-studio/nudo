@@ -105,6 +105,24 @@ describe('planTidyUp', () => {
     expect(time.x + 200).toBeLessThan(sine.x)
   })
 
+  it('tidies two selected nodes on the same frame inside it, leaving the frame where it is', () => {
+    const frame = node('frame', 0, 0, { width: 800, height: 500, isFrame: true })
+    const framed = [MASTER, frame, node('time', 400, 300), node('sine', 40, 60)]
+    const plan = planTidyUp([edge('time', 'sine')], framed, {
+      kind: 'selection',
+      nodeIds: [asNodeId('time'), asNodeId('sine')],
+    })
+    const time = plan[asNodeId('time')]
+    const sine = plan[asNodeId('sine')] ?? { x: 40, y: 60 }
+
+    expect(plan[asNodeId('frame')]).toBeUndefined()
+    expect(time).toBeDefined()
+    expect((time?.x ?? 0) + 200).toBeLessThan(sine.x)
+    // Anchored at the selection's top-left corner, so it stays on its frame.
+    expect(Math.min(time?.x ?? 0, sine.x)).toBe(40)
+    expect(Math.min(time?.y ?? 0, sine.y)).toBe(60)
+  })
+
   it('has nothing to do for fewer than two blocks', () => {
     expect(planTidyUp(edges, nodes, { kind: 'selection', nodeIds: [asNodeId('time')] })).toEqual({})
     expect(planTidyUp([], [MASTER], { kind: 'graph' })).toEqual({})

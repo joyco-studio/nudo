@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { asNodeId } from '@nudo-tsl/core'
 import type { NodeId, XY } from '@nudo-tsl/core'
 import { getViewportForBounds, useReactFlow, useStoreApi } from '@xyflow/react'
@@ -6,6 +6,7 @@ import type { InternalNode, Viewport } from '@xyflow/react'
 import { animate, useReducedMotion } from 'motion/react'
 import type { AnimationPlaybackControls } from 'motion/react'
 
+import { NEW_NODE_SIZE } from '@/features/add-node-menu/add-node-placement'
 import { isKeyboardModality } from '@/shared/lib/input-modality'
 import { DURATION_MS, EASE, toSeconds } from '@/shared/motion/tokens'
 import { useEditorStore } from '@/store/editor-store'
@@ -14,13 +15,12 @@ import { fitViewOptionsFor } from '../fit-view-options'
 import { measureCanvasArea } from '../measure-canvas-insets'
 import { COMMENT_NODE_TYPE } from '../to-flow'
 import type { FlowNode } from '../to-flow'
+import { boundsOf } from './bounds'
+import type { Bounds } from './bounds'
 import { planTidyUp } from './plan-tidy-up'
 import type { NodeGeometry, TidyPlan } from './plan-tidy-up'
 
 export type TidyTarget = 'graph' | 'selection'
-
-/** The room a node gets before React Flow has measured it. */
-const UNMEASURED_SIZE = { width: 224, height: 120 } as const
 
 const getStore = () => useEditorStore.getState()
 
@@ -40,8 +40,8 @@ function geometryOf(node: InternalNode<FlowNode>, position: XY): NodeGeometry {
   return {
     id: node.data.node.id,
     position,
-    width: node.measured.width ?? node.width ?? UNMEASURED_SIZE.width,
-    height: node.measured.height ?? node.height ?? UNMEASURED_SIZE.height,
+    width: node.measured.width ?? node.width ?? NEW_NODE_SIZE.width,
+    height: node.measured.height ?? node.height ?? NEW_NODE_SIZE.height,
     isFrame: node.type === COMMENT_NODE_TYPE,
     inputY: handleMiddles(handles?.target ?? null),
     outputY: handleMiddles(handles?.source ?? null),
@@ -72,25 +72,24 @@ function viewportAt(from: Viewport, to: Viewport, progress: number): Viewport {
   }
 }
 
-/** Where each planned node starts from: its place in the graph now. */
+/**
+ * Where each planned node starts from: where it shows now, a draft when a glide is under way,
+ * else its place in the graph.
+ */
 function startingPositions(plan: TidyPlan): TidyPlan {
-  const { nodes } = getStore().graph
+  const { graph, draftPositions } = getStore()
   return Object.fromEntries(
     Object.keys(plan).flatMap((key) => {
-      const position = nodes[asNodeId(key)]?.position
+      const id = asNodeId(key)
+      const position = draftPositions[id] ?? graph.nodes[id]?.position
       return position === undefined ? [] : [[key, position]]
     }),
   )
 }
 
 /** The bounds of every node once the plan has moved them, in flow units. */
-function boundsAfter(geometry: readonly NodeGeometry[], plan: TidyPlan) {
-  const boxes = geometry.map((item) => ({ ...item, position: plan[item.id] ?? item.position }))
-  const left = Math.min(...boxes.map((box) => box.position.x))
-  const top = Math.min(...boxes.map((box) => box.position.y))
-  const right = Math.max(...boxes.map((box) => box.position.x + box.width))
-  const bottom = Math.max(...boxes.map((box) => box.position.y + box.height))
-  return { x: left, y: top, width: right - left, height: bottom - top }
+function boundsAfter(geometry: readonly NodeGeometry[], plan: TidyPlan): Bounds {
+  return boundsOf(geometry.map((item) => ({ ...item, position: plan[item.id] ?? item.position })))
 }
 
 /**
@@ -103,7 +102,15 @@ export function useTidyUp(): (target: TidyTarget) => void {
   const { getNodes, getInternalNode, getViewport, setViewport } = useReactFlow<FlowNode>()
   const flowStore = useStoreApi<FlowNode>()
   const prefersReducedMotion = useReducedMotion() === true
-  const runningRef = useRef<AnimationPlaybackControls | null>(null)
+  /** Stops the glide under way, if any, and drops its drafts. */
+  const stopGlideRef = useRef<(() => void) | null>(null)
+
+  useEffect(
+    () => () => {
+      stopGlideRef.current?.()
+    },
+    [],
+  )
 
   const fittedViewport = useCallback(
     (geometry: readonly NodeGeometry[], plan: TidyPlan): Viewport => {
@@ -143,8 +150,9 @@ export function useTidyUp(): (target: TidyTarget) => void {
       )
       if (Object.keys(plan).length === 0) return
 
-      runningRef.current?.stop()
+      // Read before the running glide stops: a new glide starts from what is on screen.
       const start = startingPositions(plan)
+      stopGlideRef.current?.()
       const finalViewport = target === 'graph' ? fittedViewport(geometry, plan) : null
       store.commitMove(plan)
       if (prefersReducedMotion || isKeyboardModality(document)) {
@@ -153,21 +161,35 @@ export function useTidyUp(): (target: TidyTarget) => void {
       }
 
       // The graph already holds the result (one undo step); drafts only show the way there.
+      const tidied = getStore().graph
       const startViewport = getViewport()
       store.setDraftPositions(start)
-      runningRef.current = animate(0, 1, {
+      let controls: AnimationPlaybackControls | null = null
+      // motion can still deliver a frame it had queued when the glide stopped: ignore it.
+      let isStopped = false
+      // Undo, redo or any other change to the graph ends the glide where the graph now is.
+      const unsubscribe = useEditorStore.subscribe((state) => {
+        if (state.graph !== tidied) stopGlide()
+      })
+      const stopGlide = (): void => {
+        isStopped = true
+        controls?.stop()
+        unsubscribe()
+        stopGlideRef.current = null
+        getStore().setDraftPositions({})
+      }
+      stopGlideRef.current = stopGlide
+      controls = animate(0, 1, {
         duration: toSeconds(DURATION_MS.medium),
         ease: EASE.smoothOut,
         onUpdate: (progress) => {
+          if (isStopped) return
           getStore().setDraftPositions(positionsAt(start, plan, progress))
           if (finalViewport !== null) {
             void setViewport(viewportAt(startViewport, finalViewport, progress))
           }
         },
-        onComplete: () => {
-          runningRef.current = null
-          getStore().setDraftPositions({})
-        },
+        onComplete: stopGlide,
       })
     },
     [getNodes, getInternalNode, getViewport, setViewport, fittedViewport, prefersReducedMotion],

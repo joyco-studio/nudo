@@ -22,7 +22,7 @@ import type {
   ParamValue,
   XY,
 } from '@nudo-tsl/core'
-import { rerouteNode } from '@nudo-tsl/nodes'
+import { REROUTE_INPUT_ID, REROUTE_OUTPUT_ID, rerouteNode } from '@nudo-tsl/nodes'
 import { createEdgeId, createNodeId } from './ids'
 import { registry } from './registry'
 import type { EditorSliceCreator, GraphSlice, NodeFrame, Notice } from './store-types'
@@ -159,8 +159,8 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     const result = splitEdge(get().graph, registry, {
       edgeId,
       node: { id, type: rerouteNode.type, position },
-      inputPortId: 'in',
-      outputPortId: 'out',
+      inputPortId: REROUTE_INPUT_ID,
+      outputPortId: REROUTE_OUTPUT_ID,
       edgeIds: [createEdgeId(), createEdgeId()],
     })
     if (!result.ok) {

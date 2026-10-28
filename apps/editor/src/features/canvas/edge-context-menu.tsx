@@ -19,6 +19,8 @@ interface EdgeContextMenuProps {
   edgeId: string
   /** The middle of the connection's curve, in flow units: where an inserted reroute goes. */
   midpoint: XY
+  /** False for a value a reroute can't carry (a texture): the menu leaves the item out. */
+  canInsertReroute: boolean
   /** The edge's group of paths: the element a right-click opens the menu on. */
   children: ReactElement
 }
@@ -27,7 +29,12 @@ interface EdgeContextMenuProps {
  * A connection's right-click menu (also the ContextMenu key or Shift+F10 on a focused edge): insert
  * a reroute (the keyboard's way to do what a double click does) or delete it.
  */
-export function EdgeContextMenu({ edgeId, midpoint, children }: EdgeContextMenuProps) {
+export function EdgeContextMenu({
+  edgeId,
+  midpoint,
+  canInsertReroute,
+  children,
+}: EdgeContextMenuProps) {
   const { deleteEdge, insertRerouteAt } = useGraphCanvasActions()
   const menu = useCanvasMenu()
 
@@ -41,16 +48,20 @@ export function EdgeContextMenu({ edgeId, midpoint, children }: EdgeContextMenuP
         {children}
       </ContextMenuTrigger>
       <CanvasMenuContent onCloseAutoFocus={menu.onCloseAutoFocus}>
-        <ContextMenuItem
-          onSelect={() => {
-            menu.runAfterClose(() => {
-              insertRerouteAt(asEdgeId(edgeId), midpoint)
-            })
-          }}
-        >
-          Insert reroute
-        </ContextMenuItem>
-        <ContextMenuSeparator />
+        {canInsertReroute && (
+          <>
+            <ContextMenuItem
+              onSelect={() => {
+                menu.runAfterClose(() => {
+                  insertRerouteAt(asEdgeId(edgeId), midpoint)
+                })
+              }}
+            >
+              Insert reroute
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+          </>
+        )}
         <ContextMenuItem
           variant="destructive"
           onSelect={() => {

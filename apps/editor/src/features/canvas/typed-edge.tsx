@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { CHAIN_DIMMED_CLASS } from './chain-highlight'
 import { describeConversion } from './describe-conversion'
 import { EdgeContextMenu } from './edge-context-menu'
+import { canReroute } from './reroute'
 import { useEdgeKeyboardFocus } from './use-edge-keyboard-focus'
 import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 
@@ -95,7 +96,11 @@ function TypedEdgeComponent({
   const isKeyboardFocused = useEdgeKeyboardFocus(groupRef)
 
   return (
-    <EdgeContextMenu edgeId={id} midpoint={{ x: labelX, y: labelY }}>
+    <EdgeContextMenu
+      edgeId={id}
+      midpoint={{ x: labelX, y: labelY }}
+      canInsertReroute={data !== undefined && canReroute(data.sourceType)}
+    >
       <g ref={groupRef}>
         {selected === true && (
           <>

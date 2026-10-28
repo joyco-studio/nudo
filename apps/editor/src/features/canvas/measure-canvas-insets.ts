@@ -3,7 +3,7 @@ import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { NO_INSETS, insetsFor } from './viewport-insets'
 import type { Insets, ScreenRect } from './viewport-insets'
 
-/** Marks chrome that floats over the canvas (the header, the panels): the view keeps clear of it. */
+/** Marks chrome floating over the canvas (the header, the panels): the view keeps clear of it. */
 export const CANVAS_OVERLAY_ATTRIBUTE = 'data-canvas-overlay'
 export const CANVAS_OVERLAY_PROPS = { [CANVAS_OVERLAY_ATTRIBUTE]: '' }
 

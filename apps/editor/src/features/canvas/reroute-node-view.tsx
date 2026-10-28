@@ -10,12 +10,6 @@ import { inputExplanation, nodeAccessibleDescription, outputExplanation } from '
 import { nodeDescriptionId } from './to-flow'
 import type { FlowNode } from './to-flow'
 
-/**
- * The reroute's box, in flow units (Tailwind `w-10 h-6`): its two ports sit on its ends, a 24px
- * target each, leaving the knot in the middle free to grab and drag.
- */
-export const REROUTE_SIZE = { width: 40, height: 24 } as const
-
 /** Selection around the round knot: primary, with a foreground ring outside it in dark. */
 const SELECTED_KNOT_CLASS =
   'shadow-[0_0_0_2px_var(--primary)] dark:shadow-[0_0_0_2px_var(--primary),0_0_0_3px_var(--foreground)]'

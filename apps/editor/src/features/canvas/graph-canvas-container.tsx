@@ -30,7 +30,7 @@ import type { GraphCanvasActions } from './graph-canvas-actions'
 import { NodeFieldActionsContext } from './node-field-actions'
 import { storeFieldActions } from './store-field-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
-import { REROUTE_SIZE } from './reroute-node-view'
+import { REROUTE_SIZE, canReroute } from './reroute'
 import { COMMENT_NODE_TYPE, COMMENT_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
@@ -174,6 +174,8 @@ export function GraphCanvasContainer() {
 
   const onEdgeDoubleClick = useCallback<EdgeMouseHandler<FlowEdge>>(
     (event, edge) => {
+      // A texture can't run through a reroute: the double click does nothing there.
+      if (edge.data !== undefined && !canReroute(edge.data.sourceType)) return
       insertRerouteAt(
         asEdgeId(edge.id),
         screenToFlowPosition({ x: event.clientX, y: event.clientY }),
