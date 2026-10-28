@@ -51,6 +51,7 @@ import { depthFadeNode } from './scene/depth-fade-node'
 import { sceneColorNode } from './scene/scene-color-node'
 import { sampleTexture2dNode } from './texture/sample-texture-2d-node'
 import { commentNode } from './utility/comment-node'
+import { rerouteNode } from './utility/reroute-node'
 import { combineNode } from './vector/combine-node'
 import { dotNode } from './vector/dot-node'
 import { lengthNode } from './vector/length-node'
@@ -124,6 +125,7 @@ export const PHASE_2_CATALOG_B: readonly AnyNodeDefinition[] = [
   depthFadeNode,
   normalFromHeightNode,
   commentNode,
+  rerouteNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

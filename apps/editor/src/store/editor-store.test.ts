@@ -462,3 +462,42 @@ describe('compile errors', () => {
     expect(getState().errorsByNode).toEqual({})
   })
 })
+
+describe('insertReroute', () => {
+  function connectedFloat(): { nodeId: NodeId; edgeId: string } {
+    const nodeId = addNodeOrFail(FLOAT_NODE)
+    getState().connect({ nodeId, portId: 'out' }, { nodeId: MASTER_NODE_ID, portId: 'roughness' })
+    const [edgeId] = Object.keys(getState().graph.edges)
+    if (edgeId === undefined) throw new Error('No edge was made')
+    return { nodeId, edgeId }
+  }
+
+  it('splits the connection around a selected reroute, as one history entry', () => {
+    const { nodeId, edgeId } = connectedFloat()
+    const before = historyLength()
+
+    const rerouteId = getState().insertReroute(asEdgeId(edgeId), { x: 40, y: 50 })
+
+    expect(rerouteId).not.toBeNull()
+    const { graph } = getState()
+    expect(rerouteId === null ? undefined : graph.nodes[rerouteId]).toMatchObject({
+      type: 'utility/reroute',
+      position: { x: 40, y: 50 },
+    })
+    expect(Object.values(graph.edges).map((edge) => [edge.from.nodeId, edge.to.nodeId])).toEqual([
+      [nodeId, rerouteId],
+      [rerouteId, MASTER_NODE_ID],
+    ])
+    expect(getState().selectedNodeIds).toEqual([rerouteId])
+    expect(historyLength()).toBe(before + 1)
+  })
+
+  it('leaves the graph alone and tells why when the connection is gone', () => {
+    connectedFloat()
+    const graph = getState().graph
+
+    expect(getState().insertReroute(asEdgeId('missing'), ORIGIN)).toBeNull()
+    expect(getState().graph).toBe(graph)
+    expect(getState().notice).toEqual({ kind: 'error', messageKey: 'notice.rerouteFailed' })
+  })
+})

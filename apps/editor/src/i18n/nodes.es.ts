@@ -916,4 +916,22 @@ export const NODES_ES: NodeTranslations = {
     description: 'Una nota redimensionable en el lienzo. No afecta al shader.',
     keywords: ['comentario', 'nota', 'anotación', 'etiqueta', 'grupo', 'marco'],
   },
+  'utility/reroute': {
+    label: 'Reroute',
+    description: 'Un punto que desvía una conexión. Deja pasar su valor sin cambios.',
+    formula: 'Entrada',
+    keywords: ['reroute', 'punto', 'nudo', 'codo', 'desviar', 'cable', 'pasar'],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description: 'El valor que lleva la conexión, de cualquier tipo vectorial.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description: 'El mismo valor, sin cambios, hacia donde siga la conexión.',
+      },
+    },
+  },
 }

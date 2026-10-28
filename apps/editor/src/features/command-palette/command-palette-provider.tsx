@@ -4,9 +4,10 @@ import type { NodeId } from '@nudo-tsl/core'
 import { useReactFlow } from '@xyflow/react'
 
 import { useAddNodeAt, useOpenAddNodeMenu } from '@/features/add-node-menu/add-node-menu-context'
-import { fitViewOptionsFor } from '@/features/canvas/fit-view-options'
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
 import type { FlowNode } from '@/features/canvas/to-flow'
+import { useTidyUp } from '@/features/canvas/tidy-up/use-tidy-up'
+import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
 import { useRequestNewGraph } from '@/features/new-graph/new-graph-context'
 import { useOpenShortcutsDialog } from '@/features/shortcuts/shortcuts-dialog-context'
 import type { Locale } from '@/i18n/locale'
@@ -37,7 +38,9 @@ export function CommandPaletteProvider({
   setLocale,
   children,
 }: CommandPaletteProviderProps) {
-  const { fitView, getNode, getZoom, setCenter } = useReactFlow<FlowNode>()
+  const { getNode } = useReactFlow<FlowNode>()
+  const view = usePanelAwareView()
+  const tidyUp = useTidyUp()
   const openShortcutsDialog = useOpenShortcutsDialog()
   const requestNewGraph = useRequestNewGraph()
   const openAddNodeMenu = useOpenAddNodeMenu()
@@ -47,9 +50,9 @@ export function CommandPaletteProvider({
 
   const services = useMemo<CommandServices>(
     () => ({
-      fitView: () => {
-        void fitView(fitViewOptionsFor(window.innerWidth))
-      },
+      fitView: view.fitAll,
+      frameNodes: view.frameNodes,
+      tidyUp,
       toggleTheme,
       setLocale,
       openShortcutsDialog,
@@ -59,7 +62,8 @@ export function CommandPaletteProvider({
       openCommandPalette,
     }),
     [
-      fitView,
+      view,
+      tidyUp,
       toggleTheme,
       setLocale,
       openShortcutsDialog,
@@ -77,21 +81,22 @@ export function CommandPaletteProvider({
     [services],
   )
 
-  /** Brings a node to the middle of the view at the current zoom, selects it and focuses it. */
+  /**
+   * Brings a node to the middle of the canvas the panels leave uncovered, at the current zoom,
+   * selects it and focuses it.
+   */
   const revealNode = useCallback(
     (nodeId: NodeId) => {
       const node = getNode(nodeId)
       if (node !== undefined) {
         const width = node.measured?.width ?? 0
         const height = node.measured?.height ?? 0
-        void setCenter(node.position.x + width / 2, node.position.y + height / 2, {
-          zoom: getZoom(),
-        })
+        view.centerOn({ x: node.position.x + width / 2, y: node.position.y + height / 2 })
       }
       useEditorStore.getState().setSelection([nodeId])
       focusFlowNode(nodeId)
     },
-    [getNode, getZoom, setCenter],
+    [getNode, view],
   )
 
   const runItem = useCallback(

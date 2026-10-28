@@ -3,18 +3,20 @@ import type { Conversion } from '@nudo-tsl/core'
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react'
 import type { EdgeProps } from '@xyflow/react'
 
+import { cn } from '@/shared/lib/utils'
 import { PORT_COLORS, PORT_LABELS } from '@/shared/theme/port-colors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useT } from '@/i18n/use-t'
 
+import { CHAIN_DIMMED_CLASS } from './chain-highlight'
 import { describeConversion } from './describe-conversion'
 import { EdgeContextMenu } from './edge-context-menu'
+import { canReroute } from './reroute'
 import { useEdgeKeyboardFocus } from './use-edge-keyboard-focus'
 import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 
 import type { FlowEdge } from './to-flow'
 
-const EDGE_WIDTH = 2
 const SELECTED_HALO_WIDTH = 6
 /** The dark theme's foreground outline: 1px beyond the halo on each side. */
 const SELECTED_OUTLINE_WIDTH = 2
@@ -26,13 +28,21 @@ interface ConversionMarkerProps {
   y: number
   /** The edge has keyboard focus: the explanation shows without a hover. */
   isEdgeFocused: boolean
+  /** The edge is outside the selected node's chain: the marker dims with it. */
+  isChainDimmed: boolean
 }
 
 /**
  * The `1→3` badge at the middle of an edge whose value is converted on the way in. Its tooltip says
  * what happens to the value; the edge's accessible name carries the same sentence.
  */
-function ConversionMarker({ conversion, x, y, isEdgeFocused }: ConversionMarkerProps) {
+function ConversionMarker({
+  conversion,
+  x,
+  y,
+  isEdgeFocused,
+  isChainDimmed,
+}: ConversionMarkerProps) {
   const t = useT()
   const description = describeConversion(conversion, t)
   const tooltipOpen = useForcedTooltipOpen(isEdgeFocused ? true : null)
@@ -43,7 +53,10 @@ function ConversionMarker({ conversion, x, y, isEdgeFocused }: ConversionMarkerP
           <span
             role="img"
             aria-label={description}
-            className="typed-edge-marker nodrag nopan absolute flex h-4 items-center border bg-background px-1 font-mono text-micro leading-none text-muted-foreground"
+            className={cn(
+              'typed-edge-marker nodrag nopan absolute flex h-4 items-center border bg-background px-1 font-mono text-micro leading-none text-muted-foreground',
+              isChainDimmed && CHAIN_DIMMED_CLASS,
+            )}
             style={{ transform: `translate(-50%, -50%) translate(${String(x)}px, ${String(y)}px)` }}
           >
             {PORT_LABELS[conversion.from]}→{PORT_LABELS[conversion.to]}
@@ -85,7 +98,11 @@ function TypedEdgeComponent({
   const isKeyboardFocused = useEdgeKeyboardFocus(groupRef)
 
   return (
-    <EdgeContextMenu edgeId={id}>
+    <EdgeContextMenu
+      edgeId={id}
+      midpoint={{ x: labelX, y: labelY }}
+      canInsertReroute={data !== undefined && canReroute(data.sourceType)}
+    >
       <g ref={groupRef}>
         {selected === true && (
           <>
@@ -110,7 +127,8 @@ function TypedEdgeComponent({
           id={id}
           path={path}
           className="typed-edge"
-          style={{ stroke, strokeWidth: EDGE_WIDTH }}
+          // Its width comes from graph-canvas.css, so focus and the chain highlight can change it.
+          style={{ stroke }}
         />
         {data?.conversion != null && (
           <ConversionMarker
@@ -118,6 +136,7 @@ function TypedEdgeComponent({
             x={labelX}
             y={labelY}
             isEdgeFocused={isKeyboardFocused}
+            isChainDimmed={data.isChainDimmed === true}
           />
         )}
       </g>

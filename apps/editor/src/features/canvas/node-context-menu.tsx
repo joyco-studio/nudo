@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react'
 import { MASTER_NODE_ID, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
+import type { NodeId } from '@nudo-tsl/core'
+import { rerouteNode } from '@nudo-tsl/nodes'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
+import { MIN_TIDY_SELECTION } from '@/features/command-palette/command-registry'
 import {
   PREVIEW_MODE_PARAM,
   SHOW_PREVIEW_PARAM,
@@ -24,6 +27,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu'
+import { useEditorStore } from '@/store/editor-store'
 
 import { CanvasMenuContent } from './canvas-menu-content'
 import { CommandMenuLabel } from './command-menu-label'
@@ -34,6 +38,7 @@ import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-con
 import { COMMENT_TYPE } from './to-flow'
 import type { FlowNodeData } from './to-flow'
 import { useCanvasMenu } from './use-canvas-menu'
+import type { CanvasMenu } from './use-canvas-menu'
 
 /** Auto / 2D / 3D, read from the universal param so the menu and the graph never disagree. */
 const PREVIEW_MODE = UNIVERSAL_PARAMS.find((param) => param.id === PREVIEW_MODE_PARAM)
@@ -71,12 +76,36 @@ function nodeMenuModel(data: FlowNodeData): NodeMenuModel {
   const { node, definition } = data
   const isComment = node.type === COMMENT_TYPE
   const isPill = definition.reads === 'property'
+  const isReroute = node.type === rerouteNode.type
   const hasPorts = definition.inputs.length + definition.outputs.length > 0
+  // Comments, property pills and reroutes have no port list to fold.
+  const isCard = !isComment && !isPill && !isReroute
   return {
     canCopyOrRemove: node.id !== MASTER_NODE_ID,
-    canTogglePorts: !isComment && !isPill && hasPorts,
+    canTogglePorts: isCard && hasPorts,
     hasPreview: hasNodePreview(node, definition),
   }
+}
+
+/**
+ * "Tidy up selection", while the selection holds this node and something else to arrange. Read
+ * only while the menu is open, so selecting nodes never re-renders every node's menu.
+ */
+function TidySelectionItem({ nodeId, menu }: { nodeId: NodeId; menu: CanvasMenu }) {
+  const runCommand = useRunCommand()
+  const selected = useEditorStore((state) => state.selectedNodeIds)
+  if (!selected.includes(nodeId) || selected.length < MIN_TIDY_SELECTION) return null
+  return (
+    <ContextMenuItem
+      onSelect={() => {
+        menu.runAfterClose(() => {
+          runCommand('tidy-up-selection', { opener: null, nodeId })
+        })
+      }}
+    >
+      <CommandMenuLabel commandId="tidy-up-selection" />
+    </ContextMenuItem>
+  )
 }
 
 interface NodeContextMenuProps {
@@ -138,6 +167,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
             </ContextMenuItem>
           </>
         )}
+        <TidySelectionItem nodeId={node.id} menu={menu} />
         {model.canTogglePorts && (
           <ContextMenuItem
             onSelect={() => {

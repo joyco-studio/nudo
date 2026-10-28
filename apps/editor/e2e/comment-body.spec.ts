@@ -140,7 +140,9 @@ test.describe('comment body text', () => {
       const positionBefore = await frame(page).boundingBox()
       const bodyBox = await boxOf(body)
 
-      await dragBy(page, { x: bodyBox.x + 12, y: bodyBox.y + 12 }, DRAG_DISTANCE_PX)
+      // Start inside the first word: at 100% zoom, Chromium drops the anchor of a drag that
+      // starts on the boundary between the first two glyphs (12px in).
+      await dragBy(page, { x: bodyBox.x + 24, y: bodyBox.y + 12 }, DRAG_DISTANCE_PX)
 
       expect(await frame(page).boundingBox()).toEqual(positionBefore)
       const selected = await body.evaluate((element) =>

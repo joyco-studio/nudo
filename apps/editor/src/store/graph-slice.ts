@@ -11,6 +11,7 @@ import {
   removeNodes,
   setInputValue,
   setParam,
+  splitEdge,
 } from '@nudo-tsl/core'
 import type {
   ConnectionRejection,
@@ -21,6 +22,7 @@ import type {
   ParamValue,
   XY,
 } from '@nudo-tsl/core'
+import { REROUTE_INPUT_ID, REROUTE_OUTPUT_ID, rerouteNode } from '@nudo-tsl/nodes'
 import { createEdgeId, createNodeId } from './ids'
 import { registry } from './registry'
 import type { EditorSliceCreator, GraphSlice, NodeFrame, Notice } from './store-types'
@@ -28,6 +30,8 @@ import type { EditorSliceCreator, GraphSlice, NodeFrame, Notice } from './store-
 const MASTER_DELETE_NOTICE: Notice = { kind: 'info', messageKey: 'notice.masterDelete' }
 const DROPPED_READERS_NOTICE: Notice = { kind: 'info', messageKey: 'notice.droppedReaders' }
 const CONNECT_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.connectFailed' }
+
+const REROUTE_FAILED_NOTICE: Notice = { kind: 'error', messageKey: 'notice.rerouteFailed' }
 
 /** Core `connect` re-checks the connection, so a failure here is almost always a rejection. */
 function rejectionReason(error: GraphError): ConnectionRejection {
@@ -143,6 +147,23 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     }
     set({ graph: result.value })
     return check
+  },
+
+  insertReroute: (edgeId, position) => {
+    const id = createNodeId()
+    const result = splitEdge(get().graph, registry, {
+      edgeId,
+      node: { id, type: rerouteNode.type, position },
+      inputPortId: REROUTE_INPUT_ID,
+      outputPortId: REROUTE_OUTPUT_ID,
+      edgeIds: [createEdgeId(), createEdgeId()],
+    })
+    if (!result.ok) {
+      set({ notice: REROUTE_FAILED_NOTICE })
+      return null
+    }
+    set({ graph: result.value, selectedNodeIds: [id] })
+    return id
   },
 
   disconnect: (edgeIds) => {

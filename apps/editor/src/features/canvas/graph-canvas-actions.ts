@@ -1,5 +1,5 @@
 import { createContext, use } from 'react'
-import type { EdgeId, PortRef } from '@nudo-tsl/core'
+import type { EdgeId, PortRef, XY } from '@nudo-tsl/core'
 
 import type { ConnectCandidate, ConnectOrigin } from './connect-candidates'
 import type { NodeFieldActions } from './node-field-actions'
@@ -18,6 +18,8 @@ export interface GraphCanvasActions extends NodeFieldActions {
   /** Removes every edge attached to the origin port. */
   disconnectPort: (origin: ConnectOrigin) => void
   deleteEdge: (edgeId: EdgeId) => void
+  /** Splits a connection around a new reroute centered on a flow point, then focuses it. */
+  insertRerouteAt: (edgeId: EdgeId, center: XY) => void
   /** Pastes nudo-tsl nodes from the clipboard with their top-left corner at a screen point. */
   pasteAt: (clientPoint: ClientPoint) => void
   addCommentAt: (clientPoint: ClientPoint) => void

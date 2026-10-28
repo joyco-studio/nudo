@@ -10,6 +10,7 @@ import {
   PanelRightOpen,
 } from 'lucide-react'
 
+import { CANVAS_OVERLAY_PROPS } from '@/features/canvas/measure-canvas-insets'
 import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { cn } from '@/shared/lib/utils'
@@ -124,6 +125,8 @@ export function PanelFrame({
         hidden={isHidden}
         data-panel={panel}
         data-open={isOpen}
+        // Fit view and new nodes keep clear of the panel when it floats over the canvas.
+        {...CANVAS_OVERLAY_PROPS}
         className={cn('flex min-h-0 flex-col border bg-background/85 backdrop-blur-md', className)}
         style={style}
       >

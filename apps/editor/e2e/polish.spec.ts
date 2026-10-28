@@ -299,6 +299,7 @@ test.describe('context menus', () => {
       'Add comment',
       /^Select all/,
       /^Fit view/,
+      /^Tidy up graph/,
     ])
     await menu.getByRole('menuitem', { name: 'Add comment' }).click()
     await expect

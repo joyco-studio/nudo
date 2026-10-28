@@ -59,6 +59,7 @@ const CATALOG_B_TYPES = [
   'scene/depth-fade',
   'normal/normal-from-height',
   'utility/comment',
+  'utility/reroute',
 ]
 
 const buildWith = (

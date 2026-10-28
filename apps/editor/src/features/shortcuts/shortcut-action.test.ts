@@ -41,6 +41,14 @@ describe('globalShortcutAction', () => {
     expect(globalShortcutAction(press('?', { shiftKey: true }))).toBe('show-shortcuts')
   })
 
+  it('tidies up with Shift+T, and leaves a plain T alone', () => {
+    expect(globalShortcutAction(press('T', { shiftKey: true }))).toBe('tidy-up')
+    expect(globalShortcutAction(press('t'))).toBeNull()
+    expect(globalShortcutAction(press('T', { shiftKey: true, ctrlKey: true }))).toBeNull()
+    expect(globalShortcutAction(press('T', { shiftKey: true, altKey: true }))).toBeNull()
+    expect(globalShortcutAction(press('T', { shiftKey: true, repeat: true }))).toBeNull()
+  })
+
   it('leaves F and ? alone when Ctrl, Cmd or Alt is held', () => {
     expect(globalShortcutAction(press('f', { ctrlKey: true }))).toBeNull()
     expect(globalShortcutAction(press('f', { metaKey: true }))).toBeNull()

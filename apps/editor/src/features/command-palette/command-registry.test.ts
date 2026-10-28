@@ -111,6 +111,8 @@ describe('command registry', () => {
 
 const NO_SERVICES: CommandServices = {
   fitView: () => undefined,
+  frameNodes: () => undefined,
+  tidyUp: () => undefined,
   toggleTheme: () => undefined,
   setLocale: () => undefined,
   openShortcutsDialog: () => undefined,

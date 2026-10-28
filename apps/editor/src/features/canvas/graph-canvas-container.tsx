@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { DragEvent } from 'react'
-import { asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
-import type { PortRef } from '@nudo-tsl/core'
+import { asEdgeId, asNodeId, checkConnection, resolvePortTypes } from '@nudo-tsl/core'
+import type { EdgeId, PortRef, XY } from '@nudo-tsl/core'
 import type {
   Dimensions,
+  EdgeMouseHandler,
   IsValidConnection,
   OnConnect,
   OnDelete,
@@ -22,6 +23,7 @@ import { registry } from '@/store/registry'
 import { useNodeRegistry } from '@/i18n/use-node-registry'
 import { useT } from '@/i18n/use-t'
 
+import { CHAIN_DIMMED_CLASS, chainClassOf, selectionChain } from './chain-highlight'
 import { listConnectCandidates, edgesAttachedTo } from './connect-candidates'
 import { focusFlowNode } from './focus-flow-node'
 import { GraphCanvas } from './graph-canvas'
@@ -30,7 +32,8 @@ import type { GraphCanvasActions } from './graph-canvas-actions'
 import { NodeFieldActionsContext } from './node-field-actions'
 import { storeFieldActions } from './store-field-actions'
 import { interpretEdgeChanges, interpretNodeChanges, planDeletion } from './interpret-flow-changes'
-import { COMMENT_TYPE, toFlow } from './to-flow'
+import { REROUTE_SIZE, canReroute } from './reroute'
+import { COMMENT_NODE_TYPE, COMMENT_TYPE, toFlow } from './to-flow'
 import { useCanvasKeyboard } from './use-canvas-keyboard'
 import type { FlowEdge, FlowNode } from './to-flow'
 
@@ -52,6 +55,13 @@ function toPortRefs(connection: FlowConnection): { from: PortRef; to: PortRef } 
 }
 
 const getStore = () => useEditorStore.getState()
+
+/** Adds a reroute centered on a flow point, splitting the connection, and focuses it. */
+function insertRerouteAt(edgeId: EdgeId, center: XY): void {
+  const position = { x: center.x - REROUTE_SIZE.width / 2, y: center.y - REROUTE_SIZE.height / 2 }
+  const nodeId = getStore().insertReroute(edgeId, position)
+  if (nodeId !== null) focusFlowNode(nodeId)
+}
 
 function withoutKeys<T>(record: Readonly<Record<string, T>>, keys: readonly string[]) {
   return Object.fromEntries(Object.entries(record).filter(([key]) => !keys.includes(key)))
@@ -83,6 +93,12 @@ export function GraphCanvasContainer() {
   const t = useT()
 
   const types = useMemo(() => resolvePortTypes(graph, registry), [graph])
+  // A node being dragged (or nudged, or tidied into place) shows no chain: it would flicker.
+  const isMoving = Object.keys(draftPositions).length > 0
+  const chain = useMemo(
+    () => (isMoving ? null : selectionChain(graph, selectedNodeIds)),
+    [graph, selectedNodeIds, isMoving],
+  )
   const flow = useMemo(
     () => toFlow(graph, nodeRegistry, types, draftPositions, errorsByNode, selectedNodeIds, t),
     [graph, nodeRegistry, types, draftPositions, errorsByNode, selectedNodeIds, t],
@@ -93,16 +109,31 @@ export function GraphCanvasContainer() {
         const size = measured[node.id]
         const draftSize = draftSizes[node.id]
         const sized = draftSize === undefined ? node : { ...node, ...draftSize }
-        return size === undefined ? sized : { ...sized, measured: size }
+        // Comment frames sit behind everything and are never dimmed.
+        const className =
+          node.type === COMMENT_NODE_TYPE ? undefined : chainClassOf(chain, 'node', node.id)
+        const highlighted = className === undefined ? sized : { ...sized, className }
+        return size === undefined ? highlighted : { ...highlighted, measured: size }
       }),
-    [flow.nodes, measured, draftSizes],
+    [flow.nodes, measured, draftSizes, chain],
   )
   const edges = useMemo(
     () =>
-      flow.edges.map((edge) =>
-        selectedEdgeIds.includes(edge.id) ? { ...edge, selected: true } : edge,
-      ),
-    [flow.edges, selectedEdgeIds],
+      flow.edges.map((edge) => {
+        const className = chainClassOf(chain, 'edge', edge.id)
+        const isChainDimmed = className === CHAIN_DIMMED_CLASS
+        const highlighted =
+          className === undefined
+            ? edge
+            : {
+                ...edge,
+                className,
+                // The conversion marker lives in another layer: it reads the dim from the data.
+                ...(edge.data === undefined ? {} : { data: { ...edge.data, isChainDimmed } }),
+              }
+        return selectedEdgeIds.includes(edge.id) ? { ...highlighted, selected: true } : highlighted
+      }),
+    [flow.edges, selectedEdgeIds, chain],
   )
 
   const onNodesChange = useCallback<OnNodesChange<FlowNode>>((changes) => {
@@ -146,6 +177,18 @@ export function GraphCanvasContainer() {
   const openAddNodeMenu = useOpenAddNodeMenu()
   const { screenToFlowPosition } = useReactFlow<FlowNode, FlowEdge>()
 
+  const onEdgeDoubleClick = useCallback<EdgeMouseHandler<FlowEdge>>(
+    (event, edge) => {
+      // A texture can't run through a reroute: the double click does nothing there.
+      if (edge.data !== undefined && !canReroute(edge.data.sourceType)) return
+      insertRerouteAt(
+        asEdgeId(edge.id),
+        screenToFlowPosition({ x: event.clientX, y: event.clientY }),
+      )
+    },
+    [screenToFlowPosition],
+  )
+
   useCanvasKeyboard(selectedEdgeIds)
 
   const onDragOver = useCallback((event: DragEvent) => {
@@ -181,6 +224,7 @@ export function GraphCanvasContainer() {
         getStore().removeSelection([], [edgeId])
         focusOpenerOrCanvas(null)
       },
+      insertRerouteAt,
       pasteAt: (point) => {
         void pasteFromClipboard(screenToFlowPosition({ x: point.clientX, y: point.clientY }))
       },
@@ -210,6 +254,7 @@ export function GraphCanvasContainer() {
           onConnect={onConnect}
           onDelete={onDelete}
           isValidConnection={isValidConnection}
+          onEdgeDoubleClick={onEdgeDoubleClick}
           onDragOver={onDragOver}
           onDrop={onDrop}
         />

@@ -9,19 +9,8 @@ export type PlacementOrigin =
   | { readonly kind: 'beside-node'; readonly nodeId: NodeId }
   | { readonly kind: 'viewport-center' }
 
-export interface ClientRect {
-  readonly left: number
-  readonly top: number
-  readonly width: number
-  readonly height: number
-}
-
 export function besideNode(position: XY): XY {
   return { x: position.x + BESIDE_NODE_OFFSET_X, y: position.y }
-}
-
-export function rectCenter(rect: ClientRect): XY {
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
 }
 
 export interface FlowRect {

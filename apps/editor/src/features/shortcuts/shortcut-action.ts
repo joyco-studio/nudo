@@ -6,6 +6,7 @@ export const GLOBAL_SHORTCUT_ACTIONS = [
   'paste',
   'select-all',
   'fit-view',
+  'tidy-up',
   'show-shortcuts',
   'new-graph',
 ] as const
@@ -57,9 +58,12 @@ function commandShortcutAction(press: ShortcutPress): GlobalShortcutAction | nul
   return COMMAND_ACTIONS[key] ?? null
 }
 
+/** Keys without Ctrl or Cmd: F (with or without Shift) fits the view, Shift+T tidies up. */
 function plainShortcutAction(press: ShortcutPress): GlobalShortcutAction | null {
   if (press.key === '?') return 'show-shortcuts'
-  return press.key.toLowerCase() === 'f' ? 'fit-view' : null
+  const key = press.key.toLowerCase()
+  if (key === 'f') return 'fit-view'
+  return key === 't' && press.shiftKey ? 'tidy-up' : null
 }
 
 /**

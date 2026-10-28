@@ -16,7 +16,7 @@ import {
 import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import { registry } from '../../store/registry'
-import { COMMENT_NODE_TYPE, nodeDescriptionId, toFlow } from './to-flow'
+import { COMMENT_NODE_TYPE, REROUTE_NODE_TYPE, nodeDescriptionId, toFlow } from './to-flow'
 
 const COLOR_ID = asNodeId('color')
 const TIME_ID = asNodeId('time')
@@ -191,6 +191,14 @@ describe('toFlow titles and frames', () => {
     expect(comment?.width).toBe(400)
     expect(comment?.height).toBe(200)
     expect(comment?.zIndex).toBeLessThan(-1000)
+  })
+
+  it('draws a reroute with its own small view, titled Reroute', () => {
+    const graph = withNode(createGraph(), asNodeId('dot'), 'utility/reroute')
+    const reroute = flowFor(graph).nodes.find((node) => node.id === 'dot')
+
+    expect(reroute?.type).toBe(REROUTE_NODE_TYPE)
+    expect(reroute?.ariaLabel).toBe('Reroute')
   })
 
   it('titles a property reader by its property label', () => {

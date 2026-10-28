@@ -37,10 +37,16 @@ export type CommandId =
   | 'cycle-preview-layout'
   | 'toggle-theme'
   | 'open-command-palette'
+  | 'tidy-up-selection'
+  | 'frame-selection'
 
 /** What commands need from the React tree: the view, the theme, the language and the dialogs. */
 export interface CommandServices {
   fitView: () => void
+  /** Fits the given nodes into the view, clear of the panels. */
+  frameNodes: (nodeIds: readonly NodeId[]) => void
+  /** Lays the whole graph, or the selected nodes, out left to right (one history entry). */
+  tidyUp: (target: 'graph' | 'selection') => void
   toggleTheme: () => void
   setLocale: (locale: Locale) => void
   openShortcutsDialog: (opener: HTMLElement | null) => void
@@ -110,6 +116,9 @@ function hasRemovableTargets(nodeId: NodeId | null): boolean {
 export function placementNear(nodeId: NodeId | null): PlacementOrigin {
   return nodeId === null ? { kind: 'viewport-center' } : { kind: 'beside-node', nodeId }
 }
+
+/** Tidying up a selection needs something to arrange: at least two nodes. */
+export const MIN_TIDY_SELECTION = 2
 
 function panelCommand(panel: PanelId): Command {
   return {
@@ -182,6 +191,26 @@ const ACTION_COMMANDS: readonly Command[] = [
     },
   },
   {
+    id: 'tidy-up',
+    group: 'actions',
+    menuLabel: 'command.tidy-up.menu',
+    shortcut: [['Shift', 'T']],
+    isAvailable: () => Object.keys(getStore().graph.nodes).length > 1,
+    run: ({ services }) => {
+      services.tidyUp('graph')
+    },
+  },
+  {
+    id: 'tidy-up-selection',
+    group: 'actions',
+    menuLabel: 'command.tidy-up-selection.menu',
+    shortcut: [],
+    isAvailable: () => getStore().selectedNodeIds.length >= MIN_TIDY_SELECTION,
+    run: ({ services }) => {
+      services.tidyUp('selection')
+    },
+  },
+  {
     id: 'copy',
     group: 'actions',
     menuLabel: 'command.copy.menu',
@@ -248,6 +277,17 @@ const VIEW_COMMANDS: readonly Command[] = [
     shortcut: [['F']],
     run: ({ services }) => {
       services.fitView()
+    },
+  },
+  {
+    id: 'frame-selection',
+    group: 'view',
+    menuLabel: 'command.frame-selection.menu',
+    shortcut: [],
+    isAvailable: (nodeId) => nodeTargets(nodeId).length > 0,
+    run: ({ nodeId, services }) => {
+      const targets = nodeTargets(nodeId)
+      if (targets.length > 0) services.frameNodes(targets)
     },
   },
   panelCommand('blackboard'),

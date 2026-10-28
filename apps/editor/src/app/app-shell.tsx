@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Moon, Sun } from 'lucide-react'
 
+import { CANVAS_OVERLAY_PROPS } from '@/features/canvas/measure-canvas-insets'
 import { PanelFrame } from '@/features/panels/panel-frame'
 import { FULL_PERCENT, effectivePreviewLayout } from '@/features/panels/panel-state'
 import type { PreviewLayout } from '@/features/panels/panel-state'
@@ -239,7 +240,7 @@ function AppHeader({ actions }: AppHeaderProps) {
   return (
     // The header strip spans the viewport; only its blocks take pointer events so the canvas
     // underneath stays pannable through the empty middle.
-    <header className="pointer-events-none absolute inset-x-4 top-4 z-30">
+    <header {...CANVAS_OVERLAY_PROPS} className="pointer-events-none absolute inset-x-4 top-4 z-30">
       <Cluster bg="accent" className="h-8 [&>:not([data-slot=cluster-filler])]:pointer-events-auto">
         <h1 className="flex items-center self-stretch bg-primary px-3 font-mono text-xs font-semibold tracking-[0.2em] text-primary-foreground uppercase">
           Nudo

@@ -57,8 +57,43 @@
     border-color: var(--foreground);
   }
 
+  .graph-canvas .typed-edge {
+    stroke-width: 2;
+  }
+
   .graph-canvas .react-flow__edge.selectable:focus-visible .typed-edge {
     stroke-width: 4;
+  }
+
+  /* A reroute's ports sit on the middle of its short wire. */
+  .graph-canvas .reroute-node .react-flow__handle.port-handle {
+    top: 50%;
+  }
+
+  /*
+   * Chain highlight (chain-highlight.ts): with a node selected, the edges feeding it and fed by it
+   * thicken, unrelated edges fade, and unrelated nodes lose their port colors and a touch of
+   * opacity. 0.9 keeps muted text on a card above 4.5:1 in both themes (4.9:1 light, 5.8:1 dark),
+   * and a conversion marker's text on the background too (5.3:1 light, 6.2:1 dark).
+   */
+  .graph-canvas .react-flow__edge.chain-emphasized .typed-edge {
+    stroke-width: 3;
+  }
+
+  .graph-canvas .react-flow__edge.chain-dimmed {
+    opacity: 0.2;
+  }
+
+  /* A dimmed edge with keyboard focus or selected stays fully visible, with its focus stroke. */
+  .graph-canvas .react-flow__edge.chain-dimmed:focus-visible,
+  .graph-canvas .react-flow__edge.chain-dimmed.selected {
+    opacity: 1;
+  }
+
+  .graph-canvas .react-flow__node.chain-dimmed,
+  .graph-canvas .typed-edge-marker.chain-dimmed {
+    opacity: 0.9;
+    filter: grayscale(1);
   }
 
   /* The edge label layer ignores the pointer; the marker opts back in for its tooltip and menu. */
@@ -98,6 +133,18 @@
 
 /* Appear and connect transitions: opacity only, at most 150 ms. */
 @media (prefers-reduced-motion: no-preference) {
+  /*
+   * The chain highlight fades in and out after a click. A selection made from the keyboard
+   * changes at once (the frequency gate), and reduced motion never fades it.
+   */
+  html:not([data-input-modality='keyboard']) .graph-canvas .react-flow__node,
+  html:not([data-input-modality='keyboard']) .graph-canvas .react-flow__edge,
+  html:not([data-input-modality='keyboard']) .graph-canvas .typed-edge-marker {
+    transition:
+      opacity var(--duration-quick) var(--ease-out),
+      filter var(--duration-quick) var(--ease-out);
+  }
+
   .graph-node {
     animation: graph-node-appear var(--duration-quick) var(--ease-out);
   }
