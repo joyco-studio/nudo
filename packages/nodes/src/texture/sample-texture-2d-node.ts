@@ -15,7 +15,8 @@ export const sampleTexture2dNode = defineNode({
   type: 'texture/sample-texture-2d',
   category: 'texture',
   label: 'Sample Texture 2D',
-  description: 'Reads the color of a texture at a UV, with automatic or chosen mip level.',
+  description:
+    'Reads the color of a texture at a UV. Distant surfaces get a smoother version, or you pick the blur level.',
   keywords: ['texture', 'sample', 'image', 'map', 'lookup', 'uv', 'mip'],
   inputs: [
     {

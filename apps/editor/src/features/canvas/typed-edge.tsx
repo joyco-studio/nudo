@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { describeConversion } from './describe-conversion'
 import { EdgeContextMenu } from './edge-context-menu'
 import { useEdgeKeyboardFocus } from './use-edge-keyboard-focus'
+import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 
 import type { FlowEdge } from './to-flow'
 
@@ -32,9 +33,10 @@ interface ConversionMarkerProps {
  */
 function ConversionMarker({ conversion, x, y, isEdgeFocused }: ConversionMarkerProps) {
   const description = describeConversion(conversion)
+  const tooltipOpen = useForcedTooltipOpen(isEdgeFocused ? true : null)
   return (
     <EdgeLabelRenderer>
-      <Tooltip open={isEdgeFocused ? true : undefined}>
+      <Tooltip {...tooltipOpen}>
         <TooltipTrigger asChild>
           <span
             role="img"

@@ -31,7 +31,7 @@ export const positionNode = defineNode({
       id: 'out',
       label: 'Out',
       type: concrete('vec3'),
-      description: 'Where the surface point is, in the space chosen below.',
+      description: 'Where the surface point is, chosen in Space.',
     },
   ],
   params: [

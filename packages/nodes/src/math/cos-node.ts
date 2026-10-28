@@ -15,7 +15,7 @@ export const cosNode = defineNode({
       label: 'In',
       type: generic(TYPE_GROUP),
       default: float(0),
-      description: 'The angle in radians; plug Time to make it move.',
+      description: 'The angle; a full turn is about 6.28. Plug Time to make it move.',
     },
   ],
   outputs: [

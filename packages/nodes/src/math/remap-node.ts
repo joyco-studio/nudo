@@ -7,7 +7,7 @@ export const remapNode = defineNode({
   category: 'math',
   label: 'Remap',
   description: 'Maps the input from one range of values to another.',
-  formula: '[In Min, In Max] → [Out Min, Out Max]',
+  formula: '[In Min–Max] → [Out Min–Max]',
   keywords: ['remap', 'map', 'range', 'rescale', 'normalize'],
   inputs: [
     {

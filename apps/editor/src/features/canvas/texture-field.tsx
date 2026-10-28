@@ -17,6 +17,7 @@ import { useTexture } from '@/features/assets/use-texture'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
+import type { PortExplanation } from './node-explanation'
 import { PortLabel } from './port-label'
 import { TextureSlot } from './texture-slot'
 
@@ -29,6 +30,8 @@ export interface TextureFieldProps {
   label: string
   /** The text shown beside the slot, when it differs from `label`. */
   visibleLabel?: string
+  /** What the input means, shown when its label is hovered. */
+  explanation?: PortExplanation | undefined
   /** The chosen asset, or `null` while no image is chosen. */
   assetId: string | null
   /** Called with the id of the image the person just chose, or `null` when they removed it. */
@@ -43,6 +46,7 @@ export interface TextureFieldProps {
 export function TextureField({
   label,
   visibleLabel = label,
+  explanation,
   assetId,
   onChange,
 }: TextureFieldProps) {
@@ -104,7 +108,7 @@ export function TextureField({
 
   return (
     <>
-      <PortLabel label={visibleLabel} />
+      <PortLabel label={visibleLabel} explanation={explanation} />
       <span className="nodrag flex shrink-0 items-center gap-1">
         {/* Always mounted, so "Missing texture" is announced when it appears. */}
         <span role="status" className="font-mono text-micro text-destructive">

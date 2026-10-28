@@ -23,7 +23,8 @@ function definePropertyNode(type: PropertyType) {
         id: 'out',
         label: 'Out',
         type: concrete(type),
-        description: "The property's current value; editing it never recompiles the shader.",
+        description:
+          "The property's current value; change it in the Properties panel and the preview follows at once.",
       },
     ],
     params: [

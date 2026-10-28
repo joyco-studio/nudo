@@ -7,9 +7,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { describePortSource, portAccessibleDescription } from './node-explanation'
 import type { PortExplanation } from './node-explanation'
+import { useForcedTooltipOpen } from './use-forced-tooltip-open'
 
 interface PortTooltipProps {
   explanation: PortExplanation
+  /** What else the trigger does, shown last ("Drag to change"). */
+  hint?: string
   /** The port's handle button or its label: whatever the pointer rests on or focus lands on. */
   children: ReactElement
 }
@@ -19,12 +22,13 @@ interface PortTooltipProps {
  * input, the node feeding it. Opens after the shared intent delay on hover and at once on keyboard
  * focus; stays shut while an edge is being dragged, so it never covers the port being aimed at.
  */
-export function PortTooltip({ explanation, children }: PortTooltipProps) {
+export function PortTooltip({ explanation, hint, children }: PortTooltipProps) {
   const isConnecting = useConnection((connection) => connection.inProgress)
+  const tooltipOpen = useForcedTooltipOpen(isConnecting ? false : null)
   const { label, dataType, description, source } = explanation
 
   return (
-    <Tooltip open={isConnecting ? false : undefined}>
+    <Tooltip {...tooltipOpen}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent
         side="top"
@@ -46,6 +50,7 @@ export function PortTooltip({ explanation, children }: PortTooltipProps) {
             {describePortSource(source)}
           </span>
         )}
+        {hint !== undefined && <span className="text-background/70">{hint}</span>}
       </TooltipContent>
     </Tooltip>
   )

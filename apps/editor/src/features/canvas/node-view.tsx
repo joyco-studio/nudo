@@ -76,17 +76,13 @@ function InputRow({ data, row }: InputRowProps) {
       <PortTypeLabel dataType={dataType} />
       {isDisabled ? (
         <>
-          <PortTooltip explanation={explanation}>
-            <PortLabel label={input.label} isMuted />
-          </PortTooltip>
+          <PortLabel label={input.label} isMuted explanation={explanation} />
           <MutedHint>{disabledHint}</MutedHint>
         </>
       ) : isConnected ? (
-        <PortTooltip explanation={explanation}>
-          <PortLabel label={input.label} />
-        </PortTooltip>
+        <PortLabel label={input.label} explanation={explanation} />
       ) : (
-        <InlineField node={data.node} input={input} dataType={dataType} />
+        <InlineField node={data.node} input={input} dataType={dataType} explanation={explanation} />
       )}
       <TypeForAssistiveTech dataType={dataType} />
     </li>

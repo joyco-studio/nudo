@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultRegistry } from './index'
 
 /** Formulas are display strings for a node header: anything longer stops reading as a subtitle. */
-const MAX_FORMULA_LENGTH = 40
+const MAX_FORMULA_LENGTH = 28
 
 const definitions = createDefaultRegistry().list()
 
