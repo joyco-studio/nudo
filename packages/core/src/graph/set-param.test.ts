@@ -155,6 +155,15 @@ describe('setParam', () => {
     expect(graph.nodes[MASTER_NODE_ID]?.params).toEqual({ previewMode: '3d' })
   })
 
+  it('accepts the universal showPreview toggle and keeps it out of the topology key', () => {
+    const graph = graphWithNoise()
+    const hidden = unwrap(setParam(graph, registry, ref('showPreview'), false))
+
+    expect(hidden.nodes[noiseId]?.params.showPreview).toBe(false)
+    expect(topologyKey(hidden)).toBe(topologyKey(graph))
+    expect(setParam(graph, registry, ref('showPreview'), 'no').ok).toBe(false)
+  })
+
   it('rejects an invalid universal param value', () => {
     expect(setParam(graphWithNoise(), registry, ref('previewMode'), '4d').ok).toBe(false)
     expect(setParam(graphWithNoise(), registry, ref('collapsed'), 'true').ok).toBe(false)

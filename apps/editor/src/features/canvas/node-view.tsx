@@ -4,6 +4,8 @@ import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, TriangleAlert } from 'lucide-react'
 
+import { NodePreview } from '@/features/node-previews/node-preview'
+import { PreviewToggle } from '@/features/node-previews/preview-toggle'
 import { IconSwap } from '@/shared/components/icon-swap'
 import { TypeChip } from '@/shared/components/type-chip'
 import { cn } from '@/shared/lib/utils'
@@ -188,6 +190,8 @@ function NodeHeader({ data }: { data: FlowNodeData }) {
           {definition.description}
         </TooltipContent>
       </Tooltip>
+      {/* ml-auto -mr-2: 4px from the right edge, mirroring the collapse toggle on the left. */}
+      <PreviewToggle node={data.node} definition={definition} className="-mr-2 ml-auto" />
     </header>
   )
 }
@@ -281,6 +285,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
             ))}
           </div>
         )}
+        <NodePreview node={node} definition={definition} title={data.title} />
         {error !== undefined && <NodeError message={error} />}
       </div>
     </NodeContextMenu>

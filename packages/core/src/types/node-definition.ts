@@ -61,7 +61,10 @@ export interface NodeDefinition<I extends string, O extends string> {
   readonly keywords: readonly string[]
   readonly inputs: readonly InputDefinition<I>[]
   readonly outputs: readonly OutputDefinition<O>[]
-  /** Structural settings of the node. Universal params (collapsed, previewMode) are implicit. */
+  /**
+   * Structural settings of the node. Universal params (collapsed, showPreview, previewMode) are
+   * implicit.
+   */
   readonly params?: readonly ParamDefinition[]
   /** Marks nodes that read a Blackboard property through the hidden string param `propertyId`. */
   readonly reads?: 'property'

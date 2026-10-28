@@ -225,6 +225,7 @@ test.describe('context menus', () => {
       /^Copy/,
       'Duplicate',
       'Hide unconnected ports',
+      'Hide preview',
       'Preview mode',
       /^Delete/,
     ])

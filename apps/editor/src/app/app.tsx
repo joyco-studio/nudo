@@ -13,6 +13,7 @@ import { CommandPaletteButton } from '@/features/command-palette/command-palette
 import { CommandPaletteProvider } from '@/features/command-palette/command-palette-provider'
 import { InspectorContainer } from '@/features/inspector/inspector-container'
 import { MainPreview } from '@/features/main-preview/main-preview'
+import { NodePreviewSync } from '@/features/node-previews/node-preview-sync'
 import { NewGraphButton } from '@/features/new-graph/new-graph-button'
 import { NewGraphProvider } from '@/features/new-graph/new-graph-provider'
 import { NoticeToaster } from '@/features/notice/notice-toaster'
@@ -63,6 +64,7 @@ export function App() {
               <NewGraphProvider>
                 <EditorCommands>
                   <GlobalShortcuts />
+                  <NodePreviewSync />
                   <NoticeToaster />
                   <AppShell
                     canvas={<GraphCanvasContainer />}

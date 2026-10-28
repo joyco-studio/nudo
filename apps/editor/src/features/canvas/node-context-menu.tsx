@@ -2,6 +2,13 @@ import type { ReactElement } from 'react'
 import { MASTER_NODE_ID, UNIVERSAL_PARAMS } from '@nudo-tsl/core'
 
 import { useRunCommand } from '@/features/command-palette/command-context'
+import {
+  PREVIEW_MODE_PARAM,
+  SHOW_PREVIEW_PARAM,
+  hasNodePreview,
+  isPreviewShown,
+} from '@/features/node-previews/preview-graph'
+import { previewToggleAction } from '@/features/node-previews/preview-toggle'
 import type { CommandInvocation } from '@/features/command-palette/command-registry'
 import {
   ContextMenu,
@@ -19,12 +26,7 @@ import {
 import { CanvasMenuContent } from './canvas-menu-content'
 import { CommandMenuLabel } from './command-menu-label'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import {
-  COLLAPSED_PARAM,
-  PREVIEW_MODE_PARAM,
-  isNodeCollapsed,
-  portsToggleLabel,
-} from './node-port-layout'
+import { COLLAPSED_PARAM, isNodeCollapsed, portsToggleLabel } from './node-port-layout'
 import { isEnumParam } from './param-kinds'
 import { CONTEXT_MENU_TRIGGER_PROPS, ignoreForeignContextMenu } from './open-context-menu'
 import { COMMENT_TYPE } from './to-flow'
@@ -39,7 +41,8 @@ interface NodeMenuModel {
   /** Copy, Duplicate and Delete: never the master, which can't be copied or removed. */
   canCopyOrRemove: boolean
   canTogglePorts: boolean
-  canSetPreviewMode: boolean
+  /** Show or hide the preview, and pick its mode: only nodes that have a preview. */
+  hasPreview: boolean
 }
 
 function nodeMenuModel(data: FlowNodeData): NodeMenuModel {
@@ -50,7 +53,7 @@ function nodeMenuModel(data: FlowNodeData): NodeMenuModel {
   return {
     canCopyOrRemove: node.id !== MASTER_NODE_ID,
     canTogglePorts: !isComment && !isPill && hasPorts,
-    canSetPreviewMode: !isComment && !isPill && PREVIEW_MODE_PARAM_DEFINITION !== null,
+    hasPreview: hasNodePreview(node, definition),
   }
 }
 
@@ -61,8 +64,9 @@ interface NodeContextMenuProps {
 }
 
 /**
- * A node's right-click menu: Copy, Duplicate, collapse its ports, its preview mode and Delete. The
- * ContextMenu key or Shift+F10 on the focused node opens it too (see the canvas keyboard model).
+ * A node's right-click menu: Copy, Duplicate, collapse its ports, show or hide its preview, its
+ * preview mode and Delete. The ContextMenu key or Shift+F10 on the focused node opens it too (see
+ * the canvas keyboard model).
  * Copy, Duplicate and Delete run the registry commands on this node, so they act on the node, or
  * on the selection when it holds the node.
  */
@@ -76,6 +80,7 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
   const { node } = data
   const model = nodeMenuModel(data)
   const isCollapsed = isNodeCollapsed(data)
+  const isShown = isPreviewShown(node)
   const storedMode = node.params[PREVIEW_MODE_PARAM]
   const previewMode =
     typeof storedMode === 'string' ? storedMode : (PREVIEW_MODE_PARAM_DEFINITION?.default ?? '')
@@ -119,7 +124,16 @@ export function NodeContextMenu({ data, children }: NodeContextMenuProps) {
             {portsToggleLabel(isCollapsed)}
           </ContextMenuItem>
         )}
-        {model.canSetPreviewMode && PREVIEW_MODE_PARAM_DEFINITION !== null && (
+        {model.hasPreview && (
+          <ContextMenuItem
+            onSelect={() => {
+              actions.setParam({ nodeId: node.id, paramId: SHOW_PREVIEW_PARAM }, !isShown)
+            }}
+          >
+            {previewToggleAction(isShown)}
+          </ContextMenuItem>
+        )}
+        {model.hasPreview && PREVIEW_MODE_PARAM_DEFINITION !== null && (
           <ContextMenuSub>
             <ContextMenuSubTrigger>{PREVIEW_MODE_PARAM_DEFINITION.label}</ContextMenuSubTrigger>
             <ContextMenuSubContent className="min-w-32">

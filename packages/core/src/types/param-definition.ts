@@ -47,11 +47,12 @@ export const PROPERTY_ID_PARAM = 'propertyId'
 /**
  * Editor-managed params every node accepts implicitly. They are never part of `topologyKey`
  * (toggling them never recompiles), and `addNode` does not write them: absence means the default.
- * Their ids (`collapsed`, `previewMode`) are reserved: a definition that redeclares one is ignored
- * in favor of the universal definition.
+ * Their ids (`collapsed`, `showPreview`, `previewMode`) are reserved: a definition that redeclares
+ * one is ignored in favor of the universal definition.
  */
 export const UNIVERSAL_PARAMS: readonly ParamDefinition[] = [
   { id: 'collapsed', label: 'Collapsed', kind: 'boolean', default: false },
+  { id: 'showPreview', label: 'Show preview', kind: 'boolean', default: true },
   {
     id: 'previewMode',
     label: 'Preview mode',
