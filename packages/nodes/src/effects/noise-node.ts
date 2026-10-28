@@ -15,12 +15,32 @@ export const noiseNode = defineNode({
   category: 'effects',
   label: 'Noise',
   description: 'Smooth random values that vary across space, from Perlin or simplex noise.',
+  formula: 'noise(P × Scale)',
   keywords: ['noise', 'perlin', 'simplex', 'random', 'clouds', 'procedural'],
   inputs: [
-    { id: 'p', label: 'P', type: concrete('vec3'), default: vec3(0, 0, 0) },
-    { id: 'scale', label: 'Scale', type: concrete('float'), default: float(1) },
+    {
+      id: 'p',
+      label: 'P',
+      type: concrete('vec3'),
+      default: vec3(0, 0, 0),
+      description: 'Where to sample the noise; plug Position to stick it to the surface.',
+    },
+    {
+      id: 'scale',
+      label: 'Scale',
+      type: concrete('float'),
+      default: float(1),
+      description: 'How busy the noise is: higher = smaller, denser blobs.',
+    },
   ],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('float'),
+      description: 'Smooth random values, roughly between -1 and 1.',
+    },
+  ],
   params: [
     { id: 'kind', label: 'Kind', kind: 'enum', options: KIND_OPTIONS, default: DEFAULT_KIND },
   ],

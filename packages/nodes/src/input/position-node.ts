@@ -26,7 +26,14 @@ export const positionNode = defineNode({
   description: 'Position of the surface point, in object, world or view space.',
   keywords: ['position', 'vertex', 'object', 'world', 'view', 'space', 'coordinates'],
   inputs: [],
-  outputs: [{ id: 'out', label: 'Out', type: concrete('vec3') }],
+  outputs: [
+    {
+      id: 'out',
+      label: 'Out',
+      type: concrete('vec3'),
+      description: 'Where the surface point is, chosen in Space.',
+    },
+  ],
   params: [
     {
       id: 'space',
