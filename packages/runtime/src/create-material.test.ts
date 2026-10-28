@@ -467,7 +467,7 @@ describe('properties', () => {
     ['vec3', 'nudo_vec3'],
     ['sample', 'nudo_sample'],
     ['fn', 'nudo_fn'],
-    ['my$glow', 'nudo_my_glow'],
+    ['my$glow', 'nudo_myQdglow'],
   ])('property %s reaches the shader as %s', (name, shaderName) => {
     const graph = unwrap(
       addProperty(createGraph(), {
@@ -489,6 +489,38 @@ describe('properties', () => {
     )
 
     expect(build.properties.get(propertyId)?.name).toBe(shaderName)
+  })
+
+  it('gives properties named a$b and a_b two different uniform names', () => {
+    const dollarId = asPropertyId('prop-dollar')
+    const underscoreId = asPropertyId('prop-underscore')
+    let graph = createGraph()
+    for (const [id, name] of [
+      [dollarId, 'a$b'],
+      [underscoreId, 'a_b'],
+    ] as const) {
+      graph = unwrap(
+        addProperty(graph, {
+          id,
+          label: name,
+          name,
+          exposed: true,
+          type: 'float',
+          value: float(1),
+        }),
+      )
+      graph = unwrap(
+        addPropertyNode(graph, registry, { id: asNodeId(name), propertyId: id, position: ORIGIN }),
+      )
+    }
+    graph = withEdge(graph, registry, ['a$b', 'out'], ['master', 'roughness'])
+    graph = withEdge(graph, registry, ['a_b', 'out'], ['master', 'metalness'])
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.properties.get(dollarId)?.name).toBe('nudo_aQdb')
+    expect(build.properties.get(underscoreId)?.name).toBe('nudo_a_b')
   })
 
   it('shares a single uniform between every reader of a property', () => {

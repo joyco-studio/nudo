@@ -12,6 +12,7 @@ import { texture, uniform } from 'three/tsl'
 import type { TextureNode, UniformNode } from 'three/webgpu'
 import { createLiveFacade } from './live-facade'
 import type { LiveNode } from './live-facade'
+import { toShaderName } from './shader-name'
 import { createTextureResolver } from './texture-resolution'
 import type { MaterialOptions } from './texture-resolution'
 
@@ -40,16 +41,6 @@ function createUniform(value: VectorPortValue): LiveUniform {
       return uniform(new Vector4(...value.value))
   }
 }
-
-const SHADER_NAME_PREFIX = 'nudo_'
-
-/**
- * The name a property's uniform carries into generated shader code. The prefix keeps a property
- * called `vec3`, `sample` or `fn` clear of shader keywords and built-ins, and `$` (legal in a
- * JS identifier) is not legal in WGSL or GLSL.
- */
-const toShaderName = (propertyName: string): string =>
-  `${SHADER_NAME_PREFIX}${propertyName.replaceAll('$', '_')}`
 
 export function createLiveBackend(options?: MaterialOptions): LiveBackend {
   const uniforms = new Map<PortKey, LiveUniform>()
