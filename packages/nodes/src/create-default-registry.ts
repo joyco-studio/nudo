@@ -33,8 +33,10 @@ import { floorNode } from './math/floor-node'
 import { fractNode } from './math/fract-node'
 import { maxNode } from './math/max-node'
 import { minNode } from './math/min-node'
+import { moduloNode } from './math/modulo-node'
 import { multiplyNode } from './math/multiply-node'
 import { oneMinusNode } from './math/one-minus-node'
+import { posterizeNode } from './math/posterize-node'
 import { powerNode } from './math/power-node'
 import { remapNode } from './math/remap-node'
 import { sinNode } from './math/sin-node'
@@ -128,9 +130,17 @@ export const PHASE_2_CATALOG_B: readonly AnyNodeDefinition[] = [
   rerouteNode,
 ]
 
+/** Batch 1 of the catalog phase: math additions. */
+export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [posterizeNode, moduloNode]
+
 export function createDefaultRegistry(): NodeRegistry {
   const registry = createNodeRegistry()
-  for (const definition of [...PHASE_1_DEFINITIONS, ...PHASE_2_CATALOG_A, ...PHASE_2_CATALOG_B]) {
+  for (const definition of [
+    ...PHASE_1_DEFINITIONS,
+    ...PHASE_2_CATALOG_A,
+    ...PHASE_2_CATALOG_B,
+    ...PHASE_3_CATALOG_C,
+  ]) {
     const result = registry.register(definition)
     if (!result.ok) throw new Error(`Duplicate built-in node type: ${result.error.type}`)
   }

@@ -442,6 +442,44 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'math/posterize': {
+    label: 'Posterizar',
+    description: 'Ajusta la entrada a una cantidad fija de niveles planos, como un afiche impreso.',
+    formula: 'floor(Entrada × Pasos) / Pasos',
+    keywords: ['posterizar', 'cuantizar', 'pasos', 'bandas', 'niveles', 'toon'],
+    inputs: {
+      in: { label: 'Entrada', description: 'El valor a ajustar, por lo general entre 0 y 1.' },
+      steps: {
+        label: 'Pasos',
+        description: 'A cuántos niveles se ajusta: 2 da dos bandas planas, 8 da ocho.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description:
+          'Entrada redondeada hacia abajo al nivel más cercano, así el degradado queda en bandas.',
+      },
+    },
+  },
+  'math/modulo': {
+    label: 'Módulo',
+    description: 'El resto de dividir A por B; el resultado siempre tiene el signo de B.',
+    keywords: ['módulo', 'mod', 'resto', 'envolver', 'repetir', '%'],
+    inputs: {
+      a: { label: 'A', description: 'El valor a envolver.' },
+      b: {
+        label: 'B',
+        description: 'El largo de cada repetición; conviene que no se acerque a 0.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description: 'A envuelto en el rango de 0 hasta B, igual en WebGPU y en WebGL.',
+      },
+    },
+  },
 
   // Interpolation
   'interpolation/lerp': {
