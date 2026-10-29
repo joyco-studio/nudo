@@ -264,7 +264,7 @@ describe('effects nodes', () => {
   })
 
   describe('voronoi', () => {
-    const VORONOI_INPUTS = { uv: 'uv', scale: 'scale', jitter: 'jitter' }
+    const VORONOI_INPUTS = { uv: 'uv', scale: 'scale', jitter: 'jitter', exponent: 'exponent' }
 
     it('keeps f1, f2 and edge as before, Euclidean when no distance is stored', () => {
       const outputs = buildWith(voronoiNode, VORONOI_INPUTS)
@@ -308,7 +308,30 @@ describe('effects nodes', () => {
       )
     })
 
-    it('offers the three distances, Euclidean by default', () => {
+    it('measures F1, F2 and the cell with the Minkowski distance and its exponent', () => {
+      const outputs = buildWith(voronoiNode, VORONOI_INPUTS, { distance: 'minkowski' })
+      const cells = 'voronoiMinkowski(2,mul(uv,scale),jitter,exponent)'
+      const cell = 'voronoiMinkowskiCell(2,mul(uv,scale),jitter,exponent)'
+
+      expect(outputs).toEqual({
+        f1: `swizzle(${cells},x)`,
+        f2: `swizzle(${cells},y)`,
+        edge: `sub(swizzle(${cells},y),swizzle(${cells},x))`,
+        cell,
+        random: `cellNoise(floor(${cell}))`,
+      })
+    })
+
+    it('shows the exponent only while the distance is Minkowski, 0.5 by default', () => {
+      const exponent = voronoiNode.inputs.find((input) => input.id === 'exponent')
+
+      expect(exponent?.default).toEqual({ type: 'float', value: 0.5 })
+      expect(exponent?.hiddenWhen?.({})).toBe(true)
+      expect(exponent?.hiddenWhen?.({ distance: 'chebyshev' })).toBe(true)
+      expect(exponent?.hiddenWhen?.({ distance: 'minkowski' })).toBe(false)
+    })
+
+    it('offers four distances, Euclidean by default', () => {
       expect(voronoiNode.params).toEqual([
         {
           id: 'distance',
@@ -318,6 +341,7 @@ describe('effects nodes', () => {
             { value: 'euclidean', label: 'Euclidean' },
             { value: 'manhattan', label: 'Manhattan' },
             { value: 'chebyshev', label: 'Chebyshev' },
+            { value: 'minkowski', label: 'Minkowski' },
           ],
           default: 'euclidean',
         },

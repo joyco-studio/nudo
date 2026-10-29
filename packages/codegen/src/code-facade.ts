@@ -35,6 +35,16 @@ const CELL_SEARCHES: Readonly<Record<CellDimensions, HelperName>> = {
   3: 'voronoiCell3',
 }
 
+const MINKOWSKI_DISTANCES: Readonly<Record<CellDimensions, HelperName>> = {
+  2: 'voronoiMinkowski2',
+  3: 'voronoiMinkowski3',
+}
+
+const MINKOWSKI_CELL_SEARCHES: Readonly<Record<CellDimensions, HelperName>> = {
+  2: 'voronoiMinkowskiCell2',
+  3: 'voronoiMinkowskiCell3',
+}
+
 const HASHES: Readonly<Record<HashKind, HelperName>> = {
   float: 'hashFloat',
   vec3: 'hashVec3',
@@ -141,6 +151,10 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     voronoi: worleyDistances,
     voronoiCell: (dimensions, p, jitter, metric) =>
       callHelper(CELL_SEARCHES[dimensions], [p, jitter, printMetric(metric)]),
+    voronoiMinkowski: (dimensions, p, jitter, exponent) =>
+      callHelper(MINKOWSKI_DISTANCES[dimensions], [p, jitter, exponent]),
+    voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
+      callHelper(MINKOWSKI_CELL_SEARCHES[dimensions], [p, jitter, exponent]),
     cellNoise: (p) => call(CELL_NOISE, [p]),
     hash: (kind, p, seed) => callHelper(HASHES[kind], [p, seed]),
     checker: (uv) => call('checker', [uv]),

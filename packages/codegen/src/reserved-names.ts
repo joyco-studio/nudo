@@ -21,6 +21,11 @@ const HELPER_INTERNAL_NAMES = [
   'taylorInverseSqrt',
   'cellDistance2',
   'cellDistance3',
+  'minkowskiDistance2',
+  'minkowskiDistance3',
+  'keepNearest',
+  'searchMinkowski2',
+  'searchMinkowski3',
   'scrambledPoint',
   'mixAxes',
 ] as const

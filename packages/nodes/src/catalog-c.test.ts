@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
 import {
   PHASE_3_CATALOG_C,
   blendNode,
+  brightContrastNode,
   COLOR_RAMP_MAX_STOPS,
   COLOR_RAMP_MIN_STOPS,
   colorRampCount,
@@ -23,6 +24,7 @@ import {
   createRecordingFacade,
   hashNode,
   mainLightNode,
+  mappingNode,
   moduloNode,
   posterizeNode,
   triplanarNode,
@@ -39,6 +41,8 @@ const CATALOG_C_TYPES = [
   'input/main-light',
   'color/color-ramp',
   'math/hash',
+  'vector/mapping',
+  'color/bright-contrast',
 ]
 
 const buildWith = (
@@ -124,7 +128,7 @@ describe('blend', () => {
 })
 
 describe('voronoi 3d', () => {
-  const VORONOI_INPUTS = { position: 'p', scale: 'scale', jitter: 'jitter' }
+  const VORONOI_INPUTS = { position: 'p', scale: 'scale', jitter: 'jitter', exponent: 'e' }
 
   it('reads the cells around a 3D point with the same outputs as the 2D voronoi', () => {
     const cells = 'voronoi(mul(p,scale),jitter,euclidean)'
@@ -145,6 +149,13 @@ describe('voronoi 3d', () => {
     )
   })
 
+  it('searches the 3D cells under the Minkowski distance with its exponent', () => {
+    const outputs = buildWith(voronoi3dNode, VORONOI_INPUTS, { distance: 'minkowski' })
+
+    expect(outputs.f1).toBe('swizzle(voronoiMinkowski(3,mul(p,scale),jitter,e),x)')
+    expect(outputs.cell).toBe('voronoiMinkowskiCell(3,mul(p,scale),jitter,e)')
+  })
+
   it('samples object position by default and outputs a vec3 cell', () => {
     expect(
       voronoi3dNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
@@ -157,6 +168,7 @@ describe('voronoi 3d', () => {
       ],
       ['scale', { kind: 'concrete', type: 'float' }, { type: 'float', value: 5 }, undefined],
       ['jitter', { kind: 'concrete', type: 'float' }, { type: 'float', value: 1 }, undefined],
+      ['exponent', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0.5 }, undefined],
     ])
     expect(voronoi3dNode.outputs.map((output) => [output.id, output.type])).toEqual([
       ['f1', { kind: 'concrete', type: 'float' }],
@@ -167,8 +179,9 @@ describe('voronoi 3d', () => {
     ])
   })
 
-  it('shares the distance param with the 2D voronoi', () => {
+  it('shares the distance param and the exponent input with the 2D voronoi', () => {
     expect(voronoi3dNode.params).toEqual(voronoiNode.params)
+    expect(voronoi3dNode.inputs.at(-1)).toBe(voronoiNode.inputs.at(-1))
   })
 })
 
@@ -520,5 +533,104 @@ describe('random hash', () => {
     })
 
     expect(wired.ok).toBe(false)
+  })
+})
+
+describe('mapping', () => {
+  const MAPPING_INPUTS = { vector: 'v', location: 'loc', rotation: 'rot', scale: 's' }
+  const angle = (axis: string): string => `swizzle(rot,${axis})`
+  const sine = (axis: string): string => `sin(${angle(axis)})`
+  const cosine = (axis: string): string => `cos(${angle(axis)})`
+
+  it('scales, turns around X, then Y, then Z, then moves a point', () => {
+    const out = buildWith(mappingNode, MAPPING_INPUTS).out ?? ''
+
+    expect(out.startsWith('add(construct(vec3,')).toBe(true)
+    expect(out.endsWith(',loc)')).toBe(true)
+    expect(out).toContain('mul(v,s)')
+    // The first turn applied is the innermost expression, so it is printed first.
+    expect(out.indexOf(cosine('x'))).toBeLessThan(out.indexOf(cosine('y')))
+    expect(out.indexOf(cosine('y'))).toBeLessThan(out.indexOf(cosine('z')))
+  })
+
+  it('undoes the transform for a texture: moves back, turns Z first with negated angles, then divides', () => {
+    const out = buildWith(mappingNode, MAPPING_INPUTS, { type: 'texture' }).out ?? ''
+
+    expect(out.startsWith('div(construct(vec3,')).toBe(true)
+    expect(out.endsWith(',s)')).toBe(true)
+    expect(out).toContain('sub(v,loc)')
+    expect(out).toContain(`mul(${sine('z')},construct(float,[-1]))`)
+    expect(out.indexOf(cosine('z'))).toBeLessThan(out.indexOf(cosine('y')))
+    expect(out.indexOf(cosine('y'))).toBeLessThan(out.indexOf(cosine('x')))
+  })
+
+  it('ignores the location for a vector and normalizes a normal divided by the scale', () => {
+    const vector = buildWith(mappingNode, MAPPING_INPUTS, { type: 'vector' }).out ?? ''
+    const normal = buildWith(mappingNode, MAPPING_INPUTS, { type: 'normal' }).out ?? ''
+
+    expect(vector).not.toContain('loc')
+    expect(vector).toContain('mul(v,s)')
+    expect(normal.startsWith('normalize(')).toBe(true)
+    expect(normal).toContain('div(v,s)')
+    expect(normal).not.toContain('loc')
+  })
+
+  it('turns around one axis with the usual rotation formula', () => {
+    const out = buildWith(mappingNode, MAPPING_INPUTS, { type: 'vector' }).out ?? ''
+
+    expect(out).toContain(
+      `construct(vec3,[swizzle(mul(v,s),x),sub(mul(swizzle(mul(v,s),y),${cosine('x')}),mul(swizzle(mul(v,s),z),${sine('x')})),add(mul(swizzle(mul(v,s),y),${sine('x')}),mul(swizzle(mul(v,s),z),${cosine('x')}))])`,
+    )
+  })
+
+  it('falls back to point for an unknown type', () => {
+    expect(buildWith(mappingNode, MAPPING_INPUTS, { type: 'sideways' })).toEqual(
+      buildWith(mappingNode, MAPPING_INPUTS),
+    )
+  })
+
+  it('maps the object position by default with identity location, rotation and scale', () => {
+    expect(
+      mappingNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
+    ).toEqual([
+      [
+        'vector',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 0] },
+        'positionLocal',
+      ],
+      [
+        'location',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 0] },
+        undefined,
+      ],
+      [
+        'rotation',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 0] },
+        undefined,
+      ],
+      ['scale', { kind: 'concrete', type: 'vec3' }, { type: 'vec3', value: [1, 1, 1] }, undefined],
+    ])
+    expect(mappingNode.params?.[0]).toMatchObject({ id: 'type', kind: 'enum', default: 'point' })
+  })
+})
+
+describe('bright/contrast', () => {
+  it('scales by one plus the contrast, shifts by brightness minus half the contrast, never below 0', () => {
+    expect(buildWith(brightContrastNode, { in: 'c', brightness: 'b', contrast: 'k' }).out).toBe(
+      'max(add(mul(c,add(construct(float,[1]),k)),sub(b,mul(k,construct(float,[0.5])))),construct(vec3,[0]))',
+    )
+  })
+
+  it('takes a white color, brightness 0 and contrast 0 by default', () => {
+    expect(brightContrastNode.inputs.map((input) => [input.id, input.type, input.default])).toEqual(
+      [
+        ['in', { kind: 'concrete', type: 'vec3' }, { type: 'vec3', value: [1, 1, 1] }],
+        ['brightness', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0 }],
+        ['contrast', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0 }],
+      ],
+    )
   })
 })

@@ -82,6 +82,13 @@ export interface TslFacade<E> {
   voronoi(p: E, jitter: E, metric: VoronoiMetric): E
   /** The feature point F1 measures, in the same space as `p`: vec2 or vec3, per `dimensions`. */
   voronoiCell(dimensions: CellDimensions, p: E, jitter: E, metric: VoronoiMetric): E
+  /**
+   * Cellular noise under the Minkowski distance with `exponent` (float), which MaterialX's worley
+   * noise lacks: vec2 holding F1 and F2, as true distances (not squared).
+   */
+  voronoiMinkowski(dimensions: CellDimensions, p: E, jitter: E, exponent: E): E
+  /** The feature point the Minkowski F1 measures, in the space of `p`: vec2 or vec3. */
+  voronoiMinkowskiCell(dimensions: CellDimensions, p: E, jitter: E, exponent: E): E
   /** A random float from 0 to 1, constant inside each unit cell of `p`. */
   cellNoise(p: E): E
   /**

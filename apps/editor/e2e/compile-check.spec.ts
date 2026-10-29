@@ -95,6 +95,48 @@ const VORONOI_CELLS = graphDocumentV2(
 )
 
 /**
+ * The painterly recipe of the user's Blender shaders: a Mapping places a 3D Minkowski Voronoi, whose
+ * cell bends the normal and, through Bright/Contrast, colors the surface, beside a 2D Minkowski
+ * Voronoi. The catalog graph only reaches the first output of each, so the Minkowski cell searches
+ * reach the renderer here, 2D and 3D, next to a MaterialX metric in the same material.
+ */
+const MINKOWSKI_BRUSH = graphDocumentV2(
+  [
+    {
+      id: 'placement',
+      type: 'vector/mapping',
+      position: { x: 0, y: 0 },
+      params: { type: 'texture' },
+    },
+    {
+      id: 'brush3d',
+      type: 'effects/voronoi-3d',
+      position: { x: 300, y: 0 },
+      params: { distance: 'minkowski' },
+    },
+    {
+      id: 'brush2d',
+      type: 'effects/voronoi',
+      position: { x: 300, y: 400 },
+      params: { distance: 'minkowski' },
+    },
+    { id: 'grain', type: 'effects/voronoi', position: { x: 300, y: 800 } },
+    { id: 'levels', type: 'color/bright-contrast', position: { x: 600, y: 0 } },
+  ],
+  [
+    { id: 'placement-to-brush3d', from: ['placement', 'out'], to: ['brush3d', 'position'] },
+    { id: 'cell3d-to-normal', from: ['brush3d', 'cell'], to: ['master', 'normal'] },
+    { id: 'cell3d-to-levels', from: ['brush3d', 'cell'], to: ['levels', 'in'] },
+    { id: 'levels-to-base-color', from: ['levels', 'out'], to: ['master', 'baseColor'] },
+    { id: 'f2-3d-to-roughness', from: ['brush3d', 'f2'], to: ['master', 'roughness'] },
+    { id: 'random2d-to-metalness', from: ['brush2d', 'random'], to: ['master', 'metalness'] },
+    { id: 'edge2d-to-opacity', from: ['brush2d', 'edge'], to: ['master', 'opacity'] },
+    { id: 'grain-to-alpha-clip', from: ['grain', 'random'], to: ['master', 'alphaClip'] },
+  ],
+  [],
+)
+
+/**
  * The catalog graph wires one Random node, on the mesh UV, and only its first output. These feed
  * Random a float, a vec2 and a vec3 (with a wired seed) and read both of its outputs, so each
  * input type and both hash helpers reach the renderer.
@@ -239,6 +281,15 @@ test.describe('real renderer compile check', () => {
   }) => {
     test.setTimeout(COMPILE_TIMEOUT_MS * 2)
     await seedAutosave(page, VORONOI_CELLS)
+    await page.goto('/')
+    await expectCompiled(page)
+  })
+
+  test('the Minkowski voronoi, mapping and bright/contrast compile in a real renderer', async ({
+    page,
+  }) => {
+    test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+    await seedAutosave(page, MINKOWSKI_BRUSH)
     await page.goto('/')
     await expectCompiled(page)
   })

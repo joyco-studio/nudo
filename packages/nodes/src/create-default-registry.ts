@@ -7,6 +7,7 @@ import { noiseNode } from './effects/noise-node'
 import { voronoi3dNode } from './effects/voronoi-3d-node'
 import { voronoiNode } from './effects/voronoi-node'
 import { blendNode } from './color/blend-node'
+import { brightContrastNode } from './color/bright-contrast-node'
 import { colorRampNode } from './color/color-ramp-node'
 import { colorSpaceNode } from './color/color-space-node'
 import { cameraPositionNode } from './input/camera-position-node'
@@ -63,6 +64,7 @@ import { rerouteNode } from './utility/reroute-node'
 import { combineNode } from './vector/combine-node'
 import { dotNode } from './vector/dot-node'
 import { lengthNode } from './vector/length-node'
+import { mappingNode } from './vector/mapping-node'
 import { normalizeNode } from './vector/normalize-node'
 import { rotate2dNode } from './vector/rotate-2d-node'
 import { splitNode } from './vector/split-node'
@@ -146,6 +148,8 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   mainLightNode,
   colorRampNode,
   hashNode,
+  mappingNode,
+  brightContrastNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

@@ -5,6 +5,10 @@ export type HelperName =
   | 'sceneDepthFade'
   | 'voronoiCell2'
   | 'voronoiCell3'
+  | 'voronoiMinkowski2'
+  | 'voronoiMinkowski3'
+  | 'voronoiMinkowskiCell2'
+  | 'voronoiMinkowskiCell3'
   | 'hashFloat'
   | 'hashVec3'
 

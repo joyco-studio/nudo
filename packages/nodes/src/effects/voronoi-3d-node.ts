@@ -1,5 +1,9 @@
 import { concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
-import { VORONOI_DISTANCE_PARAM, buildVoronoiOutputs } from './voronoi-cells'
+import {
+  VORONOI_DISTANCE_PARAM,
+  VORONOI_EXPONENT_INPUT,
+  buildVoronoiOutputs,
+} from './voronoi-cells'
 
 export const voronoi3dNode = defineNode({
   type: 'effects/voronoi-3d',
@@ -32,6 +36,7 @@ export const voronoi3dNode = defineNode({
       default: float(1),
       description: 'How irregular the cells are: 0 = a cubic grid, 1 = fully random.',
     },
+    VORONOI_EXPONENT_INPUT,
   ],
   outputs: [
     {
@@ -67,5 +72,12 @@ export const voronoi3dNode = defineNode({
   ],
   params: [VORONOI_DISTANCE_PARAM],
   build: ({ tsl, inputs, params }) =>
-    buildVoronoiOutputs(tsl, 3, tsl.mul(inputs.position, inputs.scale), inputs.jitter, params),
+    buildVoronoiOutputs(
+      tsl,
+      3,
+      tsl.mul(inputs.position, inputs.scale),
+      inputs.jitter,
+      inputs.exponent,
+      params,
+    ),
 })

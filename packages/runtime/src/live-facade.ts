@@ -74,6 +74,12 @@ import { normalFromHeight } from './normal-from-height'
 import { sceneDepthFade } from './scene-depth-fade'
 import { simplexNoise3 } from './simplex-noise'
 import { voronoiCell2, voronoiCell3 } from './voronoi-cell'
+import {
+  voronoiMinkowski2,
+  voronoiMinkowski3,
+  voronoiMinkowskiCell2,
+  voronoiMinkowskiCell3,
+} from './voronoi-minkowski'
 
 export type LiveNode = Node
 
@@ -141,6 +147,16 @@ const NOISES: Readonly<Record<NoiseKind, TslFunction>> = {
 const CELL_SEARCHES: Readonly<Record<CellDimensions, TslFunction>> = {
   2: widen(voronoiCell2),
   3: widen(voronoiCell3),
+}
+
+const MINKOWSKI_DISTANCES: Readonly<Record<CellDimensions, TslFunction>> = {
+  2: widen(voronoiMinkowski2),
+  3: widen(voronoiMinkowski3),
+}
+
+const MINKOWSKI_CELL_SEARCHES: Readonly<Record<CellDimensions, TslFunction>> = {
+  2: widen(voronoiMinkowskiCell2),
+  3: widen(voronoiMinkowskiCell3),
 }
 
 const HASHES: Readonly<Record<HashKind, TslFunction>> = {
@@ -234,6 +250,10 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     voronoi: worleyDistances,
     voronoiCell: (dimensions, p, jitter, metric) =>
       CELL_SEARCHES[dimensions](p, jitter, WORLEY_METRIC_IDS[metric]),
+    voronoiMinkowski: (dimensions, p, jitter, exponent) =>
+      MINKOWSKI_DISTANCES[dimensions](p, jitter, exponent),
+    voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
+      MINKOWSKI_CELL_SEARCHES[dimensions](p, jitter, exponent),
     cellNoise: (p) => cellNoiseNode(p),
     hash: (kind, p, seed) => HASHES[kind](p, seed),
     checker: (uvNode) => checkerNode(uvNode),

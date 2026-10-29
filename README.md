@@ -43,10 +43,10 @@ The header's **Templates** button (or **Browse templates** in the `Ctrl/⌘` `K`
 | Math          | Add, Subtract, Multiply, Divide, Power, Exponential, Sine, Cosine, Absolute, Fract, Floor, Min, Max, Clamp, One Minus, Remap, Distance, Random (hash) |
 | Interpolation | Lerp, Step, Smoothstep, AA Step                                                                                                                       |
 | Logic         | Select                                                                                                                                                |
-| Vector        | Split, Combine, Dot Product, Length, Normalize, Rotate 2D                                                                                             |
-| Effects       | Noise (simplex, Perlin), Voronoi, Checkerboard, Gradient, Fresnel                                                                                     |
+| Vector        | Split, Combine, Dot Product, Length, Normalize, Rotate 2D, Mapping                                                                                    |
+| Effects       | Noise (simplex, Perlin), Voronoi (Euclidean, Manhattan, Chebyshev, Minkowski), Checkerboard, Gradient, Fresnel                                        |
 | Texture       | Sample Texture 2D (images live in the browser's IndexedDB)                                                                                            |
-| Color         | Color Space                                                                                                                                           |
+| Color         | Color Space, Bright/Contrast                                                                                                                          |
 | Normal, scene | Normal From Height, Depth Fade, Scene Color                                                                                                           |
 | Utility       | Comment, Reroute                                                                                                                                      |
 | Output        | Master Stack, standard (lit) or unlit                                                                                                                 |

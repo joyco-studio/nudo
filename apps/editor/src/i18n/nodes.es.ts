@@ -25,7 +25,18 @@ const VALUE_OUTPUT: Readonly<Record<string, PortTexts>> = {
 /** The distance param of both Voronoi nodes. */
 const VORONOI_DISTANCE_ES: ParamTexts = {
   label: 'Distancia',
-  options: { euclidean: 'Euclídea', manhattan: 'Manhattan', chebyshev: 'Chebyshev' },
+  options: {
+    euclidean: 'Euclídea',
+    manhattan: 'Manhattan',
+    chebyshev: 'Chebyshev',
+    minkowski: 'Minkowski',
+  },
+}
+
+const VORONOI_EXPONENT_ES = {
+  label: 'Exponente',
+  description:
+    'La forma de una celda Minkowski: 1 = rombo, 2 = redonda, más alto = cuadrada, menos de 1 = estrella.',
 }
 
 const ANGLE_IN = 'El ángulo; una vuelta completa es unos 6,28. Con Tiempo conectado, se mueve.'
@@ -869,6 +880,50 @@ export const NODES_ES: NodeTranslations = {
       out: { label: 'Salida', description: 'Entrada girada según Ángulo alrededor de Centro.' },
     },
   },
+  'vector/mapping': {
+    label: 'Mapeo',
+    description:
+      'Mueve, rota y escala un vector 3D, como el nodo Mapping de Blender, para ubicar una textura.',
+    formula: 'Rotar(Entrada × Escala) + Pos',
+    keywords: [
+      'mapeo',
+      'mapping',
+      'transformar',
+      'mover',
+      'rotar',
+      'rotación',
+      'escala',
+      'ubicación',
+      'desplazar',
+      'blender',
+    ],
+    inputs: {
+      vector: {
+        label: 'Entrada',
+        description: 'El vector a transformar; la posición del objeto si no hay nada conectado.',
+      },
+      location: {
+        label: 'Ubicación',
+        description: 'Cuánto moverlo; Vector y Normal lo ignoran, porque no tienen posición.',
+      },
+      rotation: {
+        label: 'Rotación',
+        description:
+          'Cuánto girarlo en X, después en Y y después en Z, en radianes: 3,14 es media vuelta.',
+      },
+      scale: {
+        label: 'Escala',
+        description: 'Cuánto estirarlo en cada eje; 1 lo deja como está.',
+      },
+    },
+    outputs: { out: { label: 'Salida', description: 'El vector transformado.' } },
+    params: {
+      type: {
+        label: 'Tipo',
+        options: { point: 'Punto', texture: 'Textura', vector: 'Vector', normal: 'Normal' },
+      },
+    },
+  },
 
   // Properties (added from the Properties panel, named after their property)
   'property/float': {
@@ -986,6 +1041,7 @@ export const NODES_ES: NodeTranslations = {
         label: 'Dispersión',
         description: 'Qué tan irregulares son las celdas: 0 = grilla cuadrada, 1 = al azar.',
       },
+      exponent: VORONOI_EXPONENT_ES,
     },
     outputs: {
       f1: {
@@ -1027,6 +1083,7 @@ export const NODES_ES: NodeTranslations = {
         label: 'Dispersión',
         description: 'Qué tan irregulares son las celdas: 0 = grilla de cubos, 1 = al azar.',
       },
+      exponent: VORONOI_EXPONENT_ES,
     },
     outputs: {
       f1: {
@@ -1160,6 +1217,26 @@ export const NODES_ES: NodeTranslations = {
         options: { 'srgb-to-linear': 'sRGB a lineal', 'linear-to-srgb': 'Lineal a sRGB' },
       },
     },
+  },
+
+  'color/bright-contrast': {
+    label: 'Brillo/Contraste',
+    description:
+      'Aclara un color y empuja su contraste desde el gris medio, igual que Bright/Contrast de Blender.',
+    formula: 'Entrada × (1 + C) + B − C / 2',
+    keywords: ['brillo', 'contraste', 'niveles', 'exposición', 'ajustar', 'blender'],
+    inputs: {
+      in: { label: 'Entrada', description: 'El color a ajustar.' },
+      brightness: {
+        label: 'Brillo',
+        description: 'Se suma a cada canal: 0 deja el color como está, negativo lo oscurece.',
+      },
+      contrast: {
+        label: 'Contraste',
+        description: 'Cuánto se alejan los canales del gris medio: 0 = igual, negativo lo aplana.',
+      },
+    },
+    outputs: { out: { label: 'Salida', description: 'El color ajustado, nunca debajo de 0.' } },
   },
 
   'color/blend': {

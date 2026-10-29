@@ -52,6 +52,10 @@ const stringFacade: TslFacade<string> = {
   voronoi: (p, jitter, metric) => `voronoi(${p},${jitter},${metric})`,
   voronoiCell: (dimensions, p, jitter, metric) =>
     `voronoiCell(${String(dimensions)},${p},${jitter},${metric})`,
+  voronoiMinkowski: (dimensions, p, jitter, exponent) =>
+    `voronoiMinkowski(${String(dimensions)},${p},${jitter},${exponent})`,
+  voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
+    `voronoiMinkowskiCell(${String(dimensions)},${p},${jitter},${exponent})`,
   cellNoise: (p) => `cellNoise(${p})`,
   hash: (kind, p, seed) => `hash(${kind},${p},${seed})`,
   checker: (uv) => `checker(${uv})`,

@@ -313,6 +313,39 @@ describe('generateModule', () => {
       expect(code.match(/const voronoiCell2 = Fn\(/g)).toHaveLength(1)
       expect(code.match(/const voronoiCell3 = Fn\(/g)).toHaveLength(1)
     })
+    it('prints a Minkowski voronoi through its own search, with the exponent', () => {
+      const code = generate(voronoiTo('f1', 'minkowski'))
+
+      expect(code).toContain('voronoiMinkowski2(uv().mul(float(5)), float(1), float(0.5)).x')
+      expect(code).not.toContain('mx_worley_noise')
+      expect(code.match(/const voronoiMinkowski2 = Fn\(/g)).toHaveLength(1)
+    })
+
+    it('leaves the exponent and the Minkowski search out of other distances', () => {
+      const code = generate(voronoiTo('cell'))
+
+      expect(code).not.toContain('Minkowski')
+      expect(code).not.toContain('float(0.5)')
+    })
+
+    it('declares the Minkowski source once beside the MaterialX cell search', () => {
+      let graph = voronoiTo('cell')
+      graph = withNode(graph, 'cells3d', 'effects/voronoi-3d')
+      graph = withParam(graph, 'cells3d', 'distance', 'minkowski')
+      graph = withLink(graph, port('cells3d', 'random'), port('master', 'metalness'))
+      graph = withLink(graph, port('cells3d', 'f2'), port('master', 'opacity'))
+      const code = generate(graph)
+
+      expect(code).toContain('voronoiCell2(uv().mul(float(5)), float(1), 1)')
+      expect(code).toContain(
+        'voronoiMinkowskiCell3(positionLocal.mul(float(5)), float(1), float(0.5))',
+      )
+      expect(code).toContain(
+        'voronoiMinkowski3(positionLocal.mul(float(5)), float(1), float(0.5)).y',
+      )
+      expect(code.match(/const MINKOWSKI_CELL_CENTER = /g)).toHaveLength(1)
+      expect(code.match(/const searchMinkowski3 = /g)).toHaveLength(1)
+    })
   })
 
   describe('random hash', () => {

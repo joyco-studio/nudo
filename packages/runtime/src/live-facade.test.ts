@@ -131,6 +131,10 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
     [`voronoiCell 2 ${metric}`, (tsl, { vec2, a }) => tsl.voronoiCell(2, vec2, a, metric)],
     [`voronoiCell 3 ${metric}`, (tsl, { vec3, a }) => tsl.voronoiCell(3, vec3, a, metric)],
   ]),
+  ['voronoiMinkowski 2', (tsl, { vec2, a, c }) => tsl.voronoiMinkowski(2, vec2, a, c)],
+  ['voronoiMinkowski 3', (tsl, { vec3, a, c }) => tsl.voronoiMinkowski(3, vec3, a, c)],
+  ['voronoiMinkowskiCell 2', (tsl, { vec2, a, c }) => tsl.voronoiMinkowskiCell(2, vec2, a, c)],
+  ['voronoiMinkowskiCell 3', (tsl, { vec3, a, c }) => tsl.voronoiMinkowskiCell(3, vec3, a, c)],
   ...SWIZZLES.map((components): readonly [string, ExpressionFactory] => [
     `swizzle ${components}`,
     (tsl) => tsl.swizzle(tsl.construct('vec4', [1, 2, 3, 4]), components),
