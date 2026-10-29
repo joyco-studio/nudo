@@ -17,6 +17,7 @@ import {
   positionNode,
   rerouteNode,
   timeNode,
+  triplanarNode,
   viewDirectionNode,
   voronoi3dNode,
 } from '@nudo-tsl/nodes'
@@ -38,6 +39,7 @@ const SURFACE_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([
   fresnelNode.type,
   normalFromHeightNode.type,
   voronoi3dNode.type,
+  triplanarNode.type,
 ])
 
 /** Upstream nodes that change every frame, so the preview keeps rendering while it is visible. */

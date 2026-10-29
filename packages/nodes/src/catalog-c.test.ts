@@ -7,11 +7,18 @@ import {
   createRecordingFacade,
   moduloNode,
   posterizeNode,
+  triplanarNode,
   voronoi3dNode,
   voronoiNode,
 } from './index'
 
-const CATALOG_C_TYPES = ['math/posterize', 'math/modulo', 'color/blend', 'effects/voronoi-3d']
+const CATALOG_C_TYPES = [
+  'math/posterize',
+  'math/modulo',
+  'color/blend',
+  'effects/voronoi-3d',
+  'texture/triplanar',
+]
 
 const buildWith = (
   definition: AnyNodeDefinition,
@@ -141,5 +148,60 @@ describe('voronoi 3d', () => {
 
   it('shares the distance param with the 2D voronoi', () => {
     expect(voronoi3dNode.params).toEqual(voronoiNode.params)
+  })
+})
+
+describe('triplanar', () => {
+  const TRIPLANAR_INPUTS = {
+    texture: 'tex',
+    position: 'p',
+    normal: 'n',
+    scale: 's',
+    sharpness: 'k',
+  }
+  const sample = (a: string, b: string): string =>
+    `textureSample(tex,mul(construct(vec2,[swizzle(p,${a}),swizzle(p,${b})]),s),null)`
+  const powered = 'pow(abs(n),k)'
+  const weights = `div(${powered},dot(${powered},construct(vec3,[1,1,1])))`
+
+  it('blends three planar projections weighted by the normal', () => {
+    const rgba = `add(add(mul(${sample('y', 'z')},swizzle(${weights},x)),mul(${sample('z', 'x')},swizzle(${weights},y))),mul(${sample('x', 'y')},swizzle(${weights},z)))`
+    expect(buildWith(triplanarNode, TRIPLANAR_INPUTS)).toEqual({
+      rgba,
+      rgb: `swizzle(${rgba},xyz)`,
+      a: `swizzle(${rgba},w)`,
+    })
+  })
+
+  it('reads object position and normal by default', () => {
+    expect(
+      triplanarNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
+    ).toEqual([
+      [
+        'texture',
+        { kind: 'concrete', type: 'texture' },
+        { type: 'texture', assetId: null },
+        undefined,
+      ],
+      [
+        'position',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 0] },
+        'positionLocal',
+      ],
+      [
+        'normal',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 1] },
+        'normalLocal',
+      ],
+      ['scale', { kind: 'concrete', type: 'float' }, { type: 'float', value: 1 }, undefined],
+      ['sharpness', { kind: 'concrete', type: 'float' }, { type: 'float', value: 1 }, undefined],
+    ])
+    expect(triplanarNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['rgba', { kind: 'concrete', type: 'vec4' }],
+      ['rgb', { kind: 'concrete', type: 'vec3' }],
+      ['a', { kind: 'concrete', type: 'float' }],
+    ])
   })
 })

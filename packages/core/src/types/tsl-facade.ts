@@ -6,6 +6,7 @@ export type BuiltinName =
   | 'uv'
   | 'normalWorld'
   | 'normalView'
+  | 'normalLocal'
   | 'positionLocal'
   | 'positionWorld'
   | 'positionViewDirection'

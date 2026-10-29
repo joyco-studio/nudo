@@ -342,6 +342,7 @@ export const en = {
   'fallback.uv': 'Mesh UV',
   'fallback.normalWorld': 'World normal',
   'fallback.normalView': 'View normal',
+  'fallback.normalLocal': 'Local normal',
   'fallback.positionLocal': 'Local position',
   'fallback.positionWorld': 'World position',
   'fallback.positionViewDirection': 'View dir',

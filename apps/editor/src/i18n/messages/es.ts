@@ -350,6 +350,7 @@ export const es = {
   'fallback.uv': 'UV de la malla',
   'fallback.normalWorld': 'Normal de mundo',
   'fallback.normalView': 'Normal de vista',
+  'fallback.normalLocal': 'Normal local',
   'fallback.positionLocal': 'Posición local',
   'fallback.positionWorld': 'Posición de mundo',
   'fallback.positionViewDirection': 'Dir. de vista',

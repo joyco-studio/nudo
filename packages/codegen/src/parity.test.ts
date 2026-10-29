@@ -146,7 +146,7 @@ describe('generated module parity', () => {
         expect(uniformNode).toBeInstanceOf(Node)
       }
       const textures = isRecord(exports.textures) ? exports.textures : {}
-      expect(Object.keys(textures)).toEqual(['albedo', 'mask', 'texture1'])
+      expect(Object.keys(textures)).toEqual(['albedo', 'mask', 'texture1', 'texture2'])
       for (const [key, textureNode] of Object.entries(textures)) {
         expect(textureNode, `textures.${key}`).toBeInstanceOf(TextureNode)
         expect(textureNode instanceof TextureNode ? textureNode.value : null).not.toBeNull()

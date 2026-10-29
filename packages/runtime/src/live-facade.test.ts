@@ -19,6 +19,7 @@ const BUILTIN_NAMES = [
   'uv',
   'normalWorld',
   'normalView',
+  'normalLocal',
   'positionLocal',
   'positionWorld',
   'positionViewDirection',

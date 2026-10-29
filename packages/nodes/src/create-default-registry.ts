@@ -54,6 +54,7 @@ import {
 import { depthFadeNode } from './scene/depth-fade-node'
 import { sceneColorNode } from './scene/scene-color-node'
 import { sampleTexture2dNode } from './texture/sample-texture-2d-node'
+import { triplanarNode } from './texture/triplanar-node'
 import { commentNode } from './utility/comment-node'
 import { rerouteNode } from './utility/reroute-node'
 import { combineNode } from './vector/combine-node'
@@ -138,6 +139,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   moduloNode,
   blendNode,
   voronoi3dNode,
+  triplanarNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

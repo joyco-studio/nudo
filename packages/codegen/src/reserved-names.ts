@@ -56,6 +56,7 @@ export const TSL_IMPORT_NAMES = [
   'mx_worley_noise_vec2',
   'mx_worley_noise_vec3',
   'normalize',
+  'normalLocal',
   'normalView',
   'normalWorld',
   'oneMinus',

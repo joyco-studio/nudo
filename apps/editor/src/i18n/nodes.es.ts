@@ -937,6 +937,40 @@ export const NODES_ES: NodeTranslations = {
     params: { mip: { label: 'Mip', options: { auto: 'Automático', level: 'Nivel' } } },
   },
 
+  'texture/triplanar': {
+    label: 'Triplanar',
+    description:
+      'Proyecta una textura sobre los tres ejes y mezcla los resultados según la normal de la superficie: sin UVs y sin estirarse en las caras empinadas.',
+    formula: 'Σ tex(plano) × peso',
+    keywords: ['triplanar', 'textura', 'proyección', 'cubo', 'mapeo', 'roca'],
+    inputs: {
+      texture: { label: 'Textura', description: 'La imagen a proyectar.' },
+      position: {
+        label: 'Posición',
+        description:
+          'Dónde se proyecta la imagen; la posición del objeto si no hay nada conectado.',
+      },
+      normal: {
+        label: 'Normal',
+        description: 'Decide qué proyección se ve en cada cara; la normal del objeto por defecto.',
+      },
+      scale: {
+        label: 'Escala',
+        description: 'Cuántas veces se repite la imagen por unidad de espacio.',
+      },
+      sharpness: {
+        label: 'Nitidez',
+        description:
+          'Qué tan cerrada es la mezcla entre proyecciones: más alto = uniones más finas.',
+      },
+    },
+    outputs: {
+      rgba: { label: 'RGBA', description: 'El color y el alfa mezclados.' },
+      rgb: { label: 'RGB', description: 'El color mezclado.' },
+      a: { label: 'A', description: 'El alfa (opacidad) mezclado.' },
+    },
+  },
+
   // Color
   'color/color-space': {
     label: 'Espacio de color',
