@@ -327,7 +327,7 @@ describe('generateModule', () => {
       const code = generate(hashTo('out', 'roughness'))
 
       expect(code).toContain('hashFloat(uv(), float(0))')
-      expect(code).toContain('const hashFloat = Fn(([pointInput, seed]) => {')
+      expect(code).toContain('const hashFloat = Fn(([pointInput, seed]) =>')
       expect(code).not.toContain('simplexNoise3')
     })
 

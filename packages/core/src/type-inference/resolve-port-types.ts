@@ -1,6 +1,7 @@
 import { topologicalOrder } from '../graph/topological-order'
 import type { NodeRegistry } from '../registry/node-registry'
 import { widestType } from '../types-system/widest-type'
+import { BUILTIN_TYPES } from '../types/builtin-types'
 import type { DataType, PortTypeSpec, VectorType } from '../types/data-type'
 import { VECTOR_TYPES } from '../types/data-type'
 import type { Graph, GraphEdge, GraphNode } from '../types/graph'
@@ -58,11 +59,12 @@ function resolveGroupTypes(
       continue
     }
 
-    // A fallback builtin stands in for the inline value, so it says nothing about the group's type.
-    if (input.fallback !== undefined) continue
-
-    const inlineValue = node.inputValues[input.id] ?? input.default
-    inlineTypes.set(group, [...(inlineTypes.get(group) ?? []), inlineValue.type])
+    // A fallback builtin stands in for the inline value: the input takes the builtin's type.
+    const unconnectedType =
+      input.fallback === undefined
+        ? (node.inputValues[input.id] ?? input.default).type
+        : BUILTIN_TYPES[input.fallback]
+    inlineTypes.set(group, [...(inlineTypes.get(group) ?? []), unconnectedType])
   }
 
   const groups = new Set([...connectedTypes.keys(), ...inlineTypes.keys()])

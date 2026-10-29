@@ -485,6 +485,19 @@ describe('random hash', () => {
     expect(resolved.outputs.get(portKey({ nodeId: asNodeId('hash'), portId: 'out3' }))).toBe('vec3')
   })
 
+  it('reads the mesh UV as a vec2 when nothing is plugged in', () => {
+    const added = addNode(createGraph(), registry, {
+      id: asNodeId('hash'),
+      type: 'math/hash',
+      position: { x: 0, y: 0 },
+    })
+    if (!added.ok) throw new Error('Cannot add the hash')
+
+    const resolved = resolvePortTypes(added.value, registry)
+
+    expect(resolved.inputs.get(portKey({ nodeId: asNodeId('hash'), portId: 'in' }))).toBe('vec2')
+  })
+
   it('refuses a vec4 in In, which has no hash', () => {
     const origin = { x: 0, y: 0 }
     const withSource = addNode(createGraph(), registry, {

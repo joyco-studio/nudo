@@ -3,7 +3,7 @@ import { defineNode } from '../registry/define-node'
 import { createNodeRegistry } from '../registry/node-registry'
 import type { Graph, GraphEdge, GraphNode } from '../types/graph'
 import { asEdgeId, asNodeId } from '../types/ids'
-import { concrete, float, generic, vec3 } from '../values/port-value-factories'
+import { concrete, float, generic, vec2, vec3 } from '../values/port-value-factories'
 import { portKey } from './port-key'
 import { resolvePortTypes } from './resolve-port-types'
 
@@ -54,7 +54,7 @@ const genericWithFallback = defineNode({
       id: 'a',
       label: 'A',
       type: generic('T'),
-      default: vec3(1, 1, 1),
+      default: float(0),
       fallback: 'normalView',
     },
     { id: 'b', label: 'B', type: generic('T'), default: float(0) },
@@ -63,12 +63,36 @@ const genericWithFallback = defineNode({
   build: ({ tsl, inputs }) => ({ out: tsl.add(inputs.a, inputs.b) }),
 })
 
+const uvFallback = defineNode({
+  type: 'test/uv-fallback',
+  category: 'math',
+  label: 'UV fallback',
+  description: 'A lone generic input that defaults to the mesh UV',
+  keywords: [],
+  inputs: [{ id: 'in', label: 'In', type: generic('T'), default: float(0), fallback: 'uv' }],
+  outputs: [{ id: 'out', label: 'Out', type: generic('T') }],
+  build: ({ inputs }) => ({ out: inputs.in }),
+})
+
+const concreteFallback = defineNode({
+  type: 'test/concrete-fallback',
+  category: 'math',
+  label: 'Concrete fallback',
+  description: 'A vec2 input that defaults to the mesh UV',
+  keywords: [],
+  inputs: [{ id: 'uv', label: 'UV', type: concrete('vec2'), default: vec2(0, 0), fallback: 'uv' }],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+  build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
+})
+
 const createRegistry = () => {
   const registry = createNodeRegistry()
   registry.register(floatSource)
   registry.register(vec3Source)
   registry.register(add)
   registry.register(genericWithFallback)
+  registry.register(uvFallback)
+  registry.register(concreteFallback)
   return registry
 }
 
@@ -180,13 +204,43 @@ describe('resolvePortTypes', () => {
     expect(resolvePortTypes(disconnected, registry).outputs.get(key('add', 'out'))).toBe('float')
   })
 
-  it('ignores the inline value of an unconnected input that has a fallback', () => {
+  it('gives an unconnected input with a fallback the type of its builtin, not of its inline value', () => {
     const graph = createGraph([node('g', 'test/generic-fallback')], [])
 
     const resolved = resolvePortTypes(graph, createRegistry())
 
-    expect(resolved.inputs.get(key('g', 'a'))).toBe('float')
+    expect(resolved.inputs.get(key('g', 'a'))).toBe('vec3')
+    expect(resolved.inputs.get(key('g', 'b'))).toBe('vec3')
+    expect(resolved.outputs.get(key('g', 'out'))).toBe('vec3')
+  })
+
+  it('takes a vec2 for a uv fallback', () => {
+    const graph = createGraph([node('g', 'test/uv-fallback')], [])
+
+    const resolved = resolvePortTypes(graph, createRegistry())
+
+    expect(resolved.inputs.get(key('g', 'in'))).toBe('vec2')
+    expect(resolved.outputs.get(key('g', 'out'))).toBe('vec2')
+  })
+
+  it('lets a connected source override the fallback type', () => {
+    const graph = createGraph(
+      [node('src', 'test/float-source'), node('g', 'test/uv-fallback')],
+      [edge('e1', ['src', 'out'], ['g', 'in'])],
+    )
+
+    const resolved = resolvePortTypes(graph, createRegistry())
+
+    expect(resolved.inputs.get(key('g', 'in'))).toBe('float')
     expect(resolved.outputs.get(key('g', 'out'))).toBe('float')
+  })
+
+  it('leaves a concrete input with a fallback at its declared type', () => {
+    const graph = createGraph([node('c', 'test/concrete-fallback')], [])
+
+    const resolved = resolvePortTypes(graph, createRegistry())
+
+    expect(resolved.inputs.get(key('c', 'uv'))).toBe('vec2')
   })
 
   it('skips nodes whose definition is missing', () => {
