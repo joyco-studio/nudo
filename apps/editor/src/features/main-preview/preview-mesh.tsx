@@ -1,70 +1,87 @@
-import { Suspense, useLayoutEffect } from 'react'
-import type { Group, Material } from 'three'
+import { Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+import type { Group } from 'three'
 
-import { applyMaterialToModel } from './glb-model'
-import type { PreviewShape, PrimitiveShape } from './preview-shape'
+import { applyMaterialToModel, createOutlineCopy } from './glb-model'
+import type { PreviewMaterials } from './preview-materials'
+import type { PreviewShape } from './preview-shape'
+import { createHullGeometry, createPrimitiveGeometry, shapeHasHull } from './primitive-geometry'
+import type { GeneratedShape } from './primitive-geometry'
 import { SuzanneMesh } from './suzanne-mesh'
 
-/** Shapes three.js can build in code; the rest load from a file. */
-type GeneratedShape = Exclude<PrimitiveShape, 'suzanne'>
+interface GeneratedMeshProps {
+  shape: GeneratedShape
+  materials: PreviewMaterials
+}
 
-/** Segment counts are high enough that vertex-displacement nodes have something to move. */
-const SPHERE_ARGS = [1, 96, 48] as const
-const CUBE_ARGS = [1.5, 1.5, 1.5, 24, 24, 24] as const
-const PLANE_ARGS = [2.4, 2.4, 96, 96] as const
-const TORUS_ARGS = [0.85, 0.35, 64, 128] as const
-/** A (2,3) trefoil: curvature and self-occlusion change everywhere, so shading reads at every angle. */
-const KNOT_ARGS = [0.6, 0.2, 256, 48, 2, 3] as const
-
-function GeneratedGeometry({ shape }: { shape: GeneratedShape }) {
-  switch (shape) {
-    case 'sphere':
-      return <sphereGeometry args={SPHERE_ARGS} />
-    case 'cube':
-      return <boxGeometry args={CUBE_ARGS} />
-    case 'plane':
-      return <planeGeometry args={PLANE_ARGS} />
-    case 'torus':
-      return <torusGeometry args={TORUS_ARGS} />
-    case 'knot':
-      return <torusKnotGeometry args={KNOT_ARGS} />
-  }
+/**
+ * A shape three.js builds in code. The outline pass draws the same buffers again, with smoothed
+ * normals so the hull stays closed over hard edges; the plane gets no hull.
+ */
+function GeneratedMesh({ shape, materials }: GeneratedMeshProps) {
+  const geometries = useMemo(() => {
+    const surface = createPrimitiveGeometry(shape)
+    return { surface, hull: shapeHasHull(shape) ? createHullGeometry(surface) : null }
+  }, [shape])
+  // The hull shares the surface's buffers, so both go together. Three.js re-uploads a disposed
+  // geometry on its next draw, so a Strict Mode remount is safe.
+  useEffect(
+    () => () => {
+      geometries.hull?.dispose()
+      geometries.surface.dispose()
+    },
+    [geometries],
+  )
+  return (
+    <>
+      <mesh geometry={geometries.surface} material={materials.surface} />
+      {materials.outline !== null && geometries.hull !== null && (
+        <mesh geometry={geometries.hull} material={materials.outline} />
+      )}
+    </>
+  )
 }
 
 interface ModelMeshProps {
   model: Group
-  material: Material
+  materials: PreviewMaterials
 }
 
-function ModelMesh({ model, material }: ModelMeshProps) {
+/** The model's meshes wear the surface; a copy on the same geometry wears the outline. */
+function ModelMesh({ model, materials }: ModelMeshProps) {
+  const { surface, outline } = materials
   // Layout effect: the file's own materials are swapped out before the next frame draws them.
   useLayoutEffect(() => {
-    applyMaterialToModel(model, material)
-  }, [model, material])
-  return <primitive object={model} />
+    applyMaterialToModel(model, surface)
+  }, [model, surface])
+  const outlineCopy = useMemo(
+    () => (outline === null ? null : createOutlineCopy(model, outline)),
+    [model, outline],
+  )
+  return (
+    <>
+      <primitive object={model} />
+      {outlineCopy !== null && <primitive object={outlineCopy} />}
+    </>
+  )
 }
 
 export interface PreviewMeshProps {
   shape: PreviewShape
-  material: Material
+  materials: PreviewMaterials
   model: Group | null
 }
 
-/** The mesh that wears the compiled material. */
-export function PreviewMesh({ shape, material, model }: PreviewMeshProps) {
+/** The mesh that wears the compiled material, drawn again with the outline pass when it is on. */
+export function PreviewMesh({ shape, materials, model }: PreviewMeshProps) {
   if (shape === 'model') {
-    return model === null ? null : <ModelMesh model={model} material={material} />
+    return model === null ? null : <ModelMesh model={model} materials={materials} />
   }
   if (shape === 'suzanne') {
     return (
       <Suspense fallback={null}>
-        <SuzanneMesh material={material} />
+        <SuzanneMesh materials={materials} />
       </Suspense>
     )
   }
-  return (
-    <mesh material={material}>
-      <GeneratedGeometry shape={shape} />
-    </mesh>
-  )
+  return <GeneratedMesh shape={shape} materials={materials} />
 }

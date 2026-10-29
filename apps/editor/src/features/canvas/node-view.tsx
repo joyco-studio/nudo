@@ -138,8 +138,9 @@ const GROUP_HEADING_CLASS = 'font-mono text-micro tracking-[0.2em] text-muted-fo
 const GROUP_HEADING_INSET = 'px-3 pt-2 pb-0.5'
 
 /**
- * A titled group (Master Stack "Vertex", "Fragment", "Physical") is a labelled group, not a
- * landmark. A folding group's heading is its toggle; folded, it still shows its connected rows.
+ * A titled group (Master Stack "Vertex", "Fragment", "Physical", "Outline") is a labelled group,
+ * not a landmark. A folding group's heading is its toggle; folded, it still shows its connected
+ * rows.
  */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
   const headingId = useId()

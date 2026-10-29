@@ -63,6 +63,7 @@ const PHYSICAL_INPUT_IDS: readonly string[] = [
   'iridescence',
   'iridescenceIOR',
 ]
+const OUTLINE_INPUT_IDS: readonly string[] = ['outlineWidth', 'outlineColor', 'outlineWobble']
 
 function registryInputs() {
   const definition = registry.get('master/stack')
@@ -113,16 +114,37 @@ describe('node port layout', () => {
     expect(rows.map((row) => row.input.id)).not.toContain('stop2Position')
   })
 
-  it('groups the master inputs into Vertex, Fragment and Physical', () => {
+  it('groups the master inputs into Vertex, Fragment, Physical and Outline', () => {
     const groups = inputGroups(dataFor(master()))
     expect(groups.map((group) => group.title)).toEqual([
       'node.group.vertex',
       'node.group.fragment',
       'node.group.physical',
+      'node.group.outline',
     ])
     expect(groups[0]?.rows.map((row) => row.input.id)).toEqual(['position'])
     expect(groups[2]?.rows.map((row) => row.input.id)).toEqual(PHYSICAL_INPUT_IDS)
-    expect(groups[1]?.rows.some((row) => PHYSICAL_INPUT_IDS.includes(row.input.id))).toBe(false)
+    expect(groups[3]?.rows.map((row) => row.input.id)).toEqual(OUTLINE_INPUT_IDS)
+    const fragmentIds = groups[1]?.rows.map((row) => row.input.id) ?? []
+    expect(
+      fragmentIds.some((id) => [...PHYSICAL_INPUT_IDS, ...OUTLINE_INPUT_IDS].includes(id)),
+    ).toBe(false)
+  })
+
+  it('folds the Outline group away until the outline is switched on', () => {
+    const outlineGroup = (params: GraphNode['params']) =>
+      inputGroups(dataFor(master(params))).find((group) => group.title === 'node.group.outline')
+    expect(outlineGroup({})?.disclosure).toEqual({ isOpenByDefault: false })
+    expect(outlineGroup({ outline: true })?.disclosure).toEqual({ isOpenByDefault: true })
+  })
+
+  it('asks for the Outline switch while it is off, whatever the lighting', () => {
+    for (const lighting of ['standard', 'unlit', 'physical']) {
+      const hints = hintsOf({ lighting })
+      for (const id of OUTLINE_INPUT_IDS) expect(hints.get(id)).toEqual({ reason: 'outlineOff' })
+      const outlined = hintsOf({ lighting, outline: true })
+      for (const id of OUTLINE_INPUT_IDS) expect(outlined.get(id)).toBeNull()
+    }
   })
 
   it('folds the Physical group away unless the lighting is physical', () => {
@@ -170,7 +192,9 @@ describe('node port layout', () => {
       for (const id of PHYSICAL_INPUT_IDS) expect(hints.get(id)).toEqual({ reason: 'physicalOnly' })
     }
     const standard = hintsOf({})
-    const surfaceIds = [...standard.keys()].filter((id) => !PHYSICAL_INPUT_IDS.includes(id))
+    const surfaceIds = [...standard.keys()].filter(
+      (id) => !PHYSICAL_INPUT_IDS.includes(id) && !OUTLINE_INPUT_IDS.includes(id),
+    )
     expect(surfaceIds.every((id) => standard.get(id) === null)).toBe(true)
   })
 
@@ -195,6 +219,7 @@ describe('node port layout', () => {
       useClearcoat: true,
       useSheen: true,
       useIridescence: true,
+      outline: true,
     })
     expect([...hints.values()].every((hint) => hint === null)).toBe(true)
   })

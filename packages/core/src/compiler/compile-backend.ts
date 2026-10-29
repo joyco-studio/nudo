@@ -5,7 +5,8 @@ import type { AnyNodeDefinition, InputWidget } from '../types/node-definition'
 import type { PortValue } from '../types/port-value'
 import type { TslFacade } from '../types/tsl-facade'
 
-export type MasterSlot =
+/** A master slot the surface material reads. */
+export type SurfaceSlot =
   | 'position'
   | 'baseColor'
   | 'emission'
@@ -24,7 +25,12 @@ export type MasterSlot =
   | 'iridescence'
   | 'iridescenceIOR'
 
-export const MASTER_SLOTS: readonly MasterSlot[] = [
+/** A master slot only the outline pass reads. */
+export type OutlineSlot = 'outlineWidth' | 'outlineColor' | 'outlineWobble'
+
+export type MasterSlot = SurfaceSlot | OutlineSlot
+
+export const SURFACE_SLOTS: readonly SurfaceSlot[] = [
   'position',
   'baseColor',
   'emission',
@@ -43,6 +49,15 @@ export const MASTER_SLOTS: readonly MasterSlot[] = [
   'iridescence',
   'iridescenceIOR',
 ]
+
+export const OUTLINE_SLOTS: readonly OutlineSlot[] = [
+  'outlineWidth',
+  'outlineColor',
+  'outlineWobble',
+]
+
+/** Every slot the master compiles, in input order. */
+export const MASTER_SLOTS: readonly MasterSlot[] = [...SURFACE_SLOTS, ...OUTLINE_SLOTS]
 
 /** What a compilation targets the graph with: a concrete expression type `E` per backend. */
 export interface CompileBackend<E> {

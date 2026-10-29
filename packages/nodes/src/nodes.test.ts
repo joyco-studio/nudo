@@ -104,6 +104,9 @@ describe('default registry', () => {
       'sheenRoughness',
       'iridescence',
       'iridescenceIOR',
+      'outlineWidth',
+      'outlineColor',
+      'outlineWobble',
     ])
     expect(master?.inputs.filter((input) => input.optional === true).map((i) => i.id)).toEqual([
       'position',

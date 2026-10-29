@@ -42,13 +42,17 @@ export interface SeedEdge {
 
 export const MASTER_POSITION = { x: 600, y: 0 }
 
+/** What the master holds besides its position: its settings and inline values. */
+export type SeedMaster = Pick<SeedNode, 'params' | 'inputValues'>
+
 function documentBody(
   nodes: readonly SeedNode[],
   edges: readonly SeedEdge[],
   masterPosition = MASTER_POSITION,
+  master: SeedMaster = {},
 ) {
   const allNodes: SeedNode[] = [
-    { id: 'master', type: 'master/stack', position: masterPosition },
+    { id: 'master', type: 'master/stack', position: masterPosition, ...master },
     ...nodes,
   ]
   return {
@@ -81,8 +85,16 @@ function documentBody(
  * Builds a phase-1 autosave document (schema version 1) the editor restores on start. It stays at
  * v1 on purpose: every e2e that seeds it also exercises the v1 to v2 migration.
  */
-export function graphDocument(nodes: readonly SeedNode[], edges: readonly SeedEdge[]): string {
-  return JSON.stringify({ schemaVersion: 1, ...documentBody(nodes, edges), properties: [] })
+export function graphDocument(
+  nodes: readonly SeedNode[],
+  edges: readonly SeedEdge[],
+  master: SeedMaster = {},
+): string {
+  return JSON.stringify({
+    schemaVersion: 1,
+    ...documentBody(nodes, edges, MASTER_POSITION, master),
+    properties: [],
+  })
 }
 
 /** A schema version 2 document, for graphs that need Blackboard properties. */

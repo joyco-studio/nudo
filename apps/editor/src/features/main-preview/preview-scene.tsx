@@ -1,7 +1,6 @@
 import { OrbitControls } from '@react-three/drei'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import type { PreviewBackdrop } from '@/features/panels/panel-state'
 
@@ -10,6 +9,7 @@ import { GridFloor } from './grid-floor'
 import { KEY_LIGHT_INTENSITY, KEY_LIGHT_POSITION } from './key-light'
 import type { OrbitView } from './orbit-view'
 import { PreviewMesh } from './preview-mesh'
+import type { PreviewMaterials } from './preview-materials'
 import type { PreviewShape } from './preview-shape'
 import { useValidatedMaterial } from './use-validated-material'
 import type { MaterialStatusHandler } from './use-validated-material'
@@ -21,8 +21,8 @@ const MIN_ORBIT_DISTANCE = 1.5
 const MAX_ORBIT_DISTANCE = 12
 
 export interface PreviewSceneProps {
-  /** The newest material that compiled; it is checked against the renderer before it is shown. */
-  candidate: RuntimeMaterial | null
+  /** The newest materials that compiled; they are checked against the renderer before shown. */
+  candidate: PreviewMaterials | null
   shape: PreviewShape
   model: Group | null
   backgroundColor: string
@@ -41,7 +41,7 @@ export function PreviewScene({
   orbitRef,
   onMaterialStatus,
 }: PreviewSceneProps) {
-  const material = useValidatedMaterial(candidate, onMaterialStatus)
+  const materials = useValidatedMaterial(candidate, onMaterialStatus)
 
   return (
     <>
@@ -50,7 +50,7 @@ export function PreviewScene({
       <directionalLight position={KEY_LIGHT_POSITION} intensity={KEY_LIGHT_INTENSITY} />
       {backdrop === 'grid' && <GridFloor />}
       {backdrop === 'checker-room' && <CheckerRoom />}
-      {material !== null && <PreviewMesh shape={shape} material={material} model={model} />}
+      {materials !== null && <PreviewMesh shape={shape} materials={materials} model={model} />}
       <OrbitControls
         ref={orbitRef}
         makeDefault

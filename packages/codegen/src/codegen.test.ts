@@ -465,6 +465,57 @@ describe('generateModule', () => {
       expect(code).not.toContain('iridescenceNode')
     })
 
+    it('prints no outline while the switch is off', () => {
+      const code = generate(createGraph())
+
+      expect(code).not.toContain('outline')
+      expect(code).not.toContain('BackSide')
+    })
+
+    it('exports the outline pass with how to apply it', () => {
+      const code = generate(withMasterSettings(createGraph(), { outline: true }))
+
+      expect(lines(code).slice(4, 6)).toEqual([
+        '// Outline: draw the geometry again with this, e.g. mesh.add(new Mesh(mesh.geometry, outline))',
+        '// const outline = Object.assign(new MeshBasicNodeMaterial(), outlineNodes, outlineMaterialSettings)',
+      ])
+      expect(importLine(code, 'three')).toBe("import { BackSide, FrontSide } from 'three'")
+      expect(code).toContain(
+        [
+          'export const outlineNodes = {',
+          [
+            '  positionNode: positionLocal.add(normalLocal.mul(max(float(0.02).add(float(0).mul(',
+            'mx_noise_float(positionLocal.mul(modelScale).mul(float(4)).add(time.mul(float(2)))))),',
+            ' float(0))).div(modelScale)),',
+          ].join(''),
+          '  colorNode: color(0x6e6e6e),',
+          '}',
+        ].join('\n'),
+      )
+      expect(code).toContain('export const outlineMaterialSettings = {\n  side: BackSide,\n}')
+      expect(code).not.toContain('outlineWidth')
+      expect(code).not.toContain('outlineWobble')
+    })
+
+    it('cuts the outline with the alpha clip the surface uses', () => {
+      let graph = withMasterSettings(createGraph(), { outline: true })
+      graph = withNode(graph, 'mask', 'effects/checkerboard')
+      graph = withLink(graph, port('mask', 'out'), port('master', 'alphaClip'))
+      const code = generate(graph)
+
+      const outline = code.slice(code.indexOf('export const outlineNodes'))
+      expect(outline).toContain('  opacityNode: float(1),\n  alphaTestNode: checkerboard1,\n}')
+    })
+
+    it('starts the outline from the displaced position the surface uses', () => {
+      let graph = withMasterSettings(createGraph(), { outline: true })
+      graph = withNode(graph, 'lift', 'input/vector3')
+      graph = withLink(graph, port('lift', 'out'), port('master', 'position'))
+      const code = generate(graph)
+
+      expect(code).toMatch(/positionNode: (\w+),[\s\S]*outlineNodes[\s\S]*positionNode: \1\.add\(/)
+    })
+
     it('prints no physical slot for a standard material, whatever its switches', () => {
       const graph = withMasterSettings(createGraph(), { useTransmission: true, useSheen: true })
       const code = generate(graph)
@@ -604,6 +655,7 @@ interface MasterSettingsOverride {
   readonly useClearcoat?: boolean
   readonly useSheen?: boolean
   readonly useIridescence?: boolean
+  readonly outline?: boolean
 }
 
 const MASTER_SETTING_IDS: readonly (keyof MasterSettingsOverride)[] = [
@@ -614,6 +666,7 @@ const MASTER_SETTING_IDS: readonly (keyof MasterSettingsOverride)[] = [
   'useClearcoat',
   'useSheen',
   'useIridescence',
+  'outline',
 ]
 
 function withMasterSettings(graph: Graph, settings: MasterSettingsOverride): Graph {

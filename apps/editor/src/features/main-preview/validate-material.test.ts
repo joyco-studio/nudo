@@ -1,7 +1,9 @@
 import { MeshBasicMaterial, PerspectiveCamera, Scene, error as logThreeError } from 'three'
+import type { Object3D } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { validateMaterial } from './validate-material'
+import { isMesh } from './glb-model'
+import { validateMaterials } from './validate-material'
 
 const COMPILE_TIMEOUT_MS = 10_000
 
@@ -12,14 +14,11 @@ const camera = new PerspectiveCamera()
 type Compile = () => Promise<unknown>
 
 const validateWith = (compile: Compile) =>
-  validateMaterial(
-    { compileAsync: vi.fn(() => compile().then(() => scene)) },
-    scene,
-    camera,
+  validateMaterials({ compileAsync: vi.fn(() => compile().then(() => scene)) }, scene, camera, [
     material,
-  )
+  ])
 
-describe('validateMaterial', () => {
+describe('validateMaterials', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
@@ -85,14 +84,29 @@ describe('validateMaterial', () => {
   it('skips a queued validation that was cancelled before its turn', async () => {
     const compileAsync = vi.fn(() => Promise.resolve(scene))
     let isCancelled = false
-    const first = validateMaterial({ compileAsync }, scene, camera, material)
-    const second = validateMaterial({ compileAsync }, scene, camera, material, () => isCancelled)
+    const first = validateMaterials({ compileAsync }, scene, camera, [material])
+    const second = validateMaterials({ compileAsync }, scene, camera, [material], () => isCancelled)
     isCancelled = true
 
     const [, skipped] = await Promise.all([first, second])
 
     expect(compileAsync).toHaveBeenCalledOnce()
     expect(skipped.ok).toBe(false)
+  })
+
+  it('compiles every material it is given in one probe, the surface and its outline', async () => {
+    const outline = new MeshBasicMaterial()
+    const probed: Object3D[] = []
+    const compileAsync = vi.fn((probe: Object3D) => {
+      probed.push(probe)
+      return Promise.resolve(scene)
+    })
+
+    await validateMaterials({ compileAsync }, scene, camera, [material, outline])
+
+    expect(compileAsync).toHaveBeenCalledOnce()
+    const meshes = probed[0]?.children.filter(isMesh) ?? []
+    expect(meshes.map((mesh) => mesh.material)).toEqual([material, outline])
   })
 
   it('lets a compile that never finishes through, so it cannot freeze the preview', async () => {

@@ -1,7 +1,7 @@
 export * from './live-facade'
 export * from './live-backend'
 export { OPACITY_INPUT, createMaterial } from './create-material'
-export type { MaterialBuild, RuntimeMaterial } from './create-material'
+export type { MaterialBuild, OutlineMaterial, RuntimeMaterial } from './create-material'
 export * from './create-preview-material'
 export * from './apply-input-value'
 export * from './apply-build-input-value'

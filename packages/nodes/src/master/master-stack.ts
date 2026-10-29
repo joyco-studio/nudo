@@ -1,10 +1,20 @@
-import { MASTER_NODE_TYPE, concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
+import { MASTER_NODE_TYPE, OUTLINE_PARAM, concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
 
 const LIGHTING_OPTIONS = [
   { value: 'standard', label: 'Standard' },
   { value: 'unlit', label: 'Unlit' },
   { value: 'physical', label: 'Physical' },
 ] as const
+
+/**
+ * #6E6E6E in linear light: a mid grey, so the line reads on the preview's dark default background
+ * (#0F0F0F) and on a light one alike.
+ */
+const OUTLINE_INK = 0.1559
+/** Thin enough to read as a line on the 1-unit sphere, in scene units. */
+const OUTLINE_WIDTH = 0.02
+/** A steady line until the user asks for a wobble. */
+const OUTLINE_WOBBLE = 0
 
 const SURFACE_OPTIONS = [
   { value: 'auto', label: 'Auto' },
@@ -147,6 +157,29 @@ export const masterStackNode = defineNode({
       type: concrete('float'),
       default: float(1.3),
     },
+    {
+      id: 'outlineWidth',
+      label: 'Outline Width',
+      description: 'How far the line reaches past the surface, in scene units.',
+      type: concrete('float'),
+      default: float(OUTLINE_WIDTH),
+    },
+    {
+      id: 'outlineColor',
+      label: 'Outline Color',
+      description: "The line's flat color; lighting never changes it.",
+      type: concrete('vec3'),
+      default: vec3(OUTLINE_INK, OUTLINE_INK, OUTLINE_INK),
+      widget: 'color',
+    },
+    {
+      id: 'outlineWobble',
+      label: 'Outline Wobble',
+      description:
+        'How much the width swells and thins with a drifting noise, in scene units: 0 = steady.',
+      type: concrete('float'),
+      default: float(OUTLINE_WOBBLE),
+    },
   ],
   outputs: [],
   params: [
@@ -165,6 +198,14 @@ export const masterStackNode = defineNode({
       default: 'auto',
     },
     { id: 'twoSided', label: 'Two sided', kind: 'boolean', default: false },
+    {
+      id: OUTLINE_PARAM,
+      label: 'Outline',
+      kind: 'boolean',
+      default: false,
+      description:
+        'Draws a flat line around the silhouette by drawing the mesh a second time. On a transparent surface, the line shows through.',
+    },
     {
       id: 'useTransmission',
       label: 'Enable transmission',

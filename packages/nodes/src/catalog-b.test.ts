@@ -5,6 +5,7 @@ import {
   createGraph,
   parseGraph,
   serializeGraph,
+  setInputValue,
   setParam,
   topologyKey,
 } from '@nudo-tsl/core'
@@ -566,8 +567,9 @@ describe('master stack', () => {
     expect(description).toMatch(/scene behind/)
   })
 
-  it('appends the physical inputs with inline fields and their defaults', () => {
-    const physical = master.inputs.slice(-9).map((input) => ({
+  it('lists the physical inputs with inline fields and their defaults', () => {
+    const physicalInputs = master.inputs.slice(-12, -3)
+    const physical = physicalInputs.map((input) => ({
       id: input.id,
       type: input.type,
       default: input.default,
@@ -599,9 +601,100 @@ describe('master stack', () => {
       float('iridescence', 0),
       float('iridescenceIOR', 1.3),
     ])
-    for (const input of master.inputs.slice(-9)) {
+    for (const input of physicalInputs) {
       expect(input.description, input.id).toBeTruthy()
     }
+  })
+
+  it('declares an outline switch, off, that says it draws the mesh again', () => {
+    const outline = master.params?.find((param) => param.id === 'outline')
+
+    expect(outline).toMatchObject({
+      id: 'outline',
+      label: 'Outline',
+      kind: 'boolean',
+      default: false,
+    })
+    const description = outline?.kind === 'boolean' ? outline.description : ''
+    expect(description).toMatch(/second time/)
+    // A transparent surface shows its hull through it: the switch says so.
+    expect(description).toMatch(/transparent surface/)
+  })
+
+  it('appends the outline width, color and wobble with inline fields', () => {
+    const outline = master.inputs.slice(-3).map((input) => ({
+      id: input.id,
+      label: input.label,
+      type: input.type,
+      default: input.default,
+      optional: input.optional === true,
+      widget: input.widget,
+    }))
+
+    expect(outline).toEqual([
+      {
+        id: 'outlineWidth',
+        label: 'Outline Width',
+        type: { kind: 'concrete', type: 'float' },
+        default: { type: 'float', value: 0.02 },
+        optional: false,
+        widget: undefined,
+      },
+      {
+        id: 'outlineColor',
+        label: 'Outline Color',
+        type: { kind: 'concrete', type: 'vec3' },
+        // #6E6E6E in linear light: a mid grey that reads on the dark and the light background.
+        default: { type: 'vec3', value: [0.1559, 0.1559, 0.1559] },
+        optional: false,
+        widget: 'color',
+      },
+      {
+        id: 'outlineWobble',
+        label: 'Outline Wobble',
+        type: { kind: 'concrete', type: 'float' },
+        default: { type: 'float', value: 0 },
+        optional: false,
+        widget: undefined,
+      },
+    ])
+    for (const input of master.inputs.slice(-3)) {
+      expect(input.description, input.id).toBeTruthy()
+    }
+  })
+
+  it('never tells the reader to wire Noise into the width', () => {
+    const width = master.inputs.find((input) => input.id === 'outlineWidth')
+
+    expect(width?.description).not.toMatch(/noise/i)
+  })
+
+  it('recompiles when the outline is switched, never when its width, color or wobble moves', () => {
+    const master = { nodeId: asNodeId('master'), portId: 'outlineWidth' }
+    const base = createGraph()
+    const outlined = unwrap(
+      setParam(base, registry, { nodeId: asNodeId('master'), paramId: 'outline' }, true),
+    )
+    const wider = unwrap(setInputValue(outlined, master, { type: 'float', value: 0.1 }))
+    const recolored = unwrap(
+      setInputValue(
+        wider,
+        { nodeId: asNodeId('master'), portId: 'outlineColor' },
+        { type: 'vec3', value: [1, 0, 0] },
+      ),
+    )
+    const wobbled = unwrap(
+      setInputValue(
+        recolored,
+        { nodeId: asNodeId('master'), portId: 'outlineWobble' },
+        { type: 'float', value: 0.01 },
+      ),
+    )
+
+    expect(topologyKey(outlined, registry)).not.toBe(topologyKey(base, registry))
+    expect(topologyKey(wider, registry)).toBe(topologyKey(outlined, registry))
+    expect(topologyKey(recolored, registry)).toBe(topologyKey(outlined, registry))
+    expect(topologyKey(wobbled, registry)).toBe(topologyKey(outlined, registry))
   })
 
   it('declares surface and two-sided params', () => {

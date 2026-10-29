@@ -6,8 +6,9 @@ import { MAIN_LIGHT_DEFAULTS, MASTER_NODE_ID, parseGraph, setParam } from '@nudo
 import type { Graph } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import ts from 'typescript'
-import { DataTexture, Vector3 } from 'three'
-import { Node, TextureNode, UniformNode } from 'three/webgpu'
+import { BackSide, DataTexture, Vector3 } from 'three'
+import { MeshBasicNodeMaterial, Node, TextureNode, UniformNode } from 'three/webgpu'
+import { modelScale, normalLocal, positionLocal, time } from 'three/tsl'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
 import { createLightsPropertyGraph } from './fixtures/lights-property-graph'
@@ -70,6 +71,18 @@ const withMasterParams = (
       unwrap(setParam(current, registry, { nodeId: MASTER_NODE_ID, paramId }, value)),
     graph,
   )
+
+/** Every node an expression is built from, itself included. */
+function nodesIn(root: Node): ReadonlySet<Node> {
+  const found = new Set<Node>()
+  const visit = (node: Node): void => {
+    if (found.has(node)) return
+    found.add(node)
+    for (const child of node.getChildren()) visit(child)
+  }
+  visit(root)
+  return found
+}
 
 function expectEverySlotIsANode(loaded: LoadedModule): readonly string[] {
   const nodes = loaded.exports.nodes
@@ -231,6 +244,51 @@ describe('generated module parity', () => {
         'iridescenceNode',
         'iridescenceIORNode',
       ])
+    })
+
+    it('builds the outline pass as three nodes on a back-sided basic material', async () => {
+      const outlined = withMasterParams(catalog, { outline: true })
+      const { exports } = await loadGenerated(outlined)
+      const outlineNodes = isRecord(exports.outlineNodes) ? exports.outlineNodes : {}
+
+      // The catalog wires an alpha clip, so the hull is cut by the same mask.
+      expect(Object.keys(outlineNodes)).toEqual([
+        'positionNode',
+        'colorNode',
+        'opacityNode',
+        'alphaTestNode',
+      ])
+      for (const [slot, value] of Object.entries(outlineNodes)) {
+        expect(value, `outlineNodes.${slot}`).toBeInstanceOf(Node)
+      }
+      expect(exports.outlineMaterialSettings).toEqual({ side: BackSide })
+      const material = Object.assign(
+        new MeshBasicNodeMaterial(),
+        outlineNodes,
+        exports.outlineMaterialSettings,
+      )
+      expect(material.side).toBe(BackSide)
+      expect(material.positionNode).toBe(outlineNodes.positionNode)
+    })
+
+    it('pushes the hull out along the normal over the world scale, like the runtime', async () => {
+      const { exports } = await loadGenerated(withMasterParams(catalog, { outline: true }))
+      const position = isRecord(exports.outlineNodes) ? exports.outlineNodes.positionNode : null
+      if (!(position instanceof Node)) throw new Error('outlineNodes.positionNode is not a node')
+
+      const parts = nodesIn(position)
+      expect(parts.has(normalLocal)).toBe(true)
+      expect(parts.has(modelScale)).toBe(true)
+    })
+
+    it('wobbles the hull with a noise drifting with time, from the same builtins as the runtime', async () => {
+      const { exports } = await loadGenerated(withMasterParams(catalog, { outline: true }))
+      const position = isRecord(exports.outlineNodes) ? exports.outlineNodes.positionNode : null
+      if (!(position instanceof Node)) throw new Error('outlineNodes.positionNode is not a node')
+
+      const parts = nodesIn(position)
+      expect(parts.has(time)).toBe(true)
+      expect(parts.has(positionLocal)).toBe(true)
     })
 
     it('exports the material settings the master asks for', async () => {

@@ -24,7 +24,7 @@ const ROW_HEIGHT = 28
 const LIST_PADDING = 4
 /** The line between two lists. */
 const DIVIDER = 1
-/** A Master Stack heading ("Vertex", "Fragment", the Physical toggle) over its inputs. */
+/** A Master Stack heading ("Vertex", "Fragment", a Physical or Outline toggle) over its inputs. */
 const GROUP_HEADING_HEIGHT = 24
 /** The node preview with its margins. */
 const PREVIEW_HEIGHT = 120
@@ -34,7 +34,8 @@ const NOTHING_CONNECTED: ReadonlySet<string> = new Set()
 
 /**
  * A group's rows as the node first draws them: a folded group (the master's Physical group unless
- * its lighting is physical) starts as its heading alone.
+ * its lighting is physical, its Outline group unless the outline is on) starts as its heading
+ * alone.
  */
 function initialRows(group: PortGroup): readonly InputRowModel[] {
   return shownRows(group, group.disclosure?.isOpenByDefault ?? true, NOTHING_CONNECTED)

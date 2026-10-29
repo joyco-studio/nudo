@@ -6,7 +6,7 @@
       "type": "math/add",
       "position": {
         "x": 248,
-        "y": 155
+        "y": 183
       },
       "inputValues": {},
       "params": {}
@@ -16,7 +16,7 @@
       "type": "effects/noise",
       "position": {
         "x": -5064,
-        "y": 484
+        "y": 512
       },
       "inputValues": {
         "scale": {
@@ -33,7 +33,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": 561
+        "y": 589
       },
       "inputValues": {},
       "params": {}
@@ -43,7 +43,7 @@
       "type": "property/vec3",
       "position": {
         "x": -3032,
-        "y": 689
+        "y": 717
       },
       "inputValues": {},
       "params": {
@@ -55,7 +55,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5704,
-        "y": 756
+        "y": 784
       },
       "inputValues": {},
       "params": {}
@@ -65,7 +65,7 @@
       "type": "math/add",
       "position": {
         "x": -5384,
-        "y": 586
+        "y": 614
       },
       "inputValues": {},
       "params": {}
@@ -75,7 +75,7 @@
       "type": "property/float",
       "position": {
         "x": -5976,
-        "y": 994
+        "y": 1022
       },
       "inputValues": {},
       "params": {
@@ -87,7 +87,7 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 404
+        "y": 432
       },
       "inputValues": {},
       "params": {
@@ -102,7 +102,7 @@
       "type": "utility/comment",
       "position": {
         "x": -2408,
-        "y": 178
+        "y": 206
       },
       "inputValues": {},
       "params": {
@@ -117,7 +117,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4024,
-        "y": 27
+        "y": 55
       },
       "inputValues": {},
       "params": {
@@ -132,7 +132,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4712,
-        "y": 609
+        "y": 637
       },
       "inputValues": {},
       "params": {
@@ -147,7 +147,7 @@
       "type": "utility/comment",
       "position": {
         "x": -1064,
-        "y": 75
+        "y": 103
       },
       "inputValues": {},
       "params": {
@@ -162,7 +162,7 @@
       "type": "math/subtract",
       "position": {
         "x": -1416,
-        "y": 322
+        "y": 350
       },
       "inputValues": {
         "b": {
@@ -177,7 +177,7 @@
       "type": "vector/split",
       "position": {
         "x": -1032,
-        "y": 331
+        "y": 359
       },
       "inputValues": {},
       "params": {}
@@ -187,7 +187,7 @@
       "type": "math/add",
       "position": {
         "x": -1736,
-        "y": 359
+        "y": 387
       },
       "inputValues": {},
       "params": {}
@@ -197,7 +197,7 @@
       "type": "property/vec3",
       "position": {
         "x": -3032,
-        "y": 1054
+        "y": 1082
       },
       "inputValues": {},
       "params": {
@@ -221,7 +221,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4680,
-        "y": 852
+        "y": 880
       },
       "inputValues": {
         "b": {
@@ -236,7 +236,7 @@
       "type": "math/subtract",
       "position": {
         "x": -4360,
-        "y": 787
+        "y": 815
       },
       "inputValues": {},
       "params": {}
@@ -246,7 +246,7 @@
       "type": "input/position",
       "position": {
         "x": -5704,
-        "y": 495
+        "y": 523
       },
       "inputValues": {},
       "params": {
@@ -258,7 +258,7 @@
       "type": "math/remap",
       "position": {
         "x": -2760,
-        "y": 135
+        "y": 163
       },
       "inputValues": {
         "inMax": {
@@ -277,7 +277,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3080,
-        "y": 107
+        "y": 135
       },
       "inputValues": {
         "scale": {
@@ -294,7 +294,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2376,
-        "y": 323
+        "y": 351
       },
       "inputValues": {
         "b": {
@@ -309,7 +309,7 @@
       "type": "math/subtract",
       "position": {
         "x": -712,
-        "y": 294
+        "y": 322
       },
       "inputValues": {
         "b": {
@@ -324,7 +324,7 @@
       "type": "math/max",
       "position": {
         "x": -392,
-        "y": 257
+        "y": 285
       },
       "inputValues": {
         "b": {
@@ -339,7 +339,7 @@
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": 220
+        "y": 248
       },
       "inputValues": {
         "b": {
@@ -358,7 +358,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": 258
+        "y": 286
       },
       "inputValues": {},
       "params": {}
@@ -368,7 +368,7 @@
       "type": "property/float",
       "position": {
         "x": -3992,
-        "y": 390
+        "y": 418
       },
       "inputValues": {},
       "params": {
@@ -380,7 +380,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3720,
-        "y": 274
+        "y": 302
       },
       "inputValues": {},
       "params": {}
@@ -390,7 +390,7 @@
       "type": "math/add",
       "position": {
         "x": -3400,
-        "y": 209
+        "y": 237
       },
       "inputValues": {},
       "params": {}
@@ -400,7 +400,7 @@
       "type": "input/time",
       "position": {
         "x": -6024,
-        "y": 686
+        "y": 714
       },
       "inputValues": {},
       "params": {}
@@ -410,7 +410,7 @@
       "type": "math/one-minus",
       "position": {
         "x": -3400,
-        "y": 788
+        "y": 816
       },
       "inputValues": {},
       "params": {}
@@ -420,7 +420,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -2760,
-        "y": 732
+        "y": 760
       },
       "inputValues": {},
       "params": {}
@@ -430,7 +430,7 @@
       "type": "math/abs",
       "position": {
         "x": -3720,
-        "y": 825
+        "y": 853
       },
       "inputValues": {},
       "params": {}
@@ -440,7 +440,7 @@
       "type": "effects/noise",
       "position": {
         "x": -4040,
-        "y": 797
+        "y": 825
       },
       "inputValues": {},
       "params": {
@@ -452,7 +452,7 @@
       "type": "property/float",
       "position": {
         "x": -4312,
-        "y": 1090
+        "y": 1118
       },
       "inputValues": {},
       "params": {
@@ -464,7 +464,7 @@
       "type": "math/power",
       "position": {
         "x": -3080,
-        "y": 751
+        "y": 779
       },
       "inputValues": {
         "b": {

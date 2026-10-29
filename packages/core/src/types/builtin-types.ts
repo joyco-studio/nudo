@@ -15,4 +15,5 @@ export const BUILTIN_TYPES: Readonly<Record<BuiltinName, VectorType>> = {
   positionView: 'vec3',
   screenUV: 'vec2',
   cameraPosition: 'vec3',
+  modelScale: 'vec3',
 }

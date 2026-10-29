@@ -1,6 +1,8 @@
 import {
   COLLAPSED_PARAM,
   MASTER_NODE_ID,
+  OUTLINE_PARAM,
+  OUTLINE_SLOTS,
   PHYSICAL_FEATURES,
   PHYSICAL_FEATURE_PARAMS,
   PHYSICAL_FEATURE_SLOTS,
@@ -22,11 +24,15 @@ const PHYSICAL_INPUT_FEATURES: ReadonlyMap<string, PhysicalFeature> = new Map(
   ),
 )
 
+/** Master Stack inputs only the outline pass reads. */
+const OUTLINE_INPUT_IDS: ReadonlySet<string> = new Set(OUTLINE_SLOTS)
+
 /** Why an input row has no effect right now. */
 export type DisabledHint =
   | { readonly reason: 'unlit' }
   | { readonly reason: 'physicalOnly' }
   | { readonly reason: 'featureOff'; readonly feature: PhysicalFeature }
+  | { readonly reason: 'outlineOff' }
 
 /** How the "Turn on {feature}" hint names each physical feature. */
 const PHYSICAL_FEATURE_NAMES: Readonly<Record<PhysicalFeature, MessageKey>> = {
@@ -45,6 +51,8 @@ export function disabledHintText(hint: DisabledHint, t: Translate): string {
       return t('node.physicalOnly')
     case 'featureOff':
       return t('node.physicalFeatureOff', { feature: t(PHYSICAL_FEATURE_NAMES[hint.feature]) })
+    case 'outlineOff':
+      return t('node.outlineOff')
   }
 }
 
@@ -54,7 +62,7 @@ export interface InputRowModel {
   readonly disabledHint: DisabledHint | null
 }
 
-/** A group that folds away behind its heading (the Master Stack's Physical group). */
+/** A group that folds away behind its heading (the Master Stack's Physical and Outline groups). */
 export interface GroupDisclosure {
   /** Whether the group starts open; the reader can still open or close it. */
   readonly isOpenByDefault: boolean
@@ -80,6 +88,10 @@ export function portsToggleLabel(isCollapsed: boolean): MessageKey {
 
 function isPhysicalMaster(node: GraphNode): boolean {
   return node.id === MASTER_NODE_ID && node.params.lighting === 'physical'
+}
+
+function isOutlinedMaster(node: GraphNode): boolean {
+  return node.id === MASTER_NODE_ID && node.params[OUTLINE_PARAM] === true
 }
 
 /**
@@ -115,8 +127,9 @@ export function visibleOutputs(data: FlowNodeData): readonly OutputDefinition<st
 }
 
 /**
- * The input rows to draw, grouped like the Master Stack (Vertex, Fragment, Physical) or in one
- * list. A collapsed node already shows only its connected ports, so none of its groups folds.
+ * The input rows to draw, grouped like the Master Stack (Vertex, Fragment, Physical, Outline) or
+ * in one list. A collapsed node already shows only its connected ports, so none of its groups
+ * folds.
  */
 export function inputGroups(data: FlowNodeData): readonly PortGroup[] {
   const groups = groupInputs(data.node, visibleInputs(data))
@@ -138,6 +151,8 @@ export function shownRows(
 }
 
 function masterInputHint(node: GraphNode, inputId: string): DisabledHint | null {
+  if (OUTLINE_INPUT_IDS.has(inputId))
+    return isOutlinedMaster(node) ? null : { reason: 'outlineOff' }
   const feature = PHYSICAL_INPUT_FEATURES.get(inputId)
   if (feature !== undefined) {
     if (!isPhysicalMaster(node)) return { reason: 'physicalOnly' }
@@ -169,6 +184,9 @@ export function groupInputs(
   }
   const rows = shown.map((input) => ({ input, disabledHint: masterInputHint(node, input.id) }))
   const isPhysicalRow = (row: InputRowModel): boolean => PHYSICAL_INPUT_FEATURES.has(row.input.id)
+  const isOutlineRow = (row: InputRowModel): boolean => OUTLINE_INPUT_IDS.has(row.input.id)
+  const isFragmentRow = (row: InputRowModel): boolean =>
+    !VERTEX_INPUT_IDS.has(row.input.id) && !isPhysicalRow(row) && !isOutlineRow(row)
   return [
     {
       title: 'node.group.vertex',
@@ -178,12 +196,17 @@ export function groupInputs(
     {
       title: 'node.group.fragment',
       disclosure: null,
-      rows: rows.filter((row) => !VERTEX_INPUT_IDS.has(row.input.id) && !isPhysicalRow(row)),
+      rows: rows.filter(isFragmentRow),
     },
     {
       title: 'node.group.physical',
       disclosure: { isOpenByDefault: isPhysicalMaster(node) },
       rows: rows.filter(isPhysicalRow),
+    },
+    {
+      title: 'node.group.outline',
+      disclosure: { isOpenByDefault: isOutlinedMaster(node) },
+      rows: rows.filter(isOutlineRow),
     },
   ]
 }

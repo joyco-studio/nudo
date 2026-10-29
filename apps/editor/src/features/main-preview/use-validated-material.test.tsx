@@ -1,25 +1,30 @@
 import { act, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
-import { MeshStandardNodeMaterial } from 'three/webgpu'
+import { MeshBasicNodeMaterial, MeshStandardNodeMaterial } from 'three/webgpu'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { PreviewMaterials } from './preview-materials'
 import type { MaterialValidation } from './validate-material'
 import { useValidatedMaterial } from './use-validated-material'
 import type { MaterialStatusHandler } from './use-validated-material'
 
 const mocks = vi.hoisted(() => ({
-  validateMaterial: vi.fn(),
+  validateMaterials: vi.fn(),
   threeState: { gl: {}, scene: {}, camera: {} },
 }))
 
 vi.mock('@react-three/fiber', () => ({
   useThree: (select: (state: object) => unknown) => select(mocks.threeState),
 }))
-vi.mock('./validate-material', () => ({ validateMaterial: mocks.validateMaterial }))
+vi.mock('./validate-material', () => ({ validateMaterials: mocks.validateMaterials }))
 
-type Candidate = RuntimeMaterial | null
+type Candidate = PreviewMaterials | null
+
+const surfaceOnly = (): PreviewMaterials => ({
+  surface: new MeshStandardNodeMaterial(),
+  outline: null,
+})
 
 interface HarnessProps {
   candidate: Candidate
@@ -62,7 +67,7 @@ describe('useValidatedMaterial', () => {
     root = createRoot(document.createElement('div'))
     accepted = null
     onStatus.mockReset()
-    mocks.validateMaterial.mockReset()
+    mocks.validateMaterials.mockReset()
   })
 
   afterEach(async () => {
@@ -73,22 +78,52 @@ describe('useValidatedMaterial', () => {
   })
 
   it('shows a candidate once it passes validation', async () => {
-    mocks.validateMaterial.mockResolvedValue(ACCEPTED)
-    const material = new MeshStandardNodeMaterial()
+    mocks.validateMaterials.mockResolvedValue(ACCEPTED)
+    const materials = surfaceOnly()
 
-    await show(material)
+    await show(materials)
 
-    expect(accepted).toBe(material)
+    expect(accepted).toBe(materials)
     expect(onStatus).toHaveBeenLastCalledWith(null)
   })
 
-  it('keeps the last accepted material and reports why a newer one was rejected', async () => {
-    const first = new MeshStandardNodeMaterial()
-    const second = new MeshStandardNodeMaterial()
-    mocks.validateMaterial.mockResolvedValueOnce(ACCEPTED)
+  it('checks the outline pass along with the surface', async () => {
+    mocks.validateMaterials.mockResolvedValue(ACCEPTED)
+    const materials = {
+      surface: new MeshStandardNodeMaterial(),
+      outline: new MeshBasicNodeMaterial(),
+    }
+
+    await show(materials)
+
+    expect(mocks.validateMaterials).toHaveBeenCalledWith(
+      mocks.threeState.gl,
+      mocks.threeState.scene,
+      mocks.threeState.camera,
+      [materials.surface, materials.outline],
+      expect.any(Function),
+    )
+    expect(accepted).toBe(materials)
+  })
+
+  it('frees both passes of materials that were replaced', async () => {
+    mocks.validateMaterials.mockResolvedValue(ACCEPTED)
+    const first = { surface: new MeshStandardNodeMaterial(), outline: new MeshBasicNodeMaterial() }
+    const disposeOutline = vi.spyOn(first.outline, 'dispose')
     await show(first)
 
-    mocks.validateMaterial.mockResolvedValueOnce({
+    await show(surfaceOnly())
+
+    expect(disposeOutline).toHaveBeenCalledOnce()
+  })
+
+  it('keeps the last accepted material and reports why a newer one was rejected', async () => {
+    const first = surfaceOnly()
+    const second = surfaceOnly()
+    mocks.validateMaterials.mockResolvedValueOnce(ACCEPTED)
+    await show(first)
+
+    mocks.validateMaterials.mockResolvedValueOnce({
       ok: false,
       rejection: { text: 'shader exploded' },
     })
@@ -100,7 +135,7 @@ describe('useValidatedMaterial', () => {
 
   it('tells a queued validation to skip once its candidate is superseded', async () => {
     const isCancelledChecks: (() => boolean)[] = []
-    mocks.validateMaterial.mockImplementation(
+    mocks.validateMaterials.mockImplementation(
       (
         _renderer: unknown,
         _scene: unknown,
@@ -113,8 +148,8 @@ describe('useValidatedMaterial', () => {
       },
     )
 
-    await show(new MeshStandardNodeMaterial())
-    await show(new MeshStandardNodeMaterial())
+    await show(surfaceOnly())
+    await show(surfaceOnly())
 
     const [superseded, current] = isCancelledChecks
     expect(superseded?.()).toBe(true)

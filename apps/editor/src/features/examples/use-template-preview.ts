@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Graph } from '@nudo-tsl/core'
 import { createMaterial } from '@nudo-tsl/runtime'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { findExample } from '@/examples'
 import type { ExampleId } from '@/examples'
 import { bindTemplateTextures } from '@/examples/bind-template-textures'
 import { textureCache } from '@/features/assets/texture-cache'
+import {
+  disposePreviewMaterials,
+  previewMaterialsOf,
+} from '@/features/main-preview/preview-materials'
+import type { PreviewMaterials } from '@/features/main-preview/preview-materials'
 import { registry } from '@/store/registry'
 
 import { loadTemplateTextures } from './load-template-textures'
@@ -17,35 +21,35 @@ import type { TemplatePreviewScheduler, TemplatePreviewState } from './template-
 /** Arrowing through the list faster than this compiles only the row it stops on. */
 const COMPILE_DEBOUNCE_MS = 150
 
-export type TemplatePreview = TemplatePreviewState<ExampleId, RuntimeMaterial>
+export type TemplatePreview = TemplatePreviewState<ExampleId, PreviewMaterials>
 
 export interface TemplatePreviewHandle {
   readonly preview: TemplatePreview
-  /** The scene took this material and frees it from now on (see the scheduler's `handOver`). */
-  readonly handOver: (material: RuntimeMaterial) => void
+  /** The scene took these materials and frees them from now on (see the scheduler's `handOver`). */
+  readonly handOver: (materials: PreviewMaterials) => void
 }
 
-const buildMaterial = (graph: Graph): RuntimeMaterial | null =>
-  createMaterial(graph, registry, { resolveTexture: (assetId) => textureCache.peek(assetId) })
-    .material
+const buildMaterials = (graph: Graph): PreviewMaterials | null =>
+  previewMaterialsOf(
+    createMaterial(graph, registry, { resolveTexture: (assetId) => textureCache.peek(assetId) }),
+  )
 
 /**
- * Builds the template's own material, apart from the editor graph: the Main Preview, its compile
- * count and the node errors never hear of it. A template with textures waits for them: they are
- * fetched and decoded for the preview but not stored, which waits until the template is opened.
+ * Builds the template's own materials (its outline pass included), apart from the editor graph:
+ * the Main Preview, its compile count and the node errors never hear of it. A template with
+ * textures waits for them: they are fetched and decoded for the preview but not stored, which
+ * waits until the template is opened.
  */
-function compileTemplate(id: ExampleId): RuntimeMaterial | null | Promise<RuntimeMaterial | null> {
+function compileTemplate(
+  id: ExampleId,
+): PreviewMaterials | null | Promise<PreviewMaterials | null> {
   const example = findExample(id)
   const graph = example === undefined ? null : templateGraph(example)
   if (example === undefined || graph === null) return null
-  if (example.textures.length === 0) return buildMaterial(graph)
+  if (example.textures.length === 0) return buildMaterials(graph)
   return loadTemplateTextures(example.textures, 'preview').then(({ bindings }) =>
-    buildMaterial(bindTemplateTextures(graph, bindings)),
+    buildMaterials(bindTemplateTextures(graph, bindings)),
   )
-}
-
-const releaseMaterial = (material: RuntimeMaterial): void => {
-  material.dispose()
 }
 
 /**
@@ -54,13 +58,13 @@ const releaseMaterial = (material: RuntimeMaterial): void => {
  */
 export function useTemplatePreview(id: ExampleId): TemplatePreviewHandle {
   const [preview, setPreview] = useState<TemplatePreview>({ status: 'idle' })
-  const schedulerRef = useRef<TemplatePreviewScheduler<ExampleId, RuntimeMaterial> | null>(null)
+  const schedulerRef = useRef<TemplatePreviewScheduler<ExampleId, PreviewMaterials> | null>(null)
 
   useEffect(() => {
     const scheduler = createTemplatePreviewScheduler({
       delayMs: COMPILE_DEBOUNCE_MS,
       compile: compileTemplate,
-      release: releaseMaterial,
+      release: disposePreviewMaterials,
       onChange: setPreview,
     })
     schedulerRef.current = scheduler
@@ -75,8 +79,8 @@ export function useTemplatePreview(id: ExampleId): TemplatePreviewHandle {
     schedulerRef.current?.select(id)
   }, [id])
 
-  const handOver = useCallback((material: RuntimeMaterial) => {
-    schedulerRef.current?.handOver(material)
+  const handOver = useCallback((materials: PreviewMaterials) => {
+    schedulerRef.current?.handOver(materials)
   }, [])
 
   return { preview, handOver }

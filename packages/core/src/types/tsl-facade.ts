@@ -13,6 +13,8 @@ export type BuiltinName =
   | 'positionView'
   | 'screenUV'
   | 'cameraPosition'
+  /** The object's scale in world space, per axis: vec3. */
+  | 'modelScale'
 
 export type Swizzle = 'x' | 'y' | 'z' | 'w' | 'xy' | 'xyz'
 

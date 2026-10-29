@@ -6,7 +6,7 @@
       "type": "utility/comment",
       "position": {
         "x": 104,
-        "y": 8
+        "y": 36
       },
       "inputValues": {},
       "params": {
@@ -21,7 +21,7 @@
       "type": "texture/sample-texture-2d",
       "position": {
         "x": 192,
-        "y": 104
+        "y": 132
       },
       "inputValues": {
         "texture": {

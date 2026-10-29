@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { countReddishPixels } from './support/count-reddish-pixels'
+import { countReddishPixels } from './support/count-tinted-pixels'
 import { pickExampleByKeyboard, templatesBrowser, templatesButton } from './support/open-example'
 import { readStoredNodes } from './support/read-autosave'
 import { SAMPLE_TEXTURE_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'

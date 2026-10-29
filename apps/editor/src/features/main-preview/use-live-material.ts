@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createMaterial } from '@nudo-tsl/runtime'
-import type { MaterialBuild, RuntimeMaterial } from '@nudo-tsl/runtime'
+import type { MaterialBuild } from '@nudo-tsl/runtime'
 import type { Graph } from '@nudo-tsl/core'
 
 import { textureCache } from '@/features/assets/texture-cache'
@@ -12,6 +12,8 @@ import { createCompileScheduler } from './compile-scheduler'
 import type { CompileScheduler } from './compile-scheduler'
 import { recordCompile, recordCompilePending } from './compile-counter'
 import { recordPreviewApply } from './preview-apply-counter'
+import { previewMaterialsOf } from './preview-materials'
+import type { PreviewMaterials } from './preview-materials'
 
 /** Quiet period after the last structural edit before the graph is compiled again. */
 const COMPILE_DEBOUNCE_MS = 150
@@ -25,8 +27,8 @@ function buildPreviewMaterial(graph: Graph): MaterialBuild {
 }
 
 export interface LiveMaterial {
-  /** The newest material that compiled, `null` before the first one. */
-  material: RuntimeMaterial | null
+  /** The newest materials that compiled, `null` before the first ones. */
+  material: PreviewMaterials | null
   /** True when the latest build failed, so `material` is an older graph's. */
   buildFailed: boolean
 }
@@ -55,7 +57,8 @@ const NO_MATERIAL_YET: LiveMaterial = { material: null, buildFailed: false }
 
 /** Every build reports its errors to the nodes; only a successful one yields a new material. */
 function nextLiveMaterial(current: LiveMaterial, build: MaterialBuild): LiveMaterial {
-  return { material: build.material ?? current.material, buildFailed: build.material === null }
+  const built = previewMaterialsOf(build)
+  return { material: built ?? current.material, buildFailed: built === null }
 }
 
 /**

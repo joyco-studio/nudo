@@ -61,6 +61,7 @@ export function createPreviewMaterial(
     Object.assign(material, { colorNode: toPreviewColor(backend.tsl, shown, type) })
     return {
       material,
+      outline: null,
       uniforms: backend.uniforms,
       properties: backend.properties,
       missingTextures: [...backend.missingTextures],
