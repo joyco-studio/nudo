@@ -371,6 +371,32 @@ describe('generateModule', () => {
       expect(code).not.toContain('emissiveNode')
     })
 
+    it('prints a physical material as MeshPhysicalNodeMaterial with the enabled features', () => {
+      const graph = withMasterSettings(createGraph(), {
+        lighting: 'physical',
+        useClearcoat: true,
+      })
+      const code = generate(graph)
+
+      expect(lines(code)[1]).toBe('// three r186 · MeshPhysicalNodeMaterial')
+      expect(code).toContain('// Apply: Object.assign(new MeshPhysicalNodeMaterial(), nodes')
+      expect(code).toContain('roughnessNode: float(0.5),')
+      expect(code).toContain('clearcoatNode: float(0),')
+      expect(code).toContain('clearcoatRoughnessNode: float(0),')
+      expect(code).not.toContain('transmissionNode')
+      expect(code).not.toContain('sheenNode')
+      expect(code).not.toContain('iridescenceNode')
+    })
+
+    it('prints no physical slot for a standard material, whatever its switches', () => {
+      const graph = withMasterSettings(createGraph(), { useTransmission: true, useSheen: true })
+      const code = generate(graph)
+
+      expect(lines(code)[1]).toBe('// three r186 · MeshStandardNodeMaterial')
+      expect(code).not.toContain('transmissionNode')
+      expect(code).not.toContain('sheenNode')
+    })
+
     it('notes the alpha clip and keeps its threshold on alphaTestNode', () => {
       const graph = withInput(
         withLink(
@@ -454,21 +480,28 @@ describe('generateModule', () => {
 })
 
 interface MasterSettingsOverride {
-  readonly lighting?: 'standard' | 'unlit'
+  readonly lighting?: 'standard' | 'unlit' | 'physical'
   readonly surface?: 'auto' | 'opaque' | 'transparent'
   readonly twoSided?: boolean
+  readonly useTransmission?: boolean
+  readonly useClearcoat?: boolean
+  readonly useSheen?: boolean
+  readonly useIridescence?: boolean
 }
 
+const MASTER_SETTING_IDS: readonly (keyof MasterSettingsOverride)[] = [
+  'lighting',
+  'surface',
+  'twoSided',
+  'useTransmission',
+  'useClearcoat',
+  'useSheen',
+  'useIridescence',
+]
+
 function withMasterSettings(graph: Graph, settings: MasterSettingsOverride): Graph {
-  const master = MASTER
-  let updated = graph
-  if (settings.lighting !== undefined) {
-    updated = withParam(updated, master, 'lighting', settings.lighting)
-  }
-  if (settings.surface !== undefined)
-    updated = withParam(updated, master, 'surface', settings.surface)
-  if (settings.twoSided !== undefined) {
-    updated = withParam(updated, master, 'twoSided', settings.twoSided)
-  }
-  return updated
+  return MASTER_SETTING_IDS.reduce<Graph>((updated, paramId) => {
+    const value = settings[paramId]
+    return value === undefined ? updated : withParam(updated, MASTER, paramId, value)
+  }, graph)
 }

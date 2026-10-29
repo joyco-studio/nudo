@@ -11,6 +11,8 @@ import { MASTER_NODE_ID, MASTER_NODE_TYPE, asEdgeId, asNodeId } from '../types/i
 import type { Result } from '../types/result'
 import { concrete, float, vec3 } from '../values/port-value-factories'
 import {
+  DEFAULT_MASTER_SETTINGS,
+  PHYSICAL_FEATURE_SLOTS,
   isOpacityConnected,
   masterMaterialAssignments,
   readInlineOpacity,
@@ -18,6 +20,7 @@ import {
   resolveTransparency,
   unlitColor,
 } from './master-settings'
+import type { MasterLighting, MasterSettings } from './master-settings'
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -43,6 +46,7 @@ const master = defineNode({
       options: [
         { value: 'standard', label: 'Standard' },
         { value: 'unlit', label: 'Unlit' },
+        { value: 'physical', label: 'Physical' },
       ],
       default: 'standard',
     },
@@ -58,9 +62,20 @@ const master = defineNode({
       default: 'auto',
     },
     { id: 'twoSided', label: 'Two sided', kind: 'boolean', default: false },
+    { id: 'useTransmission', label: 'Enable transmission', kind: 'boolean', default: false },
+    { id: 'useClearcoat', label: 'Enable clearcoat', kind: 'boolean', default: false },
+    { id: 'useSheen', label: 'Enable sheen', kind: 'boolean', default: false },
+    { id: 'useIridescence', label: 'Enable iridescence', kind: 'boolean', default: false },
   ],
   build: () => ({}),
 })
+
+const NO_PHYSICAL_FEATURES = {
+  transmission: false,
+  clearcoat: false,
+  sheen: false,
+  iridescence: false,
+}
 
 const source = defineNode({
   type: 'test/source',
@@ -92,14 +107,30 @@ describe('readMasterSettings', () => {
       lighting: 'unlit',
       surface: 'transparent',
       twoSided: true,
+      physical: NO_PHYSICAL_FEATURES,
+    })
+  })
+
+  it('reads physical lighting and its feature switches', () => {
+    let graph = withParam(createGraph(), 'lighting', 'physical')
+    graph = withParam(graph, 'useTransmission', true)
+    graph = withParam(graph, 'useSheen', true)
+
+    expect(readMasterSettings(graph, registry)).toEqual({
+      lighting: 'physical',
+      surface: 'auto',
+      twoSided: false,
+      physical: { transmission: true, clearcoat: false, sheen: true, iridescence: false },
     })
   })
 
   it('defaults what is not stored', () => {
-    expect(readMasterSettings(createGraph(), registry)).toEqual({
+    expect(readMasterSettings(createGraph(), registry)).toEqual(DEFAULT_MASTER_SETTINGS)
+    expect(DEFAULT_MASTER_SETTINGS).toEqual({
       lighting: 'standard',
       surface: 'auto',
       twoSided: false,
+      physical: NO_PHYSICAL_FEATURES,
     })
   })
 
@@ -111,15 +142,14 @@ describe('readMasterSettings', () => {
       ...graph,
       nodes: {
         ...graph.nodes,
-        [MASTER_NODE_ID]: { ...stored, params: { lighting: 'glossy', surface: 7 } },
+        [MASTER_NODE_ID]: {
+          ...stored,
+          params: { lighting: 'glossy', surface: 7, useClearcoat: 'yes' },
+        },
       },
     }
 
-    expect(readMasterSettings(broken, registry)).toEqual({
-      lighting: 'standard',
-      surface: 'auto',
-      twoSided: false,
-    })
+    expect(readMasterSettings(broken, registry)).toEqual(DEFAULT_MASTER_SETTINGS)
   })
 })
 
@@ -179,28 +209,98 @@ describe('masterMaterialAssignments', () => {
     opacity: 'o',
     alphaClip: 'a',
   }
+  const physicalSlots = {
+    ...slots,
+    transmission: 'tr',
+    ior: 'ior',
+    thickness: 'th',
+    clearcoat: 'cc',
+    clearcoatRoughness: 'ccr',
+    sheen: 'sh',
+    sheenRoughness: 'shr',
+    iridescence: 'ir',
+    iridescenceIOR: 'irior',
+  }
+  const STANDARD_ASSIGNMENTS = [
+    { property: 'positionNode', expression: 'p' },
+    { property: 'colorNode', expression: 'c' },
+    { property: 'emissiveNode', expression: 'e' },
+    { property: 'metalnessNode', expression: 'm' },
+    { property: 'roughnessNode', expression: 'r' },
+    { property: 'normalNode', expression: 'n' },
+    { property: 'opacityNode', expression: 'o' },
+    { property: 'alphaTestNode', expression: 'a' },
+  ]
+  const ALL_FEATURES = { transmission: true, clearcoat: true, sheen: true, iridescence: true }
+  const settings = (lighting: MasterLighting, physical = NO_PHYSICAL_FEATURES): MasterSettings => ({
+    ...DEFAULT_MASTER_SETTINGS,
+    lighting,
+    physical,
+  })
 
   it('maps every slot for a standard material, in slot order', () => {
-    expect(masterMaterialAssignments(tsl, slots, 'standard')).toEqual([
-      { property: 'positionNode', expression: 'p' },
-      { property: 'colorNode', expression: 'c' },
-      { property: 'emissiveNode', expression: 'e' },
-      { property: 'metalnessNode', expression: 'm' },
-      { property: 'roughnessNode', expression: 'r' },
-      { property: 'normalNode', expression: 'n' },
-      { property: 'opacityNode', expression: 'o' },
-      { property: 'alphaTestNode', expression: 'a' },
+    expect(masterMaterialAssignments(tsl, slots, settings('standard'))).toEqual(
+      STANDARD_ASSIGNMENTS,
+    )
+  })
+
+  it('assigns no physical slot to a standard material, even with every feature on', () => {
+    expect(
+      masterMaterialAssignments(tsl, physicalSlots, settings('standard', ALL_FEATURES)),
+    ).toEqual(STANDARD_ASSIGNMENTS)
+  })
+
+  it('assigns exactly the standard slots to a physical material with every feature off', () => {
+    expect(masterMaterialAssignments(tsl, physicalSlots, settings('physical'))).toEqual(
+      STANDARD_ASSIGNMENTS,
+    )
+  })
+
+  it('adds the transmission slots when transmission is on', () => {
+    const physical = { ...NO_PHYSICAL_FEATURES, transmission: true }
+
+    expect(masterMaterialAssignments(tsl, physicalSlots, settings('physical', physical))).toEqual([
+      ...STANDARD_ASSIGNMENTS,
+      { property: 'transmissionNode', expression: 'tr' },
+      { property: 'iorNode', expression: 'ior' },
+      { property: 'thicknessNode', expression: 'th' },
     ])
   })
 
+  it('adds every enabled feature, in slot order', () => {
+    expect(
+      masterMaterialAssignments(tsl, physicalSlots, settings('physical', ALL_FEATURES)),
+    ).toEqual([
+      ...STANDARD_ASSIGNMENTS,
+      { property: 'transmissionNode', expression: 'tr' },
+      { property: 'iorNode', expression: 'ior' },
+      { property: 'thicknessNode', expression: 'th' },
+      { property: 'clearcoatNode', expression: 'cc' },
+      { property: 'clearcoatRoughnessNode', expression: 'ccr' },
+      { property: 'sheenNode', expression: 'sh' },
+      { property: 'sheenRoughnessNode', expression: 'shr' },
+      { property: 'iridescenceNode', expression: 'ir' },
+      { property: 'iridescenceIORNode', expression: 'irior' },
+    ])
+  })
+
+  it('maps each feature to its slots', () => {
+    expect(PHYSICAL_FEATURE_SLOTS).toEqual({
+      transmission: ['transmission', 'ior', 'thickness'],
+      clearcoat: ['clearcoat', 'clearcoatRoughness'],
+      sheen: ['sheen', 'sheenRoughness'],
+      iridescence: ['iridescence', 'iridescenceIOR'],
+    })
+  })
+
   it('skips slots that are not compiled', () => {
-    expect(masterMaterialAssignments(tsl, { baseColor: 'c' }, 'standard')).toEqual([
+    expect(masterMaterialAssignments(tsl, { baseColor: 'c' }, settings('standard'))).toEqual([
       { property: 'colorNode', expression: 'c' },
     ])
   })
 
   it('reads only position, color, opacity and alpha clip for an unlit material', () => {
-    expect(masterMaterialAssignments(tsl, slots, 'unlit')).toEqual([
+    expect(masterMaterialAssignments(tsl, physicalSlots, settings('unlit', ALL_FEATURES))).toEqual([
       { property: 'positionNode', expression: 'p' },
       { property: 'colorNode', expression: 'add(c,e)' },
       { property: 'opacityNode', expression: 'o' },

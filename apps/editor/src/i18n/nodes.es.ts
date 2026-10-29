@@ -78,17 +78,65 @@ export const NODES_ES: NodeTranslations = {
         label: 'Umbral de recorte alfa',
         description: 'Los píxeles con opacidad menor que este valor se recortan por completo.',
       },
+      transmission: {
+        label: 'Transmisión',
+        description: 'Cuánta luz atraviesa la superficie, como el vidrio: 0 = nada, 1 = toda.',
+      },
+      ior: {
+        label: 'IOR',
+        description: 'Cuánto se desvía la luz al atravesarla: 1.5 es vidrio, 1.33 es agua.',
+      },
+      thickness: {
+        label: 'Espesor',
+        description:
+          'Qué tan profundo es el volumen detrás de la superficie; más profundo desvía más la luz.',
+      },
+      clearcoat: {
+        label: 'Barniz',
+        description:
+          'Una capa de barniz transparente sobre la superficie: 0 = nada, 1 = capa completa.',
+      },
+      clearcoatRoughness: {
+        label: 'Rugosidad del barniz',
+        description: '0 = barniz brillante, 1 = barniz esmerilado.',
+      },
+      sheen: {
+        label: 'Brillo de tela',
+        description:
+          'El brillo suave que toman telas como el terciopelo en ángulos rasantes, como color; negro no suma nada.',
+      },
+      sheenRoughness: {
+        label: 'Rugosidad del brillo de tela',
+        description: 'Cuánto se abre el brillo: 0 = un borde fino, 1 = suave y amplio.',
+      },
+      iridescence: {
+        label: 'Iridiscencia',
+        description:
+          'Colores de arcoíris como los de una burbuja de jabón o una mancha de aceite: 0 = nada, 1 = completa.',
+      },
+      iridescenceIOR: {
+        label: 'IOR de iridiscencia',
+        description: 'Cuánto desvía la luz la película fina, lo que corre sus colores de arcoíris.',
+      },
     },
     params: {
       lighting: {
         label: 'Iluminación',
-        options: { standard: 'Estándar', unlit: 'Sin iluminación' },
+        options: { standard: 'Estándar', unlit: 'Sin iluminación', physical: 'Física' },
       },
       surface: {
         label: 'Superficie',
         options: { auto: 'Automática', opaque: 'Opaca', transparent: 'Transparente' },
       },
       twoSided: { label: 'Doble cara' },
+      useTransmission: {
+        label: 'Activar transmisión',
+        description:
+          'Deja pasar la luz a través de la superficie. Para hacerlo, three renderiza la escena de fondo una vez más.',
+      },
+      useClearcoat: { label: 'Activar barniz' },
+      useSheen: { label: 'Activar brillo de tela' },
+      useIridescence: { label: 'Activar iridiscencia' },
     },
   },
 

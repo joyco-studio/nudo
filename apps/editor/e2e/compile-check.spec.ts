@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { PHYSICAL_FEATURE_PARAMS } from '@nudo-tsl/core'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { en } from '../src/i18n/messages/en'
@@ -153,6 +154,14 @@ test.describe('real renderer compile check', () => {
       await expectCompiled(page)
     })
   }
+
+  test('the catalog graph compiles as physical with every feature on', async ({ page }) => {
+    test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+    const everyFeature = Object.values(PHYSICAL_FEATURE_PARAMS)
+    await seedAutosave(page, catalogDocument('physical', everyFeature))
+    await page.goto('/')
+    await expectCompiled(page)
+  })
 
   test('the voronoi cell outputs and distance metrics compile in a real renderer', async ({
     page,

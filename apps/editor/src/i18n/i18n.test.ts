@@ -117,6 +117,9 @@ describe('node texts', () => {
         if ('hidden' in param && param.hidden) continue
         const paramTexts = texts?.params?.[param.id]
         expect(paramTexts, `${definition.type} ${param.id}`).toBeDefined()
+        if (param.kind === 'boolean' && param.description !== undefined) {
+          expect(paramTexts?.description, `${definition.type} ${param.id}`).toBeDefined()
+        }
         if (param.kind !== 'enum') continue
         for (const option of param.options) {
           // Symbols (<, ≤, =) read the same in every language.
@@ -166,6 +169,10 @@ describe('node texts', () => {
     const noise = localized.list().find((definition) => definition.type === 'effects/noise')
     const kind = noise?.params?.find((param) => param.id === 'kind')
     expect(kind?.label).toBe('Tipo')
+    const master = localized.get('master/stack')
+    const useTransmission = master?.params?.find((param) => param.id === 'useTransmission')
+    expect(useTransmission?.label).toBe('Activar transmisión')
+    expect(useTransmission?.kind === 'boolean' && useTransmission.description).toMatch(/escena/)
   })
 
   it('finds a node by its Spanish or its English words', () => {

@@ -20,16 +20,19 @@ export function masterLightingOptions(): readonly string[] {
 
 /**
  * A schema-2 autosave document holding every catalog node wired to the master, with the master's
- * `lighting` param set to `lighting`.
+ * `lighting` param set to `lighting` and each boolean param in `switchedOn` turned on.
  */
-export function catalogDocument(lighting: string): string {
+export function catalogDocument(lighting: string, switchedOn: readonly string[] = []): string {
   const registry = createDefaultRegistry()
-  const result = setParam(
-    createCatalogGraph(registry),
-    registry,
-    { nodeId: MASTER_NODE_ID, paramId: LIGHTING_PARAM_ID },
-    lighting,
-  )
-  if (!result.ok) throw new Error(`Cannot set lighting to ${lighting}: ${result.error.code}`)
-  return serializeGraph(result.value)
+  const settings: readonly (readonly [string, string | boolean])[] = [
+    [LIGHTING_PARAM_ID, lighting],
+    ...switchedOn.map((paramId): readonly [string, boolean] => [paramId, true]),
+  ]
+  const graph = settings.reduce((current, [paramId, value]) => {
+    const result = setParam(current, registry, { nodeId: MASTER_NODE_ID, paramId }, value)
+    if (!result.ok)
+      throw new Error(`Cannot set ${paramId} to ${String(value)}: ${result.error.code}`)
+    return result.value
+  }, createCatalogGraph(registry))
+  return serializeGraph(graph)
 }

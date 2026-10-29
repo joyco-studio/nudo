@@ -75,6 +75,15 @@ describe('default registry', () => {
       'normal',
       'opacity',
       'alphaClip',
+      'transmission',
+      'ior',
+      'thickness',
+      'clearcoat',
+      'clearcoatRoughness',
+      'sheen',
+      'sheenRoughness',
+      'iridescence',
+      'iridescenceIOR',
     ])
     expect(master?.inputs.filter((input) => input.optional === true).map((i) => i.id)).toEqual([
       'position',

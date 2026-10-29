@@ -1,5 +1,12 @@
-import { MASTER_NODE_ID } from '@nudo-tsl/core'
-import type { AnyNodeDefinition, GraphNode, NodeId, XY } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, PHYSICAL_FEATURE_PARAMS, PHYSICAL_FEATURE_SLOTS } from '@nudo-tsl/core'
+import type {
+  AnyNodeDefinition,
+  GraphNode,
+  InputDefinition,
+  NodeId,
+  ParamDefinition,
+  XY,
+} from '@nudo-tsl/core'
 
 import { groupInputs } from '@/features/canvas/node-port-layout'
 import { bodyParams } from '@/features/canvas/param-field'
@@ -28,6 +35,29 @@ const GROUP_HEADING_HEIGHT = 24
 /** The node preview with its margins. */
 const PREVIEW_HEIGHT = 120
 
+const PHYSICAL_INPUT_IDS: ReadonlySet<string> = new Set(
+  Object.values(PHYSICAL_FEATURE_SLOTS).flat(),
+)
+const PHYSICAL_SWITCH_IDS: ReadonlySet<string> = new Set(Object.values(PHYSICAL_FEATURE_PARAMS))
+
+interface MeasuredParts {
+  readonly params: readonly ParamDefinition[] | undefined
+  readonly inputs: readonly InputDefinition<string>[]
+}
+
+/**
+ * The params and inputs that add to a node's height. A master that is not physical keeps its
+ * Physical group collapsed and its feature switches hidden, so neither counts.
+ */
+function measuredParts(node: GraphNode, definition: AnyNodeDefinition): MeasuredParts {
+  const isCompactMaster = node.id === MASTER_NODE_ID && node.params.lighting !== 'physical'
+  if (!isCompactMaster) return { params: definition.params, inputs: definition.inputs }
+  return {
+    params: definition.params?.filter((param) => !PHYSICAL_SWITCH_IDS.has(param.id)),
+    inputs: definition.inputs.filter((input) => !PHYSICAL_INPUT_IDS.has(input.id)),
+  }
+}
+
 function pillGeometry(definition: AnyNodeDefinition, id: NodeId, position: XY): NodeGeometry {
   const outputY = Object.fromEntries(
     definition.outputs.map((output) => [output.id, PILL.height / 2]),
@@ -43,8 +73,9 @@ export function estimateGeometry(
 ): NodeGeometry {
   if (definition.reads === 'property') return pillGeometry(definition, node.id, position)
 
+  const { params, inputs } = measuredParts(node, definition)
   let y = HEADER_HEIGHT + (definition.formula === undefined ? 0 : FORMULA_HEIGHT)
-  const paramCount = bodyParams(definition.params).length
+  const paramCount = bodyParams(params).length
   if (paramCount > 0) y += 2 * LIST_PADDING + paramCount * ROW_HEIGHT + DIVIDER
 
   const outputY: Record<string, number> = {}
@@ -58,9 +89,9 @@ export function estimateGeometry(
   }
 
   const inputY: Record<string, number> = {}
-  if (definition.inputs.length > 0) {
+  if (inputs.length > 0) {
     y += LIST_PADDING + (definition.outputs.length > 0 ? DIVIDER : 0)
-    for (const group of groupInputs(node, definition.inputs)) {
+    for (const group of groupInputs(node, inputs)) {
       if (group.rows.length > 0 && group.title !== null) y += GROUP_HEADING_HEIGHT
       for (const row of group.rows) {
         inputY[row.input.id] = y + ROW_HEIGHT / 2

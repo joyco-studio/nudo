@@ -26,12 +26,19 @@ function withPortTexts<P extends Port>(
   })
 }
 
-/** A param in another language: its name and its options' names, English where left out. */
+/**
+ * A param in another language: its name, a switch's description and its options' names, English
+ * where left out.
+ */
 export function localizeParam(
   param: ParamDefinition,
   texts: ParamTexts | undefined,
 ): ParamDefinition {
   if (texts === undefined) return param
+  if (param.kind === 'boolean') {
+    const description = texts.description ?? param.description
+    return { ...param, label: texts.label, ...(description !== undefined && { description }) }
+  }
   if (param.kind !== 'enum') return { ...param, label: texts.label }
   return {
     ...param,

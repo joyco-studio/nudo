@@ -30,7 +30,8 @@ const textureNotice = (example: string): string =>
     `// to one with its value, for example \`textures.${example}.value = myTexture\`.`,
   ].join('\n')
 
-export type MaterialClass = 'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial'
+export type MaterialClass =
+  'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial' | 'MeshPhysicalNodeMaterial'
 
 export interface NamedExpression {
   readonly name: string

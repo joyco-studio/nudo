@@ -169,6 +169,39 @@ describe('generated module parity', () => {
       ])
     })
 
+    it('builds a physical material with every feature on from the same graph', async () => {
+      const loaded = await loadGenerated(
+        withMasterParams(catalog, {
+          lighting: 'physical',
+          useTransmission: true,
+          useClearcoat: true,
+          useSheen: true,
+          useIridescence: true,
+        }),
+      )
+
+      expect(loaded.code).toContain('MeshPhysicalNodeMaterial')
+      expect(expectEverySlotIsANode(loaded)).toEqual([
+        'positionNode',
+        'colorNode',
+        'emissiveNode',
+        'metalnessNode',
+        'roughnessNode',
+        'normalNode',
+        'opacityNode',
+        'alphaTestNode',
+        'transmissionNode',
+        'iorNode',
+        'thicknessNode',
+        'clearcoatNode',
+        'clearcoatRoughnessNode',
+        'sheenNode',
+        'sheenRoughnessNode',
+        'iridescenceNode',
+        'iridescenceIORNode',
+      ])
+    })
+
     it('exports the material settings the master asks for', async () => {
       const loaded = await loadGenerated(
         withMasterParams(catalog, { surface: 'transparent', twoSided: true }),

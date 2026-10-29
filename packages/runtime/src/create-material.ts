@@ -11,6 +11,7 @@ import {
 import type {
   CompileError,
   Graph,
+  MasterLighting,
   MasterSettings,
   MasterSlot,
   MasterSurface,
@@ -20,13 +21,18 @@ import type {
   TslFacade,
 } from '@nudo-tsl/core'
 import { DoubleSide, FrontSide } from 'three'
-import { MeshBasicNodeMaterial, MeshStandardNodeMaterial } from 'three/webgpu'
+import {
+  MeshBasicNodeMaterial,
+  MeshPhysicalNodeMaterial,
+  MeshStandardNodeMaterial,
+} from 'three/webgpu'
 import { createLiveBackend } from './live-backend'
 import type { LiveProperty, LiveUniform } from './live-backend'
 import type { LiveNode } from './live-facade'
 import type { MaterialOptions } from './texture-resolution'
 
-export type RuntimeMaterial = MeshStandardNodeMaterial | MeshBasicNodeMaterial
+export type RuntimeMaterial =
+  MeshStandardNodeMaterial | MeshBasicNodeMaterial | MeshPhysicalNodeMaterial
 
 export interface MaterialBuild {
   /** `null` when compilation failed. */
@@ -62,6 +68,12 @@ function inlineOpacityOf(uniforms: ReadonlyMap<PortKey, LiveUniform>): number | 
   return typeof inlineOpacity === 'number' ? inlineOpacity : null
 }
 
+function materialFor(lighting: MasterLighting): RuntimeMaterial {
+  if (lighting === 'unlit') return new MeshBasicNodeMaterial()
+  if (lighting === 'physical') return new MeshPhysicalNodeMaterial()
+  return new MeshStandardNodeMaterial()
+}
+
 function buildMaterial(
   tsl: LiveFacade,
   slots: MasterSlots,
@@ -69,9 +81,8 @@ function buildMaterial(
   graph: Graph,
   uniforms: ReadonlyMap<PortKey, LiveUniform>,
 ): RuntimeMaterial {
-  const material =
-    settings.lighting === 'unlit' ? new MeshBasicNodeMaterial() : new MeshStandardNodeMaterial()
-  for (const { property, expression } of masterMaterialAssignments(tsl, slots, settings.lighting)) {
+  const material = materialFor(settings.lighting)
+  for (const { property, expression } of masterMaterialAssignments(tsl, slots, settings)) {
     // Object.assign sidesteps @types/three's per-node-type property types, which cannot be
     // satisfied by a type-erased LiveNode (the graph's types are only known at runtime).
     Object.assign(material, { [property]: expression })
