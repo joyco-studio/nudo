@@ -45,6 +45,11 @@ export type GraphChange = (graph: Graph, registry: NodeRegistry) => Result<Graph
 
 export interface GraphSlice {
   graph: Graph
+  /**
+   * Counts the times the whole graph was swapped (replaced, reset, undone or redone). Work that
+   * replaces the graph after an await reads it first and gives up when it has moved on since.
+   */
+  graphGeneration: number
   /** Returns the new node id, or null when the node could not be added. */
   addNode(type: NodeTypeId, position: XY): NodeId | null
   removeNodes(ids: readonly NodeId[]): void

@@ -11,5 +11,5 @@ import paperGrainUrl from '../textures/paper-grain.png?url&no-inline'
 export const PAPER_GRAIN: TemplateTexture = {
   id: 'paper-grain',
   file: paperGrainUrl,
-  label: 'Paper grain',
+  label: 'templateTexture.paper-grain',
 }

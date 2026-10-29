@@ -1,6 +1,8 @@
 import { texture } from '@nudo-tsl/core'
 import type { PortValue } from '@nudo-tsl/core'
 
+import type { MessageKey } from '@/i18n/translate'
+
 /**
  * An image a template ships with. It is bundled with the editor as its own file and fetched only
  * when the template is previewed or opened. The template's graph names it with `templateTexture`
@@ -8,12 +10,12 @@ import type { PortValue } from '@nudo-tsl/core'
  * and points those slots at the stored asset.
  */
 export interface TemplateTexture {
-  /** The name the template's graph uses for it, kebab-case: `templateTexture('paper-grain')`. */
+  /** Its name in the template's graph (`template:<id>` until it opens), kebab-case. */
   readonly id: string
   /** The bundled file's URL: `import url from '../textures/name.png?url&no-inline'`. */
   readonly file: string
-  /** What the image is, in a few words (English, like property labels). */
-  readonly label: string
+  /** What the image is, in a few words; the templates browser shows it. */
+  readonly label: MessageKey
 }
 
 /** Marks an asset id as a template's texture, not yet stored; real ids are hex SHA-256. */
@@ -29,10 +31,11 @@ export function templateTextureIdOf(assetId: string | null): string | null {
 }
 
 /**
- * A texture value for a template's spec: the template's texture `id`, bound when it opens. Marked
- * pure so a spec nobody reads (a test fixture in a production build) drops out of the bundle.
+ * A texture value for a template's spec, naming one of its bundled textures (bound when the
+ * template opens). It takes the texture itself, not its id, so a misspelt name doesn't compile.
+ * Marked pure so a spec nobody reads (a test fixture in a production build) drops out of the bundle.
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function templateTexture(id: string): PortValue {
-  return texture(templateTextureRef(id))
+export function templateTexture(bundled: TemplateTexture): PortValue {
+  return texture(templateTextureRef(bundled.id))
 }

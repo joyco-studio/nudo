@@ -21,7 +21,7 @@ export const TEXTURE_FIXTURE: ExampleSpec = {
         body: 'Una textura incluida: al abrir la plantilla se guarda y llena este espacio.',
       },
       nodes: [
-        node('grain', 'texture/sample-texture-2d', { texture: templateTexture(PAPER_GRAIN.id) }),
+        node('grain', 'texture/sample-texture-2d', { texture: templateTexture(PAPER_GRAIN) }),
       ],
     },
   ],

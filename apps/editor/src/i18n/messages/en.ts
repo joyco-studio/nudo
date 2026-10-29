@@ -188,6 +188,7 @@ export const en = {
   'templates.noProperties': 'No properties.',
   'templates.noTexture': 'None',
   'templates.open': 'Open template',
+  'templates.opening': 'Opening…',
   'templateTag.unlit': 'unlit',
   'templateTag.vertex': 'vertex',
   'templateTag.noise': 'noise',
@@ -209,6 +210,7 @@ export const en = {
   'example.lava-flow.description': 'Swirling lava with veins that burn white-hot',
   'example.lava-flow.teaches':
     'Bends the position with slow noise, draws thin veins from the absolute value of more noise, and lets heat past 1 spill into the other channels so the hottest veins turn white.',
+  'templateTexture.paper-grain': 'Paper grain',
   'example.texture-fixture.title': 'Paper grain (test fixture)',
   'example.texture-fixture.description': 'A bundled texture, for the end-to-end tests',
   'example.texture-fixture.teaches':
@@ -281,6 +283,8 @@ export const en = {
   'notice.exampleFailed': "Couldn't open the template.",
   'notice.templateTexturesFailed':
     "Some of the template's images didn't load. Choose an image in each slot marked Missing.",
+  'notice.templateTexturesUnsaved':
+    "Some of the template's images couldn't be saved in this browser. They show now, but will be missing after a reload. Your browser storage may be full.",
   'notice.droppedReaders':
     "Some pasted nodes referenced properties that don't exist here and were skipped.",
   'notice.connectFailed': "Couldn't connect those ports.",

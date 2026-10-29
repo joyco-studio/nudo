@@ -6,6 +6,7 @@ import { exampleGraph } from '@/examples'
 import type { Example } from '@/examples'
 import { templateTextureIdOf } from '@/examples/template-texture'
 import type { TemplateTexture } from '@/examples/template-texture'
+import type { MessageKey } from '@/i18n/translate'
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import { linearToSrgb, srgbToHex } from '@/shared/components/color-picker/color-math'
 
@@ -47,7 +48,7 @@ export type PropertyDisplay =
   | { readonly kind: 'color'; readonly chip: string; readonly hex: string }
   | { readonly kind: 'number'; readonly chip: string; readonly text: string }
   /** `label`: the bundled image the template fills it with; null when it starts empty. */
-  | { readonly kind: 'texture'; readonly chip: string; readonly label: string | null }
+  | { readonly kind: 'texture'; readonly chip: string; readonly label: MessageKey | null }
 
 /** Enough digits to tell values apart in a list, without a long tail of float noise. */
 const MAX_FRACTION_DIGITS = 3
@@ -58,7 +59,7 @@ const formatNumber = (value: number): string => String(Number(value.toFixed(MAX_
 function bundledTextureLabel(
   assetId: string | null,
   textures: readonly TemplateTexture[],
-): string | null {
+): MessageKey | null {
   const textureId = templateTextureIdOf(assetId)
   return textures.find((texture) => texture.id === textureId)?.label ?? null
 }

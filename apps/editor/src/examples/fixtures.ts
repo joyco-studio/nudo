@@ -1,6 +1,6 @@
 import { TEXTURE_FIXTURE } from './build/texture-fixture'
+import { fromSpec } from './example-from-spec'
 import type { Example } from './index'
-import { spanishComments } from './localize-comments'
 import textureFixtureGraph from './texture-fixture.graph.json'
 
 /**
@@ -17,8 +17,7 @@ export function textureFixtureExample(): Example {
     graph: textureFixtureGraph,
     previewShape: 'plane',
     tags: [],
-    textures: TEXTURE_FIXTURE.textures ?? [],
-    comments: { es: spanishComments(TEXTURE_FIXTURE) },
+    ...fromSpec(TEXTURE_FIXTURE),
   }
 }
 

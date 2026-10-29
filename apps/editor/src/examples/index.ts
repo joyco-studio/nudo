@@ -11,8 +11,9 @@ import { LAVA_FLOW } from './build/lava-flow'
 import { POND } from './build/pond'
 import { POSTER } from './build/poster'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
+import { fromSpec } from './example-from-spec'
 import { fixtureExamples } from './fixtures'
-import { localizeComments, spanishComments } from './localize-comments'
+import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
 import lavaFlowGraph from './lava-flow.graph.json'
 import pondGraph from './pond.graph.json'
@@ -54,8 +55,7 @@ export const EXAMPLES: readonly Example[] = [
     graph: pondGraph,
     previewShape: 'plane',
     tags: ['unlit', 'voronoi', 'noise'],
-    textures: POND.textures ?? [],
-    comments: { es: spanishComments(POND) },
+    ...fromSpec(POND),
   },
   {
     id: 'iridescent-blob',
@@ -63,8 +63,7 @@ export const EXAMPLES: readonly Example[] = [
     graph: iridescentBlobGraph,
     previewShape: 'knot',
     tags: ['vertex', 'noise', 'fresnel'],
-    textures: IRIDESCENT_BLOB.textures ?? [],
-    comments: { es: spanishComments(IRIDESCENT_BLOB) },
+    ...fromSpec(IRIDESCENT_BLOB),
   },
   {
     id: 'poster',
@@ -72,8 +71,7 @@ export const EXAMPLES: readonly Example[] = [
     graph: posterGraph,
     previewShape: 'suzanne',
     tags: ['unlit', 'noise', 'fresnel'],
-    textures: POSTER.textures ?? [],
-    comments: { es: spanishComments(POSTER) },
+    ...fromSpec(POSTER),
   },
   {
     id: 'lava-flow',
@@ -81,8 +79,7 @@ export const EXAMPLES: readonly Example[] = [
     graph: lavaFlowGraph,
     previewShape: 'torus',
     tags: ['unlit', 'noise'],
-    textures: LAVA_FLOW.textures ?? [],
-    comments: { es: spanishComments(LAVA_FLOW) },
+    ...fromSpec(LAVA_FLOW),
   },
 ]
 

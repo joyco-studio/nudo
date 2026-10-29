@@ -194,6 +194,7 @@ export const es = {
   'templates.noProperties': 'Sin propiedades.',
   'templates.noTexture': 'Ninguna',
   'templates.open': 'Abrir plantilla',
+  'templates.opening': 'Abriendo…',
   'templateTag.unlit': 'sin luz',
   'templateTag.vertex': 'vértices',
   'templateTag.noise': 'ruido',
@@ -215,6 +216,7 @@ export const es = {
   'example.lava-flow.description': 'Lava que se arremolina, con venas al rojo blanco',
   'example.lava-flow.teaches':
     'Deforma la posición con ruido lento, dibuja venas finas con el valor absoluto de otro ruido y deja que el calor que pasa de 1 se derrame sobre los demás canales, así las venas más calientes viran al blanco.',
+  'templateTexture.paper-grain': 'Grano de papel',
   'example.texture-fixture.title': 'Grano de papel (fixture de prueba)',
   'example.texture-fixture.description': 'Una textura incluida, para las pruebas end-to-end',
   'example.texture-fixture.teaches':
@@ -288,6 +290,8 @@ export const es = {
   'notice.exampleFailed': 'No se pudo abrir la plantilla.',
   'notice.templateTexturesFailed':
     'Algunas imágenes de la plantilla no cargaron. Elegí una imagen en cada espacio marcado como Falta.',
+  'notice.templateTexturesUnsaved':
+    'Algunas imágenes de la plantilla no se pudieron guardar en este navegador. Se ven ahora, pero van a faltar al recargar. Puede que el almacenamiento del navegador esté lleno.',
   'notice.droppedReaders':
     'Se omitieron algunos nodos pegados: usaban propiedades que no existen en este grafo.',
   'notice.connectFailed': 'No se pudieron conectar esos puertos.',

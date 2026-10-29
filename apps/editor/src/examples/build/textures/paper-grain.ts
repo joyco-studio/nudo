@@ -1,12 +1,15 @@
 import { writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { deflateSync } from 'node:zlib'
 
 /**
  * Generates `examples/textures/paper-grain.png`: a tileable grey paper grain for templates to
  * multiply over their colors. Procedural and seeded, so the file is the same on every run and owes
- * nothing to a third-party image. Regenerate (Node 22.18+, which runs TypeScript) with:
+ * nothing to a third-party image. Regenerate from the repo root with:
  *
  *   node apps/editor/src/examples/build/textures/paper-grain.ts
+ *
+ * Node 22.18+ runs TypeScript as is; Node 22.6 to 22.17 needs `--experimental-strip-types` first.
  *
  * Self-contained on purpose (Node can't resolve the editor's extensionless imports); the test next
  * to it checks the committed file still holds exactly these pixels.
@@ -133,6 +136,12 @@ export function encodeGrayPng(size: number, pixels: Uint8Array): Buffer {
 
 export const PAPER_GRAIN_FILE = new URL('../../textures/paper-grain.png', import.meta.url)
 
-if (import.meta.main) {
+/**
+ * Whether Node was asked to run this file, rather than a test importing it. `import.meta.main`
+ * would say so, but only Node 24.2+ has it.
+ */
+const isRunDirectly = process.argv[1] === fileURLToPath(import.meta.url)
+
+if (isRunDirectly) {
   writeFileSync(PAPER_GRAIN_FILE, encodeGrayPng(PAPER_GRAIN_SIZE, paperGrainPixels()))
 }

@@ -79,12 +79,12 @@ describe('propertyDisplay', () => {
   })
 
   it('names a texture the template bundles by its label', () => {
-    const grain = property({ type: 'texture', value: templateTexture(PAPER_GRAIN.id) })
+    const grain = property({ type: 'texture', value: templateTexture(PAPER_GRAIN) })
 
     expect(propertyDisplay(grain, [PAPER_GRAIN])).toEqual({
       kind: 'texture',
       chip: 'texture',
-      label: 'Paper grain',
+      label: 'templateTexture.paper-grain',
     })
     expect(propertyDisplay(grain)).toEqual({ kind: 'texture', chip: 'texture', label: null })
   })

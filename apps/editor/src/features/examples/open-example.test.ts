@@ -4,10 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EXAMPLES } from '@/examples'
 import { textureFixtureExample } from '@/examples/fixtures'
 import type { Example } from '@/examples'
+import { PAPER_GRAIN } from '@/examples/build/bundled-textures'
 import { templateTexture } from '@/examples/template-texture'
 import { undo, useEditorStore } from '@/store/editor-store'
 
 import { loadTemplateTextures } from './load-template-textures'
+import type { TemplateTextureLoad } from './load-template-textures'
 import { openExample } from './open-example'
 
 vi.mock('./load-template-textures', () => ({ loadTemplateTextures: vi.fn() }))
@@ -27,11 +29,31 @@ const TEXTURE_FIXTURE_EXAMPLE = textureFixtureExample()
 
 const grainSlot = () => getState().graph.nodes[GRAIN_NODE_ID]?.inputValues.texture
 
+const NOTHING_LOADED: TemplateTextureLoad = { bindings: new Map(), failed: [], unsaved: [] }
+const GRAIN_LOADED: TemplateTextureLoad = {
+  bindings: new Map([['paper-grain', GRAIN_ASSET]]),
+  failed: [],
+  unsaved: [],
+}
+
+/** Holds the textures back until the test lets them in. */
+function deferTextures(): (load: TemplateTextureLoad) => void {
+  let resolveLoad: (load: TemplateTextureLoad) => void = () => undefined
+  vi.mocked(loadTemplateTextures).mockReturnValueOnce(
+    new Promise((resolve) => {
+      resolveLoad = resolve
+    }),
+  )
+  return (load) => {
+    resolveLoad(load)
+  }
+}
+
 beforeEach(() => {
   useEditorStore.setState({ graph: createGraph(), notice: null, previewShape: 'sphere' })
   useEditorStore.temporal.getState().clear()
   vi.mocked(loadTemplateTextures).mockReset()
-  vi.mocked(loadTemplateTextures).mockResolvedValue({ bindings: new Map(), failed: [] })
+  vi.mocked(loadTemplateTextures).mockResolvedValue(NOTHING_LOADED)
 })
 
 describe('openExample', () => {
@@ -72,10 +94,7 @@ describe('openExample', () => {
   })
 
   it('stores the template textures and points its slots at them, in the same undo step', async () => {
-    vi.mocked(loadTemplateTextures).mockResolvedValue({
-      bindings: new Map([['paper-grain', GRAIN_ASSET]]),
-      failed: [],
-    })
+    vi.mocked(loadTemplateTextures).mockResolvedValue(GRAIN_LOADED)
     const before = getState().graph
 
     expect(await openExample(TEXTURE_FIXTURE_EXAMPLE, 'en')).toBe(true)
@@ -90,13 +109,13 @@ describe('openExample', () => {
 
   it('opens with a texture that did not load as missing, and says so', async () => {
     vi.mocked(loadTemplateTextures).mockResolvedValue({
-      bindings: new Map(),
+      ...NOTHING_LOADED,
       failed: TEXTURE_FIXTURE_EXAMPLE.textures,
     })
 
     expect(await openExample(TEXTURE_FIXTURE_EXAMPLE, 'en')).toBe(true)
 
-    expect(grainSlot()).toEqual(templateTexture('paper-grain'))
+    expect(grainSlot()).toEqual(templateTexture(PAPER_GRAIN))
     expect(getState().notice?.messageKey).toBe('notice.templateTexturesFailed')
   })
 
@@ -107,5 +126,54 @@ describe('openExample', () => {
 
     expect(getState().graph).toBe(before)
     expect(getState().previewShape).toBe('sphere')
+  })
+
+  it('opens with a texture it could not store bound for the session, and says it is unsaved', async () => {
+    vi.mocked(loadTemplateTextures).mockResolvedValue({
+      ...GRAIN_LOADED,
+      unsaved: TEXTURE_FIXTURE_EXAMPLE.textures,
+    })
+
+    expect(await openExample(TEXTURE_FIXTURE_EXAMPLE, 'en')).toBe(true)
+
+    expect(grainSlot()).toEqual(texture(GRAIN_ASSET))
+    expect(getState().notice?.messageKey).toBe('notice.templateTexturesUnsaved')
+  })
+
+  it('drops the template when an undo swapped the graph while its textures loaded', async () => {
+    getState().replaceGraph(createGraph())
+    const edited = getState().graph
+    const letTexturesIn = deferTextures()
+
+    const opening = openExample(TEXTURE_FIXTURE_EXAMPLE, 'en')
+    undo()
+    const undone = getState().graph
+    letTexturesIn(GRAIN_LOADED)
+
+    expect(await opening).toBe(false)
+    expect(undone).not.toBe(edited)
+    expect(getState().graph).toBe(undone)
+    expect(getState().previewShape).toBe('sphere')
+    expect(useEditorStore.temporal.getState().futureStates).toHaveLength(1)
+  })
+
+  it('drops the template when the graph was replaced or reset while its textures loaded', async () => {
+    const letPondIn = deferTextures()
+    const openingPond = openExample(exampleOrFail('pond'), 'en')
+    getState().resetGraph()
+    const reset = getState().graph
+    letPondIn(NOTHING_LOADED)
+
+    expect(await openingPond).toBe(false)
+    expect(getState().graph).toBe(reset)
+
+    const letFixtureIn = deferTextures()
+    const openingFixture = openExample(TEXTURE_FIXTURE_EXAMPLE, 'en')
+    expect(await openExample(exampleOrFail('pond'), 'en')).toBe(true)
+    const pond = getState().graph
+    letFixtureIn(GRAIN_LOADED)
+
+    expect(await openingFixture).toBe(false)
+    expect(getState().graph).toBe(pond)
   })
 })

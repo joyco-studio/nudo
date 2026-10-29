@@ -118,6 +118,19 @@ async function openFixture(page: Page, { confirm }: { confirm: boolean }): Promi
   await expect(graphNode(page, GRAIN_NODE_ID)).toBeVisible()
 }
 
+/** Holds the paper grain's image request back until the returned function lets it through. */
+async function holdGrainImage(page: Page): Promise<() => void> {
+  let release: () => void = () => undefined
+  const released = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  await page.route(isGrainImageRequest, async (route) => {
+    await released
+    await route.continue()
+  })
+  return release
+}
+
 async function expectGrainInSlotAndPreview(page: Page): Promise<void> {
   await expect(textureSlot(page, GRAIN_NODE_ID).locator('img')).toBeVisible()
   await expect(textureSlot(page, GRAIN_NODE_ID)).toHaveAccessibleName('Change image for Texture')
@@ -208,5 +221,39 @@ test.describe('templates that bundle textures', () => {
       .toBeLessThan(MIN_GRAIN_SPREAD)
     expect(await storedAssetIds(page)).toEqual([])
     expect(pageErrors).toEqual([])
+  })
+
+  test('the browser stays open, Open busy, until the texture is in', async ({ page }) => {
+    const releaseGrain = await holdGrainImage(page)
+    await page.goto(FIXTURES_URL)
+    const browser = templatesBrowser(page)
+
+    await pickExampleByKeyboard(page, FIXTURE_TITLE)
+
+    const openButton = browser.getByRole('button', { name: 'Opening…' })
+    await expect(openButton).toHaveAttribute('aria-busy', 'true')
+    await expect(browser).toBeVisible()
+    await expect(graphNode(page, GRAIN_NODE_ID)).toHaveCount(0)
+
+    releaseGrain()
+    await expect(browser).toBeHidden()
+    await expectGrainInSlotAndPreview(page)
+    await expect(templatesButton(page)).toBeFocused()
+  })
+
+  test('closing the browser while the texture loads gives up on the template', async ({ page }) => {
+    const releaseGrain = await holdGrainImage(page)
+    await page.goto(FIXTURES_URL)
+
+    await pickExampleByKeyboard(page, FIXTURE_TITLE)
+    await expect(templatesBrowser(page).getByRole('button', { name: 'Opening…' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(templatesBrowser(page)).toBeHidden()
+
+    releaseGrain()
+    // The texture still lands (stored once, like any open), but the graph stays as it was.
+    await expect.poll(() => storedAssetIds(page)).toHaveLength(1)
+    await expect(graphNode(page, GRAIN_NODE_ID)).toHaveCount(0)
+    await expect(templatesButton(page)).toBeFocused()
   })
 })

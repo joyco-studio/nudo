@@ -15,7 +15,18 @@ import { registry } from '@/store/registry'
 
 import { bindTemplateTextures, templateTexturesIn } from './bind-template-textures'
 import { templateTexture, templateTextureIdOf, templateTextureRef } from './template-texture'
+import type { TemplateTexture } from './template-texture'
 
+const GRAIN: TemplateTexture = {
+  id: 'paper-grain',
+  file: '/grain.png',
+  label: 'templateTexture.paper-grain',
+}
+const BRUSH: TemplateTexture = {
+  id: 'brush',
+  file: '/brush.png',
+  label: 'templateTexture.paper-grain',
+}
 const GRAIN_ASSET = 'a'.repeat(64)
 const USER_ASSET = 'b'.repeat(64)
 const SAMPLE_ID = asNodeId('sample')
@@ -52,7 +63,7 @@ const slotOf = (graph: Graph): PortValue | undefined => graph.nodes[SAMPLE_ID]?.
 
 describe('template texture references', () => {
   it('names a template texture in an asset slot, and reads the name back', () => {
-    expect(templateTexture('paper-grain')).toEqual({
+    expect(templateTexture(GRAIN)).toEqual({
       type: 'texture',
       assetId: templateTextureRef('paper-grain'),
     })
@@ -67,7 +78,7 @@ describe('template texture references', () => {
 
 describe('bindTemplateTextures', () => {
   it('points inline slots and texture properties at the stored assets', () => {
-    const graph = graphWith(templateTexture('paper-grain'), templateTexture('paper-grain'))
+    const graph = graphWith(templateTexture(GRAIN), templateTexture(GRAIN))
 
     const bound = bindTemplateTextures(graph, new Map([['paper-grain', GRAIN_ASSET]]))
 
@@ -76,11 +87,11 @@ describe('bindTemplateTextures', () => {
   })
 
   it('leaves a texture that did not load as its reference, which reads as missing', () => {
-    const graph = graphWith(templateTexture('paper-grain'), templateTexture('brush'))
+    const graph = graphWith(templateTexture(GRAIN), templateTexture(BRUSH))
 
     const bound = bindTemplateTextures(graph, new Map([['brush', GRAIN_ASSET]]))
 
-    expect(slotOf(bound)).toEqual(templateTexture('paper-grain'))
+    expect(slotOf(bound)).toEqual(templateTexture(GRAIN))
     expect(bound.properties[0]?.value).toEqual(texture(GRAIN_ASSET))
   })
 
@@ -95,7 +106,7 @@ describe('bindTemplateTextures', () => {
 
 describe('templateTexturesIn', () => {
   it('lists the template textures a graph reads, from slots and properties', () => {
-    const graph = graphWith(templateTexture('paper-grain'), templateTexture('brush'))
+    const graph = graphWith(templateTexture(GRAIN), templateTexture(BRUSH))
 
     expect([...templateTexturesIn(graph)].sort()).toEqual(['brush', 'paper-grain'])
     expect(templateTexturesIn(graphWith(texture(USER_ASSET), texture(null))).size).toBe(0)
@@ -105,7 +116,7 @@ describe('templateTexturesIn', () => {
 describe('a template texture in the generated code', () => {
   it('becomes the same texture placeholder as an uploaded image', () => {
     const uploaded = generateModule(graphWith(texture(USER_ASSET), texture(null)), registry)
-    const template = graphWith(templateTexture('paper-grain'), texture(null))
+    const template = graphWith(templateTexture(GRAIN), texture(null))
     const bound = bindTemplateTextures(template, new Map([['paper-grain', GRAIN_ASSET]]))
 
     expect(uploaded.errors).toEqual([])

@@ -20,7 +20,7 @@ function PropertyValue({ property, textures }: PropertyRowProps) {
   const t = useT()
   const display = propertyDisplay(property, textures)
   if (display.kind === 'texture') {
-    if (display.label !== null) return <span className="truncate">{display.label}</span>
+    if (display.label !== null) return <span className="truncate">{t(display.label)}</span>
     return <span className="text-muted-foreground">{t('templates.noTexture')}</span>
   }
   if (display.kind === 'number') return <span className="truncate">{display.text}</span>

@@ -62,7 +62,7 @@ export type WireSpec = readonly [from: PortPath, to: PortPath]
 export interface ExampleSpec {
   /**
    * Images the template ships with (see `bundled-textures.ts`). Its nodes and properties name one
-   * with `templateTexture(id)` as a texture value; opening the template stores the image and
+   * with `templateTexture(TEXTURE)` as a texture value; opening the template stores the image and
    * points them at it.
    */
   readonly textures?: readonly TemplateTexture[]

@@ -89,6 +89,7 @@ function isSameFrame(graph: Graph, nodeId: NodeId, frame: NodeFrame): boolean {
 
 export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   graph: createGraph(),
+  graphGeneration: 0,
 
   addNode: (type, position) => {
     const id = createNodeId()
@@ -226,6 +227,7 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
   replaceGraph: (graph) => {
     set({
       graph,
+      graphGeneration: get().graphGeneration + 1,
       selectedNodeIds: [],
       draftPositions: {},
       inputPreview: null,
