@@ -16,7 +16,7 @@ export async function openPond(page: Page): Promise<void> {
   await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
   // The page compiles its starting graph first; the baseline comes after that.
   const compilesBefore = await firstSettledCompileCount(page)
-  await pickExampleByKeyboard(page, 'Lettra pond')
+  await pickExampleByKeyboard(page, 'Pond')
   await expect
     .poll(async () => (await readStoredNodes(page)).length)
     .toBeGreaterThan(MIN_POND_NODES)

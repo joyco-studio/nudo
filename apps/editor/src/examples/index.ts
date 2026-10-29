@@ -9,15 +9,13 @@ import { registry } from '@/store/registry'
 import { frameIdOf } from './build/example-spec'
 import type { ExampleSpec } from './build/example-spec'
 import { IRIDESCENT_BLOB } from './build/iridescent-blob'
-import { LETTRA_POND } from './build/lettra-pond'
-import { SIMPLE_WATER } from './build/simple-water'
+import { POND } from './build/pond'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
-import lettraPondGraph from './lettra-pond.graph.json'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
-import simpleWaterGraph from './simple-water.graph.json'
+import pondGraph from './pond.graph.json'
 
-export const EXAMPLE_IDS = ['lettra-pond', 'simple-water', 'iridescent-blob'] as const
+export const EXAMPLE_IDS = ['pond', 'iridescent-blob'] as const
 export type ExampleId = (typeof EXAMPLE_IDS)[number]
 
 export interface Example {
@@ -39,18 +37,11 @@ function spanishComments(spec: ExampleSpec): CommentTexts {
 /** The bundled examples, in menu order. Phase 5 turns them into a gallery. */
 export const EXAMPLES: readonly Example[] = [
   {
-    id: 'lettra-pond',
-    title: 'example.lettra-pond.title',
-    graph: lettraPondGraph,
+    id: 'pond',
+    title: 'example.pond.title',
+    graph: pondGraph,
     previewShape: 'plane',
-    comments: { es: spanishComments(LETTRA_POND) },
-  },
-  {
-    id: 'simple-water',
-    title: 'example.simple-water.title',
-    graph: simpleWaterGraph,
-    previewShape: 'sphere',
-    comments: { es: spanishComments(SIMPLE_WATER) },
+    comments: { es: spanishComments(POND) },
   },
   {
     id: 'iridescent-blob',

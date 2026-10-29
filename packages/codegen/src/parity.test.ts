@@ -12,8 +12,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
 import { unwrap } from './fixtures/unwrap'
 import iridescentBlobGraph from '../../../apps/editor/src/examples/iridescent-blob.graph.json'
-import lettraPondGraph from '../../../apps/editor/src/examples/lettra-pond.graph.json'
-import simpleWaterGraph from '../../../apps/editor/src/examples/simple-water.graph.json'
+import pondGraph from '../../../apps/editor/src/examples/pond.graph.json'
 import waterGraphV1 from './fixtures/water-graph-v1.json'
 import { generateModule } from './index'
 import { TSL_IMPORT_NAMES } from './reserved-names'
@@ -88,22 +87,19 @@ describe('generated module parity', () => {
     ])
   })
 
-  it('builds the lettra pond example, unlit, as three nodes with its palette as uniforms', async () => {
-    const loaded = await loadGenerated(unwrap(parseGraph(lettraPondGraph, registry)))
+  it('builds the pond example, unlit, as three nodes with its palette as uniforms', async () => {
+    const loaded = await loadGenerated(unwrap(parseGraph(pondGraph, registry)))
 
     expect(expectEverySlotIsANode(loaded)).toEqual(['colorNode', 'opacityNode'])
     expect(loaded.code).toContain('MeshBasicNodeMaterial')
     expect(loaded.code).not.toContain('MeshStandardNodeMaterial')
     const uniforms = isRecord(loaded.exports.uniforms) ? Object.keys(loaded.exports.uniforms) : []
     expect(uniforms).toContain('waveSpeed')
-    expect(uniforms).toContain('laceCoreSun')
+    expect(uniforms).toContain('laceSun')
   })
 
-  it.each([
-    ['simple water', simpleWaterGraph],
-    ['iridescent blob', iridescentBlobGraph],
-  ])('builds the %s example as three nodes', async (_name, document) => {
-    const loaded = await loadGenerated(unwrap(parseGraph(document, registry)))
+  it('builds the iridescent blob example as three nodes', async () => {
+    const loaded = await loadGenerated(unwrap(parseGraph(iridescentBlobGraph, registry)))
 
     expect(expectEverySlotIsANode(loaded).length).toBeGreaterThan(0)
   })

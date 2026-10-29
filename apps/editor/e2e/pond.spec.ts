@@ -21,7 +21,7 @@ async function previewApplyCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__nudoPreviewApplyCount ?? 0)
 }
 
-test.describe('lettra pond example', () => {
+test.describe('pond example', () => {
   test.setTimeout(120_000)
 
   test('loads, has no node errors, renders a non-uniform image', async ({ page }) => {
@@ -49,7 +49,7 @@ test.describe('lettra pond example', () => {
 
     const row = page
       .getByRole('region', { name: 'Properties', exact: true })
-      .getByRole('group', { name: 'Rim · shade', exact: true })
+      .getByRole('group', { name: 'Fill · shade', exact: true })
     await row.getByRole('button', { name: 'Color', exact: true }).click()
     const area = page
       .getByRole('dialog', { name: 'Color', exact: true })

@@ -82,7 +82,7 @@ test.describe('examples', () => {
     await expect(page.locator('[data-error="true"]')).toHaveCount(0)
   })
 
-  for (const title of ['Iridescent blob', 'Simple water', 'Lettra pond']) {
+  for (const title of ['Iridescent blob', 'Pond']) {
     test(`lays the ${title} out with its previews on, no node over another`, async ({ page }) => {
       await page.goto('/')
       await pickExampleByKeyboard(page, title)
@@ -105,8 +105,10 @@ test.describe('examples', () => {
   }) => {
     await page.goto('/')
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
-    await pickExampleByKeyboard(page, 'Simple water')
-    await expect(page.getByRole('group', { name: 'Waves', exact: true })).toBeAttached()
+    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await expect(
+      page.getByRole('group', { name: '1 · Animated noise', exact: true }),
+    ).toBeAttached()
     const framed = await settledViewport(page)
 
     // Pan away, so the second opening has to frame the example again to land there.
@@ -115,7 +117,7 @@ test.describe('examples', () => {
     expect(await settledViewport(page)).not.toBe(framed)
 
     // Every node of the second copy has the same id as one the canvas already measured.
-    await pickExampleByKeyboard(page, 'Simple water')
+    await pickExampleByKeyboard(page, 'Iridescent blob')
     await confirmDialog(page).getByRole('button', { name: 'Open example' }).click()
     await expect(confirmDialog(page)).toBeHidden()
     await expect.poll(() => viewportTransform(page)).toBe(framed)
@@ -172,10 +174,10 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Simple water')
+    await pickExampleByKeyboard(page, 'Iridescent blob')
     const dialog = confirmDialog(page)
     await expect(dialog).toBeVisible()
-    await expect(dialog).toContainText('Open “Simple water”?')
+    await expect(dialog).toContainText('Open “Iridescent blob”?')
     await expect(dialog).toContainText('2 nodes')
     await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
 
@@ -191,10 +193,10 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Simple water')
+    await pickExampleByKeyboard(page, 'Iridescent blob')
     await confirmDialog(page).getByRole('button', { name: 'Open example' }).click()
     await expect(confirmDialog(page)).toBeHidden()
-    await expect(page.getByRole('group', { name: 'Waves', exact: true })).toBeAttached()
+    await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
     await expect.poll(() => storedNodeIds(page)).not.toEqual(before)
 
     await page.getByRole('main', { name: 'Node canvas' }).focus()

@@ -1,57 +1,32 @@
 {
   "schemaVersion": 2,
   "nodes": {
-    "across": {
-      "id": "across",
-      "type": "vector/dot",
-      "position": {
-        "x": -9224,
-        "y": -1075
-      },
-      "inputValues": {},
-      "params": {}
-    },
     "across2": {
       "id": "across2",
       "type": "math/multiply",
       "position": {
-        "x": -8584,
-        "y": -1163
+        "x": -6664,
+        "y": 139
       },
       "inputValues": {},
       "params": {}
     },
-    "acrossDir": {
-      "id": "acrossDir",
-      "type": "vector/combine",
+    "acrossAlong": {
+      "id": "acrossAlong",
+      "type": "vector/split",
       "position": {
-        "x": -9928,
-        "y": -613
+        "x": -6984,
+        "y": 129
       },
       "inputValues": {},
-      "params": {}
-    },
-    "acrossN": {
-      "id": "acrossN",
-      "type": "math/divide",
-      "position": {
-        "x": -8904,
-        "y": -1112
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 8
-        }
-      },
       "params": {}
     },
     "ahead": {
       "id": "ahead",
-      "type": "math/max",
+      "type": "math/min",
       "position": {
-        "x": -7944,
-        "y": -772
+        "x": -6344,
+        "y": -3
       },
       "inputValues": {
         "b": {
@@ -61,37 +36,12 @@
       },
       "params": {}
     },
-    "along": {
-      "id": "along",
-      "type": "vector/dot",
-      "position": {
-        "x": -8584,
-        "y": -696
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "alongN": {
-      "id": "alongN",
-      "type": "math/divide",
-      "position": {
-        "x": -8264,
-        "y": -733
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 3.5
-        }
-      },
-      "params": {}
-    },
     "ambient": {
       "id": "ambient",
       "type": "math/multiply",
       "position": {
-        "x": -12184,
-        "y": 1888
+        "x": -10584,
+        "y": 1558
       },
       "inputValues": {
         "b": {
@@ -103,10 +53,10 @@
     },
     "band": {
       "id": "band",
-      "type": "math/multiply",
+      "type": "math/add",
       "position": {
-        "x": -6664,
-        "y": -1049
+        "x": -5384,
+        "y": -59
       },
       "inputValues": {},
       "params": {}
@@ -115,18 +65,36 @@
       "id": "bandLit",
       "type": "math/multiply",
       "position": {
-        "x": -6344,
-        "y": -974
+        "x": -5064,
+        "y": 16
       },
       "inputValues": {},
+      "params": {}
+    },
+    "bandSpace": {
+      "id": "bandSpace",
+      "type": "math/multiply",
+      "position": {
+        "x": -7304,
+        "y": 250
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.15432098765432098,
+            -0.3527336860670194
+          ]
+        }
+      },
       "params": {}
     },
     "bite": {
       "id": "bite",
       "type": "math/multiply",
       "position": {
-        "x": -5000,
-        "y": 2082
+        "x": -3720,
+        "y": 1571
       },
       "inputValues": {
         "b": {
@@ -140,23 +108,26 @@
       "id": "body",
       "type": "interpolation/lerp",
       "position": {
-        "x": -2696,
-        "y": 230
+        "x": -2056,
+        "y": 257
       },
       "inputValues": {},
       "params": {}
     },
     "breath": {
       "id": "breath",
-      "type": "math/multiply",
+      "type": "vector/dot",
       "position": {
-        "x": -5320,
-        "y": 1623
+        "x": -9944,
+        "y": 1929
       },
       "inputValues": {
         "b": {
-          "type": "float",
-          "value": 0.0175
+          "type": "vec2",
+          "value": [
+            0.0175,
+            0.0175
+          ]
         }
       },
       "params": {}
@@ -165,8 +136,8 @@
       "id": "bumpCells",
       "type": "effects/voronoi",
       "position": {
-        "x": -10888,
-        "y": 2375
+        "x": -9560,
+        "y": 1984
       },
       "inputValues": {
         "scale": {
@@ -180,8 +151,8 @@
       "id": "cells",
       "type": "effects/voronoi",
       "position": {
-        "x": -10888,
-        "y": 1837
+        "x": -9560,
+        "y": 1446
       },
       "inputValues": {
         "scale": {
@@ -195,8 +166,8 @@
       "id": "centered",
       "type": "math/subtract",
       "position": {
-        "x": -15128,
-        "y": 1156
+        "x": -13208,
+        "y": 1227
       },
       "inputValues": {
         "b": {
@@ -210,68 +181,18 @@
       "id": "core",
       "type": "math/exp",
       "position": {
-        "x": -7624,
-        "y": -1387
+        "x": -5704,
+        "y": -146
       },
       "inputValues": {},
       "params": {}
     },
     "coreArg": {
       "id": "coreArg",
-      "type": "math/multiply",
+      "type": "math/subtract",
       "position": {
-        "x": -7944,
-        "y": -1364
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": -1
-        }
-      },
-      "params": {}
-    },
-    "coreEdge": {
-      "id": "coreEdge",
-      "type": "math/add",
-      "position": {
-        "x": -4360,
-        "y": 1994
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": -0.028
-        }
-      },
-      "params": {}
-    },
-    "coreMask": {
-      "id": "coreMask",
-      "type": "math/one-minus",
-      "position": {
-        "x": -3720,
-        "y": 1906
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "coreStep": {
-      "id": "coreStep",
-      "type": "interpolation/aa-step",
-      "position": {
-        "x": -4040,
-        "y": 1957
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "cosAngle": {
-      "id": "cosAngle",
-      "type": "math/cos",
-      "position": {
-        "x": -10568,
-        "y": -675
+        "x": -6024,
+        "y": -123
       },
       "inputValues": {},
       "params": {}
@@ -280,8 +201,8 @@
       "id": "crease",
       "type": "math/remap",
       "position": {
-        "x": -10248,
-        "y": 1706
+        "x": -8920,
+        "y": 1315
       },
       "inputValues": {
         "outMax": {
@@ -295,37 +216,47 @@
       },
       "params": {}
     },
-    "darkened": {
-      "id": "darkened",
-      "type": "math/multiply",
+    "darkness": {
+      "id": "darkness",
+      "type": "vector/dot",
       "position": {
-        "x": -72,
-        "y": 82
+        "x": -3400,
+        "y": 599
       },
       "inputValues": {
         "b": {
-          "type": "float",
-          "value": 0.214
+          "type": "vec4",
+          "value": [
+            1,
+            2,
+            -1.88,
+            1
+          ]
         }
       },
       "params": {}
     },
-    "darkness": {
-      "id": "darkness",
-      "type": "math/subtract",
+    "darknessTerms": {
+      "id": "darknessTerms",
+      "type": "vector/combine",
       "position": {
-        "x": -4040,
-        "y": 819
+        "x": -3720,
+        "y": 580
       },
-      "inputValues": {},
+      "inputValues": {
+        "w": {
+          "type": "float",
+          "value": 1
+        }
+      },
       "params": {}
     },
     "depth": {
       "id": "depth",
       "type": "math/min",
       "position": {
-        "x": -9928,
-        "y": 1849
+        "x": -8600,
+        "y": 1458
       },
       "inputValues": {},
       "params": {}
@@ -335,7 +266,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -392,
-        "y": 422
+        "y": 257
       },
       "inputValues": {
         "edge0": {
@@ -349,78 +280,12 @@
       },
       "params": {}
     },
-    "entry": {
-      "id": "entry",
-      "type": "interpolation/smoothstep",
-      "position": {
-        "x": -6984,
-        "y": -846
-      },
-      "inputValues": {
-        "edge0": {
-          "type": "float",
-          "value": -1.5
-        },
-        "edge1": {
-          "type": "float",
-          "value": 0
-        }
-      },
-      "params": {}
-    },
-    "fade": {
-      "id": "fade",
-      "type": "math/exp",
-      "position": {
-        "x": -7304,
-        "y": -947
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "fadeArg": {
-      "id": "fadeArg",
-      "type": "math/multiply",
-      "position": {
-        "x": -7624,
-        "y": -809
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": -1
-        }
-      },
-      "params": {}
-    },
-    "faded": {
-      "id": "faded",
-      "type": "math/multiply",
-      "position": {
-        "x": -6984,
-        "y": -1149
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "fillHigh": {
-      "id": "fillHigh",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -2134
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
-    },
     "fillLow": {
       "id": "fillLow",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -2345
+        "x": -3400,
+        "y": -1549
       },
       "inputValues": {},
       "params": {
@@ -431,8 +296,8 @@
       "id": "fillMid",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -2137
+        "x": -3672,
+        "y": -1416
       },
       "inputValues": {},
       "params": {
@@ -443,8 +308,8 @@
       "id": "fillShade",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -2257
+        "x": -3672,
+        "y": -1478
       },
       "inputValues": {},
       "params": {
@@ -455,8 +320,8 @@
       "id": "fillSun",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -2018
+        "x": -3352,
+        "y": -1338
       },
       "inputValues": {},
       "params": {
@@ -465,37 +330,22 @@
     },
     "fillTone": {
       "id": "fillTone",
-      "type": "logic/select",
+      "type": "interpolation/lerp",
       "position": {
-        "x": -3720,
-        "y": -2331
+        "x": -3080,
+        "y": -1250
       },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
+      "inputValues": {},
       "params": {
-        "op": "lt"
+        "showPreview": false
       }
     },
     "final": {
       "id": "final",
-      "type": "interpolation/lerp",
+      "type": "math/multiply",
       "position": {
         "x": 248,
         "y": 155
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "focus": {
-      "id": "focus",
-      "type": "math/add",
-      "position": {
-        "x": -11544,
-        "y": 2259
       },
       "inputValues": {},
       "params": {}
@@ -504,88 +354,73 @@
       "id": "frame-body",
       "type": "utility/comment",
       "position": {
-        "x": -3368,
-        "y": 35
+        "x": -2728,
+        "y": 112
       },
       "inputValues": {},
       "params": {
-        "body": "Flat painted tones, lightest to darkest by the darkness thresholds, then the lace and its core layered over them with Lerp.",
-        "height": 779,
+        "body": "Flat painted tones, lightest to darkest by the darkness thresholds, then the lace layered over them with Lerp.",
+        "height": 578,
         "title": "Body and lace",
-        "width": 1568
+        "width": 1248
       }
     },
     "frame-darkness": {
       "id": "frame-darkness",
       "type": "utility/comment",
       "position": {
-        "x": -5032,
-        "y": 219
+        "x": -4072,
+        "y": 151
       },
       "inputValues": {},
       "params": {
-        "body": "The stamp count plus a slow noise, thinned out by the sun. Each AA Step threshold moves to the next, darker tone.",
-        "height": 1292,
+        "body": "One Dot weighs the stamp count, a slow noise and the sun (which thins it out), plus a fixed bias in w. Each AA Step threshold moves to the next, darker tone.",
+        "height": 989,
         "title": "Darkness",
-        "width": 1568
+        "width": 1248
       }
     },
     "frame-lace": {
       "id": "frame-lace",
       "type": "utility/comment",
       "position": {
-        "x": -5352,
-        "y": 1543
+        "x": -4072,
+        "y": 1172
       },
       "inputValues": {},
       "params": {
-        "body": "The open water between rosettes and the creases where they touch, as crisp masks. The lace breathes with the refraction focus, widens under the sun and gets bitten by stamps.",
-        "height": 1017,
+        "body": "The open water between rosettes and the creases where they touch, as one crisp mask: AA Step cuts depth at an edge that breathes with the refraction, widens under the sun and backs off where stamps are.",
+        "height": 702,
         "title": "Lace",
-        "width": 1888
-      }
-    },
-    "frame-light-direction": {
-      "id": "frame-light-direction",
-      "type": "utility/comment",
-      "position": {
-        "x": -11192,
-        "y": -1108
-      },
-      "inputValues": {},
-      "params": {
-        "body": "The light angle, in degrees, as a direction, and the direction across it.",
-        "height": 932,
-        "title": "Light direction",
-        "width": 1520
+        "width": 1248
       }
     },
     "frame-pond-space": {
       "id": "frame-pond-space",
       "type": "utility/comment",
       "position": {
-        "x": -15480,
-        "y": 1002
+        "x": -13560,
+        "y": 1110
       },
       "inputValues": {},
       "params": {
-        "body": "The mesh UV in pond units, +y toward the bottom like the reference. p is the pattern space every layer reads.",
-        "height": 457,
+        "body": "The mesh UV, centered and scaled to pattern space, +y toward the bottom. p is the space every layer reads.",
+        "height": 420,
         "title": "Pond space",
-        "width": 1248
+        "width": 928
       }
     },
     "frame-refraction": {
       "id": "frame-refraction",
       "type": "utility/comment",
       "position": {
-        "x": -14136,
-        "y": 1573
+        "x": -12536,
+        "y": 1243
       },
       "inputValues": {},
       "params": {
-        "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water. Their sum is the focus that makes the lace breathe.",
-        "height": 1353,
+        "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water; the rosettes bend a little more. breath makes the lace breathe with them.",
+        "height": 1400,
         "title": "Refraction",
         "width": 2848
       }
@@ -594,8 +429,8 @@
       "id": "frame-rosettes",
       "type": "utility/comment",
       "position": {
-        "x": -10920,
-        "y": 1610
+        "x": -9592,
+        "y": 1219
       },
       "inputValues": {},
       "params": {
@@ -609,75 +444,75 @@
       "id": "frame-stamps",
       "type": "utility/comment",
       "position": {
-        "x": -7656,
-        "y": 1138
+        "x": -6056,
+        "y": 824
       },
       "inputValues": {},
       "params": {
-        "body": "Three more Voronoi reads, at other scales and two of them rotated, cut into round dabs with AA Step. Their count, only inside the rosettes, darkens the water.",
-        "height": 1185,
+        "body": "Three more Voronoi reads, at other scales and two of them rotated, cut into round dabs with AA Step. A Dot counts the dabs a point is in; that count, only inside the rosettes, darkens the water.",
+        "height": 1278,
         "title": "Stamps",
-        "width": 2208
+        "width": 1888
       }
     },
     "frame-sun-band": {
       "id": "frame-sun-band",
       "type": "utility/comment",
       "position": {
-        "x": -9576,
-        "y": -1467
+        "x": -8248,
+        "y": -226
       },
       "inputValues": {},
       "params": {
-        "body": "A long band of light: a sharp Gaussian core (Exp of −x²) plus a wide soft glow across the light direction, strongest where it enters and fading along it. A slight left-to-right gradient keeps the shade from going flat.",
-        "height": 1192,
+        "body": "Rotate 2D turns the pond to the light angle, so one Split gives the distance across the light and along it. The band is a sharp Gaussian core plus a wide glow, fading along from where the light enters (each one a single Exp). A slight left-to-right gradient keeps the shade from going flat.",
+        "height": 1018,
         "title": "Sun band",
-        "width": 4128
+        "width": 4080
       }
     },
     "frame-tones": {
       "id": "frame-tones",
       "type": "utility/comment",
       "position": {
-        "x": -4392,
-        "y": -2863
+        "x": -4072,
+        "y": -1645
       },
       "inputValues": {},
       "params": {
-        "body": "Each tone blends its shade, mid and sun colors by the light. Select takes the shade-to-mid blend below the mid light (0.3) and the mid-to-sun blend above it.",
-        "height": 3050,
+        "body": "Each tone blends its shade, mid and sun colors by the light: shade to mid while the light rises to the mid light (0.3), then on to sun. toMid and toSun are those two stretches, each clamped to 0..1.",
+        "height": 1764,
         "title": "Tones",
-        "width": 928
+        "width": 1248
       }
     },
     "frame-vignette": {
       "id": "frame-vignette",
       "type": "utility/comment",
       "position": {
-        "x": -1704,
-        "y": 2
+        "x": -1384,
+        "y": 75
       },
       "inputValues": {},
       "params": {
-        "body": "The pond deepens and darkens toward the edges of the view, in screen space.",
-        "height": 890,
+        "body": "The pond darkens toward the edges of the view, in screen space: the distance from the center, stretched sideways, becomes a factor the color is multiplied by.",
+        "height": 615,
         "title": "Vignette",
-        "width": 2208
+        "width": 1888
       }
     },
     "fromLight": {
       "id": "fromLight",
       "type": "math/subtract",
       "position": {
-        "x": -9544,
-        "y": -848
+        "x": -7944,
+        "y": 186
       },
       "inputValues": {
         "b": {
           "type": "vec2",
           "value": [
-            8,
-            -5
+            6.48,
+            -4.050000000000001
           ]
         }
       },
@@ -685,52 +520,55 @@
     },
     "glow": {
       "id": "glow",
-      "type": "math/multiply",
+      "type": "math/exp",
       "position": {
-        "x": -7624,
-        "y": -1112
+        "x": -5704,
+        "y": 129
       },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.76
-        }
-      },
+      "inputValues": {},
       "params": {}
     },
     "glowArg": {
       "id": "glowArg",
-      "type": "math/multiply",
+      "type": "math/add",
       "position": {
-        "x": -8264,
-        "y": -1036
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": -0.08
-        }
-      },
-      "params": {}
-    },
-    "glowExp": {
-      "id": "glowExp",
-      "type": "math/exp",
-      "position": {
-        "x": -7944,
-        "y": -1061
+        "x": -6024,
+        "y": 180
       },
       "inputValues": {},
+      "params": {}
+    },
+    "glowSpread": {
+      "id": "glowSpread",
+      "type": "math/remap",
+      "position": {
+        "x": -6344,
+        "y": 300
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": -0.3544368457017603
+        },
+        "outMin": {
+          "type": "float",
+          "value": -0.2744368457017603
+        }
+      },
       "params": {}
     },
     "gradient": {
       "id": "gradient",
       "type": "math/remap",
       "position": {
-        "x": -6344,
-        "y": -671
+        "x": -5064,
+        "y": 319
       },
       "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 0.81
+        },
         "outMax": {
           "type": "float",
           "value": 0.07100000000000001
@@ -742,22 +580,12 @@
       },
       "params": {}
     },
-    "grow": {
-      "id": "grow",
-      "type": "math/subtract",
-      "position": {
-        "x": -4680,
-        "y": 1879
-      },
-      "inputValues": {},
-      "params": {}
-    },
     "growing": {
       "id": "growing",
       "type": "math/add",
       "position": {
-        "x": -5000,
-        "y": 1779
+        "x": -3720,
+        "y": 1268
       },
       "inputValues": {},
       "params": {}
@@ -766,8 +594,8 @@
       "id": "inside",
       "type": "interpolation/smoothstep",
       "position": {
-        "x": -6024,
-        "y": 1713
+        "x": -4744,
+        "y": 1427
       },
       "inputValues": {
         "edge0": {
@@ -781,138 +609,34 @@
       },
       "params": {}
     },
-    "laceCoreHigh": {
-      "id": "laceCoreHigh",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -24
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
-    },
-    "laceCoreLow": {
-      "id": "laceCoreLow",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -235
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
-    },
-    "laceCoreMid": {
-      "id": "laceCoreMid",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": -27
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "laceCoreMid"
-      }
-    },
-    "laceCoreShade": {
-      "id": "laceCoreShade",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": -147
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "laceCoreShade"
-      }
-    },
-    "laceCoreSun": {
-      "id": "laceCoreSun",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": 92
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "laceCoreSun"
-      }
-    },
-    "laceCoreTone": {
-      "id": "laceCoreTone",
-      "type": "logic/select",
-      "position": {
-        "x": -3720,
-        "y": -351
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
-      "params": {
-        "op": "lt"
-      }
-    },
     "laceEdge": {
       "id": "laceEdge",
-      "type": "math/add",
+      "type": "math/subtract",
       "position": {
-        "x": -4360,
-        "y": 1691
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": -0.13
-        }
-      },
-      "params": {}
-    },
-    "laceHigh": {
-      "id": "laceHigh",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -446
+        "x": -3400,
+        "y": 1369
       },
       "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
+      "params": {}
     },
     "laceLow": {
       "id": "laceLow",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -657
+        "x": -3400,
+        "y": -154
       },
       "inputValues": {},
       "params": {
         "showPreview": false
       }
     },
-    "laceMask": {
-      "id": "laceMask",
-      "type": "math/one-minus",
-      "position": {
-        "x": -3720,
-        "y": 1631
-      },
-      "inputValues": {},
-      "params": {}
-    },
     "laceMid": {
       "id": "laceMid",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -449
+        "x": -3672,
+        "y": -21
       },
       "inputValues": {},
       "params": {
@@ -923,8 +647,8 @@
       "id": "laceShade",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -569
+        "x": -3672,
+        "y": -83
       },
       "inputValues": {},
       "params": {
@@ -935,8 +659,8 @@
       "id": "laceStep",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -4040,
-        "y": 1654
+        "x": -3080,
+        "y": 1332
       },
       "inputValues": {},
       "params": {}
@@ -945,8 +669,8 @@
       "id": "laceSun",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -330
+        "x": -3352,
+        "y": 57
       },
       "inputValues": {},
       "params": {
@@ -955,49 +679,34 @@
     },
     "laceTone": {
       "id": "laceTone",
-      "type": "logic/select",
+      "type": "interpolation/lerp",
       "position": {
-        "x": -3720,
-        "y": -747
+        "x": -3080,
+        "y": -406
       },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
+      "inputValues": {},
       "params": {
-        "op": "lt"
+        "showPreview": false
       }
     },
     "lightAngle": {
       "id": "lightAngle",
       "type": "property/float",
       "position": {
-        "x": -11160,
-        "y": -589
+        "x": -8216,
+        "y": 577
       },
       "inputValues": {},
       "params": {
         "propertyId": "lightAngle"
       }
     },
-    "lightDir": {
-      "id": "lightDir",
-      "type": "vector/combine",
-      "position": {
-        "x": -9928,
-        "y": -1028
-      },
-      "inputValues": {},
-      "params": {}
-    },
     "lightStrength": {
       "id": "lightStrength",
       "type": "property/float",
       "position": {
-        "x": -6616,
-        "y": -746
+        "x": -5336,
+        "y": 244
       },
       "inputValues": {},
       "params": {
@@ -1016,17 +725,17 @@
         "lighting": "unlit"
       }
     },
-    "negCos": {
-      "id": "negCos",
-      "type": "math/multiply",
+    "midShare": {
+      "id": "midShare",
+      "type": "math/divide",
       "position": {
-        "x": -10248,
-        "y": -479
+        "x": -4040,
+        "y": -889
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": -1
+          "value": 0.3
         }
       },
       "params": {}
@@ -1035,8 +744,8 @@
       "id": "noiseA",
       "type": "effects/noise",
       "position": {
-        "x": -12824,
-        "y": 1964
+        "x": -11224,
+        "y": 1681
       },
       "inputValues": {
         "scale": {
@@ -1052,8 +761,8 @@
       "id": "noiseAt",
       "type": "math/add",
       "position": {
-        "x": -13144,
-        "y": 2038
+        "x": -11544,
+        "y": 1755
       },
       "inputValues": {},
       "params": {}
@@ -1062,8 +771,8 @@
       "id": "noiseB",
       "type": "effects/noise",
       "position": {
-        "x": -12824,
-        "y": 2304
+        "x": -11224,
+        "y": 2021
       },
       "inputValues": {
         "scale": {
@@ -1079,8 +788,8 @@
       "id": "noiseBt",
       "type": "math/add",
       "position": {
-        "x": -13144,
-        "y": 2378
+        "x": -11544,
+        "y": 2095
       },
       "inputValues": {},
       "params": {}
@@ -1089,8 +798,8 @@
       "id": "offset",
       "type": "vector/combine",
       "position": {
-        "x": -12504,
-        "y": 1925
+        "x": -10904,
+        "y": 1781
       },
       "inputValues": {},
       "params": {}
@@ -1099,8 +808,8 @@
       "id": "outsideA",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -6984,
-        "y": 1228
+        "x": -5384,
+        "y": 923
       },
       "inputValues": {
         "edge": {
@@ -1110,32 +819,12 @@
       },
       "params": {}
     },
-    "outsideAB": {
-      "id": "outsideAB",
-      "type": "math/add",
-      "position": {
-        "x": -6664,
-        "y": 1374
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "outsideABC": {
-      "id": "outsideABC",
-      "type": "math/add",
-      "position": {
-        "x": -6344,
-        "y": 1475
-      },
-      "inputValues": {},
-      "params": {}
-    },
     "outsideB": {
       "id": "outsideB",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -6984,
-        "y": 1531
+        "x": -5384,
+        "y": 1226
       },
       "inputValues": {
         "edge": {
@@ -1149,8 +838,8 @@
       "id": "outsideC",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -6664,
-        "y": 1677
+        "x": -5384,
+        "y": 1529
       },
       "inputValues": {
         "edge": {
@@ -1164,23 +853,36 @@
       "id": "p",
       "type": "math/multiply",
       "position": {
-        "x": -14488,
-        "y": 1082
+        "x": -12888,
+        "y": 1190
       },
       "inputValues": {
         "b": {
-          "type": "float",
-          "value": 0.81
+          "type": "vec2",
+          "value": [
+            10.530000000000001,
+            -10.530000000000001
+          ]
         }
       },
+      "params": {}
+    },
+    "pSplit": {
+      "id": "pSplit",
+      "type": "vector/split",
+      "position": {
+        "x": -5384,
+        "y": 356
+      },
+      "inputValues": {},
       "params": {}
     },
     "pf": {
       "id": "pf",
       "type": "math/add",
       "position": {
-        "x": -11544,
-        "y": 1653
+        "x": -9944,
+        "y": 1323
       },
       "inputValues": {},
       "params": {}
@@ -1189,18 +891,8 @@
       "id": "pl",
       "type": "math/add",
       "position": {
-        "x": -11544,
-        "y": 1956
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "profile": {
-      "id": "profile",
-      "type": "math/add",
-      "position": {
-        "x": -7304,
-        "y": -1250
+        "x": -9944,
+        "y": 1626
       },
       "inputValues": {},
       "params": {}
@@ -1209,8 +901,8 @@
       "id": "radians",
       "type": "math/multiply",
       "position": {
-        "x": -10888,
-        "y": -677
+        "x": -7944,
+        "y": 489
       },
       "inputValues": {
         "b": {
@@ -1220,99 +912,12 @@
       },
       "params": {}
     },
-    "rimFill": {
-      "id": "rimFill",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -3016,
-        "y": 115
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "rimHigh": {
-      "id": "rimHigh",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -2556
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
-    },
-    "rimLow": {
-      "id": "rimLow",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -2767
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
-    },
-    "rimMid": {
-      "id": "rimMid",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": -2559
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "rimMid"
-      }
-    },
-    "rimShade": {
-      "id": "rimShade",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": -2679
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "rimShade"
-      }
-    },
-    "rimSun": {
-      "id": "rimSun",
-      "type": "property/vec3",
-      "position": {
-        "x": -4312,
-        "y": -2440
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "rimSun"
-      }
-    },
-    "rimTone": {
-      "id": "rimTone",
-      "type": "logic/select",
-      "position": {
-        "x": -3720,
-        "y": -2727
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
-      "params": {
-        "op": "lt"
-      }
-    },
     "roseBumps": {
       "id": "roseBumps",
       "type": "math/remap",
       "position": {
-        "x": -10568,
-        "y": 2338
+        "x": -9240,
+        "y": 1947
       },
       "inputValues": {
         "outMax": {
@@ -1330,8 +935,8 @@
       "id": "roseCore",
       "type": "math/remap",
       "position": {
-        "x": -10568,
-        "y": 1951
+        "x": -9240,
+        "y": 1560
       },
       "inputValues": {
         "outMax": {
@@ -1349,35 +954,28 @@
       "id": "rosette",
       "type": "math/add",
       "position": {
-        "x": -10248,
-        "y": 2093
+        "x": -8920,
+        "y": 1702
       },
       "inputValues": {},
-      "params": {}
-    },
-    "screenCentered": {
-      "id": "screenCentered",
-      "type": "math/subtract",
-      "position": {
-        "x": -1352,
-        "y": 589
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.5
-        }
-      },
       "params": {}
     },
     "screenDistance": {
       "id": "screenDistance",
-      "type": "vector/length",
+      "type": "math/distance",
       "position": {
         "x": -712,
-        "y": 515
+        "y": 350
       },
-      "inputValues": {},
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.71875,
+            0.575
+          ]
+        }
+      },
       "params": {}
     },
     "screenStretched": {
@@ -1385,7 +983,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1032,
-        "y": 552
+        "y": 387
       },
       "inputValues": {
         "b": {
@@ -1402,8 +1000,8 @@
       "id": "screenUv",
       "type": "input/screen-uv",
       "position": {
-        "x": -1672,
-        "y": 640
+        "x": -1352,
+        "y": 438
       },
       "inputValues": {},
       "params": {}
@@ -1412,8 +1010,8 @@
       "id": "scrollA",
       "type": "math/multiply",
       "position": {
-        "x": -13464,
-        "y": 2017
+        "x": -11864,
+        "y": 1734
       },
       "inputValues": {
         "b": {
@@ -1430,8 +1028,8 @@
       "id": "scrollB",
       "type": "math/multiply",
       "position": {
-        "x": -13464,
-        "y": 2623
+        "x": -11864,
+        "y": 2340
       },
       "inputValues": {
         "b": {
@@ -1444,22 +1042,31 @@
       },
       "params": {}
     },
-    "sinAngle": {
-      "id": "sinAngle",
-      "type": "math/sin",
+    "shading": {
+      "id": "shading",
+      "type": "math/remap",
       "position": {
-        "x": -10248,
-        "y": -754
+        "x": -72,
+        "y": 220
       },
-      "inputValues": {},
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0.6496797999999999
+        },
+        "outMin": {
+          "type": "float",
+          "value": 1
+        }
+      },
       "params": {}
     },
     "spots": {
       "id": "spots",
       "type": "interpolation/lerp",
       "position": {
-        "x": -3016,
-        "y": 446
+        "x": -2376,
+        "y": 322
       },
       "inputValues": {},
       "params": {}
@@ -1468,40 +1075,18 @@
       "id": "spots12",
       "type": "interpolation/lerp",
       "position": {
-        "x": -3336,
-        "y": 483
+        "x": -2696,
+        "y": 359
       },
       "inputValues": {},
       "params": {}
-    },
-    "stacked": {
-      "id": "stacked",
-      "type": "math/add",
-      "position": {
-        "x": -4360,
-        "y": 718
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "stamp1High": {
-      "id": "stamp1High",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -4040,
-        "y": -1712
-      },
-      "inputValues": {},
-      "params": {
-        "showPreview": false
-      }
     },
     "stamp1Low": {
       "id": "stamp1Low",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -1923
+        "x": -3400,
+        "y": -1276
       },
       "inputValues": {},
       "params": {
@@ -1512,8 +1097,8 @@
       "id": "stamp1Mid",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -1793
+        "x": -3672,
+        "y": -1143
       },
       "inputValues": {},
       "params": {
@@ -1524,8 +1109,8 @@
       "id": "stamp1Shade",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -1855
+        "x": -3672,
+        "y": -1205
       },
       "inputValues": {},
       "params": {
@@ -1536,8 +1121,8 @@
       "id": "stamp1Sun",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -1731
+        "x": -3352,
+        "y": -1065
       },
       "inputValues": {},
       "params": {
@@ -1546,27 +1131,10 @@
     },
     "stamp1Tone": {
       "id": "stamp1Tone",
-      "type": "logic/select",
-      "position": {
-        "x": -3720,
-        "y": -1935
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
-      "params": {
-        "op": "lt"
-      }
-    },
-    "stamp2High": {
-      "id": "stamp2High",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -1290
+        "x": -3080,
+        "y": -1039
       },
       "inputValues": {},
       "params": {
@@ -1577,8 +1145,8 @@
       "id": "stamp2Low",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -1501
+        "x": -3400,
+        "y": -1003
       },
       "inputValues": {},
       "params": {
@@ -1589,8 +1157,8 @@
       "id": "stamp2Mid",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -1304
+        "x": -3672,
+        "y": -988
       },
       "inputValues": {},
       "params": {
@@ -1601,8 +1169,8 @@
       "id": "stamp2Shade",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -1669
+        "x": -3672,
+        "y": -1050
       },
       "inputValues": {},
       "params": {
@@ -1613,8 +1181,8 @@
       "id": "stamp2Sun",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -855
+        "x": -3352,
+        "y": -489
       },
       "inputValues": {},
       "params": {
@@ -1623,27 +1191,10 @@
     },
     "stamp2Tone": {
       "id": "stamp2Tone",
-      "type": "logic/select",
-      "position": {
-        "x": -3720,
-        "y": -1539
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
-      "params": {
-        "op": "lt"
-      }
-    },
-    "stamp3High": {
-      "id": "stamp3High",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -868
+        "x": -3080,
+        "y": -828
       },
       "inputValues": {},
       "params": {
@@ -1654,8 +1205,8 @@
       "id": "stamp3Low",
       "type": "interpolation/lerp",
       "position": {
-        "x": -4040,
-        "y": -1079
+        "x": -3400,
+        "y": -427
       },
       "inputValues": {},
       "params": {
@@ -1666,8 +1217,8 @@
       "id": "stamp3Mid",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -731
+        "x": -3672,
+        "y": -174
       },
       "inputValues": {},
       "params": {
@@ -1678,8 +1229,8 @@
       "id": "stamp3Shade",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -793
+        "x": -3672,
+        "y": -236
       },
       "inputValues": {},
       "params": {
@@ -1690,8 +1241,8 @@
       "id": "stamp3Sun",
       "type": "property/vec3",
       "position": {
-        "x": -4312,
-        "y": -669
+        "x": -3352,
+        "y": -216
       },
       "inputValues": {},
       "params": {
@@ -1700,27 +1251,22 @@
     },
     "stamp3Tone": {
       "id": "stamp3Tone",
-      "type": "logic/select",
+      "type": "interpolation/lerp",
       "position": {
-        "x": -3720,
-        "y": -1143
+        "x": -3080,
+        "y": -617
       },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
+      "inputValues": {},
       "params": {
-        "op": "lt"
+        "showPreview": false
       }
     },
     "stampCellsA": {
       "id": "stampCellsA",
       "type": "effects/voronoi",
       "position": {
-        "x": -7304,
-        "y": 1218
+        "x": -5704,
+        "y": 904
       },
       "inputValues": {
         "scale": {
@@ -1734,8 +1280,8 @@
       "id": "stampCellsB",
       "type": "effects/voronoi",
       "position": {
-        "x": -7304,
-        "y": 1605
+        "x": -5704,
+        "y": 1291
       },
       "inputValues": {
         "scale": {
@@ -1749,8 +1295,8 @@
       "id": "stampCellsC",
       "type": "effects/voronoi",
       "position": {
-        "x": -6984,
-        "y": 1834
+        "x": -5704,
+        "y": 1678
       },
       "inputValues": {
         "scale": {
@@ -1764,23 +1310,45 @@
       "id": "stampCount",
       "type": "math/multiply",
       "position": {
-        "x": -5704,
-        "y": 1510
+        "x": -4424,
+        "y": 1225
       },
       "inputValues": {},
       "params": {}
     },
-    "stampsHit": {
-      "id": "stampsHit",
-      "type": "math/subtract",
+    "stampTerms": {
+      "id": "stampTerms",
+      "type": "vector/combine",
       "position": {
-        "x": -6024,
-        "y": 1410
+        "x": -5064,
+        "y": 1105
       },
       "inputValues": {
-        "a": {
+        "w": {
           "type": "float",
-          "value": 3
+          "value": 1
+        }
+      },
+      "params": {
+        "showPreview": false
+      }
+    },
+    "stampsHit": {
+      "id": "stampsHit",
+      "type": "vector/dot",
+      "position": {
+        "x": -4744,
+        "y": 1124
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec4",
+          "value": [
+            -1,
+            -1,
+            -1,
+            3
+          ]
         }
       },
       "params": {}
@@ -1789,8 +1357,8 @@
       "id": "sun",
       "type": "math/clamp",
       "position": {
-        "x": -5704,
-        "y": -910
+        "x": -4424,
+        "y": 79
       },
       "inputValues": {},
       "params": {}
@@ -1799,23 +1367,23 @@
       "id": "sunRaw",
       "type": "math/add",
       "position": {
-        "x": -6024,
-        "y": -873
+        "x": -4744,
+        "y": 116
       },
       "inputValues": {},
       "params": {}
     },
-    "sunThin": {
-      "id": "sunThin",
-      "type": "math/multiply",
+    "sunShare": {
+      "id": "sunShare",
+      "type": "math/remap",
       "position": {
-        "x": -4360,
-        "y": 1021
+        "x": -3720,
+        "y": -623
       },
       "inputValues": {
-        "b": {
+        "inMin": {
           "type": "float",
-          "value": 1.88
+          "value": 0.3
         }
       },
       "params": {}
@@ -1824,23 +1392,23 @@
       "id": "time",
       "type": "input/time",
       "position": {
-        "x": -14104,
-        "y": 2287
+        "x": -12504,
+        "y": 2003
       },
       "inputValues": {},
       "params": {}
     },
-    "toFill": {
-      "id": "toFill",
-      "type": "interpolation/aa-step",
+    "toMid": {
+      "id": "toMid",
+      "type": "math/min",
       "position": {
         "x": -3720,
-        "y": 299
+        "y": -926
       },
       "inputValues": {
-        "edge": {
+        "b": {
           "type": "float",
-          "value": -0.5
+          "value": 1
         }
       },
       "params": {}
@@ -1849,8 +1417,8 @@
       "id": "toStamp2",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -3720,
-        "y": 905
+        "x": -3080,
+        "y": 534
       },
       "inputValues": {
         "edge": {
@@ -1864,8 +1432,8 @@
       "id": "toStamp3",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -3720,
-        "y": 1208
+        "x": -3080,
+        "y": 837
       },
       "inputValues": {
         "edge": {
@@ -1879,8 +1447,8 @@
       "id": "toStamps",
       "type": "interpolation/aa-step",
       "position": {
-        "x": -3720,
-        "y": 602
+        "x": -3080,
+        "y": 231
       },
       "inputValues": {
         "edge": {
@@ -1890,52 +1458,27 @@
       },
       "params": {}
     },
-    "toneHigh": {
-      "id": "toneHigh",
-      "type": "math/remap",
+    "toSun": {
+      "id": "toSun",
+      "type": "math/max",
       "position": {
-        "x": -4360,
-        "y": -1242
-      },
-      "inputValues": {
-        "inMin": {
-          "type": "float",
-          "value": 0.3
-        }
-      },
-      "params": {}
-    },
-    "toneLow": {
-      "id": "toneLow",
-      "type": "math/divide",
-      "position": {
-        "x": -4360,
-        "y": -1607
+        "x": -3400,
+        "y": -792
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": 0.3
+          "value": 0
         }
       },
-      "params": {}
-    },
-    "touching": {
-      "id": "touching",
-      "type": "math/clamp",
-      "position": {
-        "x": -5320,
-        "y": 2229
-      },
-      "inputValues": {},
       "params": {}
     },
     "turnB": {
       "id": "turnB",
       "type": "vector/rotate-2d",
       "position": {
-        "x": -7624,
-        "y": 1698
+        "x": -6024,
+        "y": 1384
       },
       "inputValues": {
         "angle": {
@@ -1949,8 +1492,8 @@
       "id": "turnC",
       "type": "vector/rotate-2d",
       "position": {
-        "x": -7304,
-        "y": 1992
+        "x": -6024,
+        "y": 1771
       },
       "inputValues": {
         "angle": {
@@ -1960,12 +1503,30 @@
       },
       "params": {}
     },
+    "turned": {
+      "id": "turned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -7624,
+        "y": 287
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
     "turnedB": {
       "id": "turnedB",
       "type": "math/multiply",
       "position": {
-        "x": -13464,
-        "y": 2320
+        "x": -11864,
+        "y": 2037
       },
       "inputValues": {
         "b": {
@@ -1982,41 +1543,18 @@
       "id": "uv",
       "type": "input/uv",
       "position": {
-        "x": -15448,
-        "y": 1207
+        "x": -13528,
+        "y": 1278
       },
       "inputValues": {},
-      "params": {}
-    },
-    "variation": {
-      "id": "variation",
-      "type": "math/remap",
-      "position": {
-        "x": -4680,
-        "y": 783
-      },
-      "inputValues": {
-        "inMin": {
-          "type": "float",
-          "value": -1
-        },
-        "outMax": {
-          "type": "float",
-          "value": 3
-        },
-        "outMin": {
-          "type": "float",
-          "value": -1
-        }
-      },
       "params": {}
     },
     "variationNoise": {
       "id": "variationNoise",
       "type": "effects/noise",
       "position": {
-        "x": -5000,
-        "y": 783
+        "x": -4040,
+        "y": 664
       },
       "inputValues": {
         "scale": {
@@ -2028,27 +1566,12 @@
         "kind": "simplex"
       }
     },
-    "vignette": {
-      "id": "vignette",
-      "type": "math/multiply",
-      "position": {
-        "x": -72,
-        "y": 385
-      },
-      "inputValues": {
-        "b": {
-          "type": "float",
-          "value": 0.4457
-        }
-      },
-      "params": {}
-    },
     "waveSpeed": {
       "id": "waveSpeed",
       "type": "property/float",
       "position": {
-        "x": -14056,
-        "y": 2595
+        "x": -12456,
+        "y": 2311
       },
       "inputValues": {},
       "params": {
@@ -2059,43 +1582,37 @@
       "id": "waveTime",
       "type": "math/multiply",
       "position": {
-        "x": -13784,
-        "y": 2357
+        "x": -12184,
+        "y": 2074
       },
       "inputValues": {},
       "params": {}
     },
     "widen": {
       "id": "widen",
-      "type": "math/multiply",
+      "type": "math/remap",
       "position": {
-        "x": -5320,
-        "y": 1926
+        "x": -4040,
+        "y": 1333
       },
       "inputValues": {
-        "b": {
+        "outMax": {
           "type": "float",
-          "value": 0.1
+          "value": 0.07200000000000001
+        },
+        "outMin": {
+          "type": "float",
+          "value": -0.028
         }
       },
-      "params": {}
-    },
-    "withCore": {
-      "id": "withCore",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -2056,
-        "y": 156
-      },
-      "inputValues": {},
       "params": {}
     },
     "withLace": {
       "id": "withLace",
       "type": "interpolation/lerp",
       "position": {
-        "x": -2376,
-        "y": 193
+        "x": -1736,
+        "y": 192
       },
       "inputValues": {},
       "params": {}
@@ -2104,8 +1621,8 @@
       "id": "wobble",
       "type": "math/multiply",
       "position": {
-        "x": -11864,
-        "y": 2021
+        "x": -10264,
+        "y": 1691
       },
       "inputValues": {
         "b": {
@@ -2114,52 +1631,68 @@
         }
       },
       "params": {}
-    },
-    "world": {
-      "id": "world",
-      "type": "math/multiply",
-      "position": {
-        "x": -14808,
-        "y": 1119
-      },
-      "inputValues": {
-        "b": {
-          "type": "vec2",
-          "value": [
-            13,
-            -13
-          ]
-        }
-      },
-      "params": {}
-    },
-    "worldSplit": {
-      "id": "worldSplit",
-      "type": "vector/split",
-      "position": {
-        "x": -6664,
-        "y": -634
-      },
-      "inputValues": {},
-      "params": {}
     }
   },
   "edges": {
-    "across.out-acrossN.a": {
-      "id": "across.out-acrossN.a",
+    "across2.out-coreArg.b": {
+      "id": "across2.out-coreArg.b",
       "from": {
-        "nodeId": "across",
+        "nodeId": "across2",
         "portId": "out"
       },
       "to": {
-        "nodeId": "acrossN",
+        "nodeId": "coreArg",
+        "portId": "b"
+      }
+    },
+    "across2.out-glowSpread.in": {
+      "id": "across2.out-glowSpread.in",
+      "from": {
+        "nodeId": "across2",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowSpread",
+        "portId": "in"
+      }
+    },
+    "acrossAlong.x-across2.a": {
+      "id": "acrossAlong.x-across2.a",
+      "from": {
+        "nodeId": "acrossAlong",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "across2",
         "portId": "a"
       }
     },
-    "across2.out-coreArg.a": {
-      "id": "across2.out-coreArg.a",
+    "acrossAlong.x-across2.b": {
+      "id": "acrossAlong.x-across2.b",
       "from": {
+        "nodeId": "acrossAlong",
+        "portId": "x"
+      },
+      "to": {
         "nodeId": "across2",
+        "portId": "b"
+      }
+    },
+    "acrossAlong.y-ahead.a": {
+      "id": "acrossAlong.y-ahead.a",
+      "from": {
+        "nodeId": "acrossAlong",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "ahead",
+        "portId": "a"
+      }
+    },
+    "ahead.out-coreArg.a": {
+      "id": "ahead.out-coreArg.a",
+      "from": {
+        "nodeId": "ahead",
         "portId": "out"
       },
       "to": {
@@ -2167,92 +1700,15 @@
         "portId": "a"
       }
     },
-    "across2.out-glowArg.a": {
-      "id": "across2.out-glowArg.a",
+    "ahead.out-glowArg.b": {
+      "id": "ahead.out-glowArg.b",
       "from": {
-        "nodeId": "across2",
+        "nodeId": "ahead",
         "portId": "out"
       },
       "to": {
         "nodeId": "glowArg",
-        "portId": "a"
-      }
-    },
-    "acrossDir.vec2-across.b": {
-      "id": "acrossDir.vec2-across.b",
-      "from": {
-        "nodeId": "acrossDir",
-        "portId": "vec2"
-      },
-      "to": {
-        "nodeId": "across",
         "portId": "b"
-      }
-    },
-    "acrossN.out-across2.a": {
-      "id": "acrossN.out-across2.a",
-      "from": {
-        "nodeId": "acrossN",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "across2",
-        "portId": "a"
-      }
-    },
-    "acrossN.out-across2.b": {
-      "id": "acrossN.out-across2.b",
-      "from": {
-        "nodeId": "acrossN",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "across2",
-        "portId": "b"
-      }
-    },
-    "ahead.out-fadeArg.a": {
-      "id": "ahead.out-fadeArg.a",
-      "from": {
-        "nodeId": "ahead",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fadeArg",
-        "portId": "a"
-      }
-    },
-    "along.out-alongN.a": {
-      "id": "along.out-alongN.a",
-      "from": {
-        "nodeId": "along",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "alongN",
-        "portId": "a"
-      }
-    },
-    "alongN.out-ahead.a": {
-      "id": "alongN.out-ahead.a",
-      "from": {
-        "nodeId": "alongN",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "ahead",
-        "portId": "a"
-      }
-    },
-    "alongN.out-entry.in": {
-      "id": "alongN.out-entry.in",
-      "from": {
-        "nodeId": "alongN",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "entry",
-        "portId": "in"
       }
     },
     "ambient.out-pf.b": {
@@ -2299,26 +1755,37 @@
         "portId": "a"
       }
     },
-    "bite.out-grow.b": {
-      "id": "bite.out-grow.b",
+    "bandSpace.out-acrossAlong.in": {
+      "id": "bandSpace.out-acrossAlong.in",
+      "from": {
+        "nodeId": "bandSpace",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "acrossAlong",
+        "portId": "in"
+      }
+    },
+    "bite.out-laceEdge.b": {
+      "id": "bite.out-laceEdge.b",
       "from": {
         "nodeId": "bite",
         "portId": "out"
       },
       "to": {
-        "nodeId": "grow",
+        "nodeId": "laceEdge",
         "portId": "b"
       }
     },
-    "body.out-withLace.a": {
-      "id": "body.out-withLace.a",
+    "body.out-withLace.b": {
+      "id": "body.out-withLace.b",
       "from": {
         "nodeId": "body",
         "portId": "out"
       },
       "to": {
         "nodeId": "withLace",
-        "portId": "a"
+        "portId": "b"
       }
     },
     "breath.out-growing.a": {
@@ -2365,25 +1832,25 @@
         "portId": "in"
       }
     },
-    "centered.out-world.a": {
-      "id": "centered.out-world.a",
+    "centered.out-p.a": {
+      "id": "centered.out-p.a",
       "from": {
         "nodeId": "centered",
         "portId": "out"
       },
       "to": {
-        "nodeId": "world",
+        "nodeId": "p",
         "portId": "a"
       }
     },
-    "core.out-profile.a": {
-      "id": "core.out-profile.a",
+    "core.out-band.a": {
+      "id": "core.out-band.a",
       "from": {
         "nodeId": "core",
         "portId": "out"
       },
       "to": {
-        "nodeId": "profile",
+        "nodeId": "band",
         "portId": "a"
       }
     },
@@ -2398,61 +1865,6 @@
         "portId": "in"
       }
     },
-    "coreEdge.out-coreStep.edge": {
-      "id": "coreEdge.out-coreStep.edge",
-      "from": {
-        "nodeId": "coreEdge",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "coreStep",
-        "portId": "edge"
-      }
-    },
-    "coreMask.out-withCore.t": {
-      "id": "coreMask.out-withCore.t",
-      "from": {
-        "nodeId": "coreMask",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "withCore",
-        "portId": "t"
-      }
-    },
-    "coreStep.out-coreMask.in": {
-      "id": "coreStep.out-coreMask.in",
-      "from": {
-        "nodeId": "coreStep",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "coreMask",
-        "portId": "in"
-      }
-    },
-    "cosAngle.out-lightDir.y": {
-      "id": "cosAngle.out-lightDir.y",
-      "from": {
-        "nodeId": "cosAngle",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "lightDir",
-        "portId": "y"
-      }
-    },
-    "cosAngle.out-negCos.a": {
-      "id": "cosAngle.out-negCos.a",
-      "from": {
-        "nodeId": "cosAngle",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "negCos",
-        "portId": "a"
-      }
-    },
     "crease.out-depth.a": {
       "id": "crease.out-depth.a",
       "from": {
@@ -2462,28 +1874,6 @@
       "to": {
         "nodeId": "depth",
         "portId": "a"
-      }
-    },
-    "darkened.out-final.b": {
-      "id": "darkened.out-final.b",
-      "from": {
-        "nodeId": "darkened",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "final",
-        "portId": "b"
-      }
-    },
-    "darkness.out-toFill.in": {
-      "id": "darkness.out-toFill.in",
-      "from": {
-        "nodeId": "darkness",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "toFill",
-        "portId": "in"
       }
     },
     "darkness.out-toStamp2.in": {
@@ -2519,15 +1909,15 @@
         "portId": "in"
       }
     },
-    "depth.out-coreStep.in": {
-      "id": "depth.out-coreStep.in",
+    "darknessTerms.vec4-darkness.a": {
+      "id": "darknessTerms.vec4-darkness.a",
       "from": {
-        "nodeId": "depth",
-        "portId": "out"
+        "nodeId": "darknessTerms",
+        "portId": "vec4"
       },
       "to": {
-        "nodeId": "coreStep",
-        "portId": "in"
+        "nodeId": "darkness",
+        "portId": "a"
       }
     },
     "depth.out-inside.in": {
@@ -2552,91 +1942,25 @@
         "portId": "in"
       }
     },
-    "edgeFade.out-vignette.a": {
-      "id": "edgeFade.out-vignette.a",
+    "edgeFade.out-shading.in": {
+      "id": "edgeFade.out-shading.in",
       "from": {
         "nodeId": "edgeFade",
         "portId": "out"
       },
       "to": {
-        "nodeId": "vignette",
-        "portId": "a"
-      }
-    },
-    "entry.out-band.b": {
-      "id": "entry.out-band.b",
-      "from": {
-        "nodeId": "entry",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "band",
-        "portId": "b"
-      }
-    },
-    "fade.out-faded.b": {
-      "id": "fade.out-faded.b",
-      "from": {
-        "nodeId": "fade",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "faded",
-        "portId": "b"
-      }
-    },
-    "fadeArg.out-fade.in": {
-      "id": "fadeArg.out-fade.in",
-      "from": {
-        "nodeId": "fadeArg",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fade",
+        "nodeId": "shading",
         "portId": "in"
       }
     },
-    "faded.out-band.a": {
-      "id": "faded.out-band.a",
-      "from": {
-        "nodeId": "faded",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "band",
-        "portId": "a"
-      }
-    },
-    "fillHigh.out-fillTone.whenFalse": {
-      "id": "fillHigh.out-fillTone.whenFalse",
-      "from": {
-        "nodeId": "fillHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fillTone",
-        "portId": "whenFalse"
-      }
-    },
-    "fillLow.out-fillTone.whenTrue": {
-      "id": "fillLow.out-fillTone.whenTrue",
+    "fillLow.out-fillTone.a": {
+      "id": "fillLow.out-fillTone.a",
       "from": {
         "nodeId": "fillLow",
         "portId": "out"
       },
       "to": {
         "nodeId": "fillTone",
-        "portId": "whenTrue"
-      }
-    },
-    "fillMid.out-fillHigh.a": {
-      "id": "fillMid.out-fillHigh.a",
-      "from": {
-        "nodeId": "fillMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fillHigh",
         "portId": "a"
       }
     },
@@ -2662,26 +1986,26 @@
         "portId": "a"
       }
     },
-    "fillSun.out-fillHigh.b": {
-      "id": "fillSun.out-fillHigh.b",
+    "fillSun.out-fillTone.b": {
+      "id": "fillSun.out-fillTone.b",
       "from": {
         "nodeId": "fillSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "fillHigh",
+        "nodeId": "fillTone",
         "portId": "b"
       }
     },
-    "fillTone.out-rimFill.b": {
-      "id": "fillTone.out-rimFill.b",
+    "fillTone.out-body.a": {
+      "id": "fillTone.out-body.a",
       "from": {
         "nodeId": "fillTone",
         "portId": "out"
       },
       "to": {
-        "nodeId": "rimFill",
-        "portId": "b"
+        "nodeId": "body",
+        "portId": "a"
       }
     },
     "final.out-master.baseColor": {
@@ -2695,69 +2019,47 @@
         "portId": "baseColor"
       }
     },
-    "focus.out-breath.a": {
-      "id": "focus.out-breath.a",
-      "from": {
-        "nodeId": "focus",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "breath",
-        "portId": "a"
-      }
-    },
-    "fromLight.out-across.a": {
-      "id": "fromLight.out-across.a",
+    "fromLight.out-turned.in": {
+      "id": "fromLight.out-turned.in",
       "from": {
         "nodeId": "fromLight",
         "portId": "out"
       },
       "to": {
-        "nodeId": "across",
-        "portId": "a"
+        "nodeId": "turned",
+        "portId": "in"
       }
     },
-    "fromLight.out-along.a": {
-      "id": "fromLight.out-along.a",
-      "from": {
-        "nodeId": "fromLight",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "along",
-        "portId": "a"
-      }
-    },
-    "glow.out-profile.b": {
-      "id": "glow.out-profile.b",
+    "glow.out-band.b": {
+      "id": "glow.out-band.b",
       "from": {
         "nodeId": "glow",
         "portId": "out"
       },
       "to": {
-        "nodeId": "profile",
+        "nodeId": "band",
         "portId": "b"
       }
     },
-    "glowArg.out-glowExp.in": {
-      "id": "glowArg.out-glowExp.in",
+    "glowArg.out-glow.in": {
+      "id": "glowArg.out-glow.in",
       "from": {
         "nodeId": "glowArg",
         "portId": "out"
       },
       "to": {
-        "nodeId": "glowExp",
+        "nodeId": "glow",
         "portId": "in"
       }
     },
-    "glowExp.out-glow.a": {
-      "id": "glowExp.out-glow.a",
+    "glowSpread.out-glowArg.a": {
+      "id": "glowSpread.out-glowArg.a",
       "from": {
-        "nodeId": "glowExp",
+        "nodeId": "glowSpread",
         "portId": "out"
       },
       "to": {
-        "nodeId": "glow",
+        "nodeId": "glowArg",
         "portId": "a"
       }
     },
@@ -2772,36 +2074,14 @@
         "portId": "b"
       }
     },
-    "grow.out-coreEdge.a": {
-      "id": "grow.out-coreEdge.a",
-      "from": {
-        "nodeId": "grow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "coreEdge",
-        "portId": "a"
-      }
-    },
-    "grow.out-laceEdge.a": {
-      "id": "grow.out-laceEdge.a",
-      "from": {
-        "nodeId": "grow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceEdge",
-        "portId": "a"
-      }
-    },
-    "growing.out-grow.a": {
-      "id": "growing.out-grow.a",
+    "growing.out-laceEdge.a": {
+      "id": "growing.out-laceEdge.a",
       "from": {
         "nodeId": "growing",
         "portId": "out"
       },
       "to": {
-        "nodeId": "grow",
+        "nodeId": "laceEdge",
         "portId": "a"
       }
     },
@@ -2816,83 +2096,6 @@
         "portId": "b"
       }
     },
-    "laceCoreHigh.out-laceCoreTone.whenFalse": {
-      "id": "laceCoreHigh.out-laceCoreTone.whenFalse",
-      "from": {
-        "nodeId": "laceCoreHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreTone",
-        "portId": "whenFalse"
-      }
-    },
-    "laceCoreLow.out-laceCoreTone.whenTrue": {
-      "id": "laceCoreLow.out-laceCoreTone.whenTrue",
-      "from": {
-        "nodeId": "laceCoreLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreTone",
-        "portId": "whenTrue"
-      }
-    },
-    "laceCoreMid.out-laceCoreHigh.a": {
-      "id": "laceCoreMid.out-laceCoreHigh.a",
-      "from": {
-        "nodeId": "laceCoreMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreHigh",
-        "portId": "a"
-      }
-    },
-    "laceCoreMid.out-laceCoreLow.b": {
-      "id": "laceCoreMid.out-laceCoreLow.b",
-      "from": {
-        "nodeId": "laceCoreMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreLow",
-        "portId": "b"
-      }
-    },
-    "laceCoreShade.out-laceCoreLow.a": {
-      "id": "laceCoreShade.out-laceCoreLow.a",
-      "from": {
-        "nodeId": "laceCoreShade",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreLow",
-        "portId": "a"
-      }
-    },
-    "laceCoreSun.out-laceCoreHigh.b": {
-      "id": "laceCoreSun.out-laceCoreHigh.b",
-      "from": {
-        "nodeId": "laceCoreSun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreHigh",
-        "portId": "b"
-      }
-    },
-    "laceCoreTone.out-withCore.b": {
-      "id": "laceCoreTone.out-withCore.b",
-      "from": {
-        "nodeId": "laceCoreTone",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "withCore",
-        "portId": "b"
-      }
-    },
     "laceEdge.out-laceStep.edge": {
       "id": "laceEdge.out-laceStep.edge",
       "from": {
@@ -2904,47 +2107,14 @@
         "portId": "edge"
       }
     },
-    "laceHigh.out-laceTone.whenFalse": {
-      "id": "laceHigh.out-laceTone.whenFalse",
-      "from": {
-        "nodeId": "laceHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceTone",
-        "portId": "whenFalse"
-      }
-    },
-    "laceLow.out-laceTone.whenTrue": {
-      "id": "laceLow.out-laceTone.whenTrue",
+    "laceLow.out-laceTone.a": {
+      "id": "laceLow.out-laceTone.a",
       "from": {
         "nodeId": "laceLow",
         "portId": "out"
       },
       "to": {
         "nodeId": "laceTone",
-        "portId": "whenTrue"
-      }
-    },
-    "laceMask.out-withLace.t": {
-      "id": "laceMask.out-withLace.t",
-      "from": {
-        "nodeId": "laceMask",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "withLace",
-        "portId": "t"
-      }
-    },
-    "laceMid.out-laceHigh.a": {
-      "id": "laceMid.out-laceHigh.a",
-      "from": {
-        "nodeId": "laceMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceHigh",
         "portId": "a"
       }
     },
@@ -2970,37 +2140,37 @@
         "portId": "a"
       }
     },
-    "laceStep.out-laceMask.in": {
-      "id": "laceStep.out-laceMask.in",
+    "laceStep.out-withLace.t": {
+      "id": "laceStep.out-withLace.t",
       "from": {
         "nodeId": "laceStep",
         "portId": "out"
       },
       "to": {
-        "nodeId": "laceMask",
-        "portId": "in"
+        "nodeId": "withLace",
+        "portId": "t"
       }
     },
-    "laceSun.out-laceHigh.b": {
-      "id": "laceSun.out-laceHigh.b",
+    "laceSun.out-laceTone.b": {
+      "id": "laceSun.out-laceTone.b",
       "from": {
         "nodeId": "laceSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "laceHigh",
+        "nodeId": "laceTone",
         "portId": "b"
       }
     },
-    "laceTone.out-withLace.b": {
-      "id": "laceTone.out-withLace.b",
+    "laceTone.out-withLace.a": {
+      "id": "laceTone.out-withLace.a",
       "from": {
         "nodeId": "laceTone",
         "portId": "out"
       },
       "to": {
         "nodeId": "withLace",
-        "portId": "b"
+        "portId": "a"
       }
     },
     "lightAngle.out-radians.a": {
@@ -3014,17 +2184,6 @@
         "portId": "a"
       }
     },
-    "lightDir.vec2-along.b": {
-      "id": "lightDir.vec2-along.b",
-      "from": {
-        "nodeId": "lightDir",
-        "portId": "vec2"
-      },
-      "to": {
-        "nodeId": "along",
-        "portId": "b"
-      }
-    },
     "lightStrength.out-bandLit.b": {
       "id": "lightStrength.out-bandLit.b",
       "from": {
@@ -3036,25 +2195,14 @@
         "portId": "b"
       }
     },
-    "negCos.out-acrossDir.x": {
-      "id": "negCos.out-acrossDir.x",
+    "midShare.out-toMid.a": {
+      "id": "midShare.out-toMid.a",
       "from": {
-        "nodeId": "negCos",
+        "nodeId": "midShare",
         "portId": "out"
       },
       "to": {
-        "nodeId": "acrossDir",
-        "portId": "x"
-      }
-    },
-    "noiseA.out-focus.a": {
-      "id": "noiseA.out-focus.a",
-      "from": {
-        "nodeId": "noiseA",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "focus",
+        "nodeId": "toMid",
         "portId": "a"
       }
     },
@@ -3078,17 +2226,6 @@
       "to": {
         "nodeId": "noiseA",
         "portId": "p"
-      }
-    },
-    "noiseB.out-focus.b": {
-      "id": "noiseB.out-focus.b",
-      "from": {
-        "nodeId": "noiseB",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "focus",
-        "portId": "b"
       }
     },
     "noiseB.out-offset.y": {
@@ -3124,59 +2261,59 @@
         "portId": "a"
       }
     },
-    "outsideA.out-outsideAB.a": {
-      "id": "outsideA.out-outsideAB.a",
+    "offset.vec2-breath.a": {
+      "id": "offset.vec2-breath.a",
+      "from": {
+        "nodeId": "offset",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "breath",
+        "portId": "a"
+      }
+    },
+    "outsideA.out-stampTerms.x": {
+      "id": "outsideA.out-stampTerms.x",
       "from": {
         "nodeId": "outsideA",
         "portId": "out"
       },
       "to": {
-        "nodeId": "outsideAB",
-        "portId": "a"
+        "nodeId": "stampTerms",
+        "portId": "x"
       }
     },
-    "outsideAB.out-outsideABC.a": {
-      "id": "outsideAB.out-outsideABC.a",
-      "from": {
-        "nodeId": "outsideAB",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "outsideABC",
-        "portId": "a"
-      }
-    },
-    "outsideABC.out-stampsHit.b": {
-      "id": "outsideABC.out-stampsHit.b",
-      "from": {
-        "nodeId": "outsideABC",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stampsHit",
-        "portId": "b"
-      }
-    },
-    "outsideB.out-outsideAB.b": {
-      "id": "outsideB.out-outsideAB.b",
+    "outsideB.out-stampTerms.y": {
+      "id": "outsideB.out-stampTerms.y",
       "from": {
         "nodeId": "outsideB",
         "portId": "out"
       },
       "to": {
-        "nodeId": "outsideAB",
-        "portId": "b"
+        "nodeId": "stampTerms",
+        "portId": "y"
       }
     },
-    "outsideC.out-outsideABC.b": {
-      "id": "outsideC.out-outsideABC.b",
+    "outsideC.out-stampTerms.z": {
+      "id": "outsideC.out-stampTerms.z",
       "from": {
         "nodeId": "outsideC",
         "portId": "out"
       },
       "to": {
-        "nodeId": "outsideABC",
-        "portId": "b"
+        "nodeId": "stampTerms",
+        "portId": "z"
+      }
+    },
+    "p.out-fromLight.a": {
+      "id": "p.out-fromLight.a",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fromLight",
+        "portId": "a"
       }
     },
     "p.out-noiseAt.a": {
@@ -3188,6 +2325,17 @@
       "to": {
         "nodeId": "noiseAt",
         "portId": "a"
+      }
+    },
+    "p.out-pSplit.in": {
+      "id": "p.out-pSplit.in",
+      "from": {
+        "nodeId": "p",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pSplit",
+        "portId": "in"
       }
     },
     "p.out-pf.a": {
@@ -3232,6 +2380,17 @@
       "to": {
         "nodeId": "variationNoise",
         "portId": "p"
+      }
+    },
+    "pSplit.x-gradient.in": {
+      "id": "pSplit.x-gradient.in",
+      "from": {
+        "nodeId": "pSplit",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "gradient",
+        "portId": "in"
       }
     },
     "pf.out-stampCellsA.uv": {
@@ -3289,125 +2448,15 @@
         "portId": "uv"
       }
     },
-    "profile.out-faded.a": {
-      "id": "profile.out-faded.a",
-      "from": {
-        "nodeId": "profile",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "faded",
-        "portId": "a"
-      }
-    },
-    "radians.out-cosAngle.in": {
-      "id": "radians.out-cosAngle.in",
+    "radians.out-turned.angle": {
+      "id": "radians.out-turned.angle",
       "from": {
         "nodeId": "radians",
         "portId": "out"
       },
       "to": {
-        "nodeId": "cosAngle",
-        "portId": "in"
-      }
-    },
-    "radians.out-sinAngle.in": {
-      "id": "radians.out-sinAngle.in",
-      "from": {
-        "nodeId": "radians",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "sinAngle",
-        "portId": "in"
-      }
-    },
-    "rimFill.out-body.a": {
-      "id": "rimFill.out-body.a",
-      "from": {
-        "nodeId": "rimFill",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "body",
-        "portId": "a"
-      }
-    },
-    "rimHigh.out-rimTone.whenFalse": {
-      "id": "rimHigh.out-rimTone.whenFalse",
-      "from": {
-        "nodeId": "rimHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimTone",
-        "portId": "whenFalse"
-      }
-    },
-    "rimLow.out-rimTone.whenTrue": {
-      "id": "rimLow.out-rimTone.whenTrue",
-      "from": {
-        "nodeId": "rimLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimTone",
-        "portId": "whenTrue"
-      }
-    },
-    "rimMid.out-rimHigh.a": {
-      "id": "rimMid.out-rimHigh.a",
-      "from": {
-        "nodeId": "rimMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimHigh",
-        "portId": "a"
-      }
-    },
-    "rimMid.out-rimLow.b": {
-      "id": "rimMid.out-rimLow.b",
-      "from": {
-        "nodeId": "rimMid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimLow",
-        "portId": "b"
-      }
-    },
-    "rimShade.out-rimLow.a": {
-      "id": "rimShade.out-rimLow.a",
-      "from": {
-        "nodeId": "rimShade",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimLow",
-        "portId": "a"
-      }
-    },
-    "rimSun.out-rimHigh.b": {
-      "id": "rimSun.out-rimHigh.b",
-      "from": {
-        "nodeId": "rimSun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimHigh",
-        "portId": "b"
-      }
-    },
-    "rimTone.out-rimFill.a": {
-      "id": "rimTone.out-rimFill.a",
-      "from": {
-        "nodeId": "rimTone",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimFill",
-        "portId": "a"
+        "nodeId": "turned",
+        "portId": "angle"
       }
     },
     "roseBumps.out-rosette.b": {
@@ -3443,17 +2492,6 @@
         "portId": "b"
       }
     },
-    "screenCentered.out-screenStretched.a": {
-      "id": "screenCentered.out-screenStretched.a",
-      "from": {
-        "nodeId": "screenCentered",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "screenStretched",
-        "portId": "a"
-      }
-    },
     "screenDistance.out-edgeFade.in": {
       "id": "screenDistance.out-edgeFade.in",
       "from": {
@@ -3465,25 +2503,25 @@
         "portId": "in"
       }
     },
-    "screenStretched.out-screenDistance.in": {
-      "id": "screenStretched.out-screenDistance.in",
+    "screenStretched.out-screenDistance.a": {
+      "id": "screenStretched.out-screenDistance.a",
       "from": {
         "nodeId": "screenStretched",
         "portId": "out"
       },
       "to": {
         "nodeId": "screenDistance",
-        "portId": "in"
+        "portId": "a"
       }
     },
-    "screenUv.out-screenCentered.a": {
-      "id": "screenUv.out-screenCentered.a",
+    "screenUv.out-screenStretched.a": {
+      "id": "screenUv.out-screenStretched.a",
       "from": {
         "nodeId": "screenUv",
         "portId": "out"
       },
       "to": {
-        "nodeId": "screenCentered",
+        "nodeId": "screenStretched",
         "portId": "a"
       }
     },
@@ -3509,26 +2547,15 @@
         "portId": "b"
       }
     },
-    "sinAngle.out-acrossDir.y": {
-      "id": "sinAngle.out-acrossDir.y",
+    "shading.out-final.b": {
+      "id": "shading.out-final.b",
       "from": {
-        "nodeId": "sinAngle",
+        "nodeId": "shading",
         "portId": "out"
       },
       "to": {
-        "nodeId": "acrossDir",
-        "portId": "y"
-      }
-    },
-    "sinAngle.out-lightDir.x": {
-      "id": "sinAngle.out-lightDir.x",
-      "from": {
-        "nodeId": "sinAngle",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "lightDir",
-        "portId": "x"
+        "nodeId": "final",
+        "portId": "b"
       }
     },
     "spots.out-body.b": {
@@ -3553,47 +2580,14 @@
         "portId": "a"
       }
     },
-    "stacked.out-darkness.a": {
-      "id": "stacked.out-darkness.a",
-      "from": {
-        "nodeId": "stacked",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "darkness",
-        "portId": "a"
-      }
-    },
-    "stamp1High.out-stamp1Tone.whenFalse": {
-      "id": "stamp1High.out-stamp1Tone.whenFalse",
-      "from": {
-        "nodeId": "stamp1High",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp1Tone",
-        "portId": "whenFalse"
-      }
-    },
-    "stamp1Low.out-stamp1Tone.whenTrue": {
-      "id": "stamp1Low.out-stamp1Tone.whenTrue",
+    "stamp1Low.out-stamp1Tone.a": {
+      "id": "stamp1Low.out-stamp1Tone.a",
       "from": {
         "nodeId": "stamp1Low",
         "portId": "out"
       },
       "to": {
         "nodeId": "stamp1Tone",
-        "portId": "whenTrue"
-      }
-    },
-    "stamp1Mid.out-stamp1High.a": {
-      "id": "stamp1Mid.out-stamp1High.a",
-      "from": {
-        "nodeId": "stamp1Mid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp1High",
         "portId": "a"
       }
     },
@@ -3619,14 +2613,14 @@
         "portId": "a"
       }
     },
-    "stamp1Sun.out-stamp1High.b": {
-      "id": "stamp1Sun.out-stamp1High.b",
+    "stamp1Sun.out-stamp1Tone.b": {
+      "id": "stamp1Sun.out-stamp1Tone.b",
       "from": {
         "nodeId": "stamp1Sun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stamp1High",
+        "nodeId": "stamp1Tone",
         "portId": "b"
       }
     },
@@ -3641,36 +2635,14 @@
         "portId": "a"
       }
     },
-    "stamp2High.out-stamp2Tone.whenFalse": {
-      "id": "stamp2High.out-stamp2Tone.whenFalse",
-      "from": {
-        "nodeId": "stamp2High",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp2Tone",
-        "portId": "whenFalse"
-      }
-    },
-    "stamp2Low.out-stamp2Tone.whenTrue": {
-      "id": "stamp2Low.out-stamp2Tone.whenTrue",
+    "stamp2Low.out-stamp2Tone.a": {
+      "id": "stamp2Low.out-stamp2Tone.a",
       "from": {
         "nodeId": "stamp2Low",
         "portId": "out"
       },
       "to": {
         "nodeId": "stamp2Tone",
-        "portId": "whenTrue"
-      }
-    },
-    "stamp2Mid.out-stamp2High.a": {
-      "id": "stamp2Mid.out-stamp2High.a",
-      "from": {
-        "nodeId": "stamp2Mid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp2High",
         "portId": "a"
       }
     },
@@ -3696,14 +2668,14 @@
         "portId": "a"
       }
     },
-    "stamp2Sun.out-stamp2High.b": {
-      "id": "stamp2Sun.out-stamp2High.b",
+    "stamp2Sun.out-stamp2Tone.b": {
+      "id": "stamp2Sun.out-stamp2Tone.b",
       "from": {
         "nodeId": "stamp2Sun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stamp2High",
+        "nodeId": "stamp2Tone",
         "portId": "b"
       }
     },
@@ -3718,36 +2690,14 @@
         "portId": "b"
       }
     },
-    "stamp3High.out-stamp3Tone.whenFalse": {
-      "id": "stamp3High.out-stamp3Tone.whenFalse",
-      "from": {
-        "nodeId": "stamp3High",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp3Tone",
-        "portId": "whenFalse"
-      }
-    },
-    "stamp3Low.out-stamp3Tone.whenTrue": {
-      "id": "stamp3Low.out-stamp3Tone.whenTrue",
+    "stamp3Low.out-stamp3Tone.a": {
+      "id": "stamp3Low.out-stamp3Tone.a",
       "from": {
         "nodeId": "stamp3Low",
         "portId": "out"
       },
       "to": {
         "nodeId": "stamp3Tone",
-        "portId": "whenTrue"
-      }
-    },
-    "stamp3Mid.out-stamp3High.a": {
-      "id": "stamp3Mid.out-stamp3High.a",
-      "from": {
-        "nodeId": "stamp3Mid",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp3High",
         "portId": "a"
       }
     },
@@ -3773,14 +2723,14 @@
         "portId": "a"
       }
     },
-    "stamp3Sun.out-stamp3High.b": {
-      "id": "stamp3Sun.out-stamp3High.b",
+    "stamp3Sun.out-stamp3Tone.b": {
+      "id": "stamp3Sun.out-stamp3Tone.b",
       "from": {
         "nodeId": "stamp3Sun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stamp3High",
+        "nodeId": "stamp3Tone",
         "portId": "b"
       }
     },
@@ -3828,26 +2778,37 @@
         "portId": "in"
       }
     },
-    "stampCount.out-stacked.a": {
-      "id": "stampCount.out-stacked.a",
+    "stampCount.out-bite.a": {
+      "id": "stampCount.out-bite.a",
       "from": {
         "nodeId": "stampCount",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stacked",
+        "nodeId": "bite",
         "portId": "a"
       }
     },
-    "stampCount.out-touching.in": {
-      "id": "stampCount.out-touching.in",
+    "stampCount.out-darknessTerms.x": {
+      "id": "stampCount.out-darknessTerms.x",
       "from": {
         "nodeId": "stampCount",
         "portId": "out"
       },
       "to": {
-        "nodeId": "touching",
-        "portId": "in"
+        "nodeId": "darknessTerms",
+        "portId": "x"
+      }
+    },
+    "stampTerms.vec4-stampsHit.a": {
+      "id": "stampTerms.vec4-stampsHit.a",
+      "from": {
+        "nodeId": "stampTerms",
+        "portId": "vec4"
+      },
+      "to": {
+        "nodeId": "stampsHit",
+        "portId": "a"
       }
     },
     "stampsHit.out-stampCount.a": {
@@ -3861,125 +2822,48 @@
         "portId": "a"
       }
     },
-    "sun.out-fillTone.a": {
-      "id": "sun.out-fillTone.a",
+    "sun.out-darknessTerms.z": {
+      "id": "sun.out-darknessTerms.z",
       "from": {
         "nodeId": "sun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "fillTone",
+        "nodeId": "darknessTerms",
+        "portId": "z"
+      }
+    },
+    "sun.out-midShare.a": {
+      "id": "sun.out-midShare.a",
+      "from": {
+        "nodeId": "sun",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "midShare",
         "portId": "a"
       }
     },
-    "sun.out-laceCoreTone.a": {
-      "id": "sun.out-laceCoreTone.a",
+    "sun.out-sunShare.in": {
+      "id": "sun.out-sunShare.in",
       "from": {
         "nodeId": "sun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "laceCoreTone",
-        "portId": "a"
-      }
-    },
-    "sun.out-laceTone.a": {
-      "id": "sun.out-laceTone.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceTone",
-        "portId": "a"
-      }
-    },
-    "sun.out-rimTone.a": {
-      "id": "sun.out-rimTone.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimTone",
-        "portId": "a"
-      }
-    },
-    "sun.out-stamp1Tone.a": {
-      "id": "sun.out-stamp1Tone.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp1Tone",
-        "portId": "a"
-      }
-    },
-    "sun.out-stamp2Tone.a": {
-      "id": "sun.out-stamp2Tone.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp2Tone",
-        "portId": "a"
-      }
-    },
-    "sun.out-stamp3Tone.a": {
-      "id": "sun.out-stamp3Tone.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp3Tone",
-        "portId": "a"
-      }
-    },
-    "sun.out-sunThin.a": {
-      "id": "sun.out-sunThin.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "sunThin",
-        "portId": "a"
-      }
-    },
-    "sun.out-toneHigh.in": {
-      "id": "sun.out-toneHigh.in",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "toneHigh",
+        "nodeId": "sunShare",
         "portId": "in"
       }
     },
-    "sun.out-toneLow.a": {
-      "id": "sun.out-toneLow.a",
-      "from": {
-        "nodeId": "sun",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "toneLow",
-        "portId": "a"
-      }
-    },
-    "sun.out-widen.a": {
-      "id": "sun.out-widen.a",
+    "sun.out-widen.in": {
+      "id": "sun.out-widen.in",
       "from": {
         "nodeId": "sun",
         "portId": "out"
       },
       "to": {
         "nodeId": "widen",
-        "portId": "a"
+        "portId": "in"
       }
     },
     "sunRaw.out-sun.in": {
@@ -3993,15 +2877,15 @@
         "portId": "in"
       }
     },
-    "sunThin.out-darkness.b": {
-      "id": "sunThin.out-darkness.b",
+    "sunShare.out-toSun.a": {
+      "id": "sunShare.out-toSun.a",
       "from": {
-        "nodeId": "sunThin",
+        "nodeId": "sunShare",
         "portId": "out"
       },
       "to": {
-        "nodeId": "darkness",
-        "portId": "b"
+        "nodeId": "toSun",
+        "portId": "a"
       }
     },
     "time.out-waveTime.a": {
@@ -4015,14 +2899,58 @@
         "portId": "a"
       }
     },
-    "toFill.out-rimFill.t": {
-      "id": "toFill.out-rimFill.t",
+    "toMid.out-fillLow.t": {
+      "id": "toMid.out-fillLow.t",
       "from": {
-        "nodeId": "toFill",
+        "nodeId": "toMid",
         "portId": "out"
       },
       "to": {
-        "nodeId": "rimFill",
+        "nodeId": "fillLow",
+        "portId": "t"
+      }
+    },
+    "toMid.out-laceLow.t": {
+      "id": "toMid.out-laceLow.t",
+      "from": {
+        "nodeId": "toMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "laceLow",
+        "portId": "t"
+      }
+    },
+    "toMid.out-stamp1Low.t": {
+      "id": "toMid.out-stamp1Low.t",
+      "from": {
+        "nodeId": "toMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp1Low",
+        "portId": "t"
+      }
+    },
+    "toMid.out-stamp2Low.t": {
+      "id": "toMid.out-stamp2Low.t",
+      "from": {
+        "nodeId": "toMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp2Low",
+        "portId": "t"
+      }
+    },
+    "toMid.out-stamp3Low.t": {
+      "id": "toMid.out-stamp3Low.t",
+      "from": {
+        "nodeId": "toMid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stamp3Low",
         "portId": "t"
       }
     },
@@ -4059,169 +2987,59 @@
         "portId": "t"
       }
     },
-    "toneHigh.out-fillHigh.t": {
-      "id": "toneHigh.out-fillHigh.t",
+    "toSun.out-fillTone.t": {
+      "id": "toSun.out-fillTone.t",
       "from": {
-        "nodeId": "toneHigh",
+        "nodeId": "toSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "fillHigh",
+        "nodeId": "fillTone",
         "portId": "t"
       }
     },
-    "toneHigh.out-laceCoreHigh.t": {
-      "id": "toneHigh.out-laceCoreHigh.t",
+    "toSun.out-laceTone.t": {
+      "id": "toSun.out-laceTone.t",
       "from": {
-        "nodeId": "toneHigh",
+        "nodeId": "toSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "laceCoreHigh",
+        "nodeId": "laceTone",
         "portId": "t"
       }
     },
-    "toneHigh.out-laceHigh.t": {
-      "id": "toneHigh.out-laceHigh.t",
+    "toSun.out-stamp1Tone.t": {
+      "id": "toSun.out-stamp1Tone.t",
       "from": {
-        "nodeId": "toneHigh",
+        "nodeId": "toSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "laceHigh",
+        "nodeId": "stamp1Tone",
         "portId": "t"
       }
     },
-    "toneHigh.out-rimHigh.t": {
-      "id": "toneHigh.out-rimHigh.t",
+    "toSun.out-stamp2Tone.t": {
+      "id": "toSun.out-stamp2Tone.t",
       "from": {
-        "nodeId": "toneHigh",
+        "nodeId": "toSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "rimHigh",
+        "nodeId": "stamp2Tone",
         "portId": "t"
       }
     },
-    "toneHigh.out-stamp1High.t": {
-      "id": "toneHigh.out-stamp1High.t",
+    "toSun.out-stamp3Tone.t": {
+      "id": "toSun.out-stamp3Tone.t",
       "from": {
-        "nodeId": "toneHigh",
+        "nodeId": "toSun",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stamp1High",
+        "nodeId": "stamp3Tone",
         "portId": "t"
-      }
-    },
-    "toneHigh.out-stamp2High.t": {
-      "id": "toneHigh.out-stamp2High.t",
-      "from": {
-        "nodeId": "toneHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp2High",
-        "portId": "t"
-      }
-    },
-    "toneHigh.out-stamp3High.t": {
-      "id": "toneHigh.out-stamp3High.t",
-      "from": {
-        "nodeId": "toneHigh",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp3High",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-fillLow.t": {
-      "id": "toneLow.out-fillLow.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fillLow",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-laceCoreLow.t": {
-      "id": "toneLow.out-laceCoreLow.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceCoreLow",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-laceLow.t": {
-      "id": "toneLow.out-laceLow.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "laceLow",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-rimLow.t": {
-      "id": "toneLow.out-rimLow.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "rimLow",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-stamp1Low.t": {
-      "id": "toneLow.out-stamp1Low.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp1Low",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-stamp2Low.t": {
-      "id": "toneLow.out-stamp2Low.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp2Low",
-        "portId": "t"
-      }
-    },
-    "toneLow.out-stamp3Low.t": {
-      "id": "toneLow.out-stamp3Low.t",
-      "from": {
-        "nodeId": "toneLow",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stamp3Low",
-        "portId": "t"
-      }
-    },
-    "touching.out-bite.a": {
-      "id": "touching.out-bite.a",
-      "from": {
-        "nodeId": "touching",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "bite",
-        "portId": "a"
       }
     },
     "turnB.out-stampCellsB.uv": {
@@ -4246,6 +3064,17 @@
         "portId": "uv"
       }
     },
+    "turned.out-bandSpace.a": {
+      "id": "turned.out-bandSpace.a",
+      "from": {
+        "nodeId": "turned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bandSpace",
+        "portId": "a"
+      }
+    },
     "turnedB.out-noiseBt.a": {
       "id": "turnedB.out-noiseBt.a",
       "from": {
@@ -4268,37 +3097,15 @@
         "portId": "a"
       }
     },
-    "variation.out-stacked.b": {
-      "id": "variation.out-stacked.b",
-      "from": {
-        "nodeId": "variation",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stacked",
-        "portId": "b"
-      }
-    },
-    "variationNoise.out-variation.in": {
-      "id": "variationNoise.out-variation.in",
+    "variationNoise.out-darknessTerms.y": {
+      "id": "variationNoise.out-darknessTerms.y",
       "from": {
         "nodeId": "variationNoise",
         "portId": "out"
       },
       "to": {
-        "nodeId": "variation",
-        "portId": "in"
-      }
-    },
-    "vignette.out-final.t": {
-      "id": "vignette.out-final.t",
-      "from": {
-        "nodeId": "vignette",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "final",
-        "portId": "t"
+        "nodeId": "darknessTerms",
+        "portId": "y"
       }
     },
     "waveSpeed.out-waveTime.b": {
@@ -4345,36 +3152,14 @@
         "portId": "b"
       }
     },
-    "withCore.out-darkened.a": {
-      "id": "withCore.out-darkened.a",
-      "from": {
-        "nodeId": "withCore",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "darkened",
-        "portId": "a"
-      }
-    },
-    "withCore.out-final.a": {
-      "id": "withCore.out-final.a",
-      "from": {
-        "nodeId": "withCore",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "final",
-        "portId": "a"
-      }
-    },
-    "withLace.out-withCore.a": {
-      "id": "withLace.out-withCore.a",
+    "withLace.out-final.a": {
+      "id": "withLace.out-final.a",
       "from": {
         "nodeId": "withLace",
         "portId": "out"
       },
       "to": {
-        "nodeId": "withCore",
+        "nodeId": "final",
         "portId": "a"
       }
     },
@@ -4387,50 +3172,6 @@
       "to": {
         "nodeId": "pl",
         "portId": "b"
-      }
-    },
-    "world.out-fromLight.a": {
-      "id": "world.out-fromLight.a",
-      "from": {
-        "nodeId": "world",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "fromLight",
-        "portId": "a"
-      }
-    },
-    "world.out-p.a": {
-      "id": "world.out-p.a",
-      "from": {
-        "nodeId": "world",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "p",
-        "portId": "a"
-      }
-    },
-    "world.out-worldSplit.in": {
-      "id": "world.out-worldSplit.in",
-      "from": {
-        "nodeId": "world",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "worldSplit",
-        "portId": "in"
-      }
-    },
-    "worldSplit.x-gradient.in": {
-      "id": "worldSplit.x-gradient.in",
-      "from": {
-        "nodeId": "worldSplit",
-        "portId": "x"
-      },
-      "to": {
-        "nodeId": "gradient",
-        "portId": "in"
       }
     }
   },
@@ -4466,54 +3207,6 @@
       "value": {
         "type": "float",
         "value": 1.2
-      }
-    },
-    {
-      "id": "rimShade",
-      "label": "Rim · shade",
-      "name": "rimShade",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          0.004391,
-          0.187821,
-          0.06301
-        ]
-      }
-    },
-    {
-      "id": "rimMid",
-      "label": "Rim · mid",
-      "name": "rimMid",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          0.016807,
-          0.287441,
-          0.072272
-        ]
-      }
-    },
-    {
-      "id": "rimSun",
-      "label": "Rim · sun",
-      "name": "rimSun",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          0.456411,
-          0.584078,
-          0.097587
-        ]
       }
     },
     {
@@ -4718,9 +3411,9 @@
       "value": {
         "type": "vec3",
         "value": [
-          0.004391,
-          0.187821,
-          0.06301
+          0.052861,
+          0.270498,
+          0.059511
         ]
       }
     },
@@ -4734,54 +3427,6 @@
       "value": {
         "type": "vec3",
         "value": [
-          0.059511,
-          0.346704,
-          0.072272
-        ]
-      }
-    },
-    {
-      "id": "laceSun",
-      "label": "Lace · sun",
-      "name": "laceSun",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          0.57758,
-          0.630757,
-          0.109462
-        ]
-      }
-    },
-    {
-      "id": "laceCoreShade",
-      "label": "Lace core · shade",
-      "name": "laceCoreShade",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          0.052861,
-          0.270498,
-          0.059511
-        ]
-      }
-    },
-    {
-      "id": "laceCoreMid",
-      "label": "Lace core · mid",
-      "name": "laceCoreMid",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
           0.274677,
           0.502886,
           0.084376
@@ -4789,9 +3434,9 @@
       }
     },
     {
-      "id": "laceCoreSun",
-      "label": "Lace core · sun",
-      "name": "laceCoreSun",
+      "id": "laceSun",
+      "label": "Lace · sun",
+      "name": "laceSun",
       "exposed": true,
       "type": "vec3",
       "widget": "color",
