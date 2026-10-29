@@ -120,3 +120,88 @@ describe('createTemplatePreviewScheduler', () => {
     expect(compiled.every((material) => material.isReleased)).toBe(true)
   })
 })
+
+/** A compiler whose textures load later: each compile waits until the test settles it. */
+function setUpAsync() {
+  const compiled: FakeMaterial[] = []
+  const states: TemplatePreviewState<string, FakeMaterial>[] = []
+  const pending: { id: string; settle: (isOk: boolean) => void }[] = []
+  const scheduler = createTemplatePreviewScheduler<string, FakeMaterial>({
+    delayMs: DELAY_MS,
+    compile: (id) =>
+      new Promise<FakeMaterial | null>((resolve) => {
+        pending.push({
+          id,
+          settle: (isOk) => {
+            if (!isOk) {
+              resolve(null)
+              return
+            }
+            const material = { id, isReleased: false }
+            compiled.push(material)
+            resolve(material)
+          },
+        })
+      }),
+    release: (material) => {
+      material.isReleased = true
+    },
+    onChange: (state) => states.push(state),
+  })
+  const settle = async (id: string, isOk = true): Promise<void> => {
+    pending.find((entry) => entry.id === id)?.settle(isOk)
+    await vi.runAllTimersAsync()
+  }
+  return { scheduler, compiled, states, latest: () => states.at(-1), settle }
+}
+
+describe('createTemplatePreviewScheduler with a compiler that waits for textures', () => {
+  it('stays compiling until the material arrives, then reports it', async () => {
+    const { scheduler, compiled, latest, settle } = setUpAsync()
+
+    scheduler.select('fixture')
+    await vi.advanceTimersByTimeAsync(DELAY_MS)
+    expect(latest()).toEqual({ status: 'compiling', id: 'fixture' })
+
+    await settle('fixture')
+    expect(latest()).toEqual({ status: 'ready', id: 'fixture', material: compiled[0] })
+  })
+
+  it('reports a template whose compile resolves to nothing as failed', async () => {
+    const { scheduler, latest, settle } = setUpAsync()
+
+    scheduler.select('fixture')
+    await vi.advanceTimersByTimeAsync(DELAY_MS)
+    await settle('fixture', false)
+
+    expect(latest()).toEqual({ status: 'failed', id: 'fixture' })
+  })
+
+  it('frees a material that arrives after a newer selection, and never reports it', async () => {
+    const { scheduler, compiled, states, latest, settle } = setUpAsync()
+
+    scheduler.select('fixture')
+    await vi.advanceTimersByTimeAsync(DELAY_MS)
+    scheduler.select('pond')
+    await settle('fixture')
+
+    expect(compiled[0]?.isReleased).toBe(true)
+    expect(states.some((state) => state.status === 'ready')).toBe(false)
+    await vi.advanceTimersByTimeAsync(DELAY_MS)
+    await settle('pond')
+    expect(latest()).toEqual({ status: 'ready', id: 'pond', material: compiled[1] })
+  })
+
+  it('frees a material that arrives after the browser closed', async () => {
+    const { scheduler, compiled, states, settle } = setUpAsync()
+
+    scheduler.select('fixture')
+    await vi.advanceTimersByTimeAsync(DELAY_MS)
+    const reported = states.length
+    scheduler.dispose()
+    await settle('fixture')
+
+    expect(compiled[0]?.isReleased).toBe(true)
+    expect(states).toHaveLength(reported)
+  })
+})

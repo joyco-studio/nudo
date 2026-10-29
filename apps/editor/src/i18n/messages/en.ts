@@ -209,6 +209,10 @@ export const en = {
   'example.lava-flow.description': 'Swirling lava with veins that burn white-hot',
   'example.lava-flow.teaches':
     'Bends the position with slow noise, draws thin veins from the absolute value of more noise, and lets heat past 1 spill into the other channels so the hottest veins turn white.',
+  'example.texture-fixture.title': 'Paper grain (test fixture)',
+  'example.texture-fixture.description': 'A bundled texture, for the end-to-end tests',
+  'example.texture-fixture.teaches':
+    'Samples a texture the template ships with. Opening it stores the image like an upload.',
   'openExample.title': 'Open “{title}”?',
   'openExample.description':
     'This replaces your graph ({contents}) with the template. Undo (Ctrl/⌘ Z) brings it back.',
@@ -275,6 +279,8 @@ export const en = {
   'notice.dismiss': 'Dismiss',
   'notice.masterDelete': "The Master Stack can't be deleted.",
   'notice.exampleFailed': "Couldn't open the template.",
+  'notice.templateTexturesFailed':
+    "Some of the template's images didn't load. Choose an image in each slot marked Missing.",
   'notice.droppedReaders':
     "Some pasted nodes referenced properties that don't exist here and were skipped.",
   'notice.connectFailed': "Couldn't connect those ports.",

@@ -2,6 +2,7 @@ import { useId, useRef } from 'react'
 import type { BlackboardProperty } from '@nudo-tsl/core'
 
 import type { Example } from '@/examples'
+import type { TemplateTexture } from '@/examples/template-texture'
 import { useT } from '@/i18n/use-t'
 import { TypeChip } from '@/shared/components/type-chip'
 import { useScrollOverflow } from '@/shared/lib/use-scroll-overflow'
@@ -10,10 +11,16 @@ import { cn } from '@/shared/lib/utils'
 import { propertyDisplay, templateFacts } from './template-facts'
 import { templateTeachesKey } from './template-text'
 
-function PropertyValue({ property }: { property: BlackboardProperty }) {
+interface PropertyRowProps {
+  property: BlackboardProperty
+  textures: readonly TemplateTexture[]
+}
+
+function PropertyValue({ property, textures }: PropertyRowProps) {
   const t = useT()
-  const display = propertyDisplay(property)
+  const display = propertyDisplay(property, textures)
   if (display.kind === 'texture') {
+    if (display.label !== null) return <span className="truncate">{display.label}</span>
     return <span className="text-muted-foreground">{t('templates.noTexture')}</span>
   }
   if (display.kind === 'number') return <span className="truncate">{display.text}</span>
@@ -30,14 +37,14 @@ function PropertyValue({ property }: { property: BlackboardProperty }) {
 }
 
 /** A property as a read-only row: its name on the leading edge, type and value on the trailing. */
-function PropertyItem({ property }: { property: BlackboardProperty }) {
-  const display = propertyDisplay(property)
+function PropertyItem({ property, textures }: PropertyRowProps) {
+  const display = propertyDisplay(property, textures)
   return (
     <li className="flex h-8 items-center justify-between gap-4 border-b last:border-b-0">
       <span className="truncate text-xs">{property.label}</span>
       <span className="flex shrink-0 items-baseline gap-2 font-mono text-xs text-muted-foreground">
         <TypeChip>{display.chip}</TypeChip>
-        <PropertyValue property={property} />
+        <PropertyValue property={property} textures={textures} />
       </span>
     </li>
   )
@@ -77,7 +84,7 @@ function TemplateDetails({ example, titleId }: TemplateDetailsProps) {
         ) : (
           <ul className="flex max-w-xl flex-col">
             {properties.map((property) => (
-              <PropertyItem key={property.id} property={property} />
+              <PropertyItem key={property.id} property={property} textures={example.textures} />
             ))}
           </ul>
         )}

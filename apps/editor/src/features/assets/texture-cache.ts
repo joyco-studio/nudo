@@ -1,6 +1,7 @@
 import type { Texture } from 'three'
 
 import { getAsset } from './asset-store'
+import { bundledAssets } from './bundled-assets'
 import { decodeImageBlob } from './decode-image-blob'
 
 export type TextureSnapshot =
@@ -109,8 +110,12 @@ export function createTextureCache(sources: TextureCacheSources): TextureCache {
   }
 }
 
-/** The editor's one cache: every preview and every texture field share the decoded textures. */
+/**
+ * The editor's one cache: every preview and every texture field share the decoded textures. A
+ * bundled file the page fetched (a template's texture) reads from memory, so the templates browser
+ * draws it before, or without, it being stored.
+ */
 export const textureCache: TextureCache = createTextureCache({
-  readAsset: getAsset,
+  readAsset: async (assetId) => bundledAssets.file(assetId) ?? getAsset(assetId),
   decode: decodeImageBlob,
 })

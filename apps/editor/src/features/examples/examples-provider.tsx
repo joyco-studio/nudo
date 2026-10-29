@@ -81,7 +81,8 @@ function useFitWhenMeasured(): (graph: Graph) => void {
 /**
  * Owns the templates browser (the bundled examples): the header button and the command palette
  * open it, and it opens the chosen template in place of the graph. A graph with work in it asks
- * first; opening is one undo step and frames the template in the view. Must sit inside a
+ * first; opening is one undo step and frames the template in the view. The browser closes at once;
+ * the graph follows as soon as the template's textures are stored. Must sit inside a
  * `ReactFlowProvider`.
  */
 export function ExamplesProvider({ children }: ExamplesProviderProps) {
@@ -121,10 +122,18 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
     [setIsBrowserOpen],
   )
 
+  /** Counts open requests: only the newest one replaces the graph once its textures are in. */
+  const openRequestRef = useRef(0)
+
   const open = useCallback(
     (example: Example) => {
-      if (openExample(example, locale)) fitWhenMeasured(useEditorStore.getState().graph)
+      openRequestRef.current += 1
+      const request = openRequestRef.current
       setIsBrowserOpen(false)
+      const isStillWanted = (): boolean => request === openRequestRef.current
+      void openExample(example, locale, isStillWanted).then((isOpened) => {
+        if (isOpened) fitWhenMeasured(useEditorStore.getState().graph)
+      })
     },
     [locale, fitWhenMeasured, setIsBrowserOpen],
   )

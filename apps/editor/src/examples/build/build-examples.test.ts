@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { registry } from '@/store/registry'
 
+import { templateTexturesIn } from '../bind-template-textures'
 import { buildExampleGraph } from './build-example-graph'
 import { frameIdOf } from './example-spec'
 import type { ExampleSpec } from './example-spec'
@@ -13,6 +14,7 @@ import { LAVA_FLOW } from './lava-flow'
 import { estimateGeometry } from './node-geometry'
 import { POND } from './pond'
 import { POSTER } from './poster'
+import { TEXTURE_FIXTURE } from './texture-fixture'
 
 /**
  * Builds every example from its spec and keeps the committed `.graph.json` in step: run
@@ -24,6 +26,7 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['iridescent-blob', IRIDESCENT_BLOB],
   ['poster', POSTER],
   ['lava-flow', LAVA_FLOW],
+  ['texture-fixture', TEXTURE_FIXTURE],
 ]
 
 interface Box {
@@ -67,6 +70,13 @@ describe.each(SPECS)('the %s example', (id, spec) => {
 
   it('builds a material without node errors', () => {
     expect(createMaterial(graph, registry).errors).toEqual([])
+  })
+
+  it('names only the textures it bundles, and uses every one', () => {
+    const bundled = (spec.textures ?? []).map((texture) => texture.id)
+
+    expect([...templateTexturesIn(graph)].sort()).toEqual([...bundled].sort())
+    expect(new Set(bundled).size).toBe(bundled.length)
   })
 
   it('keeps every node clear of the others, previews included', () => {

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "frame-grain": {
+      "id": "frame-grain",
+      "type": "utility/comment",
+      "position": {
+        "x": 104,
+        "y": 8
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A bundled texture: opening the template stores it and fills this slot.",
+        "height": 506,
+        "title": "Paper grain",
+        "width": 400
+      }
+    },
+    "grain": {
+      "id": "grain",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": 192,
+        "y": 104
+      },
+      "inputValues": {
+        "texture": {
+          "type": "texture",
+          "assetId": "template:paper-grain"
+        }
+      },
+      "params": {
+        "mip": "auto"
+      }
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    }
+  },
+  "edges": {
+    "grain.rgb-master.baseColor": {
+      "id": "grain.rgb-master.baseColor",
+      "from": {
+        "nodeId": "grain",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    }
+  },
+  "properties": []
+}

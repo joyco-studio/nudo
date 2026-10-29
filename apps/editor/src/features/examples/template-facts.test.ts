@@ -3,6 +3,8 @@ import type { BlackboardProperty } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 
 import { EXAMPLES } from '@/examples'
+import { PAPER_GRAIN } from '@/examples/build/bundled-textures'
+import { templateTexture } from '@/examples/template-texture'
 
 import { propertyDisplay, templateFacts, templateGraph } from './template-facts'
 
@@ -68,10 +70,22 @@ describe('propertyDisplay', () => {
     })
   })
 
-  it('shows a texture by kind alone', () => {
+  it('shows an empty texture by kind alone', () => {
     expect(propertyDisplay(property({ type: 'texture', value: texture(null) }))).toEqual({
       kind: 'texture',
       chip: 'texture',
+      label: null,
     })
+  })
+
+  it('names a texture the template bundles by its label', () => {
+    const grain = property({ type: 'texture', value: templateTexture(PAPER_GRAIN.id) })
+
+    expect(propertyDisplay(grain, [PAPER_GRAIN])).toEqual({
+      kind: 'texture',
+      chip: 'texture',
+      label: 'Paper grain',
+    })
+    expect(propertyDisplay(grain)).toEqual({ kind: 'texture', chip: 'texture', label: null })
   })
 })

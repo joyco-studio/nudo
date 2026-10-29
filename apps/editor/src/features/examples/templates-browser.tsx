@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { EXAMPLES, findExample } from '@/examples'
+import { findExample, listedExamples } from '@/examples'
 import type { ExampleId } from '@/examples'
 import { useT } from '@/i18n/use-t'
 import { KeyHints } from '@/shared/components/key-hints'
@@ -70,7 +70,7 @@ export function TemplatesBrowser({
     >
       <div className="min-h-0 overflow-y-auto max-md:flex-1">
         <TemplateList
-          examples={EXAMPLES}
+          examples={listedExamples()}
           selectedId={selectedId}
           onSelect={onSelect}
           onOpen={() => {
