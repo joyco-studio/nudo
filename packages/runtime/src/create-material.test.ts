@@ -696,20 +696,25 @@ describe('new catalog nodes', () => {
     expect(build.material).toBeInstanceOf(MeshStandardNodeMaterial)
   })
 
-  it.each([
-    ['effects/noise', 'out'],
-    ['effects/voronoi', 'f1'],
-    ['effects/checkerboard', 'out'],
-    ['normal/normal-from-height', 'out'],
-    ['scene/depth-fade', 'out'],
-    ['scene/scene-color', 'out'],
-  ] as const)('%s compiles into a master slot', (type, output) => {
-    const slot = type === 'normal/normal-from-height' ? 'normal' : 'emission'
+  /** Not sources of a value: the master takes values, a comment holds none, a reroute forwards one. */
+  const NOT_SOURCES = new Set(['master/stack', 'utility/comment', 'utility/reroute'])
+  /** Property readers need a Blackboard property behind them; the property tests cover those. */
+  const catalogTypes = registry
+    .list()
+    .filter((definition) => !NOT_SOURCES.has(definition.type) && definition.reads !== 'property')
+    .map((definition) => definition.type)
+
+  it.each(catalogTypes)('%s compiles into the base color', (type) => {
+    const definition = registry.get(type)
+    const output = definition?.outputs.find(
+      (port) => port.type.kind !== 'concrete' || port.type.type !== 'texture',
+    )
+    if (output === undefined) throw new Error(`${type} has no vector output`)
     const graph = withEdge(
       withNode(createGraph(), registry, 'subject', type),
       registry,
-      ['subject', output],
-      ['master', slot],
+      ['subject', output.id],
+      ['master', 'baseColor'],
     )
 
     const build = createMaterial(graph, registry)
