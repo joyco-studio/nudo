@@ -6,10 +6,15 @@ const LIGHTING_OPTIONS = [
   { value: 'physical', label: 'Physical' },
 ] as const
 
-/** #111111, a near-black that still reads as ink against a black background, in linear light. */
-const OUTLINE_INK = 0.0056
+/**
+ * #6E6E6E in linear light: a mid grey, so the line reads on the preview's dark default background
+ * (#0F0F0F) and on a light one alike.
+ */
+const OUTLINE_INK = 0.1559
 /** Thin enough to read as a line on the 1-unit sphere, in scene units. */
 const OUTLINE_WIDTH = 0.02
+/** A steady line until the user asks for a wobble. */
+const OUTLINE_WOBBLE = 0
 
 const SURFACE_OPTIONS = [
   { value: 'auto', label: 'Auto' },
@@ -155,8 +160,7 @@ export const masterStackNode = defineNode({
     {
       id: 'outlineWidth',
       label: 'Outline Width',
-      description:
-        'How far the line reaches past the surface, in scene units; wire Noise in to make it wobble.',
+      description: 'How far the line reaches past the surface, in scene units.',
       type: concrete('float'),
       default: float(OUTLINE_WIDTH),
     },
@@ -167,6 +171,14 @@ export const masterStackNode = defineNode({
       type: concrete('vec3'),
       default: vec3(OUTLINE_INK, OUTLINE_INK, OUTLINE_INK),
       widget: 'color',
+    },
+    {
+      id: 'outlineWobble',
+      label: 'Outline Wobble',
+      description:
+        'How much the width swells and thins with a drifting noise, in scene units: 0 = steady.',
+      type: concrete('float'),
+      default: float(OUTLINE_WOBBLE),
     },
   ],
   outputs: [],
@@ -191,7 +203,8 @@ export const masterStackNode = defineNode({
       label: 'Outline',
       kind: 'boolean',
       default: false,
-      description: 'Draws a flat line around the silhouette by drawing the mesh a second time.',
+      description:
+        'Draws a flat line around the silhouette by drawing the mesh a second time. On a transparent surface, the line shows through.',
     },
     {
       id: 'useTransmission',

@@ -31,7 +31,7 @@ import {
   TextureNode,
   VarNode,
 } from 'three/webgpu'
-import { modelScale, normalLocal, positionLocal } from 'three/tsl'
+import { modelScale, normalLocal, positionLocal, time } from 'three/tsl'
 import { describe, expect, it } from 'vitest'
 import { applyBuildInputValue } from './apply-build-input-value'
 import { applyInputValue } from './apply-input-value'
@@ -63,6 +63,7 @@ const INLINE_MASTER_SLOTS = [
   'iridescenceIOR',
   'outlineWidth',
   'outlineColor',
+  'outlineWobble',
 ]
 
 const masterKey = (slot: string) => portKey({ nodeId: asNodeId('master'), portId: slot })
@@ -465,6 +466,7 @@ describe('outline', () => {
   const outlined = withMasterParam(createGraph(), registry, 'outline', true)
   const outlineWidth = { nodeId: MASTER, portId: 'outlineWidth' }
   const outlineColor = { nodeId: MASTER, portId: 'outlineColor' }
+  const outlineWobble = { nodeId: MASTER, portId: 'outlineWobble' }
 
   it('builds no outline material while the switch is off', () => {
     const build = createMaterial(createGraph(), registry)
@@ -530,14 +532,47 @@ describe('outline', () => {
     expect(build.uniforms.get(portKey(outlineColor))?.value).toEqual(new Vector3(0, 1, 0))
   })
 
-  it('wobbles when a noise is wired into the width', () => {
-    let graph = withNode(outlined, registry, 'wobble', 'effects/noise')
-    graph = withEdge(graph, registry, ['wobble', 'out'], ['master', 'outlineWidth'])
+  it('wobbles the width by the wobble uniform times a noise drifting with time', () => {
+    const build = createMaterial(outlined, registry)
+    const wobble = build.uniforms.get(portKey(outlineWobble))
+    const position = build.outline?.positionNode
+    if (wobble === undefined || position === null || position === undefined) {
+      throw new Error('Expected an outline position reading the wobble uniform')
+    }
 
-    const { outline, errors } = createMaterial(graph, registry)
+    const parts = nodesIn(position)
+    expect(parts.has(wobble)).toBe(true)
+    expect(parts.has(time)).toBe(true)
+    expect(build.outline?.positionNode).toBeInstanceOf(Node)
+  })
+
+  it('moves the wobble live, without rebuilding', () => {
+    const build = createMaterial(outlined, registry)
+    const { outline } = build
+
+    expect(applyBuildInputValue(build, outlineWobble, float(0.03))).toBe('applied')
+    expect(build.outline).toBe(outline)
+    expect(build.uniforms.get(portKey(outlineWobble))?.value).toBe(0.03)
+  })
+
+  it('cuts the hull with the alpha clip the surface uses, and keeps it opaque', () => {
+    let graph = withNode(outlined, registry, 'mask', 'effects/checkerboard')
+    graph = withEdge(graph, registry, ['mask', 'out'], ['master', 'alphaClip'])
+
+    const { material, outline, errors } = createMaterial(graph, registry)
 
     expect(errors).toEqual([])
-    expect(outline?.positionNode).toBeInstanceOf(Node)
+    expect(outline?.alphaTestNode).toBeInstanceOf(Node)
+    expect(outline?.alphaTestNode).toBe(material?.alphaTestNode)
+    expect(outline?.opacityNode).toBe(material?.opacityNode)
+    expect(outline?.transparent).toBe(false)
+  })
+
+  it('leaves the hull uncut while no alpha clip is wired', () => {
+    const { outline } = createMaterial(outlined, registry)
+
+    expect(outline?.alphaTestNode).toBeNull()
+    expect(outline?.opacityNode).toBeNull()
   })
 
   it('outlines an unlit or transparent surface too', () => {

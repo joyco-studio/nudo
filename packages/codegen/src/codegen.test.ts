@@ -407,13 +407,28 @@ describe('generateModule', () => {
       expect(code).toContain(
         [
           'export const outlineNodes = {',
-          '  positionNode: positionLocal.add(normalLocal.mul(max(float(0.02), float(0))).div(modelScale)),',
-          '  colorNode: color(0x111111),',
+          [
+            '  positionNode: positionLocal.add(normalLocal.mul(max(float(0.02).add(float(0).mul(',
+            'mx_noise_float(positionLocal.mul(modelScale).mul(float(4)).add(time.mul(float(2)))))),',
+            ' float(0))).div(modelScale)),',
+          ].join(''),
+          '  colorNode: color(0x6e6e6e),',
           '}',
         ].join('\n'),
       )
       expect(code).toContain('export const outlineMaterialSettings = {\n  side: BackSide,\n}')
       expect(code).not.toContain('outlineWidth')
+      expect(code).not.toContain('outlineWobble')
+    })
+
+    it('cuts the outline with the alpha clip the surface uses', () => {
+      let graph = withMasterSettings(createGraph(), { outline: true })
+      graph = withNode(graph, 'mask', 'effects/checkerboard')
+      graph = withLink(graph, port('mask', 'out'), port('master', 'alphaClip'))
+      const code = generate(graph)
+
+      const outline = code.slice(code.indexOf('export const outlineNodes'))
+      expect(outline).toContain('  opacityNode: float(1),\n  alphaTestNode: checkerboard1,\n}')
     })
 
     it('starts the outline from the displaced position the surface uses', () => {

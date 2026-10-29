@@ -26,7 +26,7 @@ export type SurfaceSlot =
   | 'iridescenceIOR'
 
 /** A master slot only the outline pass reads. */
-export type OutlineSlot = 'outlineWidth' | 'outlineColor'
+export type OutlineSlot = 'outlineWidth' | 'outlineColor' | 'outlineWobble'
 
 export type MasterSlot = SurfaceSlot | OutlineSlot
 
@@ -50,7 +50,11 @@ export const SURFACE_SLOTS: readonly SurfaceSlot[] = [
   'iridescenceIOR',
 ]
 
-export const OUTLINE_SLOTS: readonly OutlineSlot[] = ['outlineWidth', 'outlineColor']
+export const OUTLINE_SLOTS: readonly OutlineSlot[] = [
+  'outlineWidth',
+  'outlineColor',
+  'outlineWobble',
+]
 
 /** Every slot the master compiles, in input order. */
 export const MASTER_SLOTS: readonly MasterSlot[] = [...SURFACE_SLOTS, ...OUTLINE_SLOTS]

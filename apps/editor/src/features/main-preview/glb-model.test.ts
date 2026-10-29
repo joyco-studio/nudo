@@ -1,4 +1,4 @@
-import { BoxGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, PointLight } from 'three'
 import type { Object3D } from 'three'
 import { describe, expect, it } from 'vitest'
 
@@ -46,5 +46,24 @@ describe('createOutlineCopy', () => {
     createOutlineCopy(model, new MeshBasicMaterial())
 
     expect(meshes.map((mesh) => mesh.material)).toEqual(before)
+  })
+
+  it('leaves the lights, cameras and empty nodes of the file out of the copy', () => {
+    const { model } = twoMeshModel()
+    const scene = model.children[0]
+    if (scene === undefined) throw new Error('The model has no scene')
+    const lamp = new PointLight()
+    const camera = new PerspectiveCamera()
+    const emptyRig = new Group()
+    emptyRig.add(new PointLight())
+    scene.add(lamp, camera, emptyRig)
+
+    const copy = createOutlineCopy(model, new MeshBasicMaterial())
+
+    const kinds = new Set<string>()
+    copy.traverse((object) => kinds.add(object.type))
+    expect([...kinds].sort()).toEqual(['Group', 'Mesh'])
+    expect(meshesOf(copy)).toHaveLength(2)
+    expect(scene.children).toContain(lamp)
   })
 })

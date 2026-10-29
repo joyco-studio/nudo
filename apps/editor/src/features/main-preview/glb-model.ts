@@ -71,13 +71,32 @@ export function applyMaterialToModel(model: Object3D, material: Material): void 
   })
 }
 
+function containsMesh(root: Object3D): boolean {
+  let found = false
+  forEachMesh(root, () => {
+    found = true
+  })
+  return found
+}
+
+/** Removes every branch with no mesh in it: the file's lights, cameras and empty nodes. */
+function pruneMeshlessBranches(root: Object3D): void {
+  for (const child of [...root.children]) {
+    if (containsMesh(child)) pruneMeshlessBranches(child)
+    else root.remove(child)
+  }
+}
+
 /**
  * A copy of the model's node tree, with the same transforms and the same geometry (shared, not
  * duplicated), every mesh wearing `outline`. Drawn beside the model, it is the model's outline
- * pass. The model owns the geometry: the copy is never disposed, only dropped.
+ * pass, so it keeps only the branches that hold meshes: a light or camera the file brought would
+ * otherwise light or count twice. The model owns the geometry: the copy is never disposed, only
+ * dropped.
  */
 export function createOutlineCopy(model: Object3D, outline: Material): Object3D {
   const copy = model.clone()
+  pruneMeshlessBranches(copy)
   forEachMesh(copy, (mesh) => {
     mesh.material = outline
   })

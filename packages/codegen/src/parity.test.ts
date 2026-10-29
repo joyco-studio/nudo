@@ -8,7 +8,7 @@ import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import ts from 'typescript'
 import { BackSide, DataTexture, Vector3 } from 'three'
 import { MeshBasicNodeMaterial, Node, TextureNode, UniformNode } from 'three/webgpu'
-import { modelScale, normalLocal } from 'three/tsl'
+import { modelScale, normalLocal, positionLocal, time } from 'three/tsl'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
 import { createLightsPropertyGraph } from './fixtures/lights-property-graph'
@@ -245,7 +245,13 @@ describe('generated module parity', () => {
       const { exports } = await loadGenerated(outlined)
       const outlineNodes = isRecord(exports.outlineNodes) ? exports.outlineNodes : {}
 
-      expect(Object.keys(outlineNodes)).toEqual(['positionNode', 'colorNode'])
+      // The catalog wires an alpha clip, so the hull is cut by the same mask.
+      expect(Object.keys(outlineNodes)).toEqual([
+        'positionNode',
+        'colorNode',
+        'opacityNode',
+        'alphaTestNode',
+      ])
       for (const [slot, value] of Object.entries(outlineNodes)) {
         expect(value, `outlineNodes.${slot}`).toBeInstanceOf(Node)
       }
@@ -267,6 +273,16 @@ describe('generated module parity', () => {
       const parts = nodesIn(position)
       expect(parts.has(normalLocal)).toBe(true)
       expect(parts.has(modelScale)).toBe(true)
+    })
+
+    it('wobbles the hull with a noise drifting with time, from the same builtins as the runtime', async () => {
+      const { exports } = await loadGenerated(withMasterParams(catalog, { outline: true }))
+      const position = isRecord(exports.outlineNodes) ? exports.outlineNodes.positionNode : null
+      if (!(position instanceof Node)) throw new Error('outlineNodes.positionNode is not a node')
+
+      const parts = nodesIn(position)
+      expect(parts.has(time)).toBe(true)
+      expect(parts.has(positionLocal)).toBe(true)
     })
 
     it('exports the material settings the master asks for', async () => {

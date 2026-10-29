@@ -120,12 +120,16 @@ export const NODES_ES: NodeTranslations = {
       },
       outlineWidth: {
         label: 'Grosor del contorno',
-        description:
-          'Cuánto sobresale la línea de la superficie, en unidades de escena; conecta un Ruido para que vibre.',
+        description: 'Cuánto sobresale la línea de la superficie, en unidades de escena.',
       },
       outlineColor: {
         label: 'Color del contorno',
         description: 'El color plano de la línea; la luz nunca lo cambia.',
+      },
+      outlineWobble: {
+        label: 'Vibración del contorno',
+        description:
+          'Cuánto engorda y adelgaza la línea con un ruido que se mueve, en unidades de escena: 0 = fija.',
       },
     },
     params: {
@@ -141,7 +145,7 @@ export const NODES_ES: NodeTranslations = {
       outline: {
         label: 'Contorno',
         description:
-          'Dibuja una línea plana alrededor de la silueta dibujando la malla una segunda vez.',
+          'Dibuja una línea plana alrededor de la silueta dibujando la malla una segunda vez. En una superficie transparente, la línea se ve a través.',
       },
       useTransmission: {
         label: 'Activar transmisión',

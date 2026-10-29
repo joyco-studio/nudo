@@ -342,7 +342,7 @@ export const es = {
   'node.physicalFeature.sheen': 'el brillo de tela',
   'node.physicalFeature.iridescence': 'la iridiscencia',
   'node.group.outline': 'Contorno',
-  'node.outlineOff': 'Activa el contorno para usarlo',
+  'node.outlineOff': 'Activá el contorno para usarlo',
   'node.meshDefault': 'Valor de la malla',
   'node.off': 'Desactivado',
   'port.name': '{port}, {side}, {type}, {connection}',

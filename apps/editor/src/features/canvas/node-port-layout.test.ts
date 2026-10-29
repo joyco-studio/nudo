@@ -63,7 +63,7 @@ const PHYSICAL_INPUT_IDS: readonly string[] = [
   'iridescence',
   'iridescenceIOR',
 ]
-const OUTLINE_INPUT_IDS: readonly string[] = ['outlineWidth', 'outlineColor']
+const OUTLINE_INPUT_IDS: readonly string[] = ['outlineWidth', 'outlineColor', 'outlineWobble']
 
 function registryInputs() {
   const definition = registry.get('master/stack')

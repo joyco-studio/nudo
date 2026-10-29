@@ -3,6 +3,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { countGreenishPixels } from './support/count-tinted-pixels'
 import { tabUntilFocused } from './support/focus-indicators'
+import { changedShare } from './support/luminance-spread'
 import { firstSettledCompileCount, settledCompileCount } from './support/pending-work'
 import { readStoredNodes } from './support/read-autosave'
 import { graphDocument, seedAutosave } from './support/seed-graph'
@@ -21,6 +22,10 @@ const SEEDED_WIDTH = 0.04
 /** 40 px at 0.01 per pixel adds 0.4 to the width. */
 const SCRUB_DISTANCE_PX = 40
 const SCRUB_STEPS = 10
+/** Most of the seeded width, so the line visibly swells and thins but never vanishes. */
+const WOBBLE = '0.03'
+/** Long enough for the wobble's noise to drift a visible step between two frames. */
+const FRAME_GAP_MS = 400
 
 /** An orange surface with a green outline, so its pixels stand apart from surface and background. */
 function outlinedDocument(params: SeedNode['params'] = {}): string {
@@ -127,6 +132,36 @@ test.describe('outline', () => {
     await expect.poll(() => previewApplyCount(page)).toBeGreaterThan(appliedBefore)
     await expect.poll(() => outlinePixels(page)).toBeGreaterThan(thinPixels)
     await page.mouse.up()
+    expect(await settledCompileCount(page)).toBe(compilesBefore)
+  })
+
+  test('a wobble makes the line swell and thin over time, live, and it stays visible', async ({
+    page,
+  }) => {
+    await seedAutosave(page, outlinedDocument({ outline: true }))
+    await page.goto('/')
+    const compilesBefore = await firstSettledCompileCount(page)
+    const canvas = preview(page).locator('canvas')
+    await expect.poll(() => outlinePixels(page)).toBeGreaterThan(MIN_OUTLINE_PIXELS)
+
+    // Without a wobble the line holds still.
+    const still = await canvas.screenshot()
+    await page.waitForTimeout(FRAME_GAP_MS)
+    expect(await changedShare(page, still, await canvas.screenshot())).toBe(0)
+
+    const wobble = master(page).getByRole('textbox', { name: 'Outline Wobble' })
+    await wobble.fill(WOBBLE)
+    await wobble.press('Enter')
+
+    // With one, the silhouette moves from frame to frame, and the line is still there.
+    await expect
+      .poll(async () => {
+        const before = await canvas.screenshot()
+        await page.waitForTimeout(FRAME_GAP_MS)
+        return changedShare(page, before, await canvas.screenshot())
+      })
+      .toBeGreaterThan(0)
+    expect(await outlinePixels(page)).toBeGreaterThan(MIN_OUTLINE_PIXELS)
     expect(await settledCompileCount(page)).toBe(compilesBefore)
   })
 
