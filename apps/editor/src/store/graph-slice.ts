@@ -216,6 +216,13 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
     get().replaceGraph(createGraph())
   },
 
+  applyGraphChange: (change) => {
+    const result = change(get().graph, registry)
+    if (!result.ok) return result.error
+    set({ graph: result.value })
+    return null
+  },
+
   replaceGraph: (graph) => {
     set({
       graph,

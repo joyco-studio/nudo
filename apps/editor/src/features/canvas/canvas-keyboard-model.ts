@@ -102,9 +102,15 @@ export function canvasKeyIntent(press: KeyPress, target: KeyTargetKind): CanvasK
   return null
 }
 
-/** A control in a node body that Escape leaves for the node: a text field, a select, a switch. */
+/** Value controls that are not text entry but that Escape leaves for the node, like a field. */
+const NODE_FIELD_ROLES: ReadonlySet<string> = new Set(['switch', 'slider'])
+
+/**
+ * A control in a node body that Escape leaves for the node: a text field, a select, a switch, a
+ * slider (a Color Ramp stop position).
+ */
 function isNodeField(target: Element): boolean {
-  return isTextEntry(target) || target.getAttribute('role') === 'switch'
+  return isTextEntry(target) || NODE_FIELD_ROLES.has(target.getAttribute('role') ?? '')
 }
 
 /** Classifies the element that has focus (a keyboard event's target). */

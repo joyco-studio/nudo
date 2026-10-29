@@ -80,6 +80,7 @@ describe('ParamField for a number param', () => {
       previewInputValue: vi.fn(),
       endInputPreview: vi.fn(),
       setParam,
+      changeGraph: vi.fn(),
     }
     act(() => {
       root.render(

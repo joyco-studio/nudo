@@ -1,4 +1,4 @@
-import { MASTER_NODE_ID, createGraph } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, createGraph, err, ok, setParam } from '@nudo-tsl/core'
 import type { NodeId } from '@nudo-tsl/core'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -124,6 +124,36 @@ describe('replaceGraph', () => {
 
     undo()
     expect(getState().graph).toBe(graphBefore)
+  })
+})
+
+describe('applyGraphChange', () => {
+  it('commits the change as one entry, keeps the selection, and one undo reverts it', () => {
+    const id = addNodeOrFail('color/color-ramp')
+    getState().setSelection([id])
+    const graphBefore = getState().graph
+    const entriesBefore = historyLength()
+
+    const error = getState().applyGraphChange((graph, registry) => {
+      const counted = setParam(graph, registry, { nodeId: id, paramId: 'count' }, 3)
+      return counted.ok ? ok(counted.value) : err('rejected')
+    })
+
+    expect(error).toBeNull()
+    expect(getState().graph.nodes[id]?.params.count).toBe(3)
+    expect(getState().selectedNodeIds).toEqual([id])
+    expect(historyLength()).toBe(entriesBefore + 1)
+    undo()
+    expect(getState().graph).toBe(graphBefore)
+  })
+
+  it('leaves the graph and the history alone when the change is refused', () => {
+    const graphBefore = getState().graph
+    const error = getState().applyGraphChange(() => err('too-few-stops'))
+
+    expect(error).toBe('too-few-stops')
+    expect(getState().graph).toBe(graphBefore)
+    expect(historyLength()).toBe(0)
   })
 })
 

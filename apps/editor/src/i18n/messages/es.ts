@@ -485,4 +485,17 @@ export const es = {
   'color.hueValue': '{degrees} grados',
   'color.area': 'Saturación y brillo',
   'color.areaValue': 'Saturación {saturation}%, brillo {brightness}%',
+  // Color Ramp editor
+  'colorRamp.gradient': 'Degradado',
+  'colorRamp.stops': 'Paradas',
+  'colorRamp.position': 'Posición de la parada {number}',
+  'colorRamp.color': 'Color de la parada {number}',
+  'colorRamp.wired': 'Conectada',
+  'colorRamp.moveUp': 'Subir',
+  'colorRamp.moveDown': 'Bajar',
+  'colorRamp.remove': 'Quitar parada',
+  'colorRamp.moveUpStop': 'Subir la parada {number}',
+  'colorRamp.moveDownStop': 'Bajar la parada {number}',
+  'colorRamp.removeStop': 'Quitar la parada {number}',
+  'colorRamp.add': 'Agregar parada',
 } satisfies Messages

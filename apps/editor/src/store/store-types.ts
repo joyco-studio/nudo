@@ -5,6 +5,7 @@ import type {
   Graph,
   GraphFragment,
   NodeId,
+  NodeRegistry,
   NodeTypeId,
   ParamRef,
   ParamValue,
@@ -12,6 +13,7 @@ import type {
   PortValue,
   PropertyError,
   PropertyId,
+  Result,
   XY,
 } from '@nudo-tsl/core'
 import type { StateCreator } from 'zustand'
@@ -34,6 +36,12 @@ export interface NodeFrame {
   readonly width: number
   readonly height: number
 }
+
+/**
+ * A pure edit of the whole graph (a Color Ramp stop added, removed or moved), run against the
+ * graph as it is when it is applied. The error says why it was refused.
+ */
+export type GraphChange = (graph: Graph, registry: NodeRegistry) => Result<Graph, string>
 
 export interface GraphSlice {
   graph: Graph
@@ -63,6 +71,11 @@ export interface GraphSlice {
   resetGraph(): void
   /** Replaces the graph with another one (an example) as one history entry. */
   replaceGraph(graph: Graph): void
+  /**
+   * Applies a pure graph change as one history entry, keeping the selection. Returns why it was
+   * refused (nothing changes then), or null.
+   */
+  applyGraphChange(change: GraphChange): string | null
 }
 
 /**

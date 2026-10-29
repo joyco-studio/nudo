@@ -94,6 +94,49 @@ const VORONOI_CELLS = graphDocumentV2(
 )
 
 /**
+ * The catalog graph holds Color Ramps with two stops only. These take more (the most a ramp has,
+ * and two in between), one per interpolation, so every extra mix step reaches the renderer.
+ */
+const MANY_STOP_RAMPS = graphDocumentV2(
+  [
+    {
+      id: 'eightStops',
+      type: 'color/color-ramp',
+      position: { x: 200, y: 0 },
+      params: { count: 8 },
+    },
+    {
+      id: 'threeConstant',
+      type: 'color/color-ramp',
+      position: { x: 200, y: 600 },
+      params: { count: 3, interpolation: 'constant' },
+      inputValues: { stop1Position: { type: 'float', value: 0.5 } },
+    },
+    {
+      id: 'fiveSmooth',
+      type: 'color/color-ramp',
+      position: { x: 200, y: 1200 },
+      params: { count: 5, interpolation: 'smooth' },
+      inputValues: {
+        stop1Position: { type: 'float', value: 0.25 },
+        stop2Position: { type: 'float', value: 0.5 },
+        stop3Position: { type: 'float', value: 0.75 },
+      },
+    },
+    { id: 'fade', type: 'effects/noise', position: { x: -200, y: 0 } },
+  ],
+  [
+    { id: 'fade-to-eight', from: ['fade', 'out'], to: ['eightStops', 'in'] },
+    { id: 'fade-to-three', from: ['fade', 'out'], to: ['threeConstant', 'in'] },
+    { id: 'fade-to-five', from: ['fade', 'out'], to: ['fiveSmooth', 'in'] },
+    { id: 'eight-to-base-color', from: ['eightStops', 'out'], to: ['master', 'baseColor'] },
+    { id: 'three-to-emission', from: ['threeConstant', 'out'], to: ['master', 'emission'] },
+    { id: 'five-to-normal', from: ['fiveSmooth', 'out'], to: ['master', 'normal'] },
+  ],
+  [],
+)
+
+/**
  * The preview draws a material only once the renderer accepted it, and nothing says so but the
  * missing notice. A material still waiting in the validation queue shows no notice yet, so the
  * mesh itself is the proof: the middle of the frame stops matching its background.
@@ -159,6 +202,13 @@ test.describe('real renderer compile check', () => {
   }) => {
     test.setTimeout(COMPILE_TIMEOUT_MS * 2)
     await seedAutosave(page, VORONOI_CELLS)
+    await page.goto('/')
+    await expectCompiled(page)
+  })
+
+  test('color ramps with three to eight stops compile in a real renderer', async ({ page }) => {
+    test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+    await seedAutosave(page, MANY_STOP_RAMPS)
     await page.goto('/')
     await expectCompiled(page)
   })

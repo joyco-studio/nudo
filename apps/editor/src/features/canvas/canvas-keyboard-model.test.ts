@@ -148,6 +148,7 @@ describe('classifyKeyTarget', () => {
           <button type="button" id="plain-button">Plain</button>
           <button type="button" role="switch" id="switch">Two sided</button>
           <button type="button" role="combobox" id="select-trigger">Lighting</button>
+          <div role="slider" tabindex="0" id="slider">0.5</div>
         </div>
         <svg><g class="react-flow__edge" data-id="edge-1" tabindex="0"></g></svg>
       </main>
@@ -167,6 +168,7 @@ describe('classifyKeyTarget', () => {
       plain: pick('#plain-button'),
       switchControl: pick('#switch'),
       selectTrigger: pick('#select-trigger'),
+      slider: pick('#slider'),
       edge: pick('.react-flow__edge'),
       outside: pick('#outside-input'),
     }
@@ -190,10 +192,11 @@ describe('classifyKeyTarget', () => {
     expect(classifyKeyTarget(els.port ?? null)).toBe('port')
   })
 
-  it('counts a switch and a select trigger in a node as fields, so Escape returns to the node', () => {
+  it('counts a switch, a select trigger and a slider in a node as fields, so Escape returns to the node', () => {
     const els = render()
     expect(classifyKeyTarget(els.switchControl ?? null)).toBe('field')
     expect(classifyKeyTarget(els.selectTrigger ?? null)).toBe('field')
+    expect(classifyKeyTarget(els.slider ?? null)).toBe('field')
   })
 
   it('treats anything else as other', () => {

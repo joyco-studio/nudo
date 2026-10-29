@@ -4,6 +4,8 @@ import { COLLAPSED_PARAM, MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { TriangleAlert } from 'lucide-react'
 
+import { ColorRampEditor } from '@/features/color-ramp/color-ramp-editor'
+import { isColorRamp, isColorRampStopInput } from '@/features/color-ramp/color-ramp-stops'
 import { NodePreview } from '@/features/node-previews/node-preview'
 import { PreviewToggle } from '@/features/node-previews/preview-toggle'
 import { useT } from '@/i18n/use-t'
@@ -79,7 +81,8 @@ function InputRow({ data, row }: InputRowProps) {
           <PortLabel label={input.label} isMuted explanation={explanation} />
           <MutedHint>{t(disabledHint)}</MutedHint>
         </>
-      ) : isConnected ? (
+      ) : isConnected || isColorRampStopInput(data.node, input.id) ? (
+        // A Color Ramp stop is edited in the ramp editor, which keeps the positions in order.
         <PortLabel label={input.label} explanation={explanation} />
       ) : (
         <InlineField node={data.node} input={input} dataType={dataType} explanation={explanation} />
@@ -273,12 +276,14 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const outputs = visibleOutputs(data)
   const groups = inputGroups(data)
   const hasInputs = groups.some((group) => group.rows.length > 0)
+  const isRamp = isColorRamp(node)
+  const isWide = node.id === MASTER_NODE_ID || isRamp
 
   return (
     <NodeContextMenu data={data}>
       <div
         data-error={error !== undefined}
-        className={cn(nodeFrameClass(data, selected), node.id === MASTER_NODE_ID ? 'w-64' : 'w-56')}
+        className={cn(nodeFrameClass(data, selected), isWide ? 'w-64' : 'w-56')}
       >
         <p id={nodeDescriptionId(node.id)} className="sr-only">
           {nodeAccessibleDescription(definition, t)}
@@ -300,6 +305,11 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
             {groups.map((group) => (
               <PortGroupList key={group.title ?? 'inputs'} group={group} data={data} />
             ))}
+          </div>
+        )}
+        {isRamp && (
+          <div className="border-t">
+            <ColorRampEditor node={node} connectedInputs={data.connectedInputs} />
           </div>
         )}
         <NodePreview node={node} definition={definition} title={data.title} />

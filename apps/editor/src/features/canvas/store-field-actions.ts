@@ -18,4 +18,7 @@ export const storeFieldActions: NodeFieldActions = {
   setParam: (ref, value) => {
     getStore().setParam(ref, value)
   },
+  changeGraph: (change) => {
+    getStore().applyGraphChange(change)
+  },
 }

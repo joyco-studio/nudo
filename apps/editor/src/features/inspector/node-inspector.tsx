@@ -10,6 +10,8 @@ import { groupInputs, inputsInPlay } from '@/features/canvas/node-port-layout'
 import { NumberField } from '@/features/canvas/number-field'
 import { ParamField, bodyParams } from '@/features/canvas/param-field'
 import { nodeTitle } from '@/features/canvas/to-flow'
+import { ColorRampEditor } from '@/features/color-ramp/color-ramp-editor'
+import { isColorRamp, isColorRampStopInput } from '@/features/color-ramp/color-ramp-stops'
 import { useT } from '@/i18n/use-t'
 import { Label } from '@/shared/ui/label'
 import type { NodeFrame } from '@/store/store-types'
@@ -17,6 +19,12 @@ import type { NodeFrame } from '@/store/store-types'
 import { INSPECTOR_ROW_CLASS, InspectorInputRows } from './inspector-input-row'
 import { InspectorHeader, InspectorSection } from './inspector-section'
 import { PreviewSettings } from './preview-settings'
+
+/** The inputs of a node that an edge feeds. */
+function connectedInputsOf(graph: Graph, nodeId: NodeId): ReadonlySet<string> {
+  const edges = Object.values(graph.edges).filter((edge) => edge.to.nodeId === nodeId)
+  return new Set(edges.map((edge) => edge.to.portId))
+}
 
 /** Commits a comment frame's new size as one history entry. */
 export type ResizeFrame = (nodeId: NodeId, frame: NodeFrame) => void
@@ -110,11 +118,15 @@ interface InputSectionsProps {
   types: ResolvedTypes
 }
 
-/** Every input of the node, collapsed or not, grouped like the node groups them. */
+/**
+ * Every input of the node, collapsed or not, grouped like the node groups them. A Color Ramp's
+ * stops are left to its ramp editor.
+ */
 function InputSections({ graph, node, definition, types }: InputSectionsProps) {
-  const groups = groupInputs(node, inputsInPlay(node, definition.inputs)).filter(
-    (group) => group.rows.length > 0,
+  const inputs = inputsInPlay(node, definition.inputs).filter(
+    (input) => !isColorRampStopInput(node, input.id),
   )
+  const groups = groupInputs(node, inputs).filter((group) => group.rows.length > 0)
   const t = useT()
 
   return groups.map((group) => (
@@ -176,6 +188,11 @@ export function NodeInspector({
       )}
       {frame !== null && (
         <FrameFields node={node} title={title} frame={frame} onResize={onResizeFrame} />
+      )}
+      {isColorRamp(node) && (
+        <InspectorSection title={t('colorRamp.stops')}>
+          <ColorRampEditor node={node} connectedInputs={connectedInputsOf(graph, node.id)} />
+        </InspectorSection>
       )}
       <InputSections graph={graph} node={node} definition={definition} types={types} />
       <PreviewSettings node={node} definition={definition} />

@@ -475,4 +475,17 @@ export const en = {
   'color.hueValue': '{degrees} degrees',
   'color.area': 'Saturation and brightness',
   'color.areaValue': 'Saturation {saturation}%, brightness {brightness}%',
+  // Color Ramp editor
+  'colorRamp.gradient': 'Gradient',
+  'colorRamp.stops': 'Stops',
+  'colorRamp.position': 'Stop {number} position',
+  'colorRamp.color': 'Stop {number} color',
+  'colorRamp.wired': 'Wired',
+  'colorRamp.moveUp': 'Move up',
+  'colorRamp.moveDown': 'Move down',
+  'colorRamp.remove': 'Remove stop',
+  'colorRamp.moveUpStop': 'Move stop {number} up',
+  'colorRamp.moveDownStop': 'Move stop {number} down',
+  'colorRamp.removeStop': 'Remove stop {number}',
+  'colorRamp.add': 'Add stop',
 } as const
