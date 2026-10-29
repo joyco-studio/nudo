@@ -122,7 +122,7 @@ describe('command registry', () => {
     expect(browsed).toEqual([null, ...EXAMPLE_IDS])
     const spanish = createTranslator(es)
     expect(searchCommands(PALETTE_COMMANDS, 'estanque', spanish).map((c) => c.id)).toEqual([
-      'example-lettra-pond',
+      'example-pond',
     ])
   })
 

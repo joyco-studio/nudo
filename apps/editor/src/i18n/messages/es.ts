@@ -104,10 +104,8 @@ export const es = {
   'command.open-command-palette.keywords': 'buscar comandos',
   'command.browse-templates.label': 'Explorar plantillas',
   'command.browse-templates.keywords': 'plantillas ejemplos muestras demo galería vista previa',
-  'command.example-lettra-pond.label': 'Plantilla: Estanque de Lettra',
-  'command.example-lettra-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
-  'command.example-simple-water.label': 'Plantilla: Agua simple',
-  'command.example-simple-water.keywords': 'plantilla ejemplo muestra demo',
+  'command.example-pond.label': 'Plantilla: Estanque',
+  'command.example-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
   'command.example-iridescent-blob.label': 'Plantilla: Blob iridiscente',
   'command.example-iridescent-blob.keywords': 'plantilla ejemplo muestra demo tutorial',
   'command.example-post-hope.label': 'Plantilla: Post Hope',
@@ -201,14 +199,10 @@ export const es = {
   'templateTag.noise': 'ruido',
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
-  'example.lettra-pond.title': 'Estanque de Lettra',
-  'example.lettra-pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
-  'example.lettra-pond.teaches':
+  'example.pond.title': 'Estanque',
+  'example.pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
+  'example.pond.teaches':
     'Superpone celdas, bordes y sellos de Voronoi en colores planos, sin iluminación. Un ruido en movimiento curva el dibujo como el agua.',
-  'example.simple-water.title': 'Agua simple',
-  'example.simple-water.description': 'Olas que ruedan con un borde fresnel',
-  'example.simple-water.teaches':
-    'Mezcla dos colores con una onda seno que avanza con el tiempo y suma un borde fresnel. Un grafo chico para empezar.',
   'example.iridescent-blob.title': 'Blob iridiscente',
   'example.iridescent-blob.description': 'Un blob que respira y cambia de color',
   'example.iridescent-blob.teaches':

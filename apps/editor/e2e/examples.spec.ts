@@ -81,7 +81,7 @@ test.describe('examples', () => {
     await expect(page.locator('[data-error="true"]')).toHaveCount(0)
   })
 
-  for (const title of ['Iridescent blob', 'Lettra pond']) {
+  for (const title of ['Iridescent blob', 'Pond']) {
     test(`lays the ${title} out with its previews on, no node over another`, async ({ page }) => {
       await page.goto('/')
       await pickExampleByKeyboard(page, title)

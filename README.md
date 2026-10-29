@@ -21,11 +21,10 @@ Then open http://localhost:5173. Press `Space` on the canvas to add a node, `Tab
 
 The header's **Templates** button (or **Browse templates** in the `Ctrl/⌘` `K` palette) opens a side panel over the canvas that lists the examples and renders the selected one live, on its own mesh, before you load anything. Arrow keys or typing a title move through the list, and the preview follows. **Open template** (or `Enter`) puts it in place of your graph as one undo step, and asks first when your graph has nodes or properties. Each example is a versioned `.graph.json` in `apps/editor/src/examples`, built from a spec in `examples/build` with the core graph operations and laid out like **Tidy up**. After changing a spec, run `pnpm --filter @nudo-tsl/editor exec vitest run src/examples --update` to write the files again.
 
-| Example         | What it shows                                                                                                                                                                                              |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lettra pond     | The illustrated water of [lettra-landing](https://github.com/joyco-studio/lettra-landing): Voronoi rosettes and lace, rotated Voronoi stamps, a sun band, toned palette, refraction and a vignette. Unlit. |
-| Simple water    | Sine waves over the UV blend two colors, with a fresnel rim. Its colors and wave settings are properties.                                                                                                  |
-| Iridescent blob | The tutorial graph: Time-driven noise breathes the surface, a mask picks colors and roughness, and a fresnel adds a rim. Each step sits in a comment frame.                                                |
+| Example         | What it shows                                                                                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pond            | Illustrated water seen from above: Voronoi rosettes and lace, rotated Voronoi stamps, a sun band, a toned palette, refraction and a vignette. Unlit.        |
+| Iridescent blob | The tutorial graph: Time-driven noise breathes the surface, a mask picks colors and roughness, and a fresnel adds a rim. Each step sits in a comment frame. |
 
 ## Panels
 

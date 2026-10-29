@@ -127,7 +127,7 @@ describe('catalog A builds', () => {
     expect(buildWith(findDefinition(type), inputs)).toEqual(expected)
   })
 
-  it("aa-step builds lettra's formula", () => {
+  it('aa-step builds the fwidth-filtered smoothstep', () => {
     const { out } = buildWith(aaStepNode, { edge: 'e', in: 'x' })
 
     expect(out).toBe(

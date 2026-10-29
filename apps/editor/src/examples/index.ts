@@ -9,25 +9,17 @@ import { registry } from '@/store/registry'
 import { frameIdOf } from './build/example-spec'
 import type { ExampleSpec } from './build/example-spec'
 import { IRIDESCENT_BLOB } from './build/iridescent-blob'
-import { LETTRA_POND } from './build/lettra-pond'
 import { MAGMA } from './build/magma'
+import { POND } from './build/pond'
 import { POST_HOPE } from './build/post-hope'
-import { SIMPLE_WATER } from './build/simple-water'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
-import lettraPondGraph from './lettra-pond.graph.json'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
 import magmaGraph from './magma.graph.json'
+import pondGraph from './pond.graph.json'
 import postHopeGraph from './post-hope.graph.json'
-import simpleWaterGraph from './simple-water.graph.json'
 
-export const EXAMPLE_IDS = [
-  'lettra-pond',
-  'simple-water',
-  'iridescent-blob',
-  'post-hope',
-  'magma',
-] as const
+export const EXAMPLE_IDS = ['pond', 'iridescent-blob', 'post-hope', 'magma'] as const
 export type ExampleId = (typeof EXAMPLE_IDS)[number]
 
 /** What a template is about, as the templates browser lists it under the title. */
@@ -54,20 +46,12 @@ function spanishComments(spec: ExampleSpec): CommentTexts {
 /** The bundled examples, in menu order. Phase 5 turns them into a gallery. */
 export const EXAMPLES: readonly Example[] = [
   {
-    id: 'lettra-pond',
-    title: 'example.lettra-pond.title',
-    graph: lettraPondGraph,
+    id: 'pond',
+    title: 'example.pond.title',
+    graph: pondGraph,
     previewShape: 'plane',
     tags: ['unlit', 'voronoi', 'noise'],
-    comments: { es: spanishComments(LETTRA_POND) },
-  },
-  {
-    id: 'simple-water',
-    title: 'example.simple-water.title',
-    graph: simpleWaterGraph,
-    previewShape: 'sphere',
-    tags: [],
-    comments: { es: spanishComments(SIMPLE_WATER) },
+    comments: { es: spanishComments(POND) },
   },
   {
     id: 'iridescent-blob',

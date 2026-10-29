@@ -21,12 +21,18 @@ interface FrameCostRecorder {
 
 /** About one second of pointer moves, one per frame. */
 const DRAG_FRAMES = 60
+/**
+ * Renders the dev-only counter sees for one render of a node view: development builds run under
+ * React StrictMode, which calls every render function twice.
+ */
+const COUNTED_RENDERS_PER_RENDER = 2
 
 /**
- * The budgets. Re-rendering every node on every frame, a one-second drag across the pond's 162 nodes
- * rendered node views about 19,000 times with some 20 s of long tasks (one worker), and the glide
+ * The budgets. Re-rendering every node on every frame, a one-second drag across the pond (162 nodes
+ * then, 119 since it was slimmed down) rendered node views about 19,000 times with some 20 s of long tasks (one worker), and the glide
  * about 1,500 times. Now a node that only moves is not rendered again: the drag may render at most
- * the dragged node once a frame, and the glide each node once (the tidied graph it commits).
+ * the dragged node once a frame, and the glide only the nodes it moves, each once (the tidied graph
+ * it commits); a node the glide leaves in place is not rendered at all.
  * The long-task budgets are loose on purpose: the software-rendered WebGL previews and the other
  * specs running alongside add their own long tasks, so these only catch the per-frame regression
  * (the render budgets are the precise guard).
@@ -148,6 +154,17 @@ async function centralDragTarget(page: Page): Promise<DragTarget> {
   return target
 }
 
+/** Every node's transform, by id: what moved between two readings. */
+async function nodeTransforms(page: Page): Promise<Readonly<Record<string, string>>> {
+  return page
+    .locator('.react-flow__node')
+    .evaluateAll((nodes) =>
+      Object.fromEntries(
+        nodes.map((node) => [node.getAttribute('data-id') ?? '', getComputedStyle(node).transform]),
+      ),
+    )
+}
+
 async function nodeTransform(page: Page, id: string): Promise<string> {
   return page
     .locator(`.react-flow__node[data-id="${id}"]`)
@@ -159,7 +176,7 @@ async function waitUntilStill(page: Page, id: string): Promise<void> {
   await stillTransforms(page, ['.react-flow__viewport', `.react-flow__node[data-id="${id}"]`])
 }
 
-test.describe('lettra pond frame budget', () => {
+test.describe('pond frame budget', () => {
   test.setTimeout(120_000)
 
   test('dragging a node and gliding into a tidy layout re-render only what moves', async ({
@@ -167,7 +184,6 @@ test.describe('lettra pond frame budget', () => {
   }) => {
     await openPond(page)
     await waitUntilStill(page, 'master')
-    const nodeCount = await page.locator('.react-flow__node').count()
 
     // What the page spends doing nothing, for reading the numbers below (previews keep rendering).
     const idleRecorder = await startFrameCost(page)
@@ -195,23 +211,28 @@ test.describe('lettra pond frame budget', () => {
     await page.keyboard.press('Shift+F10')
     const tidyItem = page.getByRole('menuitem', { name: 'Tidy up graph' })
     await expect(tidyItem).toBeVisible()
+    const beforeGlide = await nodeTransforms(page)
     const glideRecorder = await startFrameCost(page)
     await tidyItem.click()
     await waitUntilStill(page, target.id)
     const glide = await stopFrameCost(glideRecorder)
     // The dragged node left the layout, so tidying moved it back into place.
     expect(await nodeTransform(page, target.id)).not.toBe(afterDrag)
+    const afterGlide = await nodeTransforms(page)
+    const movedCount = Object.entries(afterGlide).filter(
+      ([id, transform]) => beforeGlide[id] !== transform,
+    ).length
 
     test
       .info()
       .annotations.push(
         { type: 'idle', description: JSON.stringify(idle) },
         { type: 'drag', description: JSON.stringify(drag) },
-        { type: 'glide', description: JSON.stringify(glide) },
+        { type: 'glide', description: JSON.stringify({ ...glide, movedNodes: movedCount }) },
       )
 
     expect(drag.nodeRenders).toBeLessThanOrEqual(MAX_DRAG_RENDERS)
-    expect(glide.nodeRenders).toBeLessThanOrEqual(nodeCount)
+    expect(glide.nodeRenders).toBeLessThanOrEqual(COUNTED_RENDERS_PER_RENDER * movedCount)
     expect(drag.longTaskMs).toBeLessThanOrEqual(MAX_DRAG_LONG_TASK_MS)
     expect(glide.longTaskMs).toBeLessThanOrEqual(MAX_GLIDE_LONG_TASK_MS)
   })

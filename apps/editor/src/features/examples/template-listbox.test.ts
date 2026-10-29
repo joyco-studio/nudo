@@ -8,7 +8,7 @@ import {
   typeaheadIndex,
 } from './template-listbox'
 
-const TITLES = ['Lettra pond', 'Simple water', 'Iridescent blob', 'Soft sand'] as const
+const TITLES = ['Pond', 'Simple water', 'Iridescent blob', 'Soft sand'] as const
 const RESET_MS = 500
 
 describe('moveSelection', () => {
@@ -38,7 +38,7 @@ describe('moveSelection', () => {
 describe('typeaheadIndex', () => {
   it('finds the first title that starts with the typed text, from the current option on', () => {
     expect(typeaheadIndex(TITLES, 'iri', 0)).toBe(2)
-    expect(typeaheadIndex(TITLES, 'lettra', 3)).toBe(0)
+    expect(typeaheadIndex(TITLES, 'pond', 3)).toBe(0)
   })
 
   it('stays on the current option while it still matches a longer query', () => {
@@ -51,7 +51,7 @@ describe('typeaheadIndex', () => {
   })
 
   it('ignores case and accents', () => {
-    expect(typeaheadIndex(['Estanque de Lettra', 'Agua simple'], 'ÁGUA', 0)).toBe(1)
+    expect(typeaheadIndex(['Estanque', 'Agua simple'], 'ÁGUA', 0)).toBe(1)
   })
 
   it('finds nothing for text no title starts with', () => {

@@ -24,7 +24,7 @@ describe('openExample', () => {
   it('replaces the graph in one undo step and shows the example on its mesh', () => {
     const before = getState().graph
 
-    expect(openExample(exampleOrFail('lettra-pond'), 'en')).toBe(true)
+    expect(openExample(exampleOrFail('pond'), 'en')).toBe(true)
 
     expect(Object.keys(getState().graph.nodes).length).toBeGreaterThan(60)
     expect(getState().graph.nodes[MASTER_NODE_ID]?.params.lighting).toBe('unlit')
@@ -48,7 +48,7 @@ describe('openExample', () => {
 
   it('keeps the graph and says so when the example does not parse', () => {
     const before = getState().graph
-    const broken: Example = { ...exampleOrFail('simple-water'), graph: { schemaVersion: 99 } }
+    const broken: Example = { ...exampleOrFail('iridescent-blob'), graph: { schemaVersion: 99 } }
 
     expect(openExample(broken, 'en')).toBe(false)
 

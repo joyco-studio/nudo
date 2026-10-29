@@ -100,10 +100,8 @@ export const en = {
   'command.open-command-palette.keywords': 'search commands',
   'command.browse-templates.label': 'Browse templates',
   'command.browse-templates.keywords': 'templates examples samples demo gallery preview',
-  'command.example-lettra-pond.label': 'Template: Lettra pond',
-  'command.example-lettra-pond.keywords': 'template example sample demo pond water',
-  'command.example-simple-water.label': 'Template: Simple water',
-  'command.example-simple-water.keywords': 'template example sample demo',
+  'command.example-pond.label': 'Template: Pond',
+  'command.example-pond.keywords': 'template example sample demo pond water',
   'command.example-iridescent-blob.label': 'Template: Iridescent blob',
   'command.example-iridescent-blob.keywords': 'template example sample demo tutorial',
   'command.example-post-hope.label': 'Template: Post Hope',
@@ -195,14 +193,10 @@ export const en = {
   'templateTag.noise': 'noise',
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
-  'example.lettra-pond.title': 'Lettra pond',
-  'example.lettra-pond.description': 'Illustrated water: rosettes, lace and a sun band',
-  'example.lettra-pond.teaches':
+  'example.pond.title': 'Pond',
+  'example.pond.description': 'Illustrated water: rosettes, lace and a sun band',
+  'example.pond.teaches':
     'Layers Voronoi cells, edges and stamps into flat colors with no lighting. Moving noise bends the pattern like water.',
-  'example.simple-water.title': 'Simple water',
-  'example.simple-water.description': 'Rolling waves with a fresnel rim',
-  'example.simple-water.teaches':
-    'Blends two colors with a sine wave that moves with time, and adds a fresnel rim. A small graph to start from.',
   'example.iridescent-blob.title': 'Iridescent blob',
   'example.iridescent-blob.description': 'A breathing blob that shifts color',
   'example.iridescent-blob.teaches':
