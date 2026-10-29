@@ -19,7 +19,7 @@ import {
   readColorRampStops,
   stopPortOf,
 } from './color-ramp-stops'
-import type { ColorRampStop } from './color-ramp-stops'
+import type { ColorRampStop, StopPart } from './color-ramp-stops'
 
 /** Why a Color Ramp edit was refused. The editor disables the controls that would cause these. */
 export type ColorRampError =
@@ -79,18 +79,22 @@ function withStopValues(
   return { ...node, inputValues: Object.fromEntries([...kept, ...written]) }
 }
 
+const ALL_PARTS: readonly StopPart[] = ['position', 'color']
+
 /**
- * Moves the edges that feed the ramp's stops: each goes to the stop `newIndexOf` gives for its
- * current one, or is removed when that is null. Other edges are kept as they are.
+ * Moves the edges that feed the ramp's stops (only the given parts): each goes to the stop
+ * `newIndexOf` gives for its current one, or is removed when that is null. Edge ids are kept;
+ * other edges stay as they are.
  */
 function withStopEdges(
   graph: Graph,
   nodeId: NodeId,
   newIndexOf: (index: number) => number | null,
+  parts: readonly StopPart[] = ALL_PARTS,
 ): Graph {
   const edges = Object.values(graph.edges).flatMap((edge): GraphEdge[] => {
     const port = edge.to.nodeId === nodeId ? stopPortOf(edge.to.portId) : null
-    if (port === null) return [edge]
+    if (port === null || !parts.includes(port.part)) return [edge]
     const newIndex = newIndexOf(port.index)
     if (newIndex === null) return []
     const portId = colorRampStopInputIds(newIndex)[port.part]
@@ -215,8 +219,8 @@ export function stopPositionRange(
 }
 
 /**
- * Reorders two stops: they trade colors while the positions stay where they are, so the
- * positions keep growing with the index. Only values change; the edges stay on their ports.
+ * Reorders two stops: they trade colors, with the wires that feed them, while the positions (and
+ * their wires) stay where they are, so the positions keep growing with the index.
  */
 export function swapStops(
   graph: Graph,
@@ -239,5 +243,10 @@ export function swapStops(
     [colorRampStopInputIds(a).color]: vec3(...stopB.color),
     [colorRampStopInputIds(b).color]: vec3(...stopA.color),
   }
-  return ok({ ...graph, nodes: { ...graph.nodes, [nodeId]: { ...node, inputValues } } })
+  const swapped = { ...graph, nodes: { ...graph.nodes, [nodeId]: { ...node, inputValues } } }
+  const tradeIndex = (index: number): number => {
+    if (index === a) return b
+    return index === b ? a : index
+  }
+  return ok(withStopEdges(swapped, nodeId, tradeIndex, ['color']))
 }

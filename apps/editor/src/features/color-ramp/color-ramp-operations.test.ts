@@ -88,7 +88,6 @@ function stops(graph: Graph): readonly StopSeed[] {
 const BLACK = [0, 0, 0] as const
 const WHITE = [1, 1, 1] as const
 const RED = [1, 0, 0] as const
-const BLUE = [0, 0, 1] as const
 
 const THREE_STOPS: readonly StopSeed[] = [
   { position: 0, color: BLACK },
@@ -255,17 +254,32 @@ describe('swapStops', () => {
     ])
   })
 
-  it('leaves the edges where they are', () => {
+  it('moves the color wires with the colors and leaves the position wires (R13)', () => {
     const wired = wire(
-      setValue(rampGraph(THREE_STOPS), 'stop0Color', vec3(...BLUE)),
-      'to-first-color',
-      COLOR_ID,
-      'stop0Color',
+      wire(rampGraph(THREE_STOPS), 'to-middle-color', COLOR_ID, 'stop1Color'),
+      'to-middle-position',
+      SINE_ID,
+      'stop1Position',
     )
-    const next = unwrap(swapStops(wired, registry, RAMP_ID, 0, 1))
+    const next = unwrap(swapStops(wired, registry, RAMP_ID, 1, 2))
 
-    expect(next.edges).toEqual(wired.edges)
-    expect(stops(next)[1]?.color).toEqual(BLUE)
+    expect(edge(next, 'to-middle-color')?.to.portId).toBe('stop2Color')
+    expect(edge(next, 'to-middle-position')?.to.portId).toBe('stop1Position')
+    expect(stops(next)[2]?.color).toEqual(RED)
+    expect(Object.keys(next.edges).sort()).toEqual(Object.keys(wired.edges).sort())
+  })
+
+  it('swaps two wired colors', () => {
+    const wired = wire(
+      wire(rampGraph(THREE_STOPS), 'to-first-color', COLOR_ID, 'stop0Color'),
+      'to-last-color',
+      SINE_ID,
+      'stop2Color',
+    )
+    const next = unwrap(swapStops(wired, registry, RAMP_ID, 0, 2))
+
+    expect(edge(next, 'to-first-color')?.to.portId).toBe('stop2Color')
+    expect(edge(next, 'to-last-color')?.to.portId).toBe('stop0Color')
   })
 
   it('refuses a stop that is not in play', () => {

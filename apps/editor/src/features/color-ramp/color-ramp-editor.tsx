@@ -219,13 +219,22 @@ interface GradientBarProps {
   stops: readonly ColorRampStop[]
   css: string
   activeIndex: number | null
+  /** Stops whose position is fed by a wire: their markers show it and cannot be dragged. */
+  wiredPositions: ReadonlySet<number>
   /** Pointer drags of a marker; the rows' sliders are the keyboard path to the same edit. */
   onDrag: (index: number, position: number) => void
   onDragEnd: (index: number, position: number | null) => void
 }
 
 /** The ramp as the shader draws it, with a marker per stop that the pointer can drag. */
-function GradientBar({ stops, css, activeIndex, onDrag, onDragEnd }: GradientBarProps) {
+function GradientBar({
+  stops,
+  css,
+  activeIndex,
+  wiredPositions,
+  onDrag,
+  onDragEnd,
+}: GradientBarProps) {
   const barRef = useRef<HTMLDivElement>(null)
   const dragged = useRef<{ index: number; position: number | null } | null>(null)
 
@@ -263,22 +272,33 @@ function GradientBar({ stops, css, activeIndex, onDrag, onDragEnd }: GradientBar
         className="relative h-5 border border-border"
         style={{ backgroundImage: css }}
       >
-        {stops.map((stop, index) => (
-          <span
-            key={index}
-            data-active={activeIndex === index || undefined}
-            onPointerDown={onPointerDown(index)}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerEnd}
-            onPointerCancel={onPointerEnd}
-            className={cn(
-              CANVAS_SAFE,
-              'absolute -top-1 -bottom-1 w-1.5 -translate-x-1/2 cursor-ew-resize touch-none border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.6)]',
-              'before:absolute before:-inset-x-1.5 before:inset-y-0 data-[active]:w-2',
-            )}
-            style={{ left: `${String(stop.position * HUNDREDTHS)}%` }}
-          />
-        ))}
+        {stops.map((stop, index) => {
+          const isWired = wiredPositions.has(index)
+          return (
+            <span
+              key={index}
+              data-active={activeIndex === index || undefined}
+              data-wired={isWired || undefined}
+              {...(isWired
+                ? {}
+                : {
+                    onPointerDown: onPointerDown(index),
+                    onPointerMove,
+                    onPointerUp: onPointerEnd,
+                    onPointerCancel: onPointerEnd,
+                  })}
+              className={cn(
+                CANVAS_SAFE,
+                'absolute -top-1 -bottom-1 w-1.5 -translate-x-1/2 border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.6)] data-[active]:w-2',
+                // A wired position comes from the wire: a dashed, fixed marker.
+                isWired
+                  ? 'cursor-default border-dashed opacity-70'
+                  : 'cursor-ew-resize touch-none before:absolute before:-inset-x-1.5 before:inset-y-0',
+              )}
+              style={{ left: `${String(stop.position * HUNDREDTHS)}%` }}
+            />
+          )
+        })}
       </div>
     </div>
   )
@@ -309,6 +329,11 @@ export function ColorRampEditor({ node, connectedInputs }: ColorRampEditorProps)
   const stops = withDraft(storedStops, draft)
   const count = stops.length
   const nodeId: NodeId = node.id
+  const wiredPositions = new Set(
+    stops.flatMap((_, index) =>
+      connectedInputs.has(colorRampStopInputIds(index).position) ? [index] : [],
+    ),
+  )
 
   // Rows are keyed by index, so after an edit focus is put where the edited stop went.
   useLayoutEffect(() => {
@@ -374,6 +399,7 @@ export function ColorRampEditor({ node, connectedInputs }: ColorRampEditorProps)
         stops={stops}
         css={colorRampGradientCss(stops, colorRampInterpolation(node))}
         activeIndex={activeIndex}
+        wiredPositions={wiredPositions}
         onDrag={dragPosition}
         onDragEnd={endDrag}
       />
