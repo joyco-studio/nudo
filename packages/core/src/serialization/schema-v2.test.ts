@@ -99,7 +99,7 @@ const noise = defineNode({
       ],
       default: 'simplex',
     },
-    { id: 'octaves', label: 'Octaves', kind: 'number', default: 4 },
+    { id: 'octaves', label: 'Octaves', kind: 'number', default: 4, min: 1, max: 8 },
   ],
   build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
 })
@@ -323,6 +323,23 @@ describe('parseGraph property validation', () => {
 
   it('rejects a param whose value has the wrong kind', () => {
     const document = withNode(doc(), nodeEntry('x', 'test/noise', { octaves: 'four' }))
+
+    expect(unwrapError(parseGraph(document, registry))).toEqual({
+      code: 'invalid-shape',
+      path: 'nodes.x.params.octaves',
+    })
+  })
+
+  it('opens a number param outside its bounds as stored: an old file never stops opening', () => {
+    const above = withNode(doc(), nodeEntry('x', 'test/noise', { octaves: 9 }))
+    const below = withNode(doc(), nodeEntry('x', 'test/noise', { octaves: 0.5 }))
+
+    expect(unwrap(parseGraph(above, registry)).nodes[asNodeId('x')]?.params.octaves).toBe(9)
+    expect(unwrap(parseGraph(below, registry)).nodes[asNodeId('x')]?.params.octaves).toBe(0.5)
+  })
+
+  it('rejects a number param that is not finite', () => {
+    const document = withNode(doc(), nodeEntry('x', 'test/noise', { octaves: Infinity }))
 
     expect(unwrapError(parseGraph(document, registry))).toEqual({
       code: 'invalid-shape',

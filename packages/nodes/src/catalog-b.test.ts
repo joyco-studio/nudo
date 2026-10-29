@@ -484,6 +484,16 @@ describe('comment node', () => {
       const reloaded = unwrap(parseGraph(serializeGraph(edited), registry))
       expect(reloaded.nodes[noteId]?.params['body']).toBe('Keep me')
     })
+
+    it('a comment saved narrower than the minimum still opens', () => {
+      const narrow = unwrap(
+        setParam(withComment(), registry, { nodeId: noteId, paramId: 'width' }, 320),
+      )
+      const saved = serializeGraph(narrow).replace('"width": 320', '"width": 100')
+      expect(saved).toContain('"width": 100')
+
+      expect(unwrap(parseGraph(saved, registry)).nodes[noteId]?.params['width']).toBe(100)
+    })
   })
 })
 

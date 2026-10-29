@@ -6,7 +6,7 @@ import { PROPERTY_ID_PARAM } from '../types/param-definition'
 import type { PortValue } from '../types/port-value'
 import type { Result } from '../types/result'
 import { err, ok } from '../types/result'
-import { findParamDefinition, isValidParamValue } from '../validation/param-validation'
+import { findParamDefinition, isStorableParamValue } from '../validation/param-validation'
 import { invalidShape, isFiniteNumber, isRecord, joinPath } from './json-guards'
 import type { ParseError } from './schema-version'
 
@@ -106,7 +106,10 @@ function parsePortRef(input: unknown, path: string): Result<PortRef, ParseError>
   return ok({ nodeId: asNodeId(nodeId), portId })
 }
 
-/** Params must be declared (or universal) and fit their definition; readers need a `propertyId`. */
+/**
+ * Params must be declared (or universal) and of the right kind; readers need a `propertyId`. A
+ * number outside its bounds still opens: only edits enforce them.
+ */
 function validateParams(
   definition: AnyNodeDefinition,
   params: Readonly<Record<string, ParamValue>>,
@@ -114,7 +117,7 @@ function validateParams(
 ): Result<void, ParseError> {
   for (const [paramId, value] of Object.entries(params)) {
     const param = findParamDefinition(definition, paramId)
-    if (param === undefined || !isValidParamValue(param, value)) {
+    if (param === undefined || !isStorableParamValue(param, value)) {
       return invalidShape(joinPath(path, paramId))
     }
   }
