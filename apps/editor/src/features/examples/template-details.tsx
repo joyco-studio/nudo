@@ -1,9 +1,11 @@
-import { useId } from 'react'
+import { useId, useRef } from 'react'
 import type { BlackboardProperty } from '@nudo-tsl/core'
 
 import type { Example } from '@/examples'
 import { useT } from '@/i18n/use-t'
 import { TypeChip } from '@/shared/components/type-chip'
+import { useScrollOverflow } from '@/shared/lib/use-scroll-overflow'
+import { cn } from '@/shared/lib/utils'
 
 import { propertyDisplay, templateFacts } from './template-facts'
 import { templateTeachesKey } from './template-text'
@@ -47,7 +49,7 @@ interface TemplateDetailsProps {
 }
 
 /** Under the preview: the template's name, what it teaches and the properties it exposes. */
-export function TemplateDetails({ example, titleId }: TemplateDetailsProps) {
+function TemplateDetails({ example, titleId }: TemplateDetailsProps) {
   const t = useT()
   const propertiesHeadingId = useId()
   const properties = templateFacts(example)?.properties ?? []
@@ -80,6 +82,39 @@ export function TemplateDetails({ example, titleId }: TemplateDetailsProps) {
           </ul>
         )}
       </section>
+    </div>
+  )
+}
+
+/**
+ * The details in a box that scrolls when the property list is long. Then, and only then, it takes
+ * keyboard focus (so the arrow keys scroll it) and a fade at its foot says there is more below.
+ */
+export function TemplateDetailsScroller({ example }: { example: Example }) {
+  const titleId = useId()
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const { isScrollable, hasMoreBelow } = useScrollOverflow(scrollerRef, example.id)
+
+  return (
+    <div className="relative flex min-h-0 shrink-0 flex-col border-t md:max-h-[45%]">
+      <div
+        ref={scrollerRef}
+        role="region"
+        aria-labelledby={titleId}
+        tabIndex={isScrollable ? 0 : undefined}
+        data-focus-ring="inset"
+        className="min-h-0 flex-1 overflow-y-auto"
+      >
+        <TemplateDetails example={example} titleId={titleId} />
+      </div>
+      <div
+        aria-hidden="true"
+        data-more-below={hasMoreBelow}
+        className={cn(
+          'pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-background to-transparent',
+          !hasMoreBelow && 'hidden',
+        )}
+      />
     </div>
   )
 }

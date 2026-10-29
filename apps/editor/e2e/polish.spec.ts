@@ -433,7 +433,8 @@ test.describe('layout polish', () => {
       { x: zoomBox.x + zoomBox.w / 2, y: zoomBox.y + zoomBox.h / 2 },
     )
     expect(hit).toBe('Zoom canvas in')
-    for (const name of ['New graph', 'Add node', 'Dark theme']) {
+    // New graph, Templates and Commands live in the More menu on a narrow header.
+    for (const name of ['More', 'Add node', 'Dark theme']) {
       await expect(page.getByRole('button', { name, exact: true })).toBeInViewport({ ratio: 1 })
     }
     // The graph name fits whole; nothing in the header is cut off.

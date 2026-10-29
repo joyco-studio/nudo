@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { centerColor, colorDistance } from './support/center-color'
-import { expectFocusRing, tabUntilFocused } from './support/focus-indicators'
+import { expectFocusRing, shiftTabUntilFocused, tabUntilFocused } from './support/focus-indicators'
 import { traceAppearance } from './support/motion-trace'
+import { disableGpuContexts } from './support/no-gpu'
 import {
   selectTemplateByKeyboard,
   templateTitles,
@@ -22,6 +23,8 @@ const BLOB_NODE_COUNT = 26
 const MIN_COLOR_DISTANCE = 30
 /** A shader compile in software WebGL (the pond is large) can take a while. */
 const PREVIEW_TIMEOUT_MS = 60_000
+const PREVIEW_UNAVAILABLE =
+  'Preview unavailable. Open the editor in a current Chrome, Edge or Safari to see the material.'
 
 function preview(page: Page): Locator {
   return templatesBrowser(page).locator('[data-template-preview]')
@@ -144,6 +147,12 @@ test.describe('templates browser', () => {
     // Tab stays inside the sheet on its way to the button.
     await tabUntilFocused(page, openButton)
     await expectFocusRing(page, openButton)
+
+    // Back into the list: the selected option says it has focus, apart from being selected.
+    const blobOption = browser.getByRole('option', { name: BLOB })
+    await shiftTabUntilFocused(page, blobOption)
+    await expect(blobOption).toHaveCSS('box-shadow', /inset/)
+    await tabUntilFocused(page, openButton)
     await page.keyboard.press('Enter')
 
     await expect(browser).toBeHidden()
@@ -191,18 +200,16 @@ test.describe('templates browser', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await openEditor(page)
 
-    // The narrow header has no Templates button; the palette browses them.
-    await page.getByRole('main', { name: 'Node canvas' }).focus()
-    await page.keyboard.press(PALETTE_CHORD)
-    await page.keyboard.type('browse templates')
-    await page.keyboard.press('Enter')
+    // The narrow header keeps Templates in its More menu.
+    await page.getByRole('banner').getByRole('button', { name: 'More', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Templates' }).click()
     const browser = templatesBrowser(page)
     await expect(browser).toBeVisible()
     const sheet = await browser.boundingBox()
     const previewBox = await preview(page).boundingBox()
     const listBox = await browser.getByRole('listbox').boundingBox()
     if (sheet === null || previewBox === null || listBox === null) throw new Error('No layout')
-    expect(sheet.width).toBe(390)
+    expect(sheet.width).toBeCloseTo(390, 0)
     expect(previewBox.y + previewBox.height).toBeLessThanOrEqual(listBox.y + 1)
 
     const titles = await templateTitles(page)
@@ -214,6 +221,57 @@ test.describe('templates browser', () => {
     )
     await expect(browser.getByRole('button', { name: 'Open template' })).toBeInViewport()
     await expect(browser.getByRole('button', { name: 'Cancel' })).toBeInViewport()
+  })
+})
+
+test.describe('templates browser on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
+
+  test('tapping More, then Templates, opens the browser; closing it returns to More', async ({
+    page,
+  }) => {
+    await openEditor(page)
+    const more = page.getByRole('banner').getByRole('button', { name: 'More', exact: true })
+    await expect(templatesButton(page)).toBeHidden()
+
+    await more.tap()
+    await page.getByRole('menuitem', { name: 'Templates' }).tap()
+    const browser = templatesBrowser(page)
+    await expect(browser).toBeVisible()
+    await expect(browser.getByRole('option', { selected: true })).toBeFocused()
+
+    await browser.getByRole('button', { name: 'Cancel' }).tap()
+    await expect(browser).toBeHidden()
+    await expect(more).toBeFocused()
+  })
+
+  test('More also holds Commands and New graph', async ({ page }) => {
+    await openEditor(page)
+    await page.getByRole('banner').getByRole('button', { name: 'More', exact: true }).tap()
+    const menu = page.getByRole('menu', { name: 'More' })
+    await expect(menu.getByRole('menuitem')).toHaveText(['Commands', 'Templates', 'New graph'])
+
+    await menu.getByRole('menuitem', { name: 'Commands' }).tap()
+    await expect(page.getByRole('dialog').filter({ has: page.getByRole('combobox') })).toBeVisible()
+  })
+})
+
+test.describe('templates browser without WebGPU or WebGL2', () => {
+  test.beforeEach(async ({ page }) => {
+    await disableGpuContexts(page)
+  })
+
+  test('says the preview is unavailable instead of loading forever', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
+
+    await templatesButton(page).click()
+    await expect(preview(page)).toHaveAttribute('data-status', 'unavailable')
+    await expect(preview(page).getByRole('alert')).toHaveText(PREVIEW_UNAVAILABLE)
+    await expect(preview(page).getByRole('status')).toHaveCount(0)
+    // The template still opens.
+    await templatesBrowser(page).getByRole('button', { name: 'Open template' }).click()
+    await expect(templatesBrowser(page)).toBeHidden()
   })
 })
 
@@ -257,7 +315,8 @@ test.describe('templates browser motion', () => {
 
       const byPointer = await traceAppearance(page, SHEET, () => templatesButton(page).click())
       expect(byPointer.samples[0]?.hasTransform).toBe(true)
-      expect(byPointer.samples[0]?.filter).toContain('blur')
+      // No blur on a surface this large (see panelRevealStates), so none is left at rest either.
+      for (const sample of byPointer.samples) expect(sample.filter).toBe('none')
       expect(byPointer.settledAtMs).not.toBeNull()
       await page.keyboard.press('Escape')
       await expect(page.locator(SHEET)).toHaveCount(0)

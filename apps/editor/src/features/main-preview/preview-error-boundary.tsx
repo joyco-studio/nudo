@@ -2,6 +2,7 @@ import { Component } from 'react'
 import type { ReactNode } from 'react'
 import { MonitorX } from 'lucide-react'
 
+import { cn } from '@/shared/lib/utils'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
@@ -23,6 +24,10 @@ function FailureMessage({ failure }: { failure: PreviewFailure }) {
 
 interface PreviewErrorBoundaryProps {
   children: ReactNode
+  /** Told once the preview failed, so whatever sits over it (a loading state) can step aside. */
+  onFailure?: () => void
+  /** Sizes the failure message's box; a square by default, like the docked preview. */
+  fallbackClassName?: string
 }
 
 interface PreviewErrorBoundaryState {
@@ -45,11 +50,20 @@ export class PreviewErrorBoundary extends Component<
     }
   }
 
+  override componentDidCatch(): void {
+    this.props.onFailure?.()
+  }
+
   override render() {
     const { failure } = this.state
     if (failure === null) return this.props.children
     return (
-      <div className="grid aspect-square place-items-center p-4">
+      <div
+        className={cn(
+          'grid place-items-center p-4',
+          this.props.fallbackClassName ?? 'aspect-square',
+        )}
+      >
         <Alert>
           <MonitorX aria-hidden="true" />
           <AlertDescription className="text-xs text-foreground">

@@ -136,9 +136,13 @@ export function surfaceStates(preset: SurfacePreset, mode: MotionMode): Presence
 }
 
 /**
- * Reference 07 (panel reveal), for a side sheet that enters from the left edge: a short slide,
- * a fade and a `--blur-small` cross-blur on one curve, `--duration-slow` in and `--duration-medium`
- * out. Pointer-opened only: from the keyboard the sheet is instant (the frequency gate).
+ * Reference 07 (panel reveal), for a side sheet that enters from the left edge: a short slide and a
+ * fade on one curve, `--duration-slow` in and `--duration-medium` out. Pointer-opened only: from
+ * the keyboard the sheet is instant (the frequency gate).
+ *
+ * The reference's `--blur-small` cross-blur is left out on purpose: the sheet is up to 960px wide
+ * and holds a live WebGL canvas, so a filter would make the compositor re-blur that whole surface
+ * every frame of the slide, and `blur(0px)` left on at rest would keep it on a filtered layer.
  */
 export function panelRevealStates(mode: MotionMode): PresenceStates {
   if (mode === 'instant') return fadeStates(INSTANT, INSTANT)
@@ -151,14 +155,12 @@ export function panelRevealStates(mode: MotionMode): PresenceStates {
   const away = {
     opacity: 0,
     transform: `translateX(-${String(PANEL_REVEAL_TRAVEL_PX)}px)`,
-    filter: `blur(${String(BLUR_PX.small)}px)`,
   }
   return {
     hidden: away,
     visible: {
       opacity: 1,
       transform: 'translateX(0px)',
-      filter: 'blur(0px)',
       transition: timed(DURATION_MS.slow, EASE.smoothOut),
     },
     exit: { ...away, transition: timed(DURATION_MS.medium, EASE.smoothOut) },

@@ -89,7 +89,23 @@ describe('createTemplatePreviewScheduler', () => {
     expect(latest()).toEqual({ status: 'failed', id: 'broken' })
   })
 
-  it('releases every material it compiled when disposed, and compiles nothing after', () => {
+  it('leaves a material handed over to the scene for the scene to free', () => {
+    const { scheduler, compiled } = setUp()
+    scheduler.select('pond')
+    vi.advanceTimersByTime(DELAY_MS)
+    scheduler.select('water')
+    vi.advanceTimersByTime(DELAY_MS)
+    const [pond, water] = compiled
+    if (pond === undefined || water === undefined) throw new Error('Nothing compiled')
+
+    scheduler.handOver(pond)
+    scheduler.dispose()
+
+    expect(pond.isReleased).toBe(false)
+    expect(water.isReleased).toBe(true)
+  })
+
+  it('releases every material it compiled and kept when disposed, and compiles nothing after', () => {
     const { scheduler, compiled } = setUp()
     scheduler.select('pond')
     vi.advanceTimersByTime(DELAY_MS)

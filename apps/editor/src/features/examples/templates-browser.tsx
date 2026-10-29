@@ -1,10 +1,11 @@
-import { useId, useRef } from 'react'
+import { useRef } from 'react'
 
 import { EXAMPLES, findExample } from '@/examples'
 import type { ExampleId } from '@/examples'
 import { useT } from '@/i18n/use-t'
 import { KeyHints } from '@/shared/components/key-hints'
 import { htmlElementOf } from '@/shared/lib/html-element-of'
+import { useMediaQuery } from '@/shared/lib/use-media-query'
 import type { KeyHint } from '@/shared/components/key-hints'
 import { Button } from '@/shared/ui/button'
 import {
@@ -17,9 +18,12 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 
-import { TemplateDetails } from './template-details'
+import { TemplateDetailsScroller } from './template-details'
 import { TemplateList } from './template-list'
 import { TemplatePreview } from './template-preview'
+
+/** Tailwind's `md`: from here the list and the preview sit side by side. */
+const WIDE_SHEET_QUERY = '(min-width: 48rem)'
 
 const KEY_HINTS: readonly KeyHint[] = [
   { keys: '↑ ↓', action: 'keyHint.move' },
@@ -55,9 +59,40 @@ export function TemplatesBrowser({
   onCloseAutoFocus,
 }: TemplatesBrowserProps) {
   const t = useT()
-  const detailsTitleId = useId()
+  const isWide = useMediaQuery(WIDE_SHEET_QUERY)
   const openButtonRef = useRef<HTMLButtonElement>(null)
   const example = findExample(selectedId)
+
+  const list = (
+    <div
+      key="list"
+      className="flex min-h-0 flex-1 flex-col border-t md:w-72 md:flex-none md:border-t-0 md:border-r"
+    >
+      <div className="min-h-0 overflow-y-auto max-md:flex-1">
+        <TemplateList
+          examples={EXAMPLES}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onOpen={() => {
+            onOpenTemplate(htmlElementOf(document.activeElement))
+          }}
+        />
+      </div>
+      {/* Right under the rows, not at the column's foot: with few templates that is far away. */}
+      <div className="shrink-0 p-4 text-xs max-md:hidden">
+        <KeyHints hints={KEY_HINTS} />
+      </div>
+    </div>
+  )
+
+  const details = example !== undefined && (
+    <div key="details" className="flex min-h-0 flex-col max-md:shrink-0 md:flex-1">
+      <div className="h-[32dvh] shrink-0 md:h-auto md:min-h-0 md:flex-1">
+        <TemplatePreview example={example} title={t(example.title)} />
+      </div>
+      <TemplateDetailsScroller example={example} />
+    </div>
+  )
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -65,6 +100,18 @@ export function TemplatesBrowser({
         data-templates-browser
         showCloseButton={false}
         className="top-14 bottom-4 left-4 h-auto w-[min(960px,92vw)] border bg-background max-md:inset-x-0 max-md:bottom-0 max-md:w-full max-md:border-x-0 max-md:border-b-0"
+        onOpenAutoFocus={(event) => {
+          // The selected template, wherever the list sits in the DOM (after the preview on a
+          // narrow sheet).
+          const content = event.currentTarget
+          const selected =
+            content instanceof HTMLElement
+              ? content.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
+              : null
+          if (selected === null) return
+          event.preventDefault()
+          selected.focus()
+        }}
         onCloseAutoFocus={onCloseAutoFocus}
       >
         <SheetHeader className="shrink-0 gap-1 border-b bg-muted/50 p-4">
@@ -74,38 +121,17 @@ export function TemplatesBrowser({
           <SheetDescription className="text-xs">{t('templates.description')}</SheetDescription>
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-          {/* Before the preview in the DOM, so Tab and the sheet's first focus land on the list. */}
-          <div className="flex min-h-0 flex-1 flex-col border-t max-md:order-2 md:w-72 md:flex-none md:border-t-0 md:border-r">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <TemplateList
-                examples={EXAMPLES}
-                selectedId={selectedId}
-                onSelect={onSelect}
-                onOpen={() => {
-                  onOpenTemplate(htmlElementOf(document.activeElement))
-                }}
-              />
-            </div>
-            <div className="shrink-0 border-t p-4 text-xs max-md:hidden">
-              <KeyHints hints={KEY_HINTS} />
-            </div>
-          </div>
-          {example !== undefined && (
-            <div className="flex min-h-0 flex-col max-md:order-1 max-md:shrink-0 md:flex-1">
-              <div className="h-[32dvh] shrink-0 md:h-auto md:min-h-0 md:flex-1">
-                <TemplatePreview example={example} title={t(example.title)} />
-              </div>
-              {/* Focusable so a keyboard user can scroll a long property list. */}
-              <div
-                tabIndex={0}
-                role="region"
-                aria-labelledby={detailsTitleId}
-                data-focus-ring="inset"
-                className="shrink-0 border-t md:max-h-[45%] md:overflow-y-auto"
-              >
-                <TemplateDetails example={example} titleId={detailsTitleId} />
-              </div>
-            </div>
+          {/* DOM order follows the visual order, so Tab reads the sheet the way it looks. */}
+          {isWide ? (
+            <>
+              {list}
+              {details}
+            </>
+          ) : (
+            <>
+              {details}
+              {list}
+            </>
           )}
         </div>
         <SheetFooter className="mt-0 shrink-0 flex-row justify-end gap-2 border-t p-4">

@@ -163,19 +163,17 @@ describe('text morph', () => {
 })
 
 describe('panelRevealStates', () => {
-  it('slides a side sheet in from the left in 400ms and out in 350ms, cross-blurring 2px (reference 07)', () => {
+  it('slides a side sheet in from the left in 400ms and out in 350ms, with no filter (reference 07)', () => {
     expect(panelRevealStates('full')).toEqual({
-      hidden: { opacity: 0, transform: 'translateX(-100px)', filter: 'blur(2px)' },
+      hidden: { opacity: 0, transform: 'translateX(-100px)' },
       visible: {
         opacity: 1,
         transform: 'translateX(0px)',
-        filter: 'blur(0px)',
         transition: { duration: 0.4, ease: EASE.smoothOut },
       },
       exit: {
         opacity: 0,
         transform: 'translateX(-100px)',
-        filter: 'blur(2px)',
         transition: { duration: 0.35, ease: EASE.smoothOut },
       },
     })

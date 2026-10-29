@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createMaterial } from '@nudo-tsl/runtime'
 import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
-import { exampleGraph, findExample } from '@/examples'
+import { findExample } from '@/examples'
 import type { ExampleId } from '@/examples'
 import { textureCache } from '@/features/assets/texture-cache'
 import { registry } from '@/store/registry'
 
+import { templateGraph } from './template-facts'
 import { createTemplatePreviewScheduler } from './template-preview-scheduler'
 import type { TemplatePreviewScheduler, TemplatePreviewState } from './template-preview-scheduler'
 
@@ -15,17 +16,21 @@ const COMPILE_DEBOUNCE_MS = 150
 
 export type TemplatePreview = TemplatePreviewState<ExampleId, RuntimeMaterial>
 
+export interface TemplatePreviewHandle {
+  readonly preview: TemplatePreview
+  /** The scene took this material and frees it from now on (see the scheduler's `handOver`). */
+  readonly handOver: (material: RuntimeMaterial) => void
+}
+
 /**
  * Builds the template's own material, apart from the editor graph: the Main Preview, its compile
  * count and the node errors never hear of it.
  */
 function compileTemplate(id: ExampleId): RuntimeMaterial | null {
   const example = findExample(id)
-  if (example === undefined) return null
-  // The comment words are the only thing the locale changes; a material doesn't read them.
-  const graph = exampleGraph(example, 'en')
-  if (!graph.ok) return null
-  return createMaterial(graph.value, registry, {
+  const graph = example === undefined ? null : templateGraph(example)
+  if (graph === null) return null
+  return createMaterial(graph, registry, {
     resolveTexture: (assetId) => textureCache.peek(assetId),
   }).material
 }
@@ -35,12 +40,12 @@ const releaseMaterial = (material: RuntimeMaterial): void => {
 }
 
 /**
- * The selected template's material, compiled after a short pause. Every material it built is
- * released when the browser closes (the hook unmounts).
+ * The selected template's material, compiled after a short pause. A material the scene never took
+ * is released when the browser closes (the hook unmounts); the scene frees the ones it took.
  */
-export function useTemplatePreview(id: ExampleId): TemplatePreview {
+export function useTemplatePreview(id: ExampleId): TemplatePreviewHandle {
   const [preview, setPreview] = useState<TemplatePreview>({ status: 'idle' })
-  const schedulerRef = useRef<TemplatePreviewScheduler<ExampleId> | null>(null)
+  const schedulerRef = useRef<TemplatePreviewScheduler<ExampleId, RuntimeMaterial> | null>(null)
 
   useEffect(() => {
     const scheduler = createTemplatePreviewScheduler({
@@ -61,5 +66,9 @@ export function useTemplatePreview(id: ExampleId): TemplatePreview {
     schedulerRef.current?.select(id)
   }, [id])
 
-  return preview
+  const handOver = useCallback((material: RuntimeMaterial) => {
+    schedulerRef.current?.handOver(material)
+  }, [])
+
+  return { preview, handOver }
 }

@@ -44,11 +44,14 @@ function TemplateOption({ example, isSelected, onSelect, ref }: TemplateOptionPr
       // Roving focus: the selected option is the list's one stop in the tab order.
       tabIndex={isSelected ? 0 : -1}
       data-template-option={example.id}
+      // Selection and focus look apart: the accent fill and the primary bar mark the selected row
+      // whether or not it has focus; the quiet inset line (keyboard only) says the list has focus,
+      // as when Shift+Tab comes back to it.
+      data-focus-ring="inset"
       className={cn(
-        'flex cursor-pointer flex-col gap-2 border-b p-4 outline-none select-none hover:bg-muted/60',
-        // Selection is the row's indicator (rows take real focus as it moves, APG): the accent
-        // fill and the primary bar on the leading edge.
-        isSelected && 'bg-accent shadow-[inset_2px_0_0_var(--primary)] hover:bg-accent',
+        'relative flex cursor-pointer flex-col gap-2 border-b p-4 select-none hover:bg-muted/60',
+        isSelected &&
+          'bg-accent before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary hover:bg-accent',
       )}
       onClick={onSelect}
     >

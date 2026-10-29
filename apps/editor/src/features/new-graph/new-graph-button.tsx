@@ -22,13 +22,14 @@ export function NewGraphButton() {
           variant="accent"
           size="sm"
           aria-keyshortcuts="Control+Alt+N Meta+Alt+N"
+          // A narrow header keeps it in the More menu (HeaderOverflowMenu).
+          className="max-sm:hidden"
           onClick={(event) => {
             requestNewGraph(event.currentTarget)
           }}
         >
           <FilePlus2 aria-hidden="true" />
-          {/* Icon only on a narrow header; the label stays the accessible name. */}
-          <span className="max-sm:sr-only">{t('newGraph.button')}</span>
+          {t('newGraph.button')}
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">

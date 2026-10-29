@@ -14,25 +14,30 @@ export interface TemplateFacts {
   readonly properties: readonly BlackboardProperty[]
 }
 
-/** Parsing the pond is not free, and the facts never change: each template is read once. */
-const factsCache = new WeakMap<Example, TemplateFacts | null>()
+/** Parsing (and migrating) the pond is not free, and a template never changes: each is read once. */
+const graphCache = new WeakMap<Example, Graph | null>()
 
-function factsOf(graph: Graph): TemplateFacts {
-  const nodeCount = Object.values(graph.nodes).filter(
-    (node) => node.id !== MASTER_NODE_ID && node.type !== commentNode.type,
-  ).length
-  return { nodeCount, properties: graph.properties }
+/**
+ * The template's graph, parsed once and kept; null when its document does not parse. Comment
+ * words are the only thing a locale changes, and neither the facts nor a material read them.
+ */
+export function templateGraph(example: Example): Graph | null {
+  const cached = graphCache.get(example)
+  if (cached !== undefined) return cached
+  const parsed = exampleGraph(example, 'en')
+  const graph = parsed.ok ? parsed.value : null
+  graphCache.set(example, graph)
+  return graph
 }
 
 /** The template's node count and properties; null when its document does not parse. */
 export function templateFacts(example: Example): TemplateFacts | null {
-  const cached = factsCache.get(example)
-  if (cached !== undefined) return cached
-  // Comment words are the only thing a locale changes, and the facts don't include them.
-  const graph = exampleGraph(example, 'en')
-  const facts = graph.ok ? factsOf(graph.value) : null
-  factsCache.set(example, facts)
-  return facts
+  const graph = templateGraph(example)
+  if (graph === null) return null
+  const nodeCount = Object.values(graph.nodes).filter(
+    (node) => node.id !== MASTER_NODE_ID && node.type !== commentNode.type,
+  ).length
+  return { nodeCount, properties: graph.properties }
 }
 
 /** How a property's value reads in a compact list. */

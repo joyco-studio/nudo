@@ -14,8 +14,7 @@ export function TemplatesButton() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        {/* A narrow header has no room for it; like Commands, it steps out (⌘K still browses the
-            templates). */}
+        {/* A narrow header keeps it in the More menu (HeaderOverflowMenu). */}
         <Button
           variant="accent"
           size="sm"

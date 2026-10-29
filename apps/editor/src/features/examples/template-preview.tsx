@@ -17,6 +17,7 @@ import {
   subscribeToThemeBackground,
 } from '@/features/main-preview/theme-background'
 import type { MaterialRejection } from '@/features/main-preview/validate-material'
+import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 import { useT } from '@/i18n/use-t'
 import { useMotionMode } from '@/shared/motion/use-motion-preset'
 import type { MotionMode } from '@/shared/motion/motion-presets'
@@ -29,8 +30,11 @@ import type { TemplatePreview as TemplatePreviewState } from './use-template-pre
 const SKELETON_PULSE_MS = 1000
 const SKELETON_PULSE_MIN = 0.5
 
-/** What the viewport shows: the template drawn, still on its way, or not drawable. */
-export type PreviewStatus = 'loading' | 'ready' | 'failed'
+/**
+ * What the viewport shows: the template drawn, still on its way, not drawable, or no preview at all
+ * (no WebGPU or WebGL2, or the preview crashed: its error boundary says so).
+ */
+export type PreviewStatus = 'loading' | 'ready' | 'failed' | 'unavailable'
 
 /** The last material the renderer took (or refused), and which template it belongs to. */
 interface ShownMaterial {
@@ -38,10 +42,32 @@ interface ShownMaterial {
   readonly isDrawn: boolean
 }
 
-function statusOf(preview: TemplatePreviewState, shown: ShownMaterial | null): PreviewStatus {
+function statusOf(
+  exampleId: ExampleId,
+  preview: TemplatePreviewState,
+  shown: ShownMaterial | null,
+): PreviewStatus {
+  // Until the scheduler hears of a new selection, what it reports is about the last one.
+  if (preview.status === 'idle' || preview.id !== exampleId) return 'loading'
   if (preview.status === 'failed') return 'failed'
   if (preview.status !== 'ready' || shown?.id !== preview.id) return 'loading'
   return shown.isDrawn ? 'ready' : 'failed'
+}
+
+interface HandOverProps {
+  material: RuntimeMaterial | null
+  onHandOver: (material: RuntimeMaterial) => void
+}
+
+/**
+ * Inside the canvas, so its effect runs exactly when the scene's does: from then on the scene owns
+ * the material (it frees it once a newer one replaces it, or on unmount) and the scheduler doesn't.
+ */
+function HandOver({ material, onHandOver }: HandOverProps) {
+  useEffect(() => {
+    if (material !== null) onHandOver(material)
+  }, [material, onHandOver])
+  return null
 }
 
 /** The skeleton leaves with reference 14's cross-fade and blur; from the keyboard, at once. */
@@ -93,13 +119,14 @@ interface TemplatePreviewProps {
  */
 export function TemplatePreview({ example, title }: TemplatePreviewProps) {
   const t = useT()
-  const preview = useTemplatePreview(example.id)
+  const { preview, handOver } = useTemplatePreview(example.id)
   const [shown, setShown] = useState<ShownMaterial | null>(null)
+  const [isUnavailable, setIsUnavailable] = useState(false)
   const backgroundColor = useSyncExternalStore(subscribeToThemeBackground, getThemeBackgroundHex)
   const orbitRef = useRef<OrbitView | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const canvasLabel = t('templates.preview', { title })
-  const status = statusOf(preview, shown)
+  const status = isUnavailable ? 'unavailable' : statusOf(example.id, preview, shown)
   const candidate = preview.status === 'ready' ? preview.material : null
 
   useEffect(() => {
@@ -126,10 +153,15 @@ export function TemplatePreview({ example, title }: TemplatePreviewProps) {
     <div
       data-template-preview
       data-status={status}
-      data-shown-template={status === 'ready' ? example.id : undefined}
+      data-shown-template={status === 'ready' ? shown?.id : undefined}
       className="relative size-full min-h-0 overflow-hidden"
     >
-      <PreviewErrorBoundary>
+      <PreviewErrorBoundary
+        fallbackClassName="size-full"
+        onFailure={() => {
+          setIsUnavailable(true)
+        }}
+      >
         <Canvas
           flat
           gl={createGl}
@@ -152,6 +184,7 @@ export function TemplatePreview({ example, title }: TemplatePreviewProps) {
             orbitRef={orbitRef}
             onMaterialStatus={onMaterialStatus}
           />
+          <HandOver material={candidate} onHandOver={handOver} />
         </Canvas>
       </PreviewErrorBoundary>
       <AnimatePresence initial={false}>

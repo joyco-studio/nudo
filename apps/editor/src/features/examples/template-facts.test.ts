@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { EXAMPLES } from '@/examples'
 
-import { propertyDisplay, templateFacts } from './template-facts'
+import { propertyDisplay, templateFacts, templateGraph } from './template-facts'
 
 function property(overrides: Partial<BlackboardProperty>): BlackboardProperty {
   return {
@@ -33,6 +33,13 @@ describe('templateFacts', () => {
       expect(facts, example.id).not.toBeNull()
       expect(facts?.properties.length, example.id).toBeGreaterThan(0)
     }
+  })
+
+  it('parses a template once and hands the same graph back', () => {
+    const [first] = EXAMPLES
+    if (first === undefined) throw new Error('No examples')
+    expect(templateGraph(first)).not.toBeNull()
+    expect(templateGraph(first)).toBe(templateGraph(first))
   })
 
   it('has no facts for a document that does not parse', () => {

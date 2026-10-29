@@ -15,21 +15,28 @@ export interface TemplatePreviewSchedulerOptions<Id, Material> {
   onChange(state: TemplatePreviewState<Id, Material>): void
 }
 
-export interface TemplatePreviewScheduler<Id> {
+export interface TemplatePreviewScheduler<Id, Material> {
   select(id: Id): void
-  /** Stops any pending compile and releases every material it built. */
+  /**
+   * The scene took the material: from now on the scene frees it (when a newer one replaces it, or
+   * when it unmounts), so the scheduler must not free it too.
+   */
+  handOver(material: Material): void
+  /** Stops any pending compile and releases every material it built that the scene never took. */
   dispose(): void
 }
 
 /**
  * Compiles the template the browser shows, debounced: a selection reports `compiling` at once and
- * compiles once no newer selection came within the delay. It owns the materials it builds, so
- * closing the browser leaves nothing on the GPU, even a material that never reached the screen.
+ * compiles once no newer selection came within the delay. Each material has one owner: the
+ * scheduler until the scene takes it (`handOver`), the scene after. Closing the browser therefore
+ * frees every material exactly once, a material that never reached the screen included.
  */
 export function createTemplatePreviewScheduler<Id, Material>(
   options: TemplatePreviewSchedulerOptions<Id, Material>,
-): TemplatePreviewScheduler<Id> {
-  const built = new Set<Material>()
+): TemplatePreviewScheduler<Id, Material> {
+  /** Built and not yet taken by the scene. */
+  const kept = new Set<Material>()
   let timer: ReturnType<typeof setTimeout> | null = null
   let selectedId: Id | null = null
   let isDisposed = false
@@ -41,7 +48,7 @@ export function createTemplatePreviewScheduler<Id, Material>(
       options.onChange({ status: 'failed', id })
       return
     }
-    built.add(material)
+    kept.add(material)
     options.onChange({ status: 'ready', id, material })
   }
 
@@ -55,12 +62,15 @@ export function createTemplatePreviewScheduler<Id, Material>(
         compileSelected(id)
       }, options.delayMs)
     },
+    handOver(material) {
+      kept.delete(material)
+    },
     dispose() {
       isDisposed = true
       if (timer !== null) clearTimeout(timer)
       timer = null
-      for (const material of built) options.release(material)
-      built.clear()
+      for (const material of kept) options.release(material)
+      kept.clear()
     },
   }
 }
