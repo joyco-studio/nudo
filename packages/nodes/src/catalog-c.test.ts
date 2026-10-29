@@ -5,6 +5,7 @@ import {
   PHASE_3_CATALOG_C,
   blendNode,
   COLOR_RAMP_MAX_STOPS,
+  COLOR_RAMP_MIN_STOPS,
   colorRampCount,
   colorRampNode,
   colorRampStopInputIds,
@@ -307,6 +308,7 @@ describe('color ramp', () => {
 
   it('clamps and rounds the stop count, defaulting to two', () => {
     expect(COLOR_RAMP_MAX_STOPS).toBe(8)
+    expect(COLOR_RAMP_MIN_STOPS).toBe(2)
     expect(colorRampCount({})).toBe(2)
     expect(colorRampCount({ count: 0 })).toBe(2)
     expect(colorRampCount({ count: 99 })).toBe(8)

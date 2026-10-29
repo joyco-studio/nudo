@@ -23,12 +23,6 @@ import { connectedInputIds } from './inspector-model'
 import { InspectorHeader, InspectorSection } from './inspector-section'
 import { PreviewSettings } from './preview-settings'
 
-/** The inputs of a node that an edge feeds. */
-function connectedInputsOf(graph: Graph, nodeId: NodeId): ReadonlySet<string> {
-  const edges = Object.values(graph.edges).filter((edge) => edge.to.nodeId === nodeId)
-  return new Set(edges.map((edge) => edge.to.portId))
-}
-
 /** Commits a comment frame's new size as one history entry. */
 export type ResizeFrame = (nodeId: NodeId, frame: NodeFrame) => void
 
@@ -218,7 +212,7 @@ export function NodeInspector({
       )}
       {isColorRamp(node) && (
         <InspectorSection title={t('colorRamp.stops')}>
-          <ColorRampEditor node={node} connectedInputs={connectedInputsOf(graph, node.id)} />
+          <ColorRampEditor node={node} connectedInputs={connectedInputIds(graph, node.id)} />
         </InspectorSection>
       )}
       <InputSections graph={graph} node={node} definition={definition} types={types} />

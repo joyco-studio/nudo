@@ -81,26 +81,41 @@ function withStopValues(
 
 const ALL_PARTS: readonly StopPart[] = ['position', 'color']
 
+const edgesById = (edges: readonly GraphEdge[]): Graph['edges'] =>
+  Object.fromEntries(edges.map((edge) => [edge.id, edge]))
+
 /**
- * Moves the edges that feed the ramp's stops (only the given parts): each goes to the stop
- * `newIndexOf` gives for its current one, or is removed when that is null. Edge ids are kept;
- * other edges stay as they are.
+ * Moves the edges that feed the ramp's stops in play (the first `count`; only the given parts):
+ * each goes to the stop `newIndexOf` gives for its current one, or is removed when that is null.
+ * Edges on stops beyond the count (only a hand-made file has them) stay where they are. Edge ids
+ * are kept; other edges stay as they are.
  */
 function withStopEdges(
   graph: Graph,
   nodeId: NodeId,
+  count: number,
   newIndexOf: (index: number) => number | null,
   parts: readonly StopPart[] = ALL_PARTS,
 ): Graph {
   const edges = Object.values(graph.edges).flatMap((edge): GraphEdge[] => {
     const port = edge.to.nodeId === nodeId ? stopPortOf(edge.to.portId) : null
-    if (port === null || !parts.includes(port.part)) return [edge]
+    if (port === null || port.index >= count || !parts.includes(port.part)) return [edge]
     const newIndex = newIndexOf(port.index)
     if (newIndex === null) return []
     const portId = colorRampStopInputIds(newIndex)[port.part]
     return [{ ...edge, to: { nodeId, portId } }]
   })
-  return { ...graph, edges: Object.fromEntries(edges.map((edge) => [edge.id, edge])) }
+  return { ...graph, edges: edgesById(edges) }
+}
+
+/** Removes the edges that feed stop `index` of the ramp. */
+function withoutStopEdges(graph: Graph, nodeId: NodeId, index: number): Graph {
+  const feedsStop = (edge: GraphEdge): boolean =>
+    edge.to.nodeId === nodeId && stopPortOf(edge.to.portId)?.index === index
+  return {
+    ...graph,
+    edges: edgesById(Object.values(graph.edges).filter((edge) => !feedsStop(edge))),
+  }
 }
 
 /** Replaces the node's stops and sets the new count, as one graph. */
@@ -156,7 +171,12 @@ export function addStop(graph: Graph, registry: NodeRegistry, nodeId: NodeId): C
   }
 
   const nextStops = [...stops.slice(0, insertAt), inserted, ...stops.slice(insertAt)]
-  const shifted = withStopEdges(graph, nodeId, (index) => (index >= insertAt ? index + 1 : index))
+  // The stop the higher count brings into play takes the last stop's place, wires included: a
+  // stale edge left on it (only a hand-made file has one) would feed it twice.
+  const cleared = withoutStopEdges(graph, nodeId, stops.length)
+  const shifted = withStopEdges(cleared, nodeId, stops.length, (index) =>
+    index >= insertAt ? index + 1 : index,
+  )
   return withStops(shifted, registry, context.value, nextStops)
 }
 
@@ -177,7 +197,7 @@ export function removeStop(
   if (stops.length <= COLOR_RAMP_MIN_STOPS) return err('too-few-stops')
 
   const nextStops = stops.filter((_, stopIndex) => stopIndex !== index)
-  const shifted = withStopEdges(graph, nodeId, (stopIndex) => {
+  const shifted = withStopEdges(graph, nodeId, stops.length, (stopIndex) => {
     if (stopIndex === index) return null
     return stopIndex > index ? stopIndex - 1 : stopIndex
   })
@@ -248,5 +268,5 @@ export function swapStops(
     if (index === a) return b
     return index === b ? a : index
   }
-  return ok(withStopEdges(swapped, nodeId, tradeIndex, ['color']))
+  return ok(withStopEdges(swapped, nodeId, stops.length, tradeIndex, ['color']))
 }

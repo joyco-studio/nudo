@@ -4,7 +4,7 @@ import type { EnumOption } from '../shared/resolve-enum-param'
 import { resolveEnumParam } from '../shared/resolve-enum-param'
 
 export const COLOR_RAMP_MAX_STOPS = 8
-const COLOR_RAMP_MIN_STOPS = 2
+export const COLOR_RAMP_MIN_STOPS = 2
 const COLOR_RAMP_DEFAULT_STOPS = COLOR_RAMP_MIN_STOPS
 const COUNT_PARAM = 'count'
 

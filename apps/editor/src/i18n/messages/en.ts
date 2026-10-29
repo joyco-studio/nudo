@@ -483,7 +483,6 @@ export const en = {
   'color.area': 'Saturation and brightness',
   'color.areaValue': 'Saturation {saturation}%, brightness {brightness}%',
   // Color Ramp editor
-  'colorRamp.gradient': 'Gradient',
   'colorRamp.stops': 'Stops',
   'colorRamp.position': 'Stop {number} position',
   'colorRamp.color': 'Stop {number} color',

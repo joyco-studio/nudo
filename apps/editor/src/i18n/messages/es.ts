@@ -336,7 +336,7 @@ export const es = {
   'node.group.physical': 'Física',
   'node.unlitIgnores': 'Ignorado sin iluminación',
   'node.physicalOnly': 'Solo la iluminación Física lo usa',
-  'node.physicalFeatureOff': 'Activa {feature} para usarlo',
+  'node.physicalFeatureOff': 'Activá {feature} para usarlo',
   'node.physicalFeature.transmission': 'la transmisión',
   'node.physicalFeature.clearcoat': 'el barniz',
   'node.physicalFeature.sheen': 'el brillo de tela',
@@ -493,7 +493,6 @@ export const es = {
   'color.area': 'Saturación y brillo',
   'color.areaValue': 'Saturación {saturation}%, brillo {brightness}%',
   // Color Ramp editor
-  'colorRamp.gradient': 'Degradado',
   'colorRamp.stops': 'Paradas',
   'colorRamp.position': 'Posición de la parada {number}',
   'colorRamp.color': 'Color de la parada {number}',

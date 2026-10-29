@@ -68,6 +68,26 @@ function wire(graph: Graph, edgeId: string, fromNode: NodeId, toPort: string): G
   )
 }
 
+/** An edge onto any ramp input, even a hidden stop: what a hand-made file can hold. */
+function wireUnchecked(graph: Graph, edgeId: string, fromNode: NodeId, toPort: string): Graph {
+  const added: GraphEdge = {
+    id: asEdgeId(edgeId),
+    from: { nodeId: fromNode, portId: 'out' },
+    to: { nodeId: RAMP_ID, portId: toPort },
+  }
+  return { ...graph, edges: { ...graph.edges, [added.id]: added } }
+}
+
+/** How many edges feed each ramp input that any edge feeds. */
+function edgesPerInput(graph: Graph): ReadonlyMap<string, number> {
+  const counts = new Map<string, number>()
+  for (const candidate of Object.values(graph.edges)) {
+    if (candidate.to.nodeId !== RAMP_ID) continue
+    counts.set(candidate.to.portId, (counts.get(candidate.to.portId) ?? 0) + 1)
+  }
+  return counts
+}
+
 function edge(graph: Graph, edgeId: string): GraphEdge | undefined {
   return graph.edges[asEdgeId(edgeId)]
 }
@@ -145,6 +165,27 @@ describe('addStop', () => {
     expect(edge(next, 'to-first-position')?.to.portId).toBe('stop0Position')
   })
 
+  it('leaves an edge on a stop beyond the count where it is', () => {
+    const wired = wireUnchecked(rampGraph(THREE_STOPS), 'to-unused-color', COLOR_ID, 'stop7Color')
+    const next = unwrap(addStop(wired, registry, RAMP_ID))
+
+    expect(edge(next, 'to-unused-color')?.to.portId).toBe('stop7Color')
+  })
+
+  it('drops a stale edge on the stop the new count brings into play, never doubling an input', () => {
+    const wired = wireUnchecked(
+      wire(rampGraph(THREE_STOPS), 'to-last-color', COLOR_ID, 'stop2Color'),
+      'to-stale-color',
+      SINE_ID,
+      'stop3Color',
+    )
+    const next = unwrap(addStop(wired, registry, RAMP_ID))
+
+    expect(edge(next, 'to-last-color')?.to.portId).toBe('stop3Color')
+    expect(edge(next, 'to-stale-color')).toBeUndefined()
+    expect([...edgesPerInput(next).values()].every((edges) => edges === 1)).toBe(true)
+  })
+
   it('refuses a ninth stop', () => {
     const full = rampGraph(
       Array.from({ length: 8 }, (_, index) => ({ position: index / 7, color: WHITE })),
@@ -196,6 +237,13 @@ describe('removeStop', () => {
         (candidate.to.portId === hidden.position || candidate.to.portId === hidden.color),
     )
     expect(onHidden).toEqual([])
+  })
+
+  it('leaves an edge on a stop beyond the count where it is', () => {
+    const wired = wireUnchecked(rampGraph(THREE_STOPS), 'to-unused-color', COLOR_ID, 'stop7Color')
+    const next = unwrap(removeStop(wired, registry, RAMP_ID, 1))
+
+    expect(edge(next, 'to-unused-color')?.to.portId).toBe('stop7Color')
   })
 
   it('refuses to go below two stops', () => {

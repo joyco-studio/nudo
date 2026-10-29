@@ -1,6 +1,7 @@
 import type { GraphNode, NodeRegistry, PortValue } from '@nudo-tsl/core'
 import {
   COLOR_RAMP_MAX_STOPS,
+  COLOR_RAMP_MIN_STOPS,
   colorRampCount,
   colorRampNode,
   colorRampStopInputIds,
@@ -9,8 +10,7 @@ import {
 import type { Rgb } from '@/shared/components/color-picker/color-math'
 
 export const COLOR_RAMP_TYPE = colorRampNode.type
-export const COLOR_RAMP_MIN_STOPS = 2
-export { COLOR_RAMP_MAX_STOPS }
+export { COLOR_RAMP_MAX_STOPS, COLOR_RAMP_MIN_STOPS }
 
 /** A stop as the ramp reads it: where it sits (0..1) and its linear RGB color. */
 export interface ColorRampStop {
