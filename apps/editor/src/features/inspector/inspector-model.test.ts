@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { registry } from '@/store/registry'
 
-import { connectedSourceTitle, inspectorSubject } from './inspector-model'
+import { connectedInputIds, connectedSourceTitle, inspectorSubject } from './inspector-model'
 
 const TIME = asNodeId('time')
 const SINE = asNodeId('sine')
@@ -65,5 +65,13 @@ describe('connectedSourceTitle', () => {
     expect(
       connectedSourceTitle(timeToSine(), registry, { nodeId: MASTER_NODE_ID, portId: 'baseColor' }),
     ).toBeNull()
+  })
+})
+
+describe('connectedInputIds', () => {
+  it('lists the inputs an edge feeds, and none of an unfed node', () => {
+    const graph = timeToSine()
+    expect([...connectedInputIds(graph, SINE)]).toEqual(['in'])
+    expect([...connectedInputIds(graph, TIME)]).toEqual([])
   })
 })

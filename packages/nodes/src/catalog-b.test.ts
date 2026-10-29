@@ -477,9 +477,74 @@ describe('master stack', () => {
       options: [
         { value: 'standard', label: 'Standard' },
         { value: 'unlit', label: 'Unlit' },
+        { value: 'physical', label: 'Physical' },
       ],
       default: 'standard',
     })
+  })
+
+  it('declares one physical feature switch per feature, all off', () => {
+    const switches = master.params
+      ?.filter((param) => param.id.startsWith('use'))
+      .map((param) => ({
+        id: param.id,
+        label: param.label,
+        kind: param.kind,
+        default: param.default,
+      }))
+
+    expect(switches).toEqual([
+      { id: 'useTransmission', label: 'Enable transmission', kind: 'boolean', default: false },
+      { id: 'useClearcoat', label: 'Enable clearcoat', kind: 'boolean', default: false },
+      { id: 'useSheen', label: 'Enable sheen', kind: 'boolean', default: false },
+      { id: 'useIridescence', label: 'Enable iridescence', kind: 'boolean', default: false },
+    ])
+  })
+
+  it('warns that transmission renders the scene behind once more', () => {
+    const useTransmission = master.params?.find((param) => param.id === 'useTransmission')
+
+    const description = useTransmission?.kind === 'boolean' ? useTransmission.description : ''
+
+    expect(description).toMatch(/scene behind/)
+  })
+
+  it('appends the physical inputs with inline fields and their defaults', () => {
+    const physical = master.inputs.slice(-9).map((input) => ({
+      id: input.id,
+      type: input.type,
+      default: input.default,
+      optional: input.optional === true,
+      widget: input.widget,
+    }))
+    const float = (id: string, value: number) => ({
+      id,
+      type: { kind: 'concrete', type: 'float' },
+      default: { type: 'float', value },
+      optional: false,
+      widget: undefined,
+    })
+
+    expect(physical).toEqual([
+      float('transmission', 0),
+      float('ior', 1.5),
+      float('thickness', 0),
+      float('clearcoat', 0),
+      float('clearcoatRoughness', 0),
+      {
+        id: 'sheen',
+        type: { kind: 'concrete', type: 'vec3' },
+        default: { type: 'vec3', value: [0, 0, 0] },
+        optional: false,
+        widget: 'color',
+      },
+      float('sheenRoughness', 1),
+      float('iridescence', 0),
+      float('iridescenceIOR', 1.3),
+    ])
+    for (const input of master.inputs.slice(-9)) {
+      expect(input.description, input.id).toBeTruthy()
+    }
   })
 
   it('declares surface and two-sided params', () => {

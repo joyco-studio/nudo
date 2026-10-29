@@ -14,6 +14,15 @@ export type MasterSlot =
   | 'normal'
   | 'opacity'
   | 'alphaClip'
+  | 'transmission'
+  | 'ior'
+  | 'thickness'
+  | 'clearcoat'
+  | 'clearcoatRoughness'
+  | 'sheen'
+  | 'sheenRoughness'
+  | 'iridescence'
+  | 'iridescenceIOR'
 
 export const MASTER_SLOTS: readonly MasterSlot[] = [
   'position',
@@ -24,6 +33,15 @@ export const MASTER_SLOTS: readonly MasterSlot[] = [
   'normal',
   'opacity',
   'alphaClip',
+  'transmission',
+  'ior',
+  'thickness',
+  'clearcoat',
+  'clearcoatRoughness',
+  'sheen',
+  'sheenRoughness',
+  'iridescence',
+  'iridescenceIOR',
 ]
 
 /** What a compilation targets the graph with: a concrete expression type `E` per backend. */

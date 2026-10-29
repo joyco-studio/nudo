@@ -3,6 +3,7 @@ import { MASTER_NODE_TYPE, concrete, defineNode, float, vec3 } from '@nudo-tsl/c
 const LIGHTING_OPTIONS = [
   { value: 'standard', label: 'Standard' },
   { value: 'unlit', label: 'Unlit' },
+  { value: 'physical', label: 'Physical' },
 ] as const
 
 const SURFACE_OPTIONS = [
@@ -81,6 +82,71 @@ export const masterStackNode = defineNode({
       default: float(0.5),
       optional: true,
     },
+    {
+      id: 'transmission',
+      label: 'Transmission',
+      description: 'How much light passes through the surface, like glass: 0 = none, 1 = all.',
+      type: concrete('float'),
+      default: float(0),
+    },
+    {
+      id: 'ior',
+      label: 'IOR',
+      description: 'How much light bends on its way through: 1.5 is glass, 1.33 is water.',
+      type: concrete('float'),
+      default: float(1.5),
+    },
+    {
+      id: 'thickness',
+      label: 'Thickness',
+      description: 'How deep the volume behind the surface is; deeper bends light more.',
+      type: concrete('float'),
+      default: float(0),
+    },
+    {
+      id: 'clearcoat',
+      label: 'Clearcoat',
+      description: 'A clear varnish layer over the surface: 0 = none, 1 = a full coat.',
+      type: concrete('float'),
+      default: float(0),
+    },
+    {
+      id: 'clearcoatRoughness',
+      label: 'Clearcoat Roughness',
+      description: '0 = glossy varnish, 1 = frosted varnish.',
+      type: concrete('float'),
+      default: float(0),
+    },
+    {
+      id: 'sheen',
+      label: 'Sheen',
+      description:
+        'The soft glow fabrics like velvet catch at grazing angles, as a color; black adds none.',
+      type: concrete('vec3'),
+      default: vec3(0, 0, 0),
+      widget: 'color',
+    },
+    {
+      id: 'sheenRoughness',
+      label: 'Sheen Roughness',
+      description: 'How far the sheen spreads: 0 = a thin rim, 1 = soft and broad.',
+      type: concrete('float'),
+      default: float(1),
+    },
+    {
+      id: 'iridescence',
+      label: 'Iridescence',
+      description: 'Rainbow colors like a soap bubble or an oil film: 0 = none, 1 = full.',
+      type: concrete('float'),
+      default: float(0),
+    },
+    {
+      id: 'iridescenceIOR',
+      label: 'Iridescence IOR',
+      description: 'How much the thin film bends light, which shifts its rainbow colors.',
+      type: concrete('float'),
+      default: float(1.3),
+    },
   ],
   outputs: [],
   params: [
@@ -99,6 +165,17 @@ export const masterStackNode = defineNode({
       default: 'auto',
     },
     { id: 'twoSided', label: 'Two sided', kind: 'boolean', default: false },
+    {
+      id: 'useTransmission',
+      label: 'Enable transmission',
+      kind: 'boolean',
+      default: false,
+      description:
+        'Lets light through the surface. To do it, three renders the scene behind once more.',
+    },
+    { id: 'useClearcoat', label: 'Enable clearcoat', kind: 'boolean', default: false },
+    { id: 'useSheen', label: 'Enable sheen', kind: 'boolean', default: false },
+    { id: 'useIridescence', label: 'Enable iridescence', kind: 'boolean', default: false },
   ],
   build: () => ({}),
 })

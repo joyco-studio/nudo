@@ -15,7 +15,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { InlineField, MutedHint } from './inline-field'
+import { DisabledInputText, InlineField } from './inline-field'
 import { NodeContextMenu } from './node-context-menu'
 import { inputExplanation, nodeAccessibleDescription, outputExplanation } from './node-explanation'
 import { NodeFormula } from './node-formula'
@@ -26,7 +26,15 @@ import { PortTooltip } from './port-tooltip'
 import { SELECTED_FRAME_CLASS } from './selected-frame'
 import { ConnectablePort } from './connectable-port'
 import { useGraphCanvasActions } from './graph-canvas-actions'
-import { inputGroups, isNodeCollapsed, portsToggleLabel, visibleOutputs } from './node-port-layout'
+import { GroupToggle, useGroupOpen } from './group-toggle'
+import {
+  disabledHintText,
+  inputGroups,
+  isNodeCollapsed,
+  portsToggleLabel,
+  shownRows,
+  visibleOutputs,
+} from './node-port-layout'
 import type { InputRowModel, PortGroup } from './node-port-layout'
 import { ParamFields, bodyParams } from './param-field'
 import { PortTypeLabel } from './port-handle'
@@ -77,10 +85,11 @@ function InputRow({ data, row }: InputRowProps) {
       />
       <PortTypeLabel dataType={dataType} />
       {isDisabled ? (
-        <>
-          <PortLabel label={input.label} isMuted explanation={explanation} />
-          <MutedHint>{t(disabledHint)}</MutedHint>
-        </>
+        <DisabledInputText
+          label={input.label}
+          reason={disabledHintText(disabledHint, t)}
+          explanation={explanation}
+        />
       ) : isConnected || isColorRampStopInput(data.node, input.id) ? (
         // A Color Ramp stop is edited in the ramp editor, which keeps the positions in order.
         <PortLabel label={input.label} explanation={explanation} />
@@ -124,14 +133,23 @@ function OutputRow({ data, output, dataType }: OutputRowProps) {
   )
 }
 
-/** A titled group (Master Stack "Vertex", "Fragment") is a labelled group, not a landmark. */
+const GROUP_HEADING_CLASS = 'font-mono text-micro tracking-[0.2em] text-muted-foreground uppercase'
+/** The heading's inset, on the plain heading or on the toggle filling a folding one. */
+const GROUP_HEADING_INSET = 'px-3 pt-2 pb-0.5'
+
+/**
+ * A titled group (Master Stack "Vertex", "Fragment", "Physical") is a labelled group, not a
+ * landmark. A folding group's heading is its toggle; folded, it still shows its connected rows.
+ */
 function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }) {
   const headingId = useId()
+  const listId = useId()
+  const [isOpen, toggle] = useGroupOpen(group.disclosure)
   const t = useT()
   if (group.rows.length === 0) return null
   const list = (
-    <ul>
-      {group.rows.map((row) => (
+    <ul id={listId}>
+      {shownRows(group, isOpen, data.connectedInputs).map((row) => (
         <InputRow key={row.input.id} data={data} row={row} />
       ))}
     </ul>
@@ -141,9 +159,19 @@ function PortGroupList({ group, data }: { group: PortGroup; data: FlowNodeData }
     <div role="group" aria-labelledby={headingId}>
       <h3
         id={headingId}
-        className="px-3 pt-2 pb-0.5 font-mono text-micro tracking-[0.2em] text-muted-foreground uppercase"
+        className={cn(GROUP_HEADING_CLASS, group.disclosure === null && GROUP_HEADING_INSET)}
       >
-        {t(group.title)}
+        {group.disclosure === null ? (
+          t(group.title)
+        ) : (
+          <GroupToggle
+            label={t(group.title)}
+            isOpen={isOpen}
+            controls={listId}
+            onToggle={toggle}
+            className={GROUP_HEADING_INSET}
+          />
+        )}
       </h3>
       {list}
     </div>
@@ -272,7 +300,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
   const t = useT()
   if (definition.reads === 'property') return <PropertyPill data={data} selected={selected} />
 
-  const params = bodyParams(definition.params)
+  const params = bodyParams(node, definition.params)
   const outputs = visibleOutputs(data)
   const groups = inputGroups(data)
   const hasInputs = groups.some((group) => group.rows.length > 0)

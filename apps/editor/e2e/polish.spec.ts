@@ -108,10 +108,11 @@ test.describe('shadcn primitives', () => {
     await expect(listbox).toBeHidden()
     await expect(lighting).toHaveText('Unlit')
     await expect(lighting).toBeFocused()
-    // The highlighted row shows by its background alone, with no focus ring around it.
+    // The highlighted row shows by its background alone, with no focus ring around it. The list
+    // opens on Unlit, so ArrowDown highlights the option after it.
     await page.keyboard.press('Enter')
     await page.keyboard.press('ArrowDown')
-    const highlighted = listbox.getByRole('option', { name: 'Unlit' })
+    const highlighted = listbox.getByRole('option', { name: 'Physical', exact: true })
     await expect(highlighted).toBeFocused()
     await expect(highlighted).toHaveCSS('outline-style', 'none')
     await expectNoRingShadow(highlighted)

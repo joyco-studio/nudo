@@ -1,12 +1,15 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Root } from 'react-dom/client'
-import { asNodeId } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, asNodeId } from '@nudo-tsl/core'
 import type { GraphNode, ParamDefinition, ParamValue } from '@nudo-tsl/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { registry } from '@/store/registry'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 
+import { FieldSizeContext } from './field-size'
+import type { FieldSize } from './field-size'
 import { NodeFieldActionsContext } from './node-field-actions'
 import type { NodeFieldActions } from './node-field-actions'
 import { ParamField, bodyParams } from './param-field'
@@ -31,7 +34,7 @@ const nodeWith = (params: Readonly<Record<string, ParamValue>>): GraphNode => ({
 })
 
 const asBodyParam = (param: ParamDefinition): BodyParam => {
-  const [bodyParam] = bodyParams([param])
+  const [bodyParam] = bodyParams(nodeWith({}), [param])
   if (bodyParam === undefined) throw new Error(`${param.id} is not a body param`)
   return bodyParam
 }
@@ -47,10 +50,29 @@ describe('bodyParams', () => {
     }
     const text: ParamDefinition = { id: 'title', label: 'Title', kind: 'string', default: '' }
     const toggle: ParamDefinition = { id: 'wrap', label: 'Wrap', kind: 'boolean', default: true }
-    expect(bodyParams([OCTAVES, hidden, text, toggle]).map((param) => param.id)).toEqual([
-      'octaves',
-      'wrap',
-    ])
+    expect(
+      bodyParams(nodeWith({}), [OCTAVES, hidden, text, toggle]).map((param) => param.id),
+    ).toEqual(['octaves', 'wrap'])
+  })
+
+  it('shows the master physical feature switches only while the lighting is physical', () => {
+    const definition = registry.get('master/stack')
+    if (definition === undefined) throw new Error('Missing master/stack')
+    const masterWith = (lighting: string): GraphNode => ({
+      id: MASTER_NODE_ID,
+      type: 'master/stack',
+      position: { x: 0, y: 0 },
+      inputValues: {},
+      params: { lighting },
+    })
+    const switches = ['useTransmission', 'useClearcoat', 'useSheen', 'useIridescence']
+    const idsFor = (lighting: string) =>
+      bodyParams(masterWith(lighting), definition.params).map((param) => param.id)
+    for (const lighting of ['standard', 'unlit']) {
+      expect(idsFor(lighting).filter((id) => switches.includes(id))).toEqual([])
+      expect(idsFor(lighting)).toContain('lighting')
+    }
+    expect(idsFor('physical').filter((id) => switches.includes(id))).toEqual(switches)
   })
 })
 
@@ -151,5 +173,76 @@ describe('ParamField for a number param', () => {
       input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
     })
     expect(setParam).toHaveBeenCalledExactlyOnceWith({ nodeId: 'noise', paramId: 'octaves' }, 5)
+  })
+})
+
+describe('ParamField for a switch with a description', () => {
+  const TRANSMISSION: ParamDefinition = {
+    id: 'useTransmission',
+    label: 'Enable transmission',
+    kind: 'boolean',
+    default: false,
+    description: 'Renders the scene behind once more.',
+  }
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    Reflect.set(globalThis, 'IS_REACT_ACT_ENVIRONMENT', true)
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+  })
+
+  afterEach(() => {
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  function renderSwitch(size: FieldSize): HTMLElement {
+    const actions: NodeFieldActions = {
+      setInputValue: vi.fn(),
+      previewInputValue: vi.fn(),
+      endInputPreview: vi.fn(),
+      setParam: vi.fn(),
+      changeGraph: vi.fn(),
+    }
+    act(() => {
+      root.render(
+        <TooltipProvider>
+          <FieldSizeContext value={size}>
+            <NodeFieldActionsContext value={actions}>
+              <ul>
+                <ParamField node={nodeWith({})} param={asBodyParam(TRANSMISSION)} />
+              </ul>
+            </NodeFieldActionsContext>
+          </FieldSizeContext>
+        </TooltipProvider>,
+      )
+    })
+    const toggle = container.querySelector<HTMLElement>('[role="switch"]')
+    if (toggle === null) throw new Error('The switch did not render')
+    return toggle
+  }
+
+  function descriptionOf(toggle: HTMLElement): HTMLElement {
+    const id = toggle.getAttribute('aria-describedby')
+    const description = id === null ? null : document.getElementById(id)
+    if (description === null) throw new Error('The switch is not described')
+    return description
+  }
+
+  it('shows the description under the switch in the Inspector', () => {
+    const description = descriptionOf(renderSwitch('comfortable'))
+    expect(description.textContent).toBe(TRANSMISSION.description)
+    expect(description.classList.contains('sr-only')).toBe(false)
+  })
+
+  it('keeps the description for assistive tech on a canvas node, where a tooltip shows it', () => {
+    const description = descriptionOf(renderSwitch('compact'))
+    expect(description.textContent).toBe(TRANSMISSION.description)
+    expect(description.classList.contains('sr-only')).toBe(true)
   })
 })

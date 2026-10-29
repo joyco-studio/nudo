@@ -26,12 +26,33 @@ const HINT_TEXT: Readonly<Record<FieldSize, string>> = {
   comfortable: 'text-xs',
 }
 /** A short muted note in place of a field ("Mesh default", "Off"). */
-export function MutedHint({ children }: { children: string }) {
+export function MutedHint({ children, className }: { children: string; className?: string }) {
   const size = useFieldSize()
   return (
-    <span className={cn('shrink-0 font-mono text-muted-foreground', HINT_TEXT[size])}>
+    <span className={cn('shrink-0 font-mono text-muted-foreground', HINT_TEXT[size], className)}>
       {children}
     </span>
+  )
+}
+
+interface DisabledInputTextProps {
+  label: string
+  /** Why the input has no effect right now. */
+  reason: string
+  explanation?: PortExplanation | undefined
+}
+
+/**
+ * An input that has no effect right now: its muted label, then why, at the row's end where a field
+ * would be. The label is never cut short for the reason: when both don't fit on one line (a
+ * physical input on a canvas node), the reason moves to its own line under the label.
+ */
+export function DisabledInputText({ label, reason, explanation }: DisabledInputTextProps) {
+  return (
+    <>
+      <PortLabel label={label} isMuted explanation={explanation} className="max-w-full flex-none" />
+      <MutedHint className="ml-auto">{reason}</MutedHint>
+    </>
   )
 }
 

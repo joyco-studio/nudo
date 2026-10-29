@@ -28,7 +28,7 @@ export function GraphInspector({ graph, types }: GraphInspectorProps) {
   const definition = master === undefined ? undefined : registry.get(master.type)
   if (master === undefined || definition === undefined) return null
 
-  const params = bodyParams(definition.params)
+  const params = bodyParams(master, definition.params)
   const settingRows = groupInputs(
     master,
     definition.inputs.filter((input) => SETTING_INPUT_IDS.has(input.id)),

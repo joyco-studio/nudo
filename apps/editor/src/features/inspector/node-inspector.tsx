@@ -6,7 +6,9 @@ import { commentBody } from '@/features/canvas/comment-params'
 import { CommentTitleField } from '@/features/canvas/comment-title-field'
 import { frameOf, sizedFrame } from '@/features/canvas/node-frame'
 import type { ResizableFrame } from '@/features/canvas/node-frame'
-import { groupInputs, inputsInPlay } from '@/features/canvas/node-port-layout'
+import { useGroupOpen } from '@/features/canvas/group-toggle'
+import { groupInputs, shownRows } from '@/features/canvas/node-port-layout'
+import type { PortGroup } from '@/features/canvas/node-port-layout'
 import { NumberField } from '@/features/canvas/number-field'
 import { ParamField, bodyParams } from '@/features/canvas/param-field'
 import { nodeTitle } from '@/features/canvas/to-flow'
@@ -17,6 +19,7 @@ import { Label } from '@/shared/ui/label'
 import type { NodeFrame } from '@/store/store-types'
 
 import { INSPECTOR_ROW_CLASS, InspectorInputRows } from './inspector-input-row'
+import { connectedInputIds } from './inspector-model'
 import { InspectorHeader, InspectorSection } from './inspector-section'
 import { PreviewSettings } from './preview-settings'
 
@@ -118,23 +121,47 @@ interface InputSectionsProps {
   types: ResolvedTypes
 }
 
+interface InputSectionProps {
+  graph: Graph
+  node: GraphNode
+  group: PortGroup
+  types: ResolvedTypes
+}
+
+/** One group of inputs; a folding group (the master's Physical) folds as the node's does. */
+function InputSection({ graph, node, group, types }: InputSectionProps) {
+  const [isOpen, toggle] = useGroupOpen(group.disclosure)
+  const listId = useId()
+  const t = useT()
+  const rows = shownRows(group, isOpen, connectedInputIds(graph, node.id))
+  const fold =
+    group.disclosure === null ? undefined : { isOpen, onToggle: toggle, controls: listId }
+
+  return (
+    <InspectorSection title={t(group.title ?? 'inspector.inputs')} fold={fold}>
+      <ul id={listId}>
+        <InspectorInputRows graph={graph} node={node} rows={rows} types={types} />
+      </ul>
+    </InspectorSection>
+  )
+}
+
 /**
  * Every input of the node, collapsed or not, grouped like the node groups them. A Color Ramp's
  * stops are left to its ramp editor.
  */
 function InputSections({ graph, node, definition, types }: InputSectionsProps) {
-  const inputs = inputsInPlay(node, definition.inputs).filter(
-    (input) => !isColorRampStopInput(node, input.id),
-  )
+  const inputs = definition.inputs.filter((input) => !isColorRampStopInput(node, input.id))
   const groups = groupInputs(node, inputs).filter((group) => group.rows.length > 0)
-  const t = useT()
 
   return groups.map((group) => (
-    <InspectorSection key={group.title ?? 'inputs'} title={t(group.title ?? 'inspector.inputs')}>
-      <ul>
-        <InspectorInputRows graph={graph} node={node} rows={group.rows} types={types} />
-      </ul>
-    </InspectorSection>
+    <InputSection
+      key={group.title ?? 'inputs'}
+      graph={graph}
+      node={node}
+      group={group}
+      types={types}
+    />
   ))
 }
 
@@ -158,7 +185,7 @@ export function NodeInspector({
   onResizeFrame,
 }: NodeInspectorProps) {
   const title = nodeTitle(node, definition, graph.properties)
-  const params = bodyParams(definition.params)
+  const params = bodyParams(node, definition.params)
   const frame = frameOf(node, definition)
   const t = useT()
 

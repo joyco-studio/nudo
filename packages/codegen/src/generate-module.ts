@@ -34,8 +34,11 @@ export interface GeneratedModule {
   readonly errors: readonly CompileError[]
 }
 
-const materialClassOf = (lighting: MasterLighting): MaterialClass =>
-  lighting === 'unlit' ? 'MeshBasicNodeMaterial' : 'MeshStandardNodeMaterial'
+const MATERIAL_CLASSES: Readonly<Record<MasterLighting, MaterialClass>> = {
+  standard: 'MeshStandardNodeMaterial',
+  unlit: 'MeshBasicNodeMaterial',
+  physical: 'MeshPhysicalNodeMaterial',
+}
 
 const THREE_RELEASE_PATTERN = /^(?:r|0\.)?(\d+)(?:\.\d+)*$/
 
@@ -124,10 +127,10 @@ export function generateModule(
     opacityConnected: isOpacityConnected(graph),
     inlineOpacity: readInlineOpacity(graph, registry),
   })
-  const entries = masterMaterialAssignments(backend.tsl, slots, settings.lighting)
+  const entries = masterMaterialAssignments(backend.tsl, slots, settings)
   const plan: ModulePlan = {
     threeVersion: formatThreeVersion(options.threeVersion ?? DEFAULT_THREE_VERSION),
-    materialClass: materialClassOf(settings.lighting),
+    materialClass: MATERIAL_CLASSES[settings.lighting],
     surfaceHints: describeSurface(
       settings,
       transparent,

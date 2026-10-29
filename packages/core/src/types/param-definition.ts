@@ -21,6 +21,8 @@ export type ParamDefinition =
       readonly label: string
       readonly kind: 'boolean'
       readonly default: boolean
+      /** What turning the switch on does, and what it costs. */
+      readonly description?: string
     }
   | {
       readonly id: string

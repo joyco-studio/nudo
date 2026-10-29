@@ -24,6 +24,7 @@ import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import { DataTexture, DoubleSide, FrontSide, Vector3 } from 'three'
 import {
   MeshBasicNodeMaterial,
+  MeshPhysicalNodeMaterial,
   MeshStandardNodeMaterial,
   Node,
   OperatorNode,
@@ -44,7 +45,22 @@ const unwrap = <T, E>(result: Result<T, E>): T => {
   return result.value
 }
 
-const INLINE_MASTER_SLOTS = ['baseColor', 'emission', 'metalness', 'roughness', 'opacity']
+const INLINE_MASTER_SLOTS = [
+  'baseColor',
+  'emission',
+  'metalness',
+  'roughness',
+  'opacity',
+  'transmission',
+  'ior',
+  'thickness',
+  'clearcoat',
+  'clearcoatRoughness',
+  'sheen',
+  'sheenRoughness',
+  'iridescence',
+  'iridescenceIOR',
+]
 
 const masterKey = (slot: string) => portKey({ nodeId: asNodeId('master'), portId: slot })
 
@@ -426,6 +442,78 @@ describe('master settings', () => {
     expect(applyBuildInputValue(transparent, opacity, float(1))).toBe('applied')
     expect(opaque.material?.transparent).toBe(false)
     expect(transparent.material?.transparent).toBe(true)
+  })
+})
+
+describe('physical lighting', () => {
+  const registry = createDefaultRegistry()
+  const physical = withMasterParam(createGraph(), registry, 'lighting', 'physical')
+  const PHYSICAL_PROPERTIES = [
+    'transmissionNode',
+    'iorNode',
+    'thicknessNode',
+    'clearcoatNode',
+    'clearcoatRoughnessNode',
+    'sheenNode',
+    'sheenRoughnessNode',
+    'iridescenceNode',
+    'iridescenceIORNode',
+  ] as const
+
+  it('builds a MeshPhysicalNodeMaterial with no physical slot while every feature is off', () => {
+    const { material, errors } = createMaterial(physical, registry)
+
+    expect(errors).toEqual([])
+    expect(material).toBeInstanceOf(MeshPhysicalNodeMaterial)
+    expect(material?.colorNode).toBeTruthy()
+    for (const property of PHYSICAL_PROPERTIES) {
+      expect(Reflect.get(material ?? {}, property), property).toBeNull()
+    }
+  })
+
+  it('assigns the slots of each enabled feature', () => {
+    let graph = withMasterParam(physical, registry, 'useTransmission', true)
+    graph = withMasterParam(graph, registry, 'useSheen', true)
+
+    const { material } = createMaterial(graph, registry)
+
+    expect(material).toBeInstanceOf(MeshPhysicalNodeMaterial)
+    if (!(material instanceof MeshPhysicalNodeMaterial)) return
+    expect(material.transmissionNode).toBeInstanceOf(Node)
+    expect(material.iorNode).toBeInstanceOf(Node)
+    expect(material.thicknessNode).toBeInstanceOf(Node)
+    expect(material.sheenNode).toBeInstanceOf(Node)
+    expect(material.sheenRoughnessNode).toBeInstanceOf(Node)
+    expect(material.clearcoatNode).toBeNull()
+    expect(material.iridescenceNode).toBeNull()
+  })
+
+  it('moves the transmission uniform without rebuilding the material', () => {
+    const graph = withMasterParam(physical, registry, 'useTransmission', true)
+    const build = createMaterial(graph, registry)
+    const { material } = build
+    if (material === null) throw new Error('Expected a material')
+    const versionBefore = material.version
+    const transmission = { nodeId: MASTER, portId: 'transmission' }
+
+    expect(applyBuildInputValue(build, transmission, float(0.75))).toBe('applied')
+    expect(build.material).toBe(material)
+    expect(material.version).toBe(versionBefore)
+    expect(build.uniforms.get(portKey(transmission))?.value).toBe(0.75)
+  })
+
+  it('leaves wired physical inputs unassigned once the lighting is standard again', () => {
+    let graph = withMasterParam(physical, registry, 'useClearcoat', true)
+    graph = withNode(graph, registry, 'amount', 'input/float')
+    graph = withEdge(graph, registry, ['amount', 'out'], ['master', 'clearcoat'])
+    graph = withMasterParam(graph, registry, 'lighting', 'standard')
+
+    const { material, errors } = createMaterial(graph, registry)
+
+    expect(errors).toEqual([])
+    expect(material).toBeInstanceOf(MeshStandardNodeMaterial)
+    expect(material).not.toBeInstanceOf(MeshPhysicalNodeMaterial)
+    expect(material).not.toHaveProperty('clearcoatNode')
   })
 })
 

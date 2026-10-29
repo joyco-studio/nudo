@@ -1,6 +1,7 @@
-/** A param's name, and its options' names by option value. */
+/** A param's name, what a switch does (when the English one says), and its options' names. */
 export interface ParamTexts {
   readonly label: string
+  readonly description?: string
   readonly options?: Readonly<Record<string, string>>
 }
 

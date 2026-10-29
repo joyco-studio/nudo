@@ -39,7 +39,8 @@ const MAIN_LIGHT_NOTICE = [
   `${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS.color}.value.setFromColor(light.color).multiplyScalar(light.intensity)`,
 ].join(' ')
 
-export type MaterialClass = 'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial'
+export type MaterialClass =
+  'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial' | 'MeshPhysicalNodeMaterial'
 
 export interface NamedExpression {
   readonly name: string
