@@ -9,17 +9,17 @@ import { registry } from '@/store/registry'
 import { frameIdOf } from './build/example-spec'
 import type { ExampleSpec } from './build/example-spec'
 import { IRIDESCENT_BLOB } from './build/iridescent-blob'
-import { MAGMA } from './build/magma'
+import { LAVA_FLOW } from './build/lava-flow'
 import { POND } from './build/pond'
-import { POST_HOPE } from './build/post-hope'
+import { POSTER } from './build/poster'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
-import magmaGraph from './magma.graph.json'
+import lavaFlowGraph from './lava-flow.graph.json'
 import pondGraph from './pond.graph.json'
-import postHopeGraph from './post-hope.graph.json'
+import posterGraph from './poster.graph.json'
 
-export const EXAMPLE_IDS = ['pond', 'iridescent-blob', 'post-hope', 'magma'] as const
+export const EXAMPLE_IDS = ['pond', 'iridescent-blob', 'poster', 'lava-flow'] as const
 export type ExampleId = (typeof EXAMPLE_IDS)[number]
 
 /** What a template is about, as the templates browser lists it under the title. */
@@ -62,20 +62,20 @@ export const EXAMPLES: readonly Example[] = [
     comments: { es: spanishComments(IRIDESCENT_BLOB) },
   },
   {
-    id: 'post-hope',
-    title: 'example.post-hope.title',
-    graph: postHopeGraph,
+    id: 'poster',
+    title: 'example.poster.title',
+    graph: posterGraph,
     previewShape: 'suzanne',
     tags: ['unlit', 'noise', 'fresnel'],
-    comments: { es: spanishComments(POST_HOPE) },
+    comments: { es: spanishComments(POSTER) },
   },
   {
-    id: 'magma',
-    title: 'example.magma.title',
-    graph: magmaGraph,
+    id: 'lava-flow',
+    title: 'example.lava-flow.title',
+    graph: lavaFlowGraph,
     previewShape: 'torus',
     tags: ['unlit', 'noise'],
-    comments: { es: spanishComments(MAGMA) },
+    comments: { es: spanishComments(LAVA_FLOW) },
   },
 ]
 

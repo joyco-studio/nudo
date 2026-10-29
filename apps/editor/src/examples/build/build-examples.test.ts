@@ -9,10 +9,10 @@ import { buildExampleGraph } from './build-example-graph'
 import { frameIdOf } from './example-spec'
 import type { ExampleSpec } from './example-spec'
 import { IRIDESCENT_BLOB } from './iridescent-blob'
-import { MAGMA } from './magma'
+import { LAVA_FLOW } from './lava-flow'
 import { estimateGeometry } from './node-geometry'
 import { POND } from './pond'
-import { POST_HOPE } from './post-hope'
+import { POSTER } from './poster'
 
 /**
  * Builds every example from its spec and keeps the committed `.graph.json` in step: run
@@ -22,8 +22,8 @@ import { POST_HOPE } from './post-hope'
 const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['pond', POND],
   ['iridescent-blob', IRIDESCENT_BLOB],
-  ['post-hope', POST_HOPE],
-  ['magma', MAGMA],
+  ['poster', POSTER],
+  ['lava-flow', LAVA_FLOW],
 ]
 
 interface Box {

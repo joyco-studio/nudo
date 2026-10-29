@@ -24,12 +24,12 @@ const CREAM_FROM = 0.82
 
 /**
  * spite's "post-hope" sketch (github.com/spite/sketch, MIT) as one material: the light, cut into
- * the four inks of the Hope poster with a striped band between blue and cream, edges wobbled by
+ * four screen-print inks with a striped band between blue and cream, edges wobbled by
  * noise like hand-cut stencils, and a navy outline where the surface turns away. spite finds the
  * outline with a Sobel pass over the rendered scene; a material sees one point at a time, so a
  * fresnel stands in for it and draws the silhouette.
  */
-export const POST_HOPE: ExampleSpec = {
+export const POSTER: ExampleSpec = {
   properties: [
     LIGHT_DIRECTION,
     { name: 'navy', label: 'Navy', value: hexColor('#00324C'), widget: 'color' },

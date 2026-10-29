@@ -108,11 +108,11 @@ export const es = {
   'command.example-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
   'command.example-iridescent-blob.label': 'Plantilla: Blob iridiscente',
   'command.example-iridescent-blob.keywords': 'plantilla ejemplo muestra demo tutorial',
-  'command.example-post-hope.label': 'Plantilla: Post Hope',
-  'command.example-post-hope.keywords':
-    'plantilla ejemplo muestra demo póster esténcil toon boceto spite',
-  'command.example-magma.label': 'Plantilla: Magma',
-  'command.example-magma.keywords': 'plantilla ejemplo muestra demo lava fuego volcán voronoi',
+  'command.example-poster.label': 'Plantilla: Afiche',
+  'command.example-poster.keywords':
+    'plantilla ejemplo muestra demo póster esténcil toon serigrafía',
+  'command.example-lava-flow.label': 'Plantilla: Río de lava',
+  'command.example-lava-flow.keywords': 'plantilla ejemplo muestra demo lava fuego volcán voronoi',
 
   // Command palette
   'palette.button': 'Comandos',
@@ -207,13 +207,13 @@ export const es = {
   'example.iridescent-blob.description': 'Un blob que respira y cambia de color',
   'example.iridescent-blob.teaches':
     'Mueve los vértices sobre sus normales con ruido animado y reusa ese ruido para elegir colores y rugosidad. Cada paso está en un marco de comentario.',
-  'example.post-hope.title': 'Post Hope',
-  'example.post-hope.description': 'Sombreado de póster en cuatro tintas, con rayas y contorno',
-  'example.post-hope.teaches':
+  'example.poster.title': 'Afiche',
+  'example.poster.description': 'Sombreado de póster en cuatro tintas, con rayas y contorno',
+  'example.poster.teaches':
     'Corta un único valor de iluminación en cuatro tintas planas con Select, hace temblar los cortes con ruido como un esténcil hecho a mano y dibuja el contorno con un fresnel.',
-  'example.magma.title': 'Magma',
-  'example.magma.description': 'Lava que se arremolina, con venas al rojo blanco',
-  'example.magma.teaches':
+  'example.lava-flow.title': 'Río de lava',
+  'example.lava-flow.description': 'Lava que se arremolina, con venas al rojo blanco',
+  'example.lava-flow.teaches':
     'Deforma la posición con ruido lento, dibuja venas finas con el valor absoluto de otro ruido y deja que el calor que pasa de 1 se derrame sobre los demás canales, así las venas más calientes viran al blanco.',
   'openExample.title': '¿Abrir «{title}»?',
   'openExample.description':

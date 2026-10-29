@@ -104,11 +104,11 @@ export const en = {
   'command.example-pond.keywords': 'template example sample demo pond water',
   'command.example-iridescent-blob.label': 'Template: Iridescent blob',
   'command.example-iridescent-blob.keywords': 'template example sample demo tutorial',
-  'command.example-post-hope.label': 'Template: Post Hope',
-  'command.example-post-hope.keywords':
-    'template example sample demo poster stencil toon sketch spite',
-  'command.example-magma.label': 'Template: Magma',
-  'command.example-magma.keywords': 'template example sample demo lava fire volcano voronoi',
+  'command.example-poster.label': 'Template: Poster',
+  'command.example-poster.keywords':
+    'template example sample demo poster stencil toon screen-print',
+  'command.example-lava-flow.label': 'Template: Lava flow',
+  'command.example-lava-flow.keywords': 'template example sample demo lava fire volcano voronoi',
 
   // Command palette
   'palette.button': 'Commands',
@@ -201,13 +201,13 @@ export const en = {
   'example.iridescent-blob.description': 'A breathing blob that shifts color',
   'example.iridescent-blob.teaches':
     'Moves the vertices along their normals with animated noise, then reuses that noise to pick colors and roughness. Each step sits in a comment frame.',
-  'example.post-hope.title': 'Post Hope',
-  'example.post-hope.description': 'Four-ink poster shading with stripes and an outline',
-  'example.post-hope.teaches':
+  'example.poster.title': 'Poster',
+  'example.poster.description': 'Four-ink poster shading with stripes and an outline',
+  'example.poster.teaches':
     'Cuts one lighting number into four flat inks with Select, wobbles the cuts with noise like a hand-made stencil, and draws the outline with a fresnel.',
-  'example.magma.title': 'Magma',
-  'example.magma.description': 'Swirling lava with veins that burn white-hot',
-  'example.magma.teaches':
+  'example.lava-flow.title': 'Lava flow',
+  'example.lava-flow.description': 'Swirling lava with veins that burn white-hot',
+  'example.lava-flow.teaches':
     'Bends the position with slow noise, draws thin veins from the absolute value of more noise, and lets heat past 1 spill into the other channels so the hottest veins turn white.',
   'openExample.title': 'Open “{title}”?',
   'openExample.description':

@@ -12,7 +12,7 @@ import { hexColor } from './hex-color'
  * channels, so the hottest veins turn white. Every pattern reads Position, so the torus the original wears has
  * no UV seam to break it.
  */
-export const MAGMA: ExampleSpec = {
+export const LAVA_FLOW: ExampleSpec = {
   properties: [
     { name: 'flowSpeed', label: 'Flow speed', value: float(0.12) },
     { name: 'swirl', label: 'Swirl', value: float(1.2) },
