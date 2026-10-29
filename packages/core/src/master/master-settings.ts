@@ -48,7 +48,8 @@ export const PHYSICAL_FEATURE_PARAMS: Readonly<Record<PhysicalFeature, string>> 
   iridescence: 'useIridescence',
 }
 
-const PHYSICAL_FEATURES: readonly PhysicalFeature[] = [
+/** Every physical feature, in the order the master lists their inputs. */
+export const PHYSICAL_FEATURES: readonly PhysicalFeature[] = [
   'transmission',
   'clearcoat',
   'sheen',

@@ -143,8 +143,10 @@ test.describe('Properties panel', () => {
     await page.keyboard.press('Enter')
     const list = page.getByRole('dialog', { name: 'Connect waveSpeed › Out' })
     await expect(list).toBeVisible()
-    await page.keyboard.type('roughness')
+    // "roughness" alone also finds the master's Clearcoat Roughness and Sheen Roughness.
+    await page.keyboard.type('stack › roughness')
     await expect(list.getByRole('option')).toHaveCount(1)
+    await expect(list.getByRole('option')).toHaveText(/^Master Stack › Roughness/)
     await page.keyboard.press('Enter')
     await expect(list).toBeHidden()
     await expect.poll(() => readStoredEdgeCount(page)).toBe(1)

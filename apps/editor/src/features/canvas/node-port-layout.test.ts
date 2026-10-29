@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest'
 
 import { registry } from '@/store/registry'
 
-import { UNLIT_IGNORED_HINT, inputGroups, visibleOutputs } from './node-port-layout'
+import { groupInputs, inputGroups, shownRows, visibleOutputs } from './node-port-layout'
+import type { DisabledHint } from './node-port-layout'
 import type { FlowNodeData } from './to-flow'
 
 function dataFor(
@@ -43,6 +44,30 @@ const master = (params: GraphNode['params'] = {}): GraphNode => ({
   params,
 })
 
+const PHYSICAL_INPUT_IDS: readonly string[] = [
+  'transmission',
+  'ior',
+  'thickness',
+  'clearcoat',
+  'clearcoatRoughness',
+  'sheen',
+  'sheenRoughness',
+  'iridescence',
+  'iridescenceIOR',
+]
+
+function registryInputs() {
+  const definition = registry.get('master/stack')
+  if (definition === undefined) throw new Error('Missing master/stack')
+  return definition.inputs
+}
+
+/** Each master input's disabled hint, by input id, under the given params. */
+function hintsOf(params: GraphNode['params']): ReadonlyMap<string, DisabledHint | null> {
+  const rows = groupInputs(master(params), registryInputs()).flatMap((group) => group.rows)
+  return new Map(rows.map((row) => [row.input.id, row.disabledHint]))
+}
+
 const inputIds = (data: FlowNodeData) =>
   inputGroups(data).flatMap((group) => group.rows.map((row) => row.input.id))
 
@@ -59,17 +84,89 @@ describe('node port layout', () => {
     expect(visibleOutputs(data)).toEqual([])
   })
 
-  it('groups the master inputs into Vertex and Fragment', () => {
+  it('groups the master inputs into Vertex, Fragment and Physical', () => {
     const groups = inputGroups(dataFor(master()))
-    expect(groups.map((group) => group.title)).toEqual(['node.group.vertex', 'node.group.fragment'])
+    expect(groups.map((group) => group.title)).toEqual([
+      'node.group.vertex',
+      'node.group.fragment',
+      'node.group.physical',
+    ])
     expect(groups[0]?.rows.map((row) => row.input.id)).toEqual(['position'])
+    expect(groups[2]?.rows.map((row) => row.input.id)).toEqual(PHYSICAL_INPUT_IDS)
+    expect(groups[1]?.rows.some((row) => PHYSICAL_INPUT_IDS.includes(row.input.id))).toBe(false)
+  })
+
+  it('folds the Physical group away unless the lighting is physical', () => {
+    const physicalGroup = (lighting: string) =>
+      inputGroups(dataFor(master({ lighting }))).find(
+        (group) => group.title === 'node.group.physical',
+      )
+    expect(physicalGroup('standard')?.disclosure).toEqual({ isOpenByDefault: false })
+    expect(physicalGroup('unlit')?.disclosure).toEqual({ isOpenByDefault: false })
+    expect(physicalGroup('physical')?.disclosure).toEqual({ isOpenByDefault: true })
+    const [vertex, fragment] = inputGroups(dataFor(master()))
+    expect(vertex?.disclosure).toBeNull()
+    expect(fragment?.disclosure).toBeNull()
+  })
+
+  it('has no Physical fold on a collapsed master, which already shows only connected ports', () => {
+    const groups = inputGroups(dataFor(master({ collapsed: true }), { inputs: ['clearcoat'] }))
+    const physical = groups.find((group) => group.title === 'node.group.physical')
+    expect(physical?.rows.map((row) => row.input.id)).toEqual(['clearcoat'])
+    expect(physical?.disclosure).toBeNull()
+  })
+
+  it('shows only the connected rows of a closed group, and every row of an open one', () => {
+    const physical = groupInputs(master(), registryInputs()).find(
+      (group) => group.title === 'node.group.physical',
+    )
+    if (physical === undefined) throw new Error('No Physical group')
+    const connected = new Set(['sheen'])
+    expect(shownRows(physical, false, connected).map((row) => row.input.id)).toEqual(['sheen'])
+    expect(shownRows(physical, true, connected)).toHaveLength(PHYSICAL_INPUT_IDS.length)
+    const [vertex] = groupInputs(master(), registryInputs())
+    if (vertex === undefined) throw new Error('No Vertex group')
+    expect(shownRows(vertex, false, new Set())).toEqual(vertex.rows)
   })
 
   it('marks metalness, roughness and normal as ignored by an unlit master', () => {
-    const rows = inputGroups(dataFor(master({ lighting: 'unlit' }))).flatMap((group) => group.rows)
-    const disabled = rows.filter((row) => row.disabledHint === UNLIT_IGNORED_HINT)
-    expect(disabled.map((row) => row.input.id)).toEqual(['metalness', 'roughness', 'normal'])
-    const standardRows = inputGroups(dataFor(master())).flatMap((group) => group.rows)
-    expect(standardRows.every((row) => row.disabledHint === null)).toBe(true)
+    const hints = hintsOf({ lighting: 'unlit' })
+    const unlit = [...hints].filter(([, hint]) => hint?.reason === 'unlit')
+    expect(unlit.map(([id]) => id)).toEqual(['metalness', 'roughness', 'normal'])
+  })
+
+  it('marks the physical inputs as physical only unless the lighting is physical', () => {
+    for (const lighting of ['standard', 'unlit']) {
+      const hints = hintsOf({ lighting, useClearcoat: true })
+      for (const id of PHYSICAL_INPUT_IDS) expect(hints.get(id)).toEqual({ reason: 'physicalOnly' })
+    }
+    const standard = hintsOf({})
+    const surfaceIds = [...standard.keys()].filter((id) => !PHYSICAL_INPUT_IDS.includes(id))
+    expect(surfaceIds.every((id) => standard.get(id) === null)).toBe(true)
+  })
+
+  it('asks for the feature switch while a physical feature is off', () => {
+    const hints = hintsOf({ lighting: 'physical', useClearcoat: true })
+    expect(hints.get('clearcoat')).toBeNull()
+    expect(hints.get('clearcoatRoughness')).toBeNull()
+    expect(hints.get('transmission')).toEqual({ reason: 'featureOff', feature: 'transmission' })
+    expect(hints.get('ior')).toEqual({ reason: 'featureOff', feature: 'transmission' })
+    expect(hints.get('thickness')).toEqual({ reason: 'featureOff', feature: 'transmission' })
+    expect(hints.get('sheen')).toEqual({ reason: 'featureOff', feature: 'sheen' })
+    expect(hints.get('sheenRoughness')).toEqual({ reason: 'featureOff', feature: 'sheen' })
+    expect(hints.get('iridescence')).toEqual({ reason: 'featureOff', feature: 'iridescence' })
+    expect(hints.get('iridescenceIOR')).toEqual({ reason: 'featureOff', feature: 'iridescence' })
+    expect(hints.get('roughness')).toBeNull()
+  })
+
+  it('leaves every physical input enabled once every feature is on', () => {
+    const hints = hintsOf({
+      lighting: 'physical',
+      useTransmission: true,
+      useClearcoat: true,
+      useSheen: true,
+      useIridescence: true,
+    })
+    expect([...hints.values()].every((hint) => hint === null)).toBe(true)
   })
 })

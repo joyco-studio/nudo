@@ -48,3 +48,12 @@ export function connectedSourceTitle(
   if (source === undefined || definition === undefined) return null
   return nodeTitle(source, definition, graph.properties)
 }
+
+/** The ids of the node's inputs that an edge feeds. */
+export function connectedInputIds(graph: Graph, nodeId: NodeId): ReadonlySet<string> {
+  return new Set(
+    Object.values(graph.edges)
+      .filter((edge) => edge.to.nodeId === nodeId)
+      .map((edge) => edge.to.portId),
+  )
+}

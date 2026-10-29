@@ -76,6 +76,62 @@ test.describe('inspector', () => {
     await expect.poll(async () => (await storedNode(page, 'master'))?.params.lighting).toBe('unlit')
   })
 
+  test('physical lighting: the transmission switch turns its inputs on, keyboard only', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const panel = inspector(page)
+    const master = graphNode(page, 'Master Stack')
+    // The switches show only under physical lighting.
+    await expect(panel.getByRole('switch', { name: 'Enable transmission' })).toHaveCount(0)
+
+    const lighting = panel.getByRole('combobox', { name: 'Lighting' })
+    await lighting.focus()
+    await page.keyboard.press('p')
+    await expect(lighting).toHaveText('Physical')
+
+    // Physical lighting opens the Physical group; transmission waits for its switch.
+    await expect(master.getByRole('button', { name: 'Physical', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+    const transmissionRow = master.locator('li[data-port-id="transmission"]')
+    await expect(transmissionRow).toHaveAttribute('data-disabled', 'true')
+    await expect(transmissionRow).toContainText('Turn on transmission to use this')
+
+    const transmission = panel.getByRole('switch', { name: 'Enable transmission' })
+    await expect(transmission).toHaveAccessibleDescription(/renders the scene behind once more/)
+    await tabUntilFocused(page, transmission)
+    await page.keyboard.press('Space')
+    await expect(transmission).toBeChecked()
+
+    await expect(transmissionRow).not.toHaveAttribute('data-disabled')
+    await expect(
+      transmissionRow.getByRole('textbox', { name: 'Transmission', exact: true }),
+    ).toBeVisible()
+    await expect
+      .poll(async () => (await storedNode(page, 'master'))?.params)
+      .toMatchObject({ lighting: 'physical', useTransmission: true })
+  })
+
+  test('the Physical group opens from the keyboard on a standard master', async ({ page }) => {
+    await page.goto('/')
+    const master = graphNode(page, 'Master Stack')
+    const toggle = master.getByRole('button', { name: 'Physical', exact: true })
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    const clearcoatRow = master.locator('li[data-port-id="clearcoat"]')
+    await expect(clearcoatRow).toHaveCount(0)
+
+    await toggle.focus()
+    await page.keyboard.press('Enter')
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(clearcoatRow).toContainText('Only Physical lighting uses this')
+
+    await page.keyboard.press('Space')
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(clearcoatRow).toHaveCount(0)
+  })
+
   test('comment size editable from inspector', async ({ page }) => {
     await seedAutosave(page, COMMENT_FRAME)
     await page.goto('/')

@@ -1,14 +1,8 @@
-import { MASTER_NODE_ID, PHYSICAL_FEATURE_PARAMS, PHYSICAL_FEATURE_SLOTS } from '@nudo-tsl/core'
-import type {
-  AnyNodeDefinition,
-  GraphNode,
-  InputDefinition,
-  NodeId,
-  ParamDefinition,
-  XY,
-} from '@nudo-tsl/core'
+import { MASTER_NODE_ID } from '@nudo-tsl/core'
+import type { AnyNodeDefinition, GraphNode, NodeId, XY } from '@nudo-tsl/core'
 
-import { groupInputs } from '@/features/canvas/node-port-layout'
+import { groupInputs, shownRows } from '@/features/canvas/node-port-layout'
+import type { InputRowModel, PortGroup } from '@/features/canvas/node-port-layout'
 import { bodyParams } from '@/features/canvas/param-field'
 import type { NodeGeometry } from '@/features/canvas/tidy-up/plan-tidy-up'
 import { hasNodePreview, isPreviewShown } from '@/features/node-previews/preview-graph'
@@ -30,33 +24,25 @@ const ROW_HEIGHT = 28
 const LIST_PADDING = 4
 /** The line between two lists. */
 const DIVIDER = 1
-/** A Master Stack heading ("Vertex", "Fragment") over its inputs. */
+/** A Master Stack heading ("Vertex", "Fragment", the Physical toggle) over its inputs. */
 const GROUP_HEADING_HEIGHT = 24
 /** The node preview with its margins. */
 const PREVIEW_HEIGHT = 120
 
-const PHYSICAL_INPUT_IDS: ReadonlySet<string> = new Set(
-  Object.values(PHYSICAL_FEATURE_SLOTS).flat(),
-)
-const PHYSICAL_SWITCH_IDS: ReadonlySet<string> = new Set(Object.values(PHYSICAL_FEATURE_PARAMS))
-
-interface MeasuredParts {
-  readonly params: readonly ParamDefinition[] | undefined
-  readonly inputs: readonly InputDefinition<string>[]
-}
+/** Examples connect nothing to an input a folded group hides, so none of those rows shows. */
+const NOTHING_CONNECTED: ReadonlySet<string> = new Set()
 
 /**
- * The params and inputs that add to a node's height. A master that is not physical keeps its
- * Physical group collapsed and its feature switches hidden, so neither counts.
+ * A group's rows as the node first draws them: a folded group (the master's Physical group unless
+ * its lighting is physical) starts as its heading alone.
  */
-function measuredParts(node: GraphNode, definition: AnyNodeDefinition): MeasuredParts {
-  const isCompactMaster = node.id === MASTER_NODE_ID && node.params.lighting !== 'physical'
-  if (!isCompactMaster) return { params: definition.params, inputs: definition.inputs }
-  return {
-    params: definition.params?.filter((param) => !PHYSICAL_SWITCH_IDS.has(param.id)),
-    inputs: definition.inputs.filter((input) => !PHYSICAL_INPUT_IDS.has(input.id)),
-  }
+function initialRows(group: PortGroup): readonly InputRowModel[] {
+  return shownRows(group, group.disclosure?.isOpenByDefault ?? true, NOTHING_CONNECTED)
 }
+
+/** A titled group draws its heading while it has rows; a folding one always does, to open it. */
+const drawsHeading = (group: PortGroup): boolean =>
+  group.title !== null && (group.rows.length > 0 || group.disclosure !== null)
 
 function pillGeometry(definition: AnyNodeDefinition, id: NodeId, position: XY): NodeGeometry {
   const outputY = Object.fromEntries(
@@ -73,9 +59,9 @@ export function estimateGeometry(
 ): NodeGeometry {
   if (definition.reads === 'property') return pillGeometry(definition, node.id, position)
 
-  const { params, inputs } = measuredParts(node, definition)
+  const { inputs } = definition
   let y = HEADER_HEIGHT + (definition.formula === undefined ? 0 : FORMULA_HEIGHT)
-  const paramCount = bodyParams(params).length
+  const paramCount = bodyParams(node, definition.params).length
   if (paramCount > 0) y += 2 * LIST_PADDING + paramCount * ROW_HEIGHT + DIVIDER
 
   const outputY: Record<string, number> = {}
@@ -92,8 +78,8 @@ export function estimateGeometry(
   if (inputs.length > 0) {
     y += LIST_PADDING + (definition.outputs.length > 0 ? DIVIDER : 0)
     for (const group of groupInputs(node, inputs)) {
-      if (group.rows.length > 0 && group.title !== null) y += GROUP_HEADING_HEIGHT
-      for (const row of group.rows) {
+      if (drawsHeading(group)) y += GROUP_HEADING_HEIGHT
+      for (const row of initialRows(group)) {
         inputY[row.input.id] = y + ROW_HEIGHT / 2
         y += ROW_HEIGHT
       }

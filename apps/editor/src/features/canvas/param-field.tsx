@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import type { ReactElement } from 'react'
 import { UNIVERSAL_PARAM_IDS } from '@nudo-tsl/core'
 import type { GraphNode, ParamDefinition } from '@nudo-tsl/core'
 
@@ -6,10 +7,12 @@ import { cn } from '@/shared/lib/utils'
 import { OptionSelect } from '@/shared/components/option-select'
 import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
 import { useNodeFieldActions } from './node-field-actions'
+import { isIdlePhysicalSwitch } from './node-port-layout'
 import { NumberField } from './number-field'
 import type { BooleanParam, EnumParam, NumberParam } from './param-kinds'
 
@@ -22,9 +25,15 @@ function isBodyParam(param: ParamDefinition): param is BodyParam {
   return param.kind === 'enum' || param.kind === 'boolean'
 }
 
-/** The params a node shows in its body, in definition order. */
-export function bodyParams(params: readonly ParamDefinition[] | undefined): readonly BodyParam[] {
-  return (params ?? []).filter(isBodyParam)
+/**
+ * The params a node shows in its body, in definition order. The master's physical feature
+ * switches show only while its lighting is physical: no other material reads them.
+ */
+export function bodyParams(
+  node: GraphNode,
+  params: readonly ParamDefinition[] | undefined,
+): readonly BodyParam[] {
+  return (params ?? []).filter(isBodyParam).filter((param) => !isIdlePhysicalSwitch(node, param.id))
 }
 
 /**
@@ -94,28 +103,87 @@ function EnumParamField({ node, param }: ParamFieldProps<EnumParam>) {
   )
 }
 
+/**
+ * What turning a switch on does, describing the switch. The Inspector shows it under the row, as
+ * it shows a port's description; a canvas node has no room for it, so there it is read out to
+ * assistive tech and the switch's tooltip shows it.
+ */
+function ParamDescription({ id, text }: { id: string; text: string }) {
+  const isCompact = useFieldSize() === 'compact'
+  return (
+    <p
+      id={id}
+      className={
+        isCompact ? 'sr-only' : '-mt-1 px-3 pb-2 text-micro text-pretty text-muted-foreground'
+      }
+    >
+      {text}
+    </p>
+  )
+}
+
+/**
+ * A switch that shows what it does in a tooltip, on hover and on keyboard focus (focus bubbles
+ * up to the wrapper). The wrapper is the trigger so the tooltip's own `data-state` never replaces
+ * the switch's, which its checked and unchecked styles read.
+ */
+function DescribedSwitch({
+  description,
+  children,
+}: {
+  description: string
+  children: ReactElement
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex shrink-0">{children}</span>
+      </TooltipTrigger>
+      {/* Hidden from assistive tech: the switch is already described by the same text. */}
+      <TooltipContent side="top" aria-hidden="true" className="max-w-60 text-pretty">
+        {description}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 function BooleanParamField({ node, param }: ParamFieldProps<BooleanParam>) {
   const { setParam } = useNodeFieldActions()
-  const sizeClasses = SIZE_CLASSES[useFieldSize()]
+  const fieldSize = useFieldSize()
+  const sizeClasses = SIZE_CLASSES[fieldSize]
   const switchId = useId()
+  const descriptionId = useId()
   const stored = node.params[param.id]
   const isChecked = typeof stored === 'boolean' ? stored : param.default
+  const { description } = param
+
+  // An on/off setting that applies at once: a switch, with its hit area grown to 24px+.
+  const toggle = (
+    <Switch
+      id={switchId}
+      size={sizeClasses.switchSize}
+      checked={isChecked}
+      aria-describedby={description === undefined ? undefined : descriptionId}
+      onCheckedChange={(checked) => {
+        setParam({ nodeId: node.id, paramId: param.id }, checked)
+      }}
+      className={cn('nodrag nokey', sizeClasses.switchInset, SWITCH_OUTLINE_WHEN_OFF)}
+    />
+  )
 
   return (
-    <li className={cn(ROW_CLASS, sizeClasses.row)}>
-      <Label htmlFor={switchId} className={cn(LABEL_CLASS, sizeClasses.label)}>
-        {param.label}
-      </Label>
-      {/* An on/off setting that applies at once: a switch, with its hit area grown to 24px+. */}
-      <Switch
-        id={switchId}
-        size={sizeClasses.switchSize}
-        checked={isChecked}
-        onCheckedChange={(checked) => {
-          setParam({ nodeId: node.id, paramId: param.id }, checked)
-        }}
-        className={cn('nodrag nokey', sizeClasses.switchInset, SWITCH_OUTLINE_WHEN_OFF)}
-      />
+    <li>
+      <div className={cn(ROW_CLASS, sizeClasses.row)}>
+        <Label htmlFor={switchId} className={cn(LABEL_CLASS, sizeClasses.label)}>
+          {param.label}
+        </Label>
+        {description !== undefined && fieldSize === 'compact' ? (
+          <DescribedSwitch description={description}>{toggle}</DescribedSwitch>
+        ) : (
+          toggle
+        )}
+      </div>
+      {description !== undefined && <ParamDescription id={descriptionId} text={description} />}
     </li>
   )
 }

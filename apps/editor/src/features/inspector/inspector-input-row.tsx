@@ -1,7 +1,8 @@
 import { portKey } from '@nudo-tsl/core'
 import type { DataType, Graph, GraphNode, ResolvedTypes } from '@nudo-tsl/core'
 
-import { InlineField, MutedHint } from '@/features/canvas/inline-field'
+import { DisabledInputText, InlineField, MutedHint } from '@/features/canvas/inline-field'
+import { disabledHintText } from '@/features/canvas/node-port-layout'
 import type { InputRowModel } from '@/features/canvas/node-port-layout'
 import { TypeForAssistiveTech } from '@/features/canvas/node-view'
 import { PortLabel } from '@/features/canvas/port-label'
@@ -34,10 +35,7 @@ function InspectorInputRow({ node, row, dataType, sourceTitle }: InspectorInputR
     <li data-port-id={input.id} className={INSPECTOR_ROW_CLASS}>
       <PortTypeLabel dataType={dataType} />
       {disabledHint !== null ? (
-        <>
-          <PortLabel label={input.label} isMuted />
-          <MutedHint>{t(disabledHint)}</MutedHint>
-        </>
+        <DisabledInputText label={input.label} reason={disabledHintText(disabledHint, t)} />
       ) : sourceTitle !== null ? (
         <>
           <PortLabel label={input.label} />
