@@ -1,4 +1,5 @@
-import type { AnyNodeDefinition, DataType, ParamValue } from '@nudo-tsl/core'
+import { addNode, asNodeId, createGraph, setParam, topologyKey } from '@nudo-tsl/core'
+import type { AnyNodeDefinition, DataType, Graph, ParamValue, Result } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import {
   PHASE_3_CATALOG_C,
@@ -355,6 +356,24 @@ describe('color ramp', () => {
     expect(hiddenIds({ count: 3 })).toContain('stop3Position')
     expect(hiddenIds({ count: 8 })).toEqual([])
     expect(hiddenIds({ count: 2 })).not.toContain('in')
+  })
+
+  it('changing the count changes the topology key, so every preview recompiles', () => {
+    const unwrap = <T, E>(result: Result<T, E>): T => {
+      if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
+      return result.value
+    }
+    const rampId = asNodeId('ramp')
+    const graph: Graph = unwrap(
+      addNode(createGraph(), registry, {
+        id: rampId,
+        type: 'color/color-ramp',
+        position: { x: 0, y: 0 },
+      }),
+    )
+    const threeStops = unwrap(setParam(graph, registry, { nodeId: rampId, paramId: 'count' }, 3))
+
+    expect(topologyKey(threeStops, registry)).not.toBe(topologyKey(graph, registry))
   })
 
   it('stores the count as a hidden number param between two and eight', () => {

@@ -38,14 +38,14 @@ const annotated = defineNode({
   type: 'test/annotated',
   category: 'utility',
   label: 'Annotated',
-  description: 'Has a structural param and hidden editor params',
+  description: 'Has a structural param and hidden editor-only params',
   keywords: [],
   inputs: [],
   outputs: [],
   params: [
     { id: 'mode', label: 'Mode', kind: 'string', default: 'a' },
-    { id: 'title', label: 'Title', kind: 'string', default: '', hidden: true },
-    { id: 'width', label: 'Width', kind: 'number', default: 1, hidden: true },
+    { id: 'title', label: 'Title', kind: 'string', default: '', hidden: true, editorOnly: true },
+    { id: 'width', label: 'Width', kind: 'number', default: 1, hidden: true, editorOnly: true },
   ],
   build: () => ({}),
 })
@@ -63,8 +63,21 @@ const reader = defineNode({
   build: ({ tsl }) => ({ out: tsl.construct('float', [0]) }),
 })
 
+const counted = defineNode({
+  type: 'test/counted',
+  category: 'utility',
+  label: 'Counted',
+  description: 'Has a number param kept out of the node body that still shapes the build',
+  keywords: [],
+  inputs: [],
+  outputs: [],
+  params: [{ id: 'count', label: 'Count', kind: 'number', default: 2, hidden: true }],
+  build: () => ({}),
+})
+
 const registry = createNodeRegistry()
 registry.register(master)
+registry.register(counted)
 registry.register(passThrough)
 registry.register(annotated)
 registry.register(reader)
@@ -161,25 +174,32 @@ describe('topologyKey', () => {
       return { ...graph, nodes: { ...graph.nodes, [node.id]: node } }
     }
 
-    it('ignores params the definition declares hidden', () => {
+    it('ignores params the definition declares editor-only', () => {
       const base = withNodeParams('test/annotated', { mode: 'a' })
       const edited = withNodeParams('test/annotated', { mode: 'a', title: 'Notes', width: 400 })
 
       expect(topologyKey(edited, registry)).toBe(topologyKey(base, registry))
     })
 
-    it('still changes when a non-hidden param changes', () => {
+    it('still changes when a structural param changes', () => {
       const base = withNodeParams('test/annotated', { mode: 'a', title: 'Notes' })
       const edited = withNodeParams('test/annotated', { mode: 'b', title: 'Notes' })
 
       expect(topologyKey(edited, registry)).not.toBe(topologyKey(base, registry))
     })
 
-    it('counts hidden params as structural without a registry', () => {
+    it('counts editor-only params as structural without a registry', () => {
       const base = withNodeParams('test/annotated', { mode: 'a' })
       const edited = withNodeParams('test/annotated', { mode: 'a', title: 'Notes' })
 
       expect(topologyKey(edited)).not.toBe(topologyKey(base))
+    })
+
+    it('keeps a hidden param that is not editor state in the key', () => {
+      const two = withNodeParams('test/counted', { count: 2 })
+      const three = withNodeParams('test/counted', { count: 3 })
+
+      expect(topologyKey(three, registry)).not.toBe(topologyKey(two, registry))
     })
 
     it('keeps the property reference in the key even though it is hidden', () => {

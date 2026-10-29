@@ -4,9 +4,9 @@ export interface EnumParamOption {
 }
 
 /**
- * Declares one structural setting of a node. Hidden params are editor-managed (not shown in the
- * node body); string and number changes still go through `setParam`. A number lies within its
- * `min` and `max` when given.
+ * Declares one setting of a node. Hidden params are kept out of the node body (the editor manages
+ * them); string and number changes still go through `setParam`. Hidden does not mean the param
+ * never compiles: only `editorOnly` says that. A number lies within its `min` and `max` when given.
  */
 export type ParamDefinition =
   | {
@@ -30,6 +30,12 @@ export type ParamDefinition =
       readonly kind: 'string'
       readonly default: string
       readonly hidden?: boolean
+      /**
+       * Editor state that never reaches the compiled graph (a comment's title or size): it is left
+       * out of `topologyKey`, so editing it never recompiles. A param that shapes the build, even a
+       * hidden one like a Color Ramp's stop count, must not set it.
+       */
+      readonly editorOnly?: boolean
     }
   | {
       readonly id: string
@@ -41,6 +47,12 @@ export type ParamDefinition =
       /** The arrow-key increment of its field. Defaults to 1. */
       readonly step?: number
       readonly hidden?: boolean
+      /**
+       * Editor state that never reaches the compiled graph (a comment's title or size): it is left
+       * out of `topologyKey`, so editing it never recompiles. A param that shapes the build, even a
+       * hidden one like a Color Ramp's stop count, must not set it.
+       */
+      readonly editorOnly?: boolean
     }
 
 /**

@@ -61,6 +61,26 @@ describe('default registry', () => {
     }
   })
 
+  it('only the comment frame declares editor-only params: every other hidden param compiles', () => {
+    const editorOnly = createDefaultRegistry()
+      .list()
+      .flatMap((definition) =>
+        (definition.params ?? [])
+          .filter(
+            (param) =>
+              (param.kind === 'string' || param.kind === 'number') && param.editorOnly === true,
+          )
+          .map((param) => `${definition.type}.${param.id}`),
+      )
+
+    expect(editorOnly).toEqual([
+      'utility/comment.title',
+      'utility/comment.width',
+      'utility/comment.height',
+      'utility/comment.body',
+    ])
+  })
+
   it('defines the master stack without outputs', () => {
     const master = createDefaultRegistry().get('master/stack')
 

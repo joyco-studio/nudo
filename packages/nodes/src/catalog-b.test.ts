@@ -423,10 +423,33 @@ describe('comment node', () => {
 
   it('hides the title, the size and the body text: the editor edits them, and they never recompile', () => {
     expect(commentNode.params).toEqual([
-      { id: 'title', label: 'Title', kind: 'string', default: 'Comment', hidden: true },
-      { id: 'width', label: 'Width', kind: 'number', default: 320, min: 120, hidden: true },
-      { id: 'height', label: 'Height', kind: 'number', default: 200, min: 80, hidden: true },
-      { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true },
+      {
+        id: 'title',
+        label: 'Title',
+        kind: 'string',
+        default: 'Comment',
+        hidden: true,
+        editorOnly: true,
+      },
+      {
+        id: 'width',
+        label: 'Width',
+        kind: 'number',
+        default: 320,
+        min: 120,
+        hidden: true,
+        editorOnly: true,
+      },
+      {
+        id: 'height',
+        label: 'Height',
+        kind: 'number',
+        default: 200,
+        min: 80,
+        hidden: true,
+        editorOnly: true,
+      },
+      { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true, editorOnly: true },
     ])
   })
 

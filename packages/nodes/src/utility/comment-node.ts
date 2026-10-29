@@ -16,7 +16,14 @@ export const commentNode = defineNode({
   outputs: [],
   params: [
     // Edited in the frame header (ruling P2-R8): editor state that never recompiles.
-    { id: 'title', label: 'Title', kind: 'string', default: DEFAULT_TITLE, hidden: true },
+    {
+      id: 'title',
+      label: 'Title',
+      kind: 'string',
+      default: DEFAULT_TITLE,
+      hidden: true,
+      editorOnly: true,
+    },
     {
       id: 'width',
       label: 'Width',
@@ -24,6 +31,7 @@ export const commentNode = defineNode({
       default: DEFAULT_WIDTH,
       min: MIN_WIDTH,
       hidden: true,
+      editorOnly: true,
     },
     {
       id: 'height',
@@ -32,9 +40,10 @@ export const commentNode = defineNode({
       default: DEFAULT_HEIGHT,
       min: MIN_HEIGHT,
       hidden: true,
+      editorOnly: true,
     },
     // The note written in the frame body: editor state too, so it never recompiles either.
-    { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true },
+    { id: 'body', label: 'Text', kind: 'string', default: '', hidden: true, editorOnly: true },
   ],
   build: () => ({}),
 })

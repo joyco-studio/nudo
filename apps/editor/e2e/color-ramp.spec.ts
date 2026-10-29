@@ -89,11 +89,14 @@ test('a color ramp added from the menu takes a third stop from the keyboard', as
   const addStop = ramp.getByRole('button', { name: 'Add stop' })
 
   await tabUntilFocused(page, addStop)
+  const compilesBefore = await settledCompileCount(page)
   await page.keyboard.press('Enter')
 
   await expect.poll(async () => storedCount(page, rampId)).toBe(3)
   await expect(ramp.getByRole('slider', { name: 'Stop 3 position' })).toBeVisible()
   await expect(addStop).toBeFocused()
+  // The stop count shapes the shader: the new stop recompiles, or the preview reads a stale ramp.
+  await expect.poll(async () => settledCompileCount(page)).toBeGreaterThan(compilesBefore)
 })
 
 test('arrow keys move a stop by 0.01 without recompiling, and it stops at its neighbour', async ({

@@ -129,6 +129,18 @@ describe('createCompileScheduler', () => {
     expect(buildSpy).toHaveBeenCalledTimes(2)
   })
 
+  it('changing the stop count of a Color Ramp rebuilds', () => {
+    const { buildSpy, scheduler } = setUp()
+    const rampId = asNodeId('ramp')
+    const graph = withNode(createGraph(), 'ramp', 'color/color-ramp')
+    scheduler.update(graph)
+    vi.advanceTimersByTime(DELAY_MS)
+
+    scheduler.update(unwrap(setParam(graph, registry, { nodeId: rampId, paramId: 'count' }, 3)))
+    vi.advanceTimersByTime(DELAY_MS)
+    expect(buildSpy).toHaveBeenCalledTimes(2)
+  })
+
   it('topology change rebuilds once after 150ms even with rapid updates', () => {
     const { buildSpy, onBuilt, scheduler } = setUp()
     scheduler.update(createGraph())

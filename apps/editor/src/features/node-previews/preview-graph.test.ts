@@ -86,6 +86,13 @@ describe('upstream analysis', () => {
     expect(upstreamTopologyKey(rewired, port('sine', 'out'), registry)).not.toBe(before)
   })
 
+  it("changes a Color Ramp's preview key when its stop count changes", () => {
+    const ramp = graphWith([['ramp', 'color/color-ramp']])
+    const before = upstreamTopologyKey(ramp, port('ramp', 'out'), registry)
+    const threeStops = unwrap(setParam(ramp, registry, { nodeId: id('ramp'), paramId: 'count' }, 3))
+    expect(upstreamTopologyKey(threeStops, port('ramp', 'out'), registry)).not.toBe(before)
+  })
+
   it('animates only previews with Time upstream', () => {
     expect(isAnimatedPreview(chain, id('sine'))).toBe(true)
     expect(isAnimatedPreview(chain, id('color'))).toBe(false)
