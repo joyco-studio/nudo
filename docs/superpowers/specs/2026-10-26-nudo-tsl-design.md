@@ -441,6 +441,7 @@ Fuente: https://github.com/joyco-studio/gltf (live: https://gltf.joyco.studio).
 - **Fase 2:**
   - Previews por nodo: un renderer compartido renderiza a render targets chicos y solo se re-renderizan los nodos afectados.
   - Blackboard, Inspector, catálogo completo y panel de código (P1).
+- **Fase de catálogo** (agregada 2026-10-28): 37 nodos nuevos, mejoras a Voronoi y Noise y Master Physical. Ver `2026-10-28-nudo-tsl-node-catalog-design.md`.
 - **Fase 3:** export `.tsl.js` final con `@graph`, `.tslproj`, import, migraciones, compartir por URL (P2) y snippet R3F (P4).
 - **Fase 4:** pulido del runtime (y decisión de npm), Code Node, subgraphs, docs y spec pública del formato.
 - **Fase 5:** galería de ejemplos, presets y plugins de la comunidad.
