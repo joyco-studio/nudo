@@ -1,4 +1,12 @@
-import { MASTER_NODE_ID, addNode, asEdgeId, asNodeId, connect, createGraph } from '@nudo-tsl/core'
+import {
+  MASTER_NODE_ID,
+  addNode,
+  asEdgeId,
+  asNodeId,
+  connect,
+  createGraph,
+  setParam,
+} from '@nudo-tsl/core'
 import type { Graph, NodeId, PortRef } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 
@@ -92,6 +100,23 @@ describe('listConnectCandidates', () => {
     expect(found).toContain('Sine (1) › In · float')
     expect(found).toContain('Sine (2) › In · float')
     expect(new Set(found).size).toBe(found.length)
+  })
+
+  it('offers only the stops of a color ramp that are in play', () => {
+    const rampId = asNodeId('ramp')
+    const ramp = withNode(graph, rampId, 'color/color-ramp')
+    const offered = (from: Graph): string[] =>
+      labels(listConnectCandidates(from, registry, output(TIME_ID))).filter((label) =>
+        label.startsWith('Color Ramp ›'),
+      )
+
+    expect(offered(ramp)).toContain('Color Ramp › Position 2 · float')
+    expect(offered(ramp)).not.toContain('Color Ramp › Position 3 · float')
+    expect(offered(ramp)).toHaveLength(5)
+
+    const threeStops = unwrap(setParam(ramp, registry, { nodeId: rampId, paramId: 'count' }, 3))
+    expect(offered(threeStops)).toContain('Color Ramp › Position 3 · float')
+    expect(offered(threeStops)).not.toContain('Color Ramp › Position 4 · float')
   })
 
   it('offers the master like any other node', () => {

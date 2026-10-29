@@ -12,6 +12,7 @@ import type {
 
 import { foldForSearch } from '@/shared/lib/fold-for-search'
 
+import { inputsInPlay } from './node-port-layout'
 import { nodeTitle } from './to-flow'
 
 export type PortSide = 'input' | 'output'
@@ -66,7 +67,7 @@ function candidatesOf(
   types: ResolvedTypes,
 ): readonly ConnectCandidate[] {
   const ports: readonly { readonly id: string; readonly label: string }[] =
-    side === 'input' ? entry.definition.inputs : entry.definition.outputs
+    side === 'input' ? inputsInPlay(entry.node, entry.definition.inputs) : entry.definition.outputs
   const resolved = side === 'input' ? types.inputs : types.outputs
   return ports.flatMap((port) => {
     const ref: PortRef = { nodeId: entry.node.id, portId: port.id }
