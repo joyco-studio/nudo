@@ -203,10 +203,12 @@ describe('effects nodes', () => {
     )
   })
 
-  it('noise declares kind, a vec3 point at zero and a scale of 1', () => {
+  it('noise declares kind and octaves, a vec3 point at zero, a scale of 1, roughness and lacunarity', () => {
     expect(noiseNode.inputs.map((input) => [input.id, input.default])).toEqual([
       ['p', { type: 'vec3', value: [0, 0, 0] }],
       ['scale', { type: 'float', value: 1 }],
+      ['roughness', { type: 'float', value: 0.5 }],
+      ['lacunarity', { type: 'float', value: 2 }],
     ])
     expect(noiseNode.params).toEqual([
       {
@@ -219,7 +221,46 @@ describe('effects nodes', () => {
         ],
         default: 'simplex',
       },
+      { id: 'octaves', label: 'Octaves', kind: 'number', default: 1, min: 1, max: 8, step: 1 },
     ])
+  })
+
+  describe('noise octaves', () => {
+    const inputs = { p: 'p', scale: 's', roughness: 'r', lacunarity: 'l' }
+    const single = 'noise(simplex,mul(p,s))'
+    const octave = (index: number): string =>
+      `mul(noise(simplex,mul(mul(p,s),pow(l,construct(float,[${String(index)}])))),pow(r,construct(float,[${String(index)}])))`
+
+    it('is exactly the single noise call with one octave or none stored', () => {
+      expect(buildWith(noiseNode, inputs).out).toBe(single)
+      expect(buildWith(noiseNode, inputs, { octaves: 1 }).out).toBe(single)
+    })
+
+    it('sums octaves at scale times lacunarity to the i, weighted by roughness to the i', () => {
+      const sum = `add(add(${single},${octave(1)}),${octave(2)})`
+      const amplitudes =
+        'add(add(construct(float,[1]),pow(r,construct(float,[1]))),pow(r,construct(float,[2])))'
+      expect(buildWith(noiseNode, inputs, { octaves: 3 }).out).toBe(`div(${sum},${amplitudes})`)
+    })
+
+    it('rounds a fractional octave count', () => {
+      expect(buildWith(noiseNode, inputs, { octaves: 1.4 }).out).toBe(single)
+      expect(buildWith(noiseNode, inputs, { octaves: 2.6 })).toEqual(
+        buildWith(noiseNode, inputs, { octaves: 3 }),
+      )
+    })
+
+    it('clamps the octave count to 1 through 8', () => {
+      expect(buildWith(noiseNode, inputs, { octaves: 0 }).out).toBe(single)
+      expect(buildWith(noiseNode, inputs, { octaves: -4 }).out).toBe(single)
+      expect(buildWith(noiseNode, inputs, { octaves: 12 })).toEqual(
+        buildWith(noiseNode, inputs, { octaves: 8 }),
+      )
+    })
+
+    it('ignores a stored octave count that is not a number', () => {
+      expect(buildWith(noiseNode, inputs, { octaves: 'many' }).out).toBe(single)
+    })
   })
 
   describe('voronoi', () => {

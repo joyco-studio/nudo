@@ -5,7 +5,8 @@ export interface EnumParamOption {
 
 /**
  * Declares one structural setting of a node. Hidden params are editor-managed (not shown in the
- * node body); string and number changes still go through `setParam`.
+ * node body); string and number changes still go through `setParam`. A number lies within its
+ * `min` and `max` when given.
  */
 export type ParamDefinition =
   | {
@@ -35,6 +36,8 @@ export type ParamDefinition =
       readonly default: number
       readonly min?: number
       readonly max?: number
+      /** The arrow-key increment of its field. Defaults to 1. */
+      readonly step?: number
       readonly hidden?: boolean
     }
 

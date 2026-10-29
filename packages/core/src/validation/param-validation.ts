@@ -13,8 +13,8 @@ export function findParamDefinition(
 }
 
 /**
- * Whether `value` fits the param: right kind, an option for enums, a finite number for numbers.
- * `min`/`max` are UI hints and are not enforced here.
+ * Whether `value` fits the param: right kind, an option for enums, a finite number within
+ * `min`/`max` for numbers.
  */
 export function isValidParamValue(param: ParamDefinition, value: ParamValue): boolean {
   switch (param.kind) {
@@ -25,6 +25,15 @@ export function isValidParamValue(param: ParamDefinition, value: ParamValue): bo
     case 'string':
       return typeof value === 'string'
     case 'number':
-      return typeof value === 'number' && Number.isFinite(value)
+      return typeof value === 'number' && isWithinBounds(param, value)
   }
+}
+
+function isWithinBounds(
+  param: Extract<ParamDefinition, { kind: 'number' }>,
+  value: number,
+): boolean {
+  if (!Number.isFinite(value)) return false
+  if (param.min !== undefined && value < param.min) return false
+  return param.max === undefined || value <= param.max
 }

@@ -16,7 +16,7 @@
       "type": "effects/noise",
       "position": {
         "x": -5064,
-        "y": 512
+        "y": 484
       },
       "inputValues": {
         "scale": {
@@ -87,12 +87,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 415
+        "y": 404
       },
       "inputValues": {},
       "params": {
         "body": "A slow noise sliding with Time: the original reads it from a cloud texture. Everything else bends with it.",
-        "height": 644,
+        "height": 655,
         "title": "Clouds",
         "width": 1248
       }
@@ -117,12 +117,12 @@
       "type": "utility/comment",
       "position": {
         "x": -4024,
-        "y": 55
+        "y": 27
       },
       "inputValues": {},
       "params": {
         "body": "Position plus clouds × swirl: a strong swirl. Another noise read through it gives the pulse that stokes and dims the lava.",
-        "height": 522,
+        "height": 550,
         "title": "Pulse",
         "width": 1520
       }
@@ -137,7 +137,7 @@
       "inputValues": {},
       "params": {
         "body": "The clouds nudge the drifting position a little. 1 − |noise| is 1 along its zero crossings: thin veins, thinner through Power. They paint from crust to lava.",
-        "height": 556,
+        "height": 612,
         "title": "Veins",
         "width": 2208
       }
@@ -277,7 +277,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3080,
-        "y": 135
+        "y": 107
       },
       "inputValues": {
         "scale": {
@@ -440,7 +440,7 @@
       "type": "effects/noise",
       "position": {
         "x": -4040,
-        "y": 825
+        "y": 797
       },
       "inputValues": {},
       "params": {

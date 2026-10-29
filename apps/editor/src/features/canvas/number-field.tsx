@@ -64,6 +64,8 @@ export interface NumberFieldProps {
   layout: 'row' | 'component'
   /** Scales every arrow and scrub step, for values on a larger scale (pixels). Defaults to 1. */
   stepScale?: number
+  /** The ArrowUp/Down increment (Shift: ten times it); scrubs scale with it. Overrides `stepScale`. */
+  arrowStep?: number
   /** Whole numbers only (pixels): typed, stepped and scrubbed values are rounded. */
   isInteger?: boolean
   onCommit: (value: number) => void
@@ -80,7 +82,7 @@ function scrubbedValue(session: ScrubSession, event: PointerEvent, stepScale: nu
 
 /**
  * Inline number entry. Typing commits on Enter or blur, Escape reverts, and text that is not a
- * finite number reverts to the last valid value. ArrowUp/Down step by 0.1 (Shift: 1). Dragging
+ * finite number reverts to the last valid value. ArrowUp/Down step by 0.1, or `arrowStep` (Shift: ten times). Dragging
  * the label previews every value live and commits once, on release.
  */
 export function NumberField({
@@ -90,12 +92,14 @@ export function NumberField({
   value,
   isDefault,
   layout,
-  stepScale = 1,
+  stepScale: defaultStepScale = 1,
+  arrowStep,
   isInteger = false,
   onCommit,
   onScrubPreview,
   onScrubPreviewEnd,
 }: NumberFieldProps) {
+  const stepScale = arrowStep === undefined ? defaultStepScale : arrowStep / ARROW_STEP
   const inputId = useId()
   const t = useT()
   const sizeClasses = SIZE_CLASSES[useFieldSize()]

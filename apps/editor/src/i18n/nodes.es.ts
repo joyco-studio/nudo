@@ -775,6 +775,14 @@ export const NODES_ES: NodeTranslations = {
         label: 'Escala',
         description: 'Qué tan cargado es el ruido: más alto = manchas más chicas y densas.',
       },
+      roughness: {
+        label: 'Rugosidad',
+        description: 'Con más de una octava, cuánto pesa cada capa más fina.',
+      },
+      lacunarity: {
+        label: 'Lacunaridad',
+        description: 'Con más de una octava, cuánto más densa es cada capa que la anterior.',
+      },
     },
     outputs: {
       out: {
@@ -782,7 +790,10 @@ export const NODES_ES: NodeTranslations = {
         description: 'Valores aleatorios suaves, más o menos entre -1 y 1.',
       },
     },
-    params: { kind: { label: 'Tipo', options: { perlin: 'Perlin', simplex: 'Simplex' } } },
+    params: {
+      kind: { label: 'Tipo', options: { perlin: 'Perlin', simplex: 'Simplex' } },
+      octaves: { label: 'Octavas' },
+    },
   },
   'effects/voronoi': {
     label: 'Voronoi',

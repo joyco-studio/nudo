@@ -30,7 +30,7 @@
       "type": "math/add",
       "position": {
         "x": -2392,
-        "y": 532
+        "y": -29
       },
       "inputValues": {},
       "params": {}
@@ -40,7 +40,7 @@
       "type": "property/float",
       "position": {
         "x": -2984,
-        "y": 825
+        "y": 292
       },
       "inputValues": {},
       "params": {
@@ -52,7 +52,7 @@
       "type": "vector/dot",
       "position": {
         "x": -4696,
-        "y": 606
+        "y": 45
       },
       "inputValues": {},
       "params": {}
@@ -62,12 +62,12 @@
       "type": "utility/comment",
       "position": {
         "x": -3384,
-        "y": 405
+        "y": -212
       },
       "inputValues": {},
       "params": {
         "body": "A little noise added to the light makes the edges between inks waver, like a stencil cut by hand.",
-        "height": 495,
+        "height": 566,
         "title": "Hand-cut edges",
         "width": 1248
       }
@@ -92,7 +92,7 @@
       "type": "utility/comment",
       "position": {
         "x": -5320,
-        "y": 472
+        "y": -89
       },
       "inputValues": {},
       "params": {
@@ -122,7 +122,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4024,
-        "y": -175
+        "y": 386
       },
       "inputValues": {},
       "params": {
@@ -220,7 +220,7 @@
       "type": "property/vec3",
       "position": {
         "x": -5288,
-        "y": 864
+        "y": 303
       },
       "inputValues": {},
       "params": {
@@ -232,7 +232,7 @@
       "type": "vector/normalize",
       "position": {
         "x": -5016,
-        "y": 776
+        "y": 215
       },
       "inputValues": {},
       "params": {}
@@ -266,7 +266,7 @@
       "type": "input/normal",
       "position": {
         "x": -5016,
-        "y": 552
+        "y": -9
       },
       "inputValues": {},
       "params": {}
@@ -310,7 +310,7 @@
       "type": "input/position",
       "position": {
         "x": -3352,
-        "y": 536
+        "y": -53
       },
       "inputValues": {},
       "params": {
@@ -344,7 +344,7 @@
       "type": "vector/split",
       "position": {
         "x": -3672,
-        "y": -48
+        "y": 513
       },
       "inputValues": {},
       "params": {}
@@ -354,7 +354,7 @@
       "type": "input/screen-uv",
       "position": {
         "x": -3992,
-        "y": 87
+        "y": 648
       },
       "inputValues": {},
       "params": {}
@@ -364,7 +364,7 @@
       "type": "math/remap",
       "position": {
         "x": -4376,
-        "y": 569
+        "y": 8
       },
       "inputValues": {
         "inMax": {
@@ -383,7 +383,7 @@
       "type": "property/vec3",
       "position": {
         "x": -2664,
-        "y": -95
+        "y": 466
       },
       "inputValues": {},
       "params": {
@@ -395,7 +395,7 @@
       "type": "property/vec3",
       "position": {
         "x": -2664,
-        "y": 270
+        "y": 831
       },
       "inputValues": {},
       "params": {
@@ -407,7 +407,7 @@
       "type": "property/float",
       "position": {
         "x": -3624,
-        "y": 311
+        "y": 872
       },
       "inputValues": {},
       "params": {
@@ -419,7 +419,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -2712,
-        "y": -33
+        "y": 528
       },
       "inputValues": {
         "edge": {
@@ -434,7 +434,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3352,
-        "y": 69
+        "y": 630
       },
       "inputValues": {},
       "params": {}
@@ -444,7 +444,7 @@
       "type": "math/sin",
       "position": {
         "x": -3032,
-        "y": 32
+        "y": 593
       },
       "inputValues": {},
       "params": {}
@@ -454,7 +454,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -2392,
-        "y": -52
+        "y": 509
       },
       "inputValues": {},
       "params": {}
@@ -464,7 +464,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2712,
-        "y": 597
+        "y": 36
       },
       "inputValues": {},
       "params": {}
@@ -474,7 +474,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3032,
-        "y": 485
+        "y": -132
       },
       "inputValues": {
         "scale": {

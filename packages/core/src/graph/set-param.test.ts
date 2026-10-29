@@ -136,6 +136,10 @@ describe('setParam', () => {
     expect(setParam(graphWithNoise(), registry, ref('wrap'), 'yes').ok).toBe(false)
     expect(setParam(graphWithNoise(), registry, ref('octaves'), '4').ok).toBe(false)
     expect(setParam(graphWithNoise(), registry, ref('octaves'), Number.NaN).ok).toBe(false)
+    expect(setParam(graphWithNoise(), registry, ref('octaves'), 9).ok).toBe(false)
+    expect(setParam(graphWithNoise(), registry, ref('octaves'), 0).ok).toBe(false)
+    expect(setParam(graphWithNoise(), registry, ref('octaves'), 8).ok).toBe(true)
+    expect(setParam(graphWithNoise(), registry, ref('octaves'), 1).ok).toBe(true)
     expect(setParam(graphWithNoise(), registry, ref('title'), 3).ok).toBe(false)
   })
 

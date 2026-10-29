@@ -71,6 +71,32 @@ test('select node op changes via keyboard and recompiles', async ({ page }) => {
   await expect(graphNode(page, 'Select')).toBeFocused()
 })
 
+const NOISE_TO_ROUGHNESS = graphDocument(
+  [{ id: 'noise', type: 'effects/noise', position: { x: 200, y: 0 } }],
+  [{ id: 'noise-to-roughness', from: ['noise', 'out'], to: ['master', 'roughness'] }],
+)
+
+test('noise octaves step with the arrow keys and recompile', async ({ page }) => {
+  await seedAutosave(page, NOISE_TO_ROUGHNESS)
+  await page.goto('/')
+  const compilesBefore = await firstSettledCompileCount(page)
+
+  const octaves = graphNode(page, 'Noise').getByRole('textbox', { name: 'Octaves' })
+  await expect(octaves).toHaveValue('1')
+  await octaves.focus()
+  await page.keyboard.press('ArrowUp')
+  await expect(octaves).toHaveValue('2')
+  await expect.poll(async () => (await storedParams(page, 'noise')).octaves).toBe(2)
+  await expect.poll(async () => compileCount(page)).toBeGreaterThan(compilesBefore)
+
+  // The top of the range holds: ArrowUp does not step past 8.
+  await octaves.fill('8')
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('ArrowUp')
+  await expect(octaves).toHaveValue('8')
+  await expect.poll(async () => (await storedParams(page, 'noise')).octaves).toBe(8)
+})
+
 test('unlit disables metalness/roughness/normal rows', async ({ page }) => {
   await page.goto('/')
   const master = graphNode(page, 'Master Stack')

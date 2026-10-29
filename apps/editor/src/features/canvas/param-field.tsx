@@ -10,13 +10,16 @@ import { Switch } from '@/shared/ui/switch'
 import { useFieldSize } from './field-size'
 import type { FieldSize } from './field-size'
 import { useNodeFieldActions } from './node-field-actions'
-import type { BooleanParam, EnumParam } from './param-kinds'
+import { NumberField } from './number-field'
+import type { BooleanParam, EnumParam, NumberParam } from './param-kinds'
 
-/** The params a node body edits. String and number params are only ever hidden for now. */
-export type BodyParam = EnumParam | BooleanParam
+/** The params a node body edits. String params, and hidden number params, are editor-managed. */
+export type BodyParam = EnumParam | BooleanParam | NumberParam
 
 function isBodyParam(param: ParamDefinition): param is BodyParam {
-  return (param.kind === 'enum' || param.kind === 'boolean') && !UNIVERSAL_PARAM_IDS.has(param.id)
+  if (UNIVERSAL_PARAM_IDS.has(param.id)) return false
+  if (param.kind === 'number') return param.hidden !== true
+  return param.kind === 'enum' || param.kind === 'boolean'
 }
 
 /** The params a node shows in its body, in definition order. */
@@ -117,13 +120,57 @@ function BooleanParamField({ node, param }: ParamFieldProps<BooleanParam>) {
   )
 }
 
-/** One param row: a select for an enum, a switch for a toggle. */
-export function ParamField({ node, param }: ParamFieldProps<BodyParam>) {
-  return param.kind === 'enum' ? (
-    <EnumParamField node={node} param={param} />
-  ) : (
-    <BooleanParamField node={node} param={param} />
+const DEFAULT_NUMBER_STEP = 1
+
+/** The value held within the param's `min` and `max`, when it declares them. */
+function clampToBounds(param: NumberParam, value: number): number {
+  const atLeastMin = param.min === undefined ? value : Math.max(param.min, value)
+  return param.max === undefined ? atLeastMin : Math.min(param.max, atLeastMin)
+}
+
+function NumberParamField({ node, param }: ParamFieldProps<NumberParam>) {
+  const { setParam } = useNodeFieldActions()
+  const sizeClasses = SIZE_CLASSES[useFieldSize()]
+  const stored = node.params[param.id]
+  const value = typeof stored === 'number' ? stored : param.default
+  const step = param.step ?? DEFAULT_NUMBER_STEP
+
+  return (
+    <li className={cn(ROW_CLASS, sizeClasses.row)}>
+      <NumberField
+        label={param.label}
+        value={value}
+        isDefault={stored === undefined}
+        layout="row"
+        arrowStep={step}
+        isInteger={Number.isInteger(step)}
+        onCommit={(next) => {
+          const bounded = clampToBounds(param, next)
+          if (bounded === value) return
+          setParam({ nodeId: node.id, paramId: param.id }, bounded)
+        }}
+        // A structural param recompiles, so a scrub commits once on release and has no live preview.
+        onScrubPreview={noop}
+        onScrubPreviewEnd={noop}
+      />
+    </li>
   )
+}
+
+function noop(): void {
+  // Nothing to preview.
+}
+
+/** One param row: a select for an enum, a switch for a toggle, a numeric field for a number. */
+export function ParamField({ node, param }: ParamFieldProps<BodyParam>) {
+  switch (param.kind) {
+    case 'enum':
+      return <EnumParamField node={node} param={param} />
+    case 'boolean':
+      return <BooleanParamField node={node} param={param} />
+    case 'number':
+      return <NumberParamField node={node} param={param} />
+  }
 }
 
 export interface ParamFieldsProps {
@@ -131,7 +178,7 @@ export interface ParamFieldsProps {
   params: readonly BodyParam[]
 }
 
-/** A node's structural settings: a compact select per enum, a switch per toggle. */
+/** A node's structural settings: a compact select per enum, a switch per toggle, a field per number. */
 export function ParamFields({ node, params }: ParamFieldsProps) {
   return (
     <ul className="border-b py-1">
