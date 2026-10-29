@@ -32,7 +32,10 @@ export function createRecordingFacade(): TslFacade<string> {
       `remap(${x},${inLow},${inHigh},${outLow},${outHigh})`,
     select: (op, a, b, whenTrue, whenFalse) => `select(${op},${a},${b},${whenTrue},${whenFalse})`,
     noise: (kind, p) => `noise(${kind},${p})`,
-    voronoi: (p, jitter) => `voronoi(${p},${jitter})`,
+    voronoi: (p, jitter, metric) => `voronoi(${p},${jitter},${metric})`,
+    voronoiCell: (dimensions, p, jitter, metric) =>
+      `voronoiCell(${String(dimensions)},${p},${jitter},${metric})`,
+    cellNoise: (p) => `cellNoise(${p})`,
     checker: (uv) => `checker(${uv})`,
     textureSample: (texture, uv, level) => `textureSample(${texture},${uv},${level ?? 'null'})`,
     colorSpace: (direction, color) => `colorSpace(${direction},${color})`,

@@ -222,14 +222,72 @@ describe('effects nodes', () => {
     ])
   })
 
-  it('voronoi outputs f1/f2/edge', () => {
-    const outputs = buildWith(voronoiNode, { uv: 'uv', scale: 's', jitter: 'j' })
-    const cells = 'voronoi(mul(uv,s),j)'
+  describe('voronoi', () => {
+    const VORONOI_INPUTS = { uv: 'uv', scale: 'scale', jitter: 'jitter' }
 
-    expect(outputs).toEqual({
-      f1: `swizzle(${cells},x)`,
-      f2: `swizzle(${cells},y)`,
-      edge: `sub(swizzle(${cells},y),swizzle(${cells},x))`,
+    it('keeps f1, f2 and edge as before, Euclidean when no distance is stored', () => {
+      const outputs = buildWith(voronoiNode, VORONOI_INPUTS)
+      const cells = 'voronoi(mul(uv,scale),jitter,euclidean)'
+
+      expect(outputs).toMatchObject({
+        f1: `swizzle(${cells},x)`,
+        f2: `swizzle(${cells},y)`,
+        edge: `sub(swizzle(${cells},y),swizzle(${cells},x))`,
+      })
+    })
+
+    it('outputs the nearest cell point and a random value per cell', () => {
+      const outputs = buildWith(voronoiNode, VORONOI_INPUTS)
+      const cell = 'voronoiCell(2,mul(uv,scale),jitter,euclidean)'
+
+      expect(outputs.cell).toBe(cell)
+      expect(outputs.random).toBe(`cellNoise(floor(${cell}))`)
+      expect(voronoiNode.outputs.map((output) => [output.id, output.type])).toEqual([
+        ['f1', { kind: 'concrete', type: 'float' }],
+        ['f2', { kind: 'concrete', type: 'float' }],
+        ['edge', { kind: 'concrete', type: 'float' }],
+        ['cell', { kind: 'concrete', type: 'vec2' }],
+        ['random', { kind: 'concrete', type: 'float' }],
+      ])
+    })
+
+    it.each(['manhattan', 'chebyshev'] as const)(
+      'measures F1, F2 and the cell with the %s distance',
+      (distance) => {
+        const outputs = buildWith(voronoiNode, VORONOI_INPUTS, { distance })
+
+        expect(outputs.f1).toBe(`swizzle(voronoi(mul(uv,scale),jitter,${distance}),x)`)
+        expect(outputs.cell).toBe(`voronoiCell(2,mul(uv,scale),jitter,${distance})`)
+      },
+    )
+
+    it('falls back to Euclidean for an unknown distance', () => {
+      expect(buildWith(voronoiNode, VORONOI_INPUTS, { distance: 'taxicab' }).f1).toBe(
+        'swizzle(voronoi(mul(uv,scale),jitter,euclidean),x)',
+      )
+    })
+
+    it('offers the three distances, Euclidean by default', () => {
+      expect(voronoiNode.params).toEqual([
+        {
+          id: 'distance',
+          label: 'Distance',
+          kind: 'enum',
+          options: [
+            { value: 'euclidean', label: 'Euclidean' },
+            { value: 'manhattan', label: 'Manhattan' },
+            { value: 'chebyshev', label: 'Chebyshev' },
+          ],
+          default: 'euclidean',
+        },
+      ])
+    })
+
+    it('keeps its UV input a concrete vec2', () => {
+      expect(voronoiNode.inputs.find((input) => input.id === 'uv')?.type).toEqual({
+        kind: 'concrete',
+        type: 'vec2',
+      })
     })
   })
 

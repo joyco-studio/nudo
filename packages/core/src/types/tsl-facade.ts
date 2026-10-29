@@ -19,6 +19,23 @@ export type CompareOp = 'lt' | 'lte' | 'gt' | 'gte' | 'eq'
 
 export type NoiseKind = 'perlin' | 'simplex'
 
+/** How a Voronoi measures the distance from a point to a cell's feature point. */
+export type VoronoiMetric = 'euclidean' | 'manhattan' | 'chebyshev'
+
+/**
+ * The id three's MaterialX worley noise (`mx_worley_distance`) gives each metric, shared by both
+ * TSL backends. 1 compares squared Euclidean distances; `mx_worley_noise_vec2`, which a Euclidean
+ * Voronoi has always printed, passes it, so Euclidean F1 and F2 are squared distances.
+ */
+export const WORLEY_METRIC_IDS: Readonly<Record<VoronoiMetric, number>> = {
+  euclidean: 1,
+  manhattan: 2,
+  chebyshev: 3,
+}
+
+/** The 2D or 3D variant of a cell search. */
+export type CellDimensions = 2 | 3
+
 export type ColorSpaceDirection = 'srgb-to-linear' | 'linear-to-srgb'
 
 /** The subset of TSL used by nodes, in functional style: `tsl.mul(a, b)`, not `a.mul(b)`. */
@@ -51,8 +68,15 @@ export interface TslFacade<E> {
   select(op: CompareOp, a: E, b: E, whenTrue: E, whenFalse: E): E
   /** Scalar noise: float. */
   noise(kind: NoiseKind, p: E): E
-  /** Cellular noise: vec2 holding the nearest (F1) and second-nearest (F2) feature distances. */
-  voronoi(p: E, jitter: E): E
+  /**
+   * Cellular noise around a vec2 or vec3 point: vec2 holding the nearest (F1) and second-nearest
+   * (F2) feature distances under `metric`.
+   */
+  voronoi(p: E, jitter: E, metric: VoronoiMetric): E
+  /** The feature point F1 measures, in the same space as `p`: vec2 or vec3, per `dimensions`. */
+  voronoiCell(dimensions: CellDimensions, p: E, jitter: E, metric: VoronoiMetric): E
+  /** A random float from 0 to 1, constant inside each unit cell of `p`. */
+  cellNoise(p: E): E
   /** Checkerboard pattern: float. */
   checker(uv: E): E
   /** Samples a texture: vec4. A `null` level samples with automatic mip selection. */

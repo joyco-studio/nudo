@@ -14,7 +14,14 @@ const THREE_CONSTANT_NAMES = [
 ] as const
 
 /** Top-level names the helper sources declare besides the helpers themselves. */
-const HELPER_INTERNAL_NAMES = ['mod289', 'permute', 'integerQuotient', 'taylorInverseSqrt'] as const
+const HELPER_INTERNAL_NAMES = [
+  'mod289',
+  'permute',
+  'integerQuotient',
+  'taylorInverseSqrt',
+  'cellDistance2',
+  'cellDistance3',
+] as const
 
 /**
  * Every `three/tsl` export the code facade can print. Node names always end in a counter, so only
@@ -44,8 +51,10 @@ export const TSL_IMPORT_NAMES = [
   'max',
   'min',
   'mix',
+  'mx_cell_noise_float',
   'mx_noise_float',
   'mx_worley_noise_vec2',
+  'mx_worley_noise_vec3',
   'normalize',
   'normalView',
   'normalWorld',
@@ -80,4 +89,5 @@ export const RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
   ...HELPER_INTERNAL_NAMES,
   ...TSL_IMPORT_NAMES,
   ...Object.keys(TSL_HELPERS),
+  ...Object.values(TSL_HELPERS).flatMap((helper) => helper.imports),
 ])

@@ -273,6 +273,47 @@ describe('generateModule', () => {
     expect(perlin).not.toMatch(/\bFn\b/)
   })
 
+  describe('voronoi', () => {
+    const voronoiTo = (outputId: string, distance: string | null = null): Graph => {
+      let graph = withNode(createGraph(), 'cells', 'effects/voronoi')
+      if (distance !== null) graph = withParam(graph, 'cells', 'distance', distance)
+      return withLink(graph, port('cells', outputId), port('master', 'roughness'))
+    }
+
+    it('prints a Euclidean voronoi as the MaterialX worley noise it always was', () => {
+      const code = generate(voronoiTo('f1'))
+
+      expect(code).toContain('mx_worley_noise_vec2(uv().mul(float(5)), float(1)).x')
+      expect(code).not.toContain('mx_worley_noise_vec3')
+    })
+
+    it.each([
+      ['manhattan', 2],
+      ['chebyshev', 3],
+    ] as const)('prints a %s voronoi with MaterialX metric %d', (distance, metric) => {
+      const code = generate(voronoiTo('f1', distance))
+
+      expect(code).toContain(
+        `mx_worley_noise_vec3(uv().mul(float(5)), float(1), ${String(metric)}).xy.x`,
+      )
+      expect(code).not.toContain('mx_worley_noise_vec2')
+    })
+
+    it('declares the cell helpers once for the cell and random outputs', () => {
+      let graph = voronoiTo('cell', 'manhattan')
+      graph = withNode(graph, 'cells3d', 'effects/voronoi-3d')
+      graph = withLink(graph, port('cells3d', 'random'), port('master', 'metalness'))
+      const code = generate(graph)
+
+      expect(code).toContain('voronoiCell2(uv().mul(float(5)), float(1), 2)')
+      expect(code).toContain(
+        'mx_cell_noise_float(floor(voronoiCell3(positionLocal.mul(float(5)), float(1), 1)))',
+      )
+      expect(code.match(/const voronoiCell2 = Fn\(/g)).toHaveLength(1)
+      expect(code.match(/const voronoiCell3 = Fn\(/g)).toHaveLength(1)
+    })
+  })
+
   it('emits the scene depth fade and normal-from-height helpers when used', () => {
     let graph = withNode(createGraph(), 'fade', 'scene/depth-fade')
     graph = withNode(graph, 'bump', 'normal/normal-from-height')

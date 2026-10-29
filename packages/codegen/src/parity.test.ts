@@ -24,6 +24,8 @@ const RUNTIME_SOURCES: Readonly<Record<(typeof HELPER_ORDER)[number], string>> =
   simplexNoise3: '../../runtime/src/simplex-noise.ts',
   normalFromHeight: '../../runtime/src/normal-from-height.ts',
   sceneDepthFade: '../../runtime/src/scene-depth-fade.ts',
+  voronoiCell2: '../../runtime/src/voronoi-cell.ts',
+  voronoiCell3: '../../runtime/src/voronoi-cell.ts',
 }
 
 const registry = createDefaultRegistry()

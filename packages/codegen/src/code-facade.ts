@@ -1,10 +1,13 @@
+import { WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
+  CellDimensions,
   ColorSpaceDirection,
   CompareOp,
   NoiseKind,
   Swizzle,
   TslFacade,
   VectorType,
+  VoronoiMetric,
 } from '@nudo-tsl/core'
 import { compose } from './code-expression'
 import type { CodeExpression, HelperName } from './code-expression'
@@ -21,7 +24,14 @@ const COMPARISONS: Readonly<Record<CompareOp, string>> = {
 
 const PERLIN_NOISE = 'mx_noise_float'
 const SIMPLEX_NOISE: HelperName = 'simplexNoise3'
-const WORLEY_NOISE = 'mx_worley_noise_vec2'
+const WORLEY_NOISE_VEC2 = 'mx_worley_noise_vec2'
+const WORLEY_NOISE_VEC3 = 'mx_worley_noise_vec3'
+const CELL_NOISE = 'mx_cell_noise_float'
+
+const CELL_SEARCHES: Readonly<Record<CellDimensions, HelperName>> = {
+  2: 'voronoiCell2',
+  3: 'voronoiCell3',
+}
 
 const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, string>> = {
   'srgb-to-linear': 'sRGBTransferEOTF',
@@ -49,6 +59,22 @@ const method = (
 /** A call to a helper the module declares itself. */
 const callHelper = (name: HelperName, args: readonly CodeExpression[]): CodeExpression =>
   compose(`${name}(${joinCodes(args)})`, args, { helpers: [name] })
+
+const printMetric = (metric: VoronoiMetric): CodeExpression =>
+  compose(formatNumber(WORLEY_METRIC_IDS[metric]), [])
+
+/**
+ * F1 and F2 under `metric`. Euclidean keeps the call it has always printed, so old graphs print
+ * the same module; the other metrics read the first two of MaterialX's three nearest distances.
+ */
+function worleyDistances(
+  p: CodeExpression,
+  jitter: CodeExpression,
+  metric: VoronoiMetric,
+): CodeExpression {
+  if (metric === 'euclidean') return call(WORLEY_NOISE_VEC2, [p, jitter])
+  return member(call(WORLEY_NOISE_VEC3, [p, jitter, printMetric(metric)]), 'xy')
+}
 
 const printPart = (part: CodeExpression | number): CodeExpression =>
   typeof part === 'number' ? compose(formatNumber(part), []) : part
@@ -93,7 +119,10 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
       call('select', [call(COMPARISONS[op], [a, b]), whenTrue, whenFalse]),
     noise: (kind: NoiseKind, p) =>
       kind === 'perlin' ? call(PERLIN_NOISE, [p]) : callHelper(SIMPLEX_NOISE, [p]),
-    voronoi: (p, jitter) => call(WORLEY_NOISE, [p, jitter]),
+    voronoi: worleyDistances,
+    voronoiCell: (dimensions, p, jitter, metric) =>
+      callHelper(CELL_SEARCHES[dimensions], [p, jitter, printMetric(metric)]),
+    cellNoise: (p) => call(CELL_NOISE, [p]),
     checker: (uv) => call('checker', [uv]),
     textureSample: (texture, uv, level) => {
       const sampled = method(texture, 'sample', [uv])

@@ -1,11 +1,14 @@
+import { WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
   BuiltinName,
+  CellDimensions,
   ColorSpaceDirection,
   CompareOp,
   NoiseKind,
   Swizzle,
   TslFacade,
   VectorType,
+  VoronoiMetric,
 } from '@nudo-tsl/core'
 import { Node, TextureNode } from 'three/webgpu'
 import {
@@ -34,8 +37,10 @@ import {
   min,
   mix,
   mul,
+  mx_cell_noise_float,
   mx_noise_float,
   mx_worley_noise_vec2,
+  mx_worley_noise_vec3,
   normalView,
   normalWorld,
   normalize,
@@ -64,6 +69,7 @@ import {
 import { normalFromHeight } from './normal-from-height'
 import { sceneDepthFade } from './scene-depth-fade'
 import { simplexNoise3 } from './simplex-noise'
+import { voronoiCell2, voronoiCell3 } from './voronoi-cell'
 
 export type LiveNode = Node
 
@@ -105,7 +111,9 @@ const remapNodes = widen(remap)
 const selectNodes = widen(select)
 const perlinNoiseNode = widen(mx_noise_float)
 const simplexNoiseNode = widen(simplexNoise3)
-const worleyNoiseNodes = widen(mx_worley_noise_vec2)
+const worleyNoiseVec2Nodes = widen(mx_worley_noise_vec2)
+const worleyNoiseVec3Nodes = widen(mx_worley_noise_vec3)
+const cellNoiseNode = widen(mx_cell_noise_float)
 const checkerNode = widen(checker)
 const srgbToLinearNode = widen(sRGBTransferEOTF)
 const linearToSrgbNode = widen(sRGBTransferOETF)
@@ -124,6 +132,11 @@ const COMPARISONS: Readonly<Record<CompareOp, TslFunction>> = {
 const NOISES: Readonly<Record<NoiseKind, TslFunction>> = {
   perlin: perlinNoiseNode,
   simplex: simplexNoiseNode,
+}
+
+const CELL_SEARCHES: Readonly<Record<CellDimensions, TslFunction>> = {
+  2: widen(voronoiCell2),
+  3: widen(voronoiCell3),
 }
 
 const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, TslFunction>> = {
@@ -159,6 +172,15 @@ function readSwizzle(value: LiveNode, components: Swizzle): LiveNode {
   const swizzled: unknown = Reflect.get(value, components)
   if (!isLiveNode(swizzled)) throw new Error(`Cannot swizzle .${components} from this node`)
   return swizzled
+}
+
+/**
+ * F1 and F2 under `metric`. Euclidean keeps the call it has always made, so old graphs build the
+ * same shader; the other metrics read the first two of MaterialX's three nearest distances.
+ */
+function worleyDistances(p: LiveNode, jitter: LiveNode, metric: VoronoiMetric): LiveNode {
+  if (metric === 'euclidean') return worleyNoiseVec2Nodes(p, jitter)
+  return readSwizzle(worleyNoiseVec3Nodes(p, jitter, WORLEY_METRIC_IDS[metric]), 'xy')
 }
 
 /** `texture.sample(uv)`, with an explicit mip level when one is given. */
@@ -199,7 +221,10 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     select: (op, a, b, whenTrue, whenFalse) =>
       selectNodes(COMPARISONS[op](a, b), whenTrue, whenFalse),
     noise: (kind, p) => NOISES[kind](p),
-    voronoi: (p, jitter) => worleyNoiseNodes(p, jitter),
+    voronoi: worleyDistances,
+    voronoiCell: (dimensions, p, jitter, metric) =>
+      CELL_SEARCHES[dimensions](p, jitter, WORLEY_METRIC_IDS[metric]),
+    cellNoise: (p) => cellNoiseNode(p),
     checker: (uvNode) => checkerNode(uvNode),
     textureSample: sampleTexture,
     colorSpace: (direction, color) => COLOR_SPACE_CONVERSIONS[direction](color),

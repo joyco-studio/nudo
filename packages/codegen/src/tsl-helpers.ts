@@ -8,8 +8,9 @@ export interface TslHelper {
 
 /**
  * These sources mirror the live runtime's helpers (`packages/runtime/src/simplex-noise.ts`,
- * `normal-from-height.ts` and `scene-depth-fade.ts`) minus their type annotations. A parity test
- * compares them with the runtime files, so a change on one side must be made on the other.
+ * `normal-from-height.ts`, `scene-depth-fade.ts` and `voronoi-cell.ts`) minus their type
+ * annotations. A parity test compares them with the runtime files, so a change on one side must be
+ * made on the other.
  */
 const SIMPLEX_NOISE_SOURCE = `/**
  * 3D simplex noise, ported from Ian McEwan, Ashima Arts (MIT, "webgl-noise") after Stefan
@@ -169,6 +170,120 @@ const sceneDepthFade = Fn(([distance]) => {
   return clamp(gap.div(max(distance, MIN_FADE_DISTANCE)), 0, 1)
 })`
 
+/** Declares both 'voronoiCell2' and 'voronoiCell3', which share their metric and search constants. */
+const VORONOI_CELL_SOURCE = `/**
+ * The feature point a Voronoi's F1 measures: the cell search of three's MaterialX worley noise
+ * ('mx_worley_noise_vec2' / '_vec3'), with the same hash, jitter, neighbor order and metric ids,
+ * so the point always belongs to the cell the F1 pattern draws. It is returned in the space of
+ * 'pointInput', which is what the cell noise of its floor needs to give each cell its own value.
+ */
+
+/** MaterialX's metric ids ('mx_worley_distance'); any other id compares squared distances. */
+const MANHATTAN_METRIC = 2
+const CHEBYSHEV_METRIC = 3
+/** Each feature point sits within its unit cell around the center, pushed out by the jitter. */
+const CELL_CENTER = 0.5
+/** Further than any neighbor can be, so the first one searched always becomes the nearest. */
+const FAR_DISTANCE = 1e6
+/** The searched cells: the point's own and every neighbor, in MaterialX's order. */
+const NEIGHBOR_OFFSETS = [-1, 0, 1]
+
+const cellDistance2 = (difference, metric) =>
+  select(
+    metric.equal(MANHATTAN_METRIC),
+    abs(difference.x).add(abs(difference.y)),
+    select(
+      metric.equal(CHEBYSHEV_METRIC),
+      max(abs(difference.x), abs(difference.y)),
+      dot(difference, difference),
+    ),
+  )
+
+const cellDistance3 = (difference, metric) =>
+  select(
+    metric.equal(MANHATTAN_METRIC),
+    abs(difference.x).add(abs(difference.y)).add(abs(difference.z)),
+    select(
+      metric.equal(CHEBYSHEV_METRIC),
+      max(abs(difference.x), abs(difference.y), abs(difference.z)),
+      dot(difference, difference),
+    ),
+  )
+
+const voronoiCell2 = Fn(([pointInput, jitter, metric]) => {
+  const point = vec2(pointInput).toVar()
+  const baseCell = floor(point).toVar()
+  const localPosition = point.sub(baseCell).toVar()
+  const nearestDistance = float(FAR_DISTANCE).toVar()
+  const nearestPoint = vec2(baseCell).toVar()
+
+  for (const x of NEIGHBOR_OFFSETS) {
+    for (const y of NEIGHBOR_OFFSETS) {
+      const neighbor = vec2(x, y)
+      const featureOffset = mx_cell_noise_vec3(baseCell.add(neighbor))
+        .xy.sub(CELL_CENTER)
+        .mul(jitter)
+        .add(CELL_CENTER)
+      const featurePoint = neighbor.add(featureOffset).toVar()
+      const featureDistance = cellDistance2(featurePoint.sub(localPosition), metric).toVar()
+
+      If(featureDistance.lessThan(nearestDistance), () => {
+        nearestDistance.assign(featureDistance)
+        nearestPoint.assign(baseCell.add(featurePoint))
+      })
+    }
+  }
+
+  return nearestPoint
+})
+
+const voronoiCell3 = Fn(([pointInput, jitter, metric]) => {
+  const point = vec3(pointInput).toVar()
+  const baseCell = floor(point).toVar()
+  const localPosition = point.sub(baseCell).toVar()
+  const nearestDistance = float(FAR_DISTANCE).toVar()
+  const nearestPoint = vec3(baseCell).toVar()
+
+  for (const x of NEIGHBOR_OFFSETS) {
+    for (const y of NEIGHBOR_OFFSETS) {
+      for (const z of NEIGHBOR_OFFSETS) {
+        const neighbor = vec3(x, y, z)
+        const featureOffset = mx_cell_noise_vec3(baseCell.add(neighbor))
+          .sub(CELL_CENTER)
+          .mul(jitter)
+          .add(CELL_CENTER)
+        const featurePoint = neighbor.add(featureOffset).toVar()
+        const featureDistance = cellDistance3(featurePoint.sub(localPosition), metric).toVar()
+
+        If(featureDistance.lessThan(nearestDistance), () => {
+          nearestDistance.assign(featureDistance)
+          nearestPoint.assign(baseCell.add(featurePoint))
+        })
+      }
+    }
+  }
+
+  return nearestPoint
+})`
+
+/** One source declares both cell searches; a module that uses both prints it once. */
+const VORONOI_CELL: TslHelper = {
+  imports: [
+    'Fn',
+    'If',
+    'abs',
+    'dot',
+    'float',
+    'floor',
+    'max',
+    'mx_cell_noise_vec3',
+    'select',
+    'vec2',
+    'vec3',
+  ],
+  source: VORONOI_CELL_SOURCE,
+}
+
 export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
   simplexNoise3: {
     imports: ['Fn', 'abs', 'dot', 'floor', 'max', 'min', 'step', 'vec3', 'vec4'],
@@ -191,6 +306,8 @@ export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
     ],
     source: SCENE_DEPTH_FADE_SOURCE,
   },
+  voronoiCell2: VORONOI_CELL,
+  voronoiCell3: VORONOI_CELL,
 }
 
 /** Declaration order: a helper never reads another, so any stable order works. */
@@ -198,4 +315,6 @@ export const HELPER_ORDER: readonly HelperName[] = [
   'simplexNoise3',
   'normalFromHeight',
   'sceneDepthFade',
+  'voronoiCell2',
+  'voronoiCell3',
 ]

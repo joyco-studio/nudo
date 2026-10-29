@@ -1,4 +1,11 @@
-import type { BuiltinName, CompareOp, NoiseKind, Swizzle, TslFacade } from '@nudo-tsl/core'
+import type {
+  BuiltinName,
+  CompareOp,
+  NoiseKind,
+  Swizzle,
+  TslFacade,
+  VoronoiMetric,
+} from '@nudo-tsl/core'
 import { ConditionalNode, Node, OperatorNode, SplitNode, TextureNode, VarNode } from 'three/webgpu'
 import { texture } from 'three/tsl'
 import { DataTexture } from 'three'
@@ -23,6 +30,12 @@ const BUILTIN_NAMES = [
 const COMPARE_OPS = ['lt', 'lte', 'gt', 'gte', 'eq'] as const satisfies readonly CompareOp[]
 
 const NOISE_KINDS = ['perlin', 'simplex'] as const satisfies readonly NoiseKind[]
+
+const VORONOI_METRICS = [
+  'euclidean',
+  'manhattan',
+  'chebyshev',
+] as const satisfies readonly VoronoiMetric[]
 
 const SWIZZLES = ['x', 'y', 'z', 'w', 'xy', 'xyz'] as const satisfies readonly Swizzle[]
 
@@ -75,7 +88,7 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ['smoothstep', (tsl, { a, b, c }) => tsl.smoothstep(a, b, c)],
   ['fwidth', (tsl, { a }) => tsl.fwidth(a)],
   ['remap', (tsl, { a, b, c, d, e }) => tsl.remap(a, b, c, d, e)],
-  ['voronoi', (tsl, { vec2, a }) => tsl.voronoi(vec2, a)],
+  ['cellNoise', (tsl, { vec3 }) => tsl.cellNoise(vec3)],
   ['checker', (tsl, { vec2 }) => tsl.checker(vec2)],
   [
     'textureSample (auto mip)',
@@ -101,6 +114,11 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ...NOISE_KINDS.map((kind): readonly [string, ExpressionFactory] => [
     `noise ${kind}`,
     (tsl, { vec3 }) => tsl.noise(kind, vec3),
+  ]),
+  ...VORONOI_METRICS.flatMap((metric): readonly (readonly [string, ExpressionFactory])[] => [
+    [`voronoi ${metric}`, (tsl, { vec2, a }) => tsl.voronoi(vec2, a, metric)],
+    [`voronoiCell 2 ${metric}`, (tsl, { vec2, a }) => tsl.voronoiCell(2, vec2, a, metric)],
+    [`voronoiCell 3 ${metric}`, (tsl, { vec3, a }) => tsl.voronoiCell(3, vec3, a, metric)],
   ]),
   ...SWIZZLES.map((components): readonly [string, ExpressionFactory] => [
     `swizzle ${components}`,

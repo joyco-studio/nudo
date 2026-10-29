@@ -1,5 +1,6 @@
 /** Local `Fn` helpers a generated module declares itself, mirroring the live runtime's. */
-export type HelperName = 'simplexNoise3' | 'normalFromHeight' | 'sceneDepthFade'
+export type HelperName =
+  'simplexNoise3' | 'normalFromHeight' | 'sceneDepthFade' | 'voronoiCell2' | 'voronoiCell3'
 
 /**
  * A piece of generated JavaScript plus what it needs around it: the `three/tsl` names to import,

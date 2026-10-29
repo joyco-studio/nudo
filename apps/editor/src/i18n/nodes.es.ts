@@ -22,6 +22,12 @@ const VALUE_OUTPUT: Readonly<Record<string, PortTexts>> = {
   out: { label: 'Salida', description: 'El vector fijado.' },
 }
 
+/** The distance param of both Voronoi nodes. */
+const VORONOI_DISTANCE_ES: ParamTexts = {
+  label: 'Distancia',
+  options: { euclidean: 'Euclídea', manhattan: 'Manhattan', chebyshev: 'Chebyshev' },
+}
+
 const ANGLE_IN = 'El ángulo; una vuelta completa es unos 6,28. Con Tiempo conectado, se mueve.'
 
 /** The universal params every node accepts (see `UNIVERSAL_PARAMS` in core). */
@@ -806,7 +812,58 @@ export const NODES_ES: NodeTranslations = {
         description:
           'F2 menos F1: casi 0 sobre los límites entre celdas, para grietas y contornos.',
       },
+      cell: {
+        label: 'Celda',
+        description:
+          'El centro de la celda más cercana, en unidades de UV × Escala: uno por celda.',
+      },
+      random: {
+        label: 'Aleatorio',
+        description: 'Un valor al azar de 0 a 1 por celda, para darle a cada una su propio color.',
+      },
     },
+    params: { distance: VORONOI_DISTANCE_ES },
+  },
+  'effects/voronoi-3d': {
+    label: 'Voronoi 3D',
+    description:
+      'Patrón celular en el espacio 3D: celdas que llenan el volumen, sin estirarse sobre el UV.',
+    formula: 'voronoi(Posición × Escala)',
+    keywords: ['celular', 'celdas', 'volumen', 'piedra', 'distancia', 'borde', 'procedural'],
+    inputs: {
+      position: {
+        label: 'Posición',
+        description:
+          'Dónde se muestrean las celdas; la posición del objeto si no hay nada conectado.',
+      },
+      scale: { label: 'Escala', description: 'Cuántas celdas entran en una unidad de espacio.' },
+      jitter: {
+        label: 'Dispersión',
+        description: 'Qué tan irregulares son las celdas: 0 = grilla de cubos, 1 = al azar.',
+      },
+    },
+    outputs: {
+      f1: {
+        label: 'F1',
+        description: 'La distancia al centro de celda más cercano: 0 en el medio de cada celda.',
+      },
+      f2: { label: 'F2', description: 'La distancia al segundo centro de celda más cercano.' },
+      edge: {
+        label: 'Borde',
+        description:
+          'F2 menos F1: casi 0 sobre las paredes entre celdas, para grietas y contornos.',
+      },
+      cell: {
+        label: 'Celda',
+        description:
+          'El centro de la celda más cercana, en unidades de Posición × Escala: uno por celda.',
+      },
+      random: {
+        label: 'Aleatorio',
+        description: 'Un valor al azar de 0 a 1 por celda, para darle a cada una su propio color.',
+      },
+    },
+    params: { distance: VORONOI_DISTANCE_ES },
   },
   'effects/checkerboard': {
     label: 'Damero',

@@ -1,4 +1,5 @@
 import { concrete, defineNode, float, vec2 } from '@nudo-tsl/core'
+import { VORONOI_DISTANCE_PARAM, buildVoronoiOutputs } from './voronoi-cells'
 
 export const voronoiNode = defineNode({
   type: 'effects/voronoi',
@@ -50,11 +51,20 @@ export const voronoiNode = defineNode({
       type: concrete('float'),
       description: 'F2 minus F1: near 0 along the borders between cells, for cracks and outlines.',
     },
+    {
+      id: 'cell',
+      label: 'Cell',
+      type: concrete('vec2'),
+      description: 'The center of the nearest cell, in UV × Scale units: one value per cell.',
+    },
+    {
+      id: 'random',
+      label: 'Random',
+      type: concrete('float'),
+      description: 'A random value from 0 to 1 per cell, to give each cell its own color.',
+    },
   ],
-  build: ({ tsl, inputs }) => {
-    const cells = tsl.voronoi(tsl.mul(inputs.uv, inputs.scale), inputs.jitter)
-    const f1 = tsl.swizzle(cells, 'x')
-    const f2 = tsl.swizzle(cells, 'y')
-    return { f1, f2, edge: tsl.sub(f2, f1) }
-  },
+  params: [VORONOI_DISTANCE_PARAM],
+  build: ({ tsl, inputs, params }) =>
+    buildVoronoiOutputs(tsl, 2, tsl.mul(inputs.uv, inputs.scale), inputs.jitter, params),
 })

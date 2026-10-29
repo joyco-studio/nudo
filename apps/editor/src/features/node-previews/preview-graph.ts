@@ -18,6 +18,7 @@ import {
   rerouteNode,
   timeNode,
   viewDirectionNode,
+  voronoi3dNode,
 } from '@nudo-tsl/nodes'
 
 /** A flat quad (2D, drawn square) or a sphere (3D, drawn as a circle like Unity's previews). */
@@ -36,6 +37,7 @@ const SURFACE_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([
   viewDirectionNode.type,
   fresnelNode.type,
   normalFromHeightNode.type,
+  voronoi3dNode.type,
 ])
 
 /** Upstream nodes that change every frame, so the preview keeps rendering while it is visible. */

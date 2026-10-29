@@ -64,6 +64,36 @@ const DERIVATIVE_IN_VERTEX_STAGE = graphDocumentV2(
 )
 
 /**
+ * The catalog graph wires only each node's first output, so the Voronoi cell searches (the `cell`
+ * and `random` outputs) and the non-Euclidean metrics are wired here: 2D and 3D, each metric once.
+ */
+const VORONOI_CELLS = graphDocumentV2(
+  [
+    {
+      id: 'cells',
+      type: 'effects/voronoi',
+      position: { x: 200, y: 0 },
+      params: { distance: 'manhattan' },
+    },
+    {
+      id: 'cells3d',
+      type: 'effects/voronoi-3d',
+      position: { x: 200, y: 400 },
+      params: { distance: 'chebyshev' },
+    },
+    { id: 'roundCells3d', type: 'effects/voronoi-3d', position: { x: 200, y: 800 } },
+  ],
+  [
+    { id: 'cell-to-base-color', from: ['cells', 'cell'], to: ['master', 'baseColor'] },
+    { id: 'random-to-roughness', from: ['cells', 'random'], to: ['master', 'roughness'] },
+    { id: 'cell3d-to-emission', from: ['cells3d', 'cell'], to: ['master', 'emission'] },
+    { id: 'random3d-to-metalness', from: ['cells3d', 'random'], to: ['master', 'metalness'] },
+    { id: 'edge3d-to-opacity', from: ['roundCells3d', 'edge'], to: ['master', 'opacity'] },
+  ],
+  [],
+)
+
+/**
  * The preview draws a material only once the renderer accepted it, and nothing says so but the
  * missing notice. A material still waiting in the validation queue shows no notice yet, so the
  * mesh itself is the proof: the middle of the frame stops matching its background.
@@ -123,6 +153,15 @@ test.describe('real renderer compile check', () => {
       await expectCompiled(page)
     })
   }
+
+  test('the voronoi cell outputs and distance metrics compile in a real renderer', async ({
+    page,
+  }) => {
+    test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+    await seedAutosave(page, VORONOI_CELLS)
+    await page.goto('/')
+    await expectCompiled(page)
+  })
 
   test('a known-bad graph is caught', async ({ page }) => {
     await seedAutosave(page, DERIVATIVE_IN_VERTEX_STAGE)

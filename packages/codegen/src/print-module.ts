@@ -121,7 +121,8 @@ export function printModule(plan: ModulePlan): string {
           ),
         ].join('\n')
       : '',
-    ...helpers.map((name) => TSL_HELPERS[name].source),
+    // Helpers that share a source (the 2D and 3D cell searches) declare it once.
+    ...new Set(helpers.map((name) => TSL_HELPERS[name].source)),
     dependencies.declarations.map(printDeclaration).join('\n'),
     printObject(
       'nodes',

@@ -6,7 +6,7 @@
       "type": "math/multiply",
       "position": {
         "x": -6664,
-        "y": 156
+        "y": 91
       },
       "inputValues": {},
       "params": {}
@@ -16,7 +16,7 @@
       "type": "vector/split",
       "position": {
         "x": -6984,
-        "y": 146
+        "y": 81
       },
       "inputValues": {},
       "params": {}
@@ -26,7 +26,7 @@
       "type": "math/min",
       "position": {
         "x": -6344,
-        "y": 14
+        "y": -51
       },
       "inputValues": {
         "b": {
@@ -41,7 +41,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10584,
-        "y": 1569
+        "y": 1659
       },
       "inputValues": {
         "b": {
@@ -56,7 +56,7 @@
       "type": "math/add",
       "position": {
         "x": -5384,
-        "y": -42
+        "y": -107
       },
       "inputValues": {},
       "params": {}
@@ -66,7 +66,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5064,
-        "y": 33
+        "y": -32
       },
       "inputValues": {},
       "params": {}
@@ -76,7 +76,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7304,
-        "y": 267
+        "y": 202
       },
       "inputValues": {
         "b": {
@@ -119,7 +119,7 @@
       "type": "vector/dot",
       "position": {
         "x": -9944,
-        "y": 1940
+        "y": 2030
       },
       "inputValues": {
         "b": {
@@ -137,7 +137,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 1993
+        "y": 1988
       },
       "inputValues": {
         "scale": {
@@ -145,14 +145,16 @@
           "value": 7.4
         }
       },
-      "params": {}
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "cells": {
       "id": "cells",
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 1455
+        "y": 1450
       },
       "inputValues": {
         "scale": {
@@ -160,14 +162,16 @@
           "value": 1
         }
       },
-      "params": {}
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "centered": {
       "id": "centered",
       "type": "math/subtract",
       "position": {
         "x": -13208,
-        "y": 1237
+        "y": 1270
       },
       "inputValues": {
         "b": {
@@ -182,7 +186,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": -129
+        "y": -194
       },
       "inputValues": {},
       "params": {}
@@ -192,7 +196,7 @@
       "type": "math/subtract",
       "position": {
         "x": -6024,
-        "y": -106
+        "y": -171
       },
       "inputValues": {},
       "params": {}
@@ -202,7 +206,7 @@
       "type": "math/remap",
       "position": {
         "x": -8920,
-        "y": 1324
+        "y": 1356
       },
       "inputValues": {
         "outMax": {
@@ -256,7 +260,7 @@
       "type": "math/min",
       "position": {
         "x": -8600,
-        "y": 1467
+        "y": 1499
       },
       "inputValues": {},
       "params": {}
@@ -400,7 +404,7 @@
       "type": "utility/comment",
       "position": {
         "x": -13560,
-        "y": 1120
+        "y": 1153
       },
       "inputValues": {},
       "params": {
@@ -415,7 +419,7 @@
       "type": "utility/comment",
       "position": {
         "x": -12536,
-        "y": 1254
+        "y": 1344
       },
       "inputValues": {},
       "params": {
@@ -430,12 +434,12 @@
       "type": "utility/comment",
       "position": {
         "x": -9592,
-        "y": 1228
+        "y": 1260
       },
       "inputValues": {},
       "params": {
         "body": "Voronoi F1 grows a round disc around each cell center; a finer Voronoi scallops the rim with bumps. Where two rosettes touch, the cell edge (F2 − F1) cuts a thin crease. depth is how far inside a rosette a point lies.",
-        "height": 1152,
+        "height": 1208,
         "title": "Rosettes",
         "width": 1248
       }
@@ -445,12 +449,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 841
+        "y": 776
       },
       "inputValues": {},
       "params": {
         "body": "Three more Voronoi reads, at other scales and two of them rotated, cut into round dabs with AA Step. A Dot counts the dabs a point is in; that count, only inside the rosettes, darkens the water.",
-        "height": 1278,
+        "height": 1557,
         "title": "Stamps",
         "width": 1888
       }
@@ -460,7 +464,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8248,
-        "y": -209
+        "y": -274
       },
       "inputValues": {},
       "params": {
@@ -505,7 +509,7 @@
       "type": "math/subtract",
       "position": {
         "x": -7944,
-        "y": 203
+        "y": 138
       },
       "inputValues": {
         "b": {
@@ -523,7 +527,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": 146
+        "y": 81
       },
       "inputValues": {},
       "params": {}
@@ -533,7 +537,7 @@
       "type": "math/add",
       "position": {
         "x": -6024,
-        "y": 197
+        "y": 132
       },
       "inputValues": {},
       "params": {}
@@ -543,7 +547,7 @@
       "type": "math/remap",
       "position": {
         "x": -6344,
-        "y": 317
+        "y": 252
       },
       "inputValues": {
         "outMax": {
@@ -562,7 +566,7 @@
       "type": "math/remap",
       "position": {
         "x": -5064,
-        "y": 336
+        "y": 271
       },
       "inputValues": {
         "inMax": {
@@ -595,7 +599,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -4744,
-        "y": 1444
+        "y": 1509
       },
       "inputValues": {
         "edge0": {
@@ -694,7 +698,7 @@
       "type": "property/float",
       "position": {
         "x": -8216,
-        "y": 594
+        "y": 529
       },
       "inputValues": {},
       "params": {
@@ -706,7 +710,7 @@
       "type": "property/float",
       "position": {
         "x": -5336,
-        "y": 261
+        "y": 196
       },
       "inputValues": {},
       "params": {
@@ -745,7 +749,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 1692
+        "y": 1782
       },
       "inputValues": {
         "scale": {
@@ -762,7 +766,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 1766
+        "y": 1856
       },
       "inputValues": {},
       "params": {}
@@ -772,7 +776,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 2032
+        "y": 2122
       },
       "inputValues": {
         "scale": {
@@ -789,7 +793,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 2106
+        "y": 2196
       },
       "inputValues": {},
       "params": {}
@@ -799,7 +803,7 @@
       "type": "vector/combine",
       "position": {
         "x": -10904,
-        "y": 1792
+        "y": 1882
       },
       "inputValues": {},
       "params": {}
@@ -809,7 +813,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 940
+        "y": 1005
       },
       "inputValues": {
         "edge": {
@@ -824,7 +828,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1243
+        "y": 1308
       },
       "inputValues": {
         "edge": {
@@ -839,7 +843,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1546
+        "y": 1611
       },
       "inputValues": {
         "edge": {
@@ -854,7 +858,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12888,
-        "y": 1200
+        "y": 1233
       },
       "inputValues": {
         "b": {
@@ -872,7 +876,7 @@
       "type": "vector/split",
       "position": {
         "x": -5384,
-        "y": 373
+        "y": 308
       },
       "inputValues": {},
       "params": {}
@@ -882,7 +886,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1334
+        "y": 1424
       },
       "inputValues": {},
       "params": {}
@@ -892,7 +896,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1637
+        "y": 1727
       },
       "inputValues": {},
       "params": {}
@@ -902,7 +906,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7944,
-        "y": 506
+        "y": 441
       },
       "inputValues": {
         "b": {
@@ -917,7 +921,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 1956
+        "y": 1988
       },
       "inputValues": {
         "outMax": {
@@ -936,7 +940,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 1569
+        "y": 1601
       },
       "inputValues": {
         "outMax": {
@@ -955,7 +959,7 @@
       "type": "math/add",
       "position": {
         "x": -8920,
-        "y": 1711
+        "y": 1743
       },
       "inputValues": {},
       "params": {}
@@ -1011,7 +1015,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 1745
+        "y": 1835
       },
       "inputValues": {
         "b": {
@@ -1029,7 +1033,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2351
+        "y": 2441
       },
       "inputValues": {
         "b": {
@@ -1266,7 +1270,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 921
+        "y": 856
       },
       "inputValues": {
         "scale": {
@@ -1274,14 +1278,16 @@
           "value": 3.65
         }
       },
-      "params": {}
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "stampCellsB": {
       "id": "stampCellsB",
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 1308
+        "y": 1336
       },
       "inputValues": {
         "scale": {
@@ -1289,14 +1295,16 @@
           "value": 5
         }
       },
-      "params": {}
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "stampCellsC": {
       "id": "stampCellsC",
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 1695
+        "y": 1816
       },
       "inputValues": {
         "scale": {
@@ -1304,14 +1312,16 @@
           "value": 1.95
         }
       },
-      "params": {}
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "stampCount": {
       "id": "stampCount",
       "type": "math/multiply",
       "position": {
         "x": -4424,
-        "y": 1242
+        "y": 1307
       },
       "inputValues": {},
       "params": {}
@@ -1321,7 +1331,7 @@
       "type": "vector/combine",
       "position": {
         "x": -5064,
-        "y": 1122
+        "y": 1187
       },
       "inputValues": {
         "w": {
@@ -1338,7 +1348,7 @@
       "type": "vector/dot",
       "position": {
         "x": -4744,
-        "y": 1141
+        "y": 1206
       },
       "inputValues": {
         "b": {
@@ -1358,7 +1368,7 @@
       "type": "math/clamp",
       "position": {
         "x": -4424,
-        "y": 96
+        "y": 31
       },
       "inputValues": {},
       "params": {}
@@ -1368,7 +1378,7 @@
       "type": "math/add",
       "position": {
         "x": -4744,
-        "y": 133
+        "y": 68
       },
       "inputValues": {},
       "params": {}
@@ -1393,7 +1403,7 @@
       "type": "input/time",
       "position": {
         "x": -12504,
-        "y": 2014
+        "y": 2104
       },
       "inputValues": {},
       "params": {}
@@ -1488,7 +1498,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 1401
+        "y": 1522
       },
       "inputValues": {
         "angle": {
@@ -1503,7 +1513,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 1788
+        "y": 2002
       },
       "inputValues": {
         "angle": {
@@ -1518,7 +1528,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -7624,
-        "y": 304
+        "y": 239
       },
       "inputValues": {
         "center": {
@@ -1536,7 +1546,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2048
+        "y": 2138
       },
       "inputValues": {
         "b": {
@@ -1554,7 +1564,7 @@
       "type": "input/uv",
       "position": {
         "x": -13528,
-        "y": 1288
+        "y": 1321
       },
       "inputValues": {},
       "params": {}
@@ -1581,7 +1591,7 @@
       "type": "property/float",
       "position": {
         "x": -12456,
-        "y": 2322
+        "y": 2412
       },
       "inputValues": {},
       "params": {
@@ -1593,7 +1603,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12184,
-        "y": 2085
+        "y": 2175
       },
       "inputValues": {},
       "params": {}
@@ -1632,7 +1642,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10264,
-        "y": 1702
+        "y": 1792
       },
       "inputValues": {
         "b": {

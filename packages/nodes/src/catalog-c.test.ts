@@ -7,9 +7,11 @@ import {
   createRecordingFacade,
   moduloNode,
   posterizeNode,
+  voronoi3dNode,
+  voronoiNode,
 } from './index'
 
-const CATALOG_C_TYPES = ['math/posterize', 'math/modulo', 'color/blend']
+const CATALOG_C_TYPES = ['math/posterize', 'math/modulo', 'color/blend', 'effects/voronoi-3d']
 
 const buildWith = (
   definition: AnyNodeDefinition,
@@ -51,7 +53,7 @@ describe('posterize and modulo', () => {
 
 describe('blend', () => {
   // The recording facade prints constants as construct(float,[n]).
-  const k = (n: number): string => `construct(float,[${n}])`
+  const k = (n: number): string => `construct(float,[${String(n)}])`
   const BLEND_INPUTS = { base: 'a', blend: 'b', opacity: 'o' }
 
   const BLEND_EXPRESSIONS: readonly (readonly [string, string])[] = [
@@ -90,5 +92,54 @@ describe('blend', () => {
     const multiplied = 'mix(a,mul(a,b),o)'
     expect(buildWith(blendNode, BLEND_INPUTS, { mode: 'burn-it-all' }).out).toBe(multiplied)
     expect(buildWith(blendNode, BLEND_INPUTS).out).toBe(multiplied)
+  })
+})
+
+describe('voronoi 3d', () => {
+  const VORONOI_INPUTS = { position: 'p', scale: 'scale', jitter: 'jitter' }
+
+  it('reads the cells around a 3D point with the same outputs as the 2D voronoi', () => {
+    const cells = 'voronoi(mul(p,scale),jitter,euclidean)'
+    const cell = 'voronoiCell(3,mul(p,scale),jitter,euclidean)'
+
+    expect(buildWith(voronoi3dNode, VORONOI_INPUTS)).toEqual({
+      f1: `swizzle(${cells},x)`,
+      f2: `swizzle(${cells},y)`,
+      edge: `sub(swizzle(${cells},y),swizzle(${cells},x))`,
+      cell,
+      random: `cellNoise(floor(${cell}))`,
+    })
+  })
+
+  it('measures with the chosen distance', () => {
+    expect(buildWith(voronoi3dNode, VORONOI_INPUTS, { distance: 'chebyshev' }).cell).toBe(
+      'voronoiCell(3,mul(p,scale),jitter,chebyshev)',
+    )
+  })
+
+  it('samples object position by default and outputs a vec3 cell', () => {
+    expect(
+      voronoi3dNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
+    ).toEqual([
+      [
+        'position',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 0] },
+        'positionLocal',
+      ],
+      ['scale', { kind: 'concrete', type: 'float' }, { type: 'float', value: 5 }, undefined],
+      ['jitter', { kind: 'concrete', type: 'float' }, { type: 'float', value: 1 }, undefined],
+    ])
+    expect(voronoi3dNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['f1', { kind: 'concrete', type: 'float' }],
+      ['f2', { kind: 'concrete', type: 'float' }],
+      ['edge', { kind: 'concrete', type: 'float' }],
+      ['cell', { kind: 'concrete', type: 'vec3' }],
+      ['random', { kind: 'concrete', type: 'float' }],
+    ])
+  })
+
+  it('shares the distance param with the 2D voronoi', () => {
+    expect(voronoi3dNode.params).toEqual(voronoiNode.params)
   })
 })
