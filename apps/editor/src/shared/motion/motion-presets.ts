@@ -57,6 +57,8 @@ const TOOLTIP_EXIT_MS = 50
 const ICON_SWAP_SCALE = 0.25
 /** better-ui "scale on press": always 0.96. */
 const PRESS_SCALE = 0.96
+/** Reference 07: how far a revealed panel travels (`--panel-translate-y`, here along x). */
+const PANEL_REVEAL_TRAVEL_PX = 100
 /** Reference 27: the switch thumb's travel and its overshoot curve (`--toggle-dur`, `--toggle-ease`). */
 const SWITCH_THUMB_MS = 350
 const SWITCH_THUMB_EASE: Ease = [0.34, 1.35, 0.64, 1]
@@ -130,6 +132,36 @@ export function surfaceStates(preset: SurfacePreset, mode: MotionMode): Presence
       transform: scaled(exit.scale ?? enter.scale),
       transition: exitTiming,
     },
+  }
+}
+
+/**
+ * Reference 07 (panel reveal), for a side sheet that enters from the left edge: a short slide,
+ * a fade and a `--blur-small` cross-blur on one curve, `--duration-slow` in and `--duration-medium`
+ * out. Pointer-opened only: from the keyboard the sheet is instant (the frequency gate).
+ */
+export function panelRevealStates(mode: MotionMode): PresenceStates {
+  if (mode === 'instant') return fadeStates(INSTANT, INSTANT)
+  if (mode === 'reduced') {
+    return fadeStates(
+      timed(DURATION_MS.quick, EASE.smoothOut),
+      timed(DURATION_MS.quick, EASE.smoothOut),
+    )
+  }
+  const away = {
+    opacity: 0,
+    transform: `translateX(-${String(PANEL_REVEAL_TRAVEL_PX)}px)`,
+    filter: `blur(${String(BLUR_PX.small)}px)`,
+  }
+  return {
+    hidden: away,
+    visible: {
+      opacity: 1,
+      transform: 'translateX(0px)',
+      filter: 'blur(0px)',
+      transition: timed(DURATION_MS.slow, EASE.smoothOut),
+    },
+    exit: { ...away, transition: timed(DURATION_MS.medium, EASE.smoothOut) },
   }
 }
 
@@ -216,5 +248,7 @@ export const SURFACE_VARIANTS: Readonly<Record<SurfacePreset, Variants>> = {
 }
 
 export const ICON_SWAP_VARIANTS: Variants = presenceVariants(iconSwapStates)
+
+export const PANEL_REVEAL_VARIANTS: Variants = presenceVariants(panelRevealStates)
 
 export const TEXT_MORPH_VARIANTS: Variants = presenceVariants(textMorphStates)

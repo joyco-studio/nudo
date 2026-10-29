@@ -1,23 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Graph } from '@nudo-tsl/core'
 import { useStoreApi } from '@xyflow/react'
 import type { ReactFlowState } from '@xyflow/react'
 
-import { findExample } from '@/examples'
-import type { Example } from '@/examples'
+import { EXAMPLE_IDS, findExample } from '@/examples'
+import type { Example, ExampleId } from '@/examples'
 import { usePanelAwareView } from '@/features/canvas/use-panel-aware-view'
 import { useLocale, useT } from '@/i18n/use-t'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { describeGraphContents, graphContents, hasWorkToLose } from '@/shared/lib/graph-contents'
 import type { GraphContents } from '@/shared/lib/graph-contents'
+import {
+  claimOverlay,
+  isOverlayReplaced,
+  releaseOverlay,
+  useCloseWhenReplaced,
+} from '@/shared/lib/overlay-coordinator'
 import { ReplaceGraphDialog } from '@/shared/components/replace-graph-dialog'
 import { useEditorStore } from '@/store/editor-store'
 
 import { ExamplesContext } from './examples-context'
-import type { RequestExample } from './examples-context'
+import type { OpenTemplatesBrowser } from './examples-context'
 import { isGraphMeasured } from './is-graph-measured'
 import { openExample } from './open-example'
+import { TemplatesBrowser } from './templates-browser'
+
+const [FIRST_EXAMPLE_ID] = EXAMPLE_IDS
 
 interface ExamplesProviderProps {
   children: ReactNode
@@ -29,17 +38,12 @@ interface PendingExample {
 }
 
 /**
- * Owns opening examples: the header menu and the command palette both go through it. A graph
- * with work in it asks first; opening is one undo step and frames the example in the view. Must
- * sit inside a `ReactFlowProvider`.
+ * Frames `graph` once the canvas holds all of its nodes, measured. Sizes the canvas kept from an
+ * earlier graph with the same ids count, so opening the same example again frames it on the next
+ * frame instead of waiting for a measurement that never comes.
  */
-export function ExamplesProvider({ children }: ExamplesProviderProps) {
+function useFitWhenMeasured(): (graph: Graph) => void {
   const { fitAll } = usePanelAwareView()
-  const { locale } = useLocale()
-  const t = useT()
-  const [pending, setPending] = useState<PendingExample | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const openerRef = useRef<HTMLElement | null>(null)
   const flowStore = useStoreApi()
   // Stops waiting to frame the last example opened (another one opened, or the editor unmounts).
   const cancelFitRef = useRef<(() => void) | null>(null)
@@ -51,12 +55,7 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
     [],
   )
 
-  /**
-   * Frames `graph` once the canvas holds all of its nodes, measured. Sizes the canvas kept from
-   * an earlier graph with the same ids count, so opening the same example again frames it on the
-   * next frame instead of waiting for a measurement that never comes.
-   */
-  const fitWhenMeasured = useCallback(
+  return useCallback(
     (graph: Graph) => {
       cancelFitRef.current?.()
       const fitIfMeasured = (state: ReactFlowState): void => {
@@ -77,46 +76,115 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
     },
     [flowStore, fitAll],
   )
+}
+
+/**
+ * Owns the templates browser (the bundled examples): the header button and the command palette
+ * open it, and it opens the chosen template in place of the graph. A graph with work in it asks
+ * first; opening is one undo step and frames the template in the view. Must sit inside a
+ * `ReactFlowProvider`.
+ */
+export function ExamplesProvider({ children }: ExamplesProviderProps) {
+  const { locale } = useLocale()
+  const t = useT()
+  const fitWhenMeasured = useFitWhenMeasured()
+  const overlayId = useId()
+  const [isBrowserOpen, setIsBrowserOpenState] = useState(false)
+  const [selectedId, setSelectedId] = useState<ExampleId>(FIRST_EXAMPLE_ID)
+  const [pending, setPending] = useState<PendingExample | null>(null)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  /** What opened the browser: focus goes back there once it closes. */
+  const openerRef = useRef<HTMLElement | null>(null)
+  /** Where focus goes when the confirmation is cancelled: back into the browser. */
+  const cancelFocusRef = useRef<HTMLElement | null>(null)
+  const isConfirmedRef = useRef(false)
+
+  const setIsBrowserOpen = useCallback(
+    (open: boolean) => {
+      setIsBrowserOpenState(open)
+      if (open) claimOverlay(overlayId)
+      else releaseOverlay(overlayId)
+    },
+    [overlayId],
+  )
+
+  useCloseWhenReplaced(overlayId, isBrowserOpen, () => {
+    setIsBrowserOpenState(false)
+  })
+
+  const openBrowser = useCallback<OpenTemplatesBrowser>(
+    (opener, selected) => {
+      openerRef.current = opener
+      if (selected !== null) setSelectedId(selected)
+      setIsBrowserOpen(true)
+    },
+    [setIsBrowserOpen],
+  )
 
   const open = useCallback(
     (example: Example) => {
       if (openExample(example, locale)) fitWhenMeasured(useEditorStore.getState().graph)
+      setIsBrowserOpen(false)
     },
-    [locale, fitWhenMeasured],
+    [locale, fitWhenMeasured, setIsBrowserOpen],
   )
 
-  const requestExample = useCallback<RequestExample>(
-    (id, opener) => {
-      const example = findExample(id)
+  const openSelected = useCallback(
+    (returnFocusTo: HTMLElement | null) => {
+      const example = findExample(selectedId)
       if (example === undefined) return
       const contents = graphContents(useEditorStore.getState().graph)
-      openerRef.current = opener
       if (!hasWorkToLose(contents)) {
         open(example)
-        focusOpenerOrCanvas(opener)
         return
       }
+      cancelFocusRef.current = returnFocusTo
+      isConfirmedRef.current = false
       setPending({ example, contents })
-      setIsOpen(true)
+      setIsConfirmOpen(true)
     },
-    [open],
+    [open, selectedId],
   )
 
   const confirm = useCallback(() => {
+    isConfirmedRef.current = true
     if (pending !== null) open(pending.example)
-    setIsOpen(false)
+    setIsConfirmOpen(false)
   }, [open, pending])
 
-  const restoreFocus = useCallback(() => {
-    focusOpenerOrCanvas(openerRef.current)
+  /** Confirmed: the browser closed with it, so back to the browser's opener; else into the browser. */
+  const restoreConfirmFocus = useCallback(() => {
+    if (isConfirmedRef.current) {
+      focusOpenerOrCanvas(openerRef.current)
+      return
+    }
+    cancelFocusRef.current?.focus({ preventScroll: true })
   }, [])
 
+  const onBrowserCloseAutoFocus = useCallback(
+    (event: Event) => {
+      event.preventDefault()
+      // Another overlay took over: it owns focus now.
+      if (isOverlayReplaced(overlayId)) return
+      focusOpenerOrCanvas(openerRef.current)
+    },
+    [overlayId],
+  )
+
   return (
-    <ExamplesContext value={requestExample}>
+    <ExamplesContext value={openBrowser}>
       {children}
+      <TemplatesBrowser
+        open={isBrowserOpen}
+        onOpenChange={setIsBrowserOpen}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        onOpenTemplate={openSelected}
+        onCloseAutoFocus={onBrowserCloseAutoFocus}
+      />
       <ReplaceGraphDialog
-        open={isOpen}
-        onOpenChange={setIsOpen}
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
         title={pending === null ? '' : t('openExample.title', { title: t(pending.example.title) })}
         description={
           pending === null
@@ -127,7 +195,7 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
         }
         confirmLabel={t('openExample.confirm')}
         onConfirm={confirm}
-        restoreFocus={restoreFocus}
+        restoreFocus={restoreConfirmFocus}
       />
     </ExamplesContext>
   )

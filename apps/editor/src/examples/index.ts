@@ -20,6 +20,10 @@ import simpleWaterGraph from './simple-water.graph.json'
 export const EXAMPLE_IDS = ['lettra-pond', 'simple-water', 'iridescent-blob'] as const
 export type ExampleId = (typeof EXAMPLE_IDS)[number]
 
+/** What a template is about, as the templates browser lists it under the title. */
+export const TEMPLATE_TAGS = ['unlit', 'vertex', 'noise', 'voronoi', 'fresnel'] as const
+export type TemplateTag = (typeof TEMPLATE_TAGS)[number]
+
 export interface Example {
   readonly id: ExampleId
   /** The example's name in the UI language. */
@@ -28,6 +32,7 @@ export interface Example {
   readonly graph: unknown
   /** The mesh that shows the example best. */
   readonly previewShape: PrimitiveShape
+  readonly tags: readonly TemplateTag[]
   /** What the comment frames say in each language besides English, the one the file stores. */
   readonly comments: Readonly<Partial<Record<Locale, CommentTexts>>>
 }
@@ -43,6 +48,7 @@ export const EXAMPLES: readonly Example[] = [
     title: 'example.lettra-pond.title',
     graph: lettraPondGraph,
     previewShape: 'plane',
+    tags: ['unlit', 'voronoi', 'noise'],
     comments: { es: spanishComments(LETTRA_POND) },
   },
   {
@@ -50,6 +56,7 @@ export const EXAMPLES: readonly Example[] = [
     title: 'example.simple-water.title',
     graph: simpleWaterGraph,
     previewShape: 'sphere',
+    tags: [],
     comments: { es: spanishComments(SIMPLE_WATER) },
   },
   {
@@ -57,6 +64,7 @@ export const EXAMPLES: readonly Example[] = [
     title: 'example.iridescent-blob.title',
     graph: iridescentBlobGraph,
     previewShape: 'knot',
+    tags: ['vertex', 'noise', 'fresnel'],
     comments: { es: spanishComments(IRIDESCENT_BLOB) },
   },
 ]

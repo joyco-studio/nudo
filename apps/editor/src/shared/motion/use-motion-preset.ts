@@ -3,10 +3,18 @@ import { useReducedMotion } from 'motion/react'
 import type { Variants } from 'motion/react'
 
 import { motionModeFor } from './motion-mode'
-import { ICON_SWAP_VARIANTS, SURFACE_VARIANTS, TEXT_MORPH_VARIANTS } from './motion-presets'
+import {
+  ICON_SWAP_VARIANTS,
+  PANEL_REVEAL_VARIANTS,
+  SURFACE_VARIANTS,
+  TEXT_MORPH_VARIANTS,
+} from './motion-presets'
 import type { MotionMode, SurfacePreset } from './motion-presets'
 
-export type MotionPreset = SurfacePreset | 'iconSwap' | 'textMorph'
+/** Presets an overlay can open and close with. */
+export type OverlayPreset = SurfacePreset | 'panelReveal'
+
+export type MotionPreset = OverlayPreset | 'iconSwap' | 'textMorph'
 
 /**
  * How much the change rendering now may move. Read during render on purpose: the render that opens,
@@ -33,6 +41,7 @@ export interface PresenceMotion {
 function variantsFor(preset: MotionPreset): Variants {
   if (preset === 'iconSwap') return ICON_SWAP_VARIANTS
   if (preset === 'textMorph') return TEXT_MORPH_VARIANTS
+  if (preset === 'panelReveal') return PANEL_REVEAL_VARIANTS
   return SURFACE_VARIANTS[preset]
 }
 
@@ -65,7 +74,7 @@ export interface OverlayMotion {
 }
 
 /** `useMotionPreset` for an overlay whose open state is `isOpen`. */
-export function useOverlayMotion(preset: SurfacePreset, isOpen: boolean): OverlayMotion {
+export function useOverlayMotion(preset: OverlayPreset, isOpen: boolean): OverlayMotion {
   const { presence, element } = useMotionPreset(preset)
   const [presenceKey, setPresenceKey] = useState(0)
   const [isLeaving, setIsLeaving] = useState(false)

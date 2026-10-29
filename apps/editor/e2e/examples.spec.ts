@@ -1,8 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
-import { expectFocusRing, tabUntilFocused } from './support/focus-indicators'
 import { addNodeFromHeader } from './support/graph-keyboard'
-import { examplesButton, pickExampleByKeyboard } from './support/open-example'
+import { pickExampleByKeyboard, templatesBrowser, templatesButton } from './support/open-example'
 import { readStoredNodes } from './support/read-autosave'
 import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
 import { stillTransforms } from './support/still-transforms'
@@ -12,6 +11,7 @@ const PALETTE_CHORD = 'ControlOrMeta+k'
 const UNDO_CHORD = 'ControlOrMeta+z'
 /** The iridescent blob: 20 nodes, five comment frames and the master. */
 const BLOB_NODE_COUNT = 26
+const BLOB_FIRST_FRAME = '1 · Animated noise'
 /** Frames (about half a second) the view must hold still: a fit that was going to happen has started by then. */
 const NO_FIT_STILL_FRAMES = 30
 
@@ -64,7 +64,7 @@ const overlaps = (a: Box, b: Box): boolean =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
 
 test.describe('examples', () => {
-  test('the Examples menu opens an example on an empty graph with the keyboard alone', async ({
+  test('the templates browser opens a template on an empty graph with the keyboard alone', async ({
     page,
   }) => {
     await page.goto('/')
@@ -72,17 +72,16 @@ test.describe('examples', () => {
 
     await pickExampleByKeyboard(page, 'Iridescent blob')
 
+    await expect(templatesBrowser(page)).toBeHidden()
     await expect(confirmDialog(page)).toBeHidden()
     await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
-    await expect(examplesButton(page)).toBeFocused()
-    await expect(
-      page.getByRole('group', { name: '1 · Animated noise', exact: true }),
-    ).toBeAttached()
+    await expect(templatesButton(page)).toBeFocused()
+    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
     await expect(page.getByRole('radio', { name: 'Knot', exact: true })).toBeChecked()
     await expect(page.locator('[data-error="true"]')).toHaveCount(0)
   })
 
-  for (const title of ['Iridescent blob', 'Simple water', 'Lettra pond']) {
+  for (const title of ['Iridescent blob', 'Lettra pond']) {
     test(`lays the ${title} out with its previews on, no node over another`, async ({ page }) => {
       await page.goto('/')
       await pickExampleByKeyboard(page, title)
@@ -105,8 +104,8 @@ test.describe('examples', () => {
   }) => {
     await page.goto('/')
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
-    await pickExampleByKeyboard(page, 'Simple water')
-    await expect(page.getByRole('group', { name: 'Waves', exact: true })).toBeAttached()
+    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
     const framed = await settledViewport(page)
 
     // Pan away, so the second opening has to frame the example again to land there.
@@ -115,29 +114,13 @@ test.describe('examples', () => {
     expect(await settledViewport(page)).not.toBe(framed)
 
     // Every node of the second copy has the same id as one the canvas already measured.
-    await pickExampleByKeyboard(page, 'Simple water')
-    await confirmDialog(page).getByRole('button', { name: 'Open example' }).click()
+    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await confirmDialog(page).getByRole('button', { name: 'Open template' }).click()
     await expect(confirmDialog(page)).toBeHidden()
     await expect.poll(() => viewportTransform(page)).toBe(framed)
 
     await addNodeFromHeader(page, 'sine', 'Sine')
     expect(await settledViewport(page, { stillFrames: NO_FIT_STILL_FRAMES })).toBe(framed)
-  })
-
-  test('Tab reaches the menu button with a visible ring; Escape closes the menu back onto it', async ({
-    page,
-  }) => {
-    await page.goto('/')
-    await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
-    await tabUntilFocused(page, examplesButton(page))
-    await expectFocusRing(page, examplesButton(page))
-
-    await page.keyboard.press('Enter')
-    const menu = page.getByRole('menu', { name: 'Examples' })
-    await expect(menu.getByRole('menuitem').first()).toBeFocused()
-    await page.keyboard.press('Escape')
-    await expect(menu).toBeHidden()
-    await expect(examplesButton(page)).toBeFocused()
   })
 
   test('the confirmation keeps Tab inside it and, once confirmed, gives focus back', async ({
@@ -150,7 +133,7 @@ test.describe('examples', () => {
     await pickExampleByKeyboard(page, 'Iridescent blob')
     const dialog = confirmDialog(page)
     const cancel = dialog.getByRole('button', { name: 'Cancel' })
-    const confirm = dialog.getByRole('button', { name: 'Open example' })
+    const confirm = dialog.getByRole('button', { name: 'Open template' })
     await expect(cancel).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(confirm).toBeFocused()
@@ -160,11 +143,12 @@ test.describe('examples', () => {
     await page.keyboard.press('Shift+Tab')
     await page.keyboard.press('Enter')
     await expect(dialog).toBeHidden()
+    await expect(templatesBrowser(page)).toBeHidden()
     await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
-    await expect(examplesButton(page)).toBeFocused()
+    await expect(templatesButton(page)).toBeFocused()
   })
 
-  test('asks first when the graph has work in it; Escape keeps the graph and returns focus', async ({
+  test('asks first when the graph has work in it; Escape keeps the graph and the browser', async ({
     page,
   }) => {
     await seedAutosave(page, TIME_TO_SINE)
@@ -172,16 +156,22 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Simple water')
+    await pickExampleByKeyboard(page, 'Iridescent blob')
     const dialog = confirmDialog(page)
     await expect(dialog).toBeVisible()
-    await expect(dialog).toContainText('Open “Simple water”?')
+    await expect(dialog).toContainText('Open “Iridescent blob”?')
     await expect(dialog).toContainText('2 nodes')
     await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
 
+    // The first Escape closes the question and puts focus back on the template; the second closes
+    // the browser, back onto its button.
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
-    await expect(examplesButton(page)).toBeFocused()
+    const browser = templatesBrowser(page)
+    await expect(browser.getByRole('option', { name: 'Iridescent blob' })).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(browser).toBeHidden()
+    await expect(templatesButton(page)).toBeFocused()
     expect(await storedNodeIds(page)).toEqual(before)
   })
 
@@ -191,10 +181,10 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Simple water')
-    await confirmDialog(page).getByRole('button', { name: 'Open example' }).click()
+    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await confirmDialog(page).getByRole('button', { name: 'Open template' }).click()
     await expect(confirmDialog(page)).toBeHidden()
-    await expect(page.getByRole('group', { name: 'Waves', exact: true })).toBeAttached()
+    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
     await expect.poll(() => storedNodeIds(page)).not.toEqual(before)
 
     await page.getByRole('main', { name: 'Node canvas' }).focus()
@@ -202,7 +192,7 @@ test.describe('examples', () => {
     await expect.poll(() => storedNodeIds(page)).toEqual(before)
   })
 
-  test('⌘K lists the examples and opens one; in Spanish the frames speak Spanish', async ({
+  test('⌘K lists the templates and opens the browser on one; in Spanish the frames speak Spanish', async ({
     page,
   }) => {
     await page.goto('/')
@@ -223,10 +213,14 @@ test.describe('examples', () => {
     const dialog = page.getByRole('dialog').filter({ has: page.getByRole('combobox') })
     await expect(dialog).toBeVisible()
     await page.keyboard.type('blob')
-    await expect(dialog.getByRole('option').first()).toContainText(
-      'Abrir ejemplo: Blob iridiscente',
-    )
+    await expect(dialog.getByRole('option').first()).toContainText('Plantilla: Blob iridiscente')
     await page.keyboard.press('Enter')
+
+    // The browser opens on that template, focused; Enter opens it.
+    const browser = page.getByRole('dialog', { name: 'Plantillas', exact: true })
+    await expect(browser.getByRole('option', { name: 'Blob iridiscente' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(browser).toBeHidden()
 
     const frame = page.getByRole('group', { name: '1 · Noise animado', exact: true })
     await expect(frame.getByRole('textbox', { name: 'Texto del comentario' })).toHaveValue(

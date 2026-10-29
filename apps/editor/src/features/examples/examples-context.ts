@@ -3,17 +3,17 @@ import { createContext, use } from 'react'
 import type { ExampleId } from '@/examples'
 
 /**
- * Opens an example in place of the graph, asking first when that would replace work. `opener`
- * gets focus back afterwards.
+ * Opens the templates browser with `selected` chosen (null: the template chosen last, else the
+ * first). `opener` gets focus back when the browser closes.
  */
-export type RequestExample = (id: ExampleId, opener: HTMLElement | null) => void
+export type OpenTemplatesBrowser = (opener: HTMLElement | null, selected: ExampleId | null) => void
 
-export const ExamplesContext = createContext<RequestExample | null>(null)
+export const ExamplesContext = createContext<OpenTemplatesBrowser | null>(null)
 
-export function useRequestExample(): RequestExample {
-  const requestExample = use(ExamplesContext)
-  if (requestExample === null) {
-    throw new Error('useRequestExample must be used inside ExamplesProvider')
+export function useOpenTemplatesBrowser(): OpenTemplatesBrowser {
+  const openTemplatesBrowser = use(ExamplesContext)
+  if (openTemplatesBrowser === null) {
+    throw new Error('useOpenTemplatesBrowser must be used inside ExamplesProvider')
   }
-  return requestExample
+  return openTemplatesBrowser
 }
