@@ -2,14 +2,15 @@ import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { rm, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { MASTER_NODE_ID, parseGraph, setParam } from '@nudo-tsl/core'
+import { MAIN_LIGHT_DEFAULTS, MASTER_NODE_ID, parseGraph, setParam } from '@nudo-tsl/core'
 import type { Graph } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import ts from 'typescript'
-import { DataTexture } from 'three'
-import { Node, TextureNode } from 'three/webgpu'
+import { DataTexture, Vector3 } from 'three'
+import { Node, TextureNode, UniformNode } from 'three/webgpu'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
+import { createLightsPropertyGraph } from './fixtures/lights-property-graph'
 import { unwrap } from './fixtures/unwrap'
 import iridescentBlobGraph from '../../../apps/editor/src/examples/iridescent-blob.graph.json'
 import pondGraph from '../../../apps/editor/src/examples/pond.graph.json'
@@ -106,6 +107,16 @@ describe('generated module parity', () => {
     expect(expectEverySlotIsANode(loaded).length).toBeGreaterThan(0)
   })
 
+  it('loads a module whose Blackboard property and main light both read lights', async () => {
+    const { exports } = await loadGenerated(createLightsPropertyGraph(registry))
+
+    expect(isRecord(exports.uniforms) ? exports.uniforms.lights : null).toBeInstanceOf(Node)
+    expect(isRecord(exports.lights) ? Object.keys(exports.lights) : []).toEqual([
+      'mainLightDirection',
+      'mainLightColor',
+    ])
+  })
+
   describe('catalog fixture', () => {
     const catalog = createCatalogGraph(registry)
 
@@ -156,6 +167,20 @@ describe('generated module parity', () => {
       const replacement = new DataTexture()
       albedo.value = replacement
       expect(albedo.value).toBe(replacement)
+    })
+
+    it('exports the main light as uniforms set to the preview key light', async () => {
+      const { exports } = await loadGenerated(catalog)
+      const lights = isRecord(exports.lights) ? exports.lights : {}
+
+      expect(Object.keys(lights)).toEqual(['mainLightDirection', 'mainLightColor'])
+      const values = Object.values(lights).map((light): unknown =>
+        light instanceof UniformNode ? light.value : null,
+      )
+      expect(values).toEqual([
+        new Vector3(...MAIN_LIGHT_DEFAULTS.direction),
+        new Vector3(...MAIN_LIGHT_DEFAULTS.color),
+      ])
     })
 
     it('builds an unlit material from the same graph', async () => {

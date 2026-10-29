@@ -1,7 +1,7 @@
 import { TSL_HELPERS } from './tsl-helpers'
 
 /** Top-level names every module owns. */
-const MODULE_EXPORT_NAMES = ['uniforms', 'textures', 'nodes', 'materialSettings'] as const
+const MODULE_EXPORT_NAMES = ['uniforms', 'lights', 'textures', 'nodes', 'materialSettings'] as const
 
 /** `three` names the module may import, and the neutral texture it declares. */
 const THREE_CONSTANT_NAMES = [

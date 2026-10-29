@@ -39,6 +39,9 @@ export type CellDimensions = 2 | 3
 
 export type ColorSpaceDirection = 'srgb-to-linear' | 'linear-to-srgb'
 
+/** What a Main Light node reads off the scene's shared key light. */
+export type MainLightComponent = 'direction' | 'color'
+
 /** The subset of TSL used by nodes, in functional style: `tsl.mul(a, b)`, not `a.mul(b)`. */
 export interface TslFacade<E> {
   add(a: E, b: E): E
@@ -89,6 +92,8 @@ export interface TslFacade<E> {
   sceneDepthFade(distance: E): E
   /** View-space normal from the screen-space derivatives of a height: vec3. */
   normalFromHeight(height: E, strength: E): E
+  /** The shared key light: world-space direction toward it, or color × intensity: vec3. */
+  mainLight(component: MainLightComponent): E
   builtin(name: BuiltinName): E
   construct(type: VectorType, parts: readonly (E | number)[]): E
   swizzle(value: E, components: Swizzle): E

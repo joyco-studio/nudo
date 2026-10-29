@@ -67,6 +67,7 @@ import {
   vec4,
   viewportSharedTexture,
 } from 'three/tsl'
+import { MAIN_LIGHT_UNIFORMS } from './main-light'
 import { normalFromHeight } from './normal-from-height'
 import { sceneDepthFade } from './scene-depth-fade'
 import { simplexNoise3 } from './simplex-noise'
@@ -233,6 +234,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     sceneColor: (uvNode) => readSwizzle(sceneColorNode(uvNode), 'xyz'),
     sceneDepthFade: (distanceNode) => sceneDepthFadeNode(distanceNode),
     normalFromHeight: (height, strength) => normalFromHeightNodes(height, strength),
+    mainLight: (component) => MAIN_LIGHT_UNIFORMS[component],
     builtin: (name) => BUILTINS[name](),
     construct: (type, parts) => CONSTRUCTORS[type](...parts),
     swizzle: readSwizzle,

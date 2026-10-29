@@ -3,6 +3,7 @@ import type {
   CellDimensions,
   ColorSpaceDirection,
   CompareOp,
+  MainLightComponent,
   NoiseKind,
   Swizzle,
   TslFacade,
@@ -37,6 +38,18 @@ const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, string>> = {
   'srgb-to-linear': 'sRGBTransferEOTF',
   'linear-to-srgb': 'sRGBTransferOETF',
 }
+
+/** The module export that holds the shared Main Light uniforms. */
+export const LIGHTS_OBJECT = 'lights'
+
+/** The key of each Main Light component in the `lights` export. */
+export const MAIN_LIGHT_KEYS: Readonly<Record<MainLightComponent, string>> = {
+  direction: 'mainLightDirection',
+  color: 'mainLightColor',
+}
+
+/** The order the `lights` export lists its components in. */
+export const MAIN_LIGHT_ORDER: readonly MainLightComponent[] = ['direction', 'color']
 
 const joinCodes = (args: readonly CodeExpression[]): string =>
   args.map((arg) => arg.code).join(', ')
@@ -132,6 +145,7 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     sceneColor: (uv) => member(call('viewportSharedTexture', [uv]), 'xyz'),
     sceneDepthFade: (distance) => callHelper('sceneDepthFade', [distance]),
     normalFromHeight: (height, strength) => callHelper('normalFromHeight', [height, strength]),
+    mainLight: (component) => compose(`${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS[component]}`, []),
     builtin: (name) => compose(name === 'uv' ? 'uv()' : name, [], { imports: [name] }),
     construct,
     swizzle: (value, components: Swizzle) => member(value, components),

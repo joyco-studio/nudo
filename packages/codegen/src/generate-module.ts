@@ -135,6 +135,7 @@ export function generateModule(
     ),
     uniforms: propertyUniforms.uniforms,
     texturePlaceholders: texturePlaceholdersOf(graph.properties, backend.texturePlaceholders),
+    lights: [...backend.lights],
     entries,
     transparent,
     doubleSided: settings.twoSided,

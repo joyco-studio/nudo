@@ -3,6 +3,7 @@ import type {
   BlackboardProperty,
   CompileBackend,
   GraphNode,
+  MainLightComponent,
   NodeId,
   VectorPortValue,
 } from '@nudo-tsl/core'
@@ -20,6 +21,8 @@ const INLINE_TEXTURE_BASE = 'texture'
 export interface CodeBackend extends CompileBackend<CodeExpression> {
   /** Keys of `textures` the compiled graph reads (exposed texture properties come on top). Each is a texture node. */
   readonly texturePlaceholders: ReadonlySet<string>
+  /** The Main Light components the compiled graph reads, each a key of `lights`. */
+  readonly lights: ReadonlySet<MainLightComponent>
 }
 
 const isColorWidget = (widget: string | undefined): boolean => widget === 'color'
@@ -56,6 +59,8 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
   )
   const nodeNames = new Map<NodeId, string>()
   const texturePlaceholders = new Set<string>()
+  const lights = new Set<MainLightComponent>()
+  const facade = createCodeFacade()
 
   const nodeName = (node: GraphNode, definition: AnyNodeDefinition): string => {
     const known = nodeNames.get(node.id)
@@ -74,8 +79,15 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
   const inlineTexture = (): CodeExpression => textureReader(names.counted(INLINE_TEXTURE_BASE))
 
   return {
-    tsl: createCodeFacade(),
+    tsl: {
+      ...facade,
+      mainLight: (component) => {
+        lights.add(component)
+        return facade.mainLight(component)
+      },
+    },
     texturePlaceholders,
+    lights,
     inputValue: (_ref, value, widget) =>
       isVectorValue(value) ? literalOf(value, isColorWidget(widget)) : inlineTexture(),
     property: (property) => {

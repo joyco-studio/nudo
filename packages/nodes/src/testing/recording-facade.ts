@@ -42,6 +42,7 @@ export function createRecordingFacade(): TslFacade<string> {
     sceneColor: (uv) => `sceneColor(${uv})`,
     sceneDepthFade: (distance) => `sceneDepthFade(${distance})`,
     normalFromHeight: (height, strength) => `normalFromHeight(${height},${strength})`,
+    mainLight: (component) => `mainLight(${component})`,
     builtin: (name) => `builtin(${name})`,
     construct: (type, parts) => `construct(${type},${formatParts(parts)})`,
     swizzle: (value, components) => `swizzle(${value},${components})`,

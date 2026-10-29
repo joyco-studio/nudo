@@ -228,6 +228,37 @@ export const NODES_ES: NodeTranslations = {
       out: { label: 'Salida', description: 'La posición de la cámara en espacio de mundo.' },
     },
   },
+  'input/main-light': {
+    label: 'Luz principal',
+    description:
+      'La luz clave de la escena: su dirección y su color, más un sombreado Lambert y half-Lambert listo para iluminación propia y estilos toon.',
+    keywords: ['luz', 'sol', 'direccional', 'lambert', 'difusa', 'sombreado', 'toon'],
+    inputs: {
+      normal: {
+        label: 'Normal',
+        description:
+          'La normal de la superficie a sombrear, en espacio de mundo; la normal de mundo si no hay nada conectado.',
+      },
+    },
+    outputs: {
+      direction: {
+        label: 'Dirección',
+        description:
+          'Dirección desde la superficie hacia la luz, en espacio de mundo, con longitud 1.',
+      },
+      color: { label: 'Color', description: 'El color de la luz multiplicado por su intensidad.' },
+      lambert: {
+        label: 'Lambert',
+        description:
+          'Cuánto mira la superficie hacia la luz: 1 de frente, 0 de canto o de espaldas.',
+      },
+      halfLambert: {
+        label: 'Half Lambert',
+        description:
+          'Lambert comprimido entre 0 y 1 para que el lado oscuro conserve un degradado suave.',
+      },
+    },
+  },
 
   // Math
   'math/add': {

@@ -7,6 +7,7 @@ import type { PreviewBackdrop } from '@/features/panels/panel-state'
 
 import { CheckerRoom } from './checker-room'
 import { GridFloor } from './grid-floor'
+import { KEY_LIGHT_INTENSITY, KEY_LIGHT_POSITION } from './key-light'
 import type { OrbitView } from './orbit-view'
 import { PreviewMesh } from './preview-mesh'
 import type { PreviewShape } from './preview-shape'
@@ -16,8 +17,6 @@ import type { MaterialStatusHandler } from './use-validated-material'
 const SKY_COLOR = '#ffffff'
 const GROUND_COLOR = '#6b6b6b'
 const FILL_LIGHT_INTENSITY = 1.2
-const KEY_LIGHT_POSITION = [3, 4, 5] as const
-const KEY_LIGHT_INTENSITY = 2.5
 const MIN_ORBIT_DISTANCE = 1.5
 const MAX_ORBIT_DISTANCE = 12
 

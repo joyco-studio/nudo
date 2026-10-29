@@ -12,6 +12,7 @@ import type {
 import {
   commentNode,
   fresnelNode,
+  mainLightNode,
   normalFromHeightNode,
   normalNode,
   positionNode,
@@ -40,6 +41,7 @@ const SURFACE_NODE_TYPES: ReadonlySet<NodeTypeId> = new Set([
   normalFromHeightNode.type,
   voronoi3dNode.type,
   triplanarNode.type,
+  mainLightNode.type,
 ])
 
 /** Upstream nodes that change every frame, so the preview keeps rendering while it is visible. */

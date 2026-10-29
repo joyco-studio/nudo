@@ -5,6 +5,7 @@ import {
   blendNode,
   createDefaultRegistry,
   createRecordingFacade,
+  mainLightNode,
   moduloNode,
   posterizeNode,
   triplanarNode,
@@ -18,6 +19,7 @@ const CATALOG_C_TYPES = [
   'color/blend',
   'effects/voronoi-3d',
   'texture/triplanar',
+  'input/main-light',
 ]
 
 const buildWith = (
@@ -202,6 +204,39 @@ describe('triplanar', () => {
       ['rgba', { kind: 'concrete', type: 'vec4' }],
       ['rgb', { kind: 'concrete', type: 'vec3' }],
       ['a', { kind: 'concrete', type: 'float' }],
+    ])
+  })
+})
+
+describe('main light', () => {
+  const direction = 'mainLight(direction)'
+  const facing = `dot(normalize(n),${direction})`
+
+  it('reads the shared light and shades the normal with Lambert and half-Lambert', () => {
+    expect(buildWith(mainLightNode, { normal: 'n' })).toEqual({
+      direction,
+      color: 'mainLight(color)',
+      lambert: `max(${facing},construct(float,[0]))`,
+      halfLambert: `add(mul(${facing},construct(float,[0.5])),construct(float,[0.5]))`,
+    })
+  })
+
+  it('reads the world normal by default and outputs vec3 light and float shading', () => {
+    expect(
+      mainLightNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
+    ).toEqual([
+      [
+        'normal',
+        { kind: 'concrete', type: 'vec3' },
+        { type: 'vec3', value: [0, 0, 1] },
+        'normalWorld',
+      ],
+    ])
+    expect(mainLightNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['direction', { kind: 'concrete', type: 'vec3' }],
+      ['color', { kind: 'concrete', type: 'vec3' }],
+      ['lambert', { kind: 'concrete', type: 'float' }],
+      ['halfLambert', { kind: 'concrete', type: 'float' }],
     ])
   })
 })

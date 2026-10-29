@@ -9,6 +9,7 @@ import { voronoiNode } from './effects/voronoi-node'
 import { blendNode } from './color/blend-node'
 import { colorSpaceNode } from './color/color-space-node'
 import { cameraPositionNode } from './input/camera-position-node'
+import { mainLightNode } from './input/main-light-node'
 import { colorNode } from './input/color-node'
 import { floatNode } from './input/float-node'
 import { normalNode } from './input/normal-node'
@@ -140,6 +141,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   blendNode,
   voronoi3dNode,
   triplanarNode,
+  mainLightNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

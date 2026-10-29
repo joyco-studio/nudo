@@ -1,6 +1,9 @@
+import { MAIN_LIGHT_DEFAULTS } from '@nudo-tsl/core'
+import type { MainLightComponent, MaterialAssignment } from '@nudo-tsl/core'
+import { uniformExpression } from './code-backend'
 import { collectDependencies } from './code-expression'
 import type { CodeExpression, HoistedValue } from './code-expression'
-import type { MaterialAssignment } from '@nudo-tsl/core'
+import { LIGHTS_OBJECT, MAIN_LIGHT_KEYS, MAIN_LIGHT_ORDER } from './code-facade'
 import { HELPER_ORDER, TSL_HELPERS } from './tsl-helpers'
 
 const INDENT = '  '
@@ -30,6 +33,12 @@ const textureNotice = (example: string): string =>
     `// to one with its value, for example \`textures.${example}.value = myTexture\`.`,
   ].join('\n')
 
+const MAIN_LIGHT_NOTICE = [
+  "// Main Light: keep in step with your scene's key DirectionalLight, e.g.",
+  `${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS.direction}.value.copy(light.position).normalize();`,
+  `${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS.color}.value.setFromColor(light.color).multiplyScalar(light.intensity)`,
+].join(' ')
+
 export type MaterialClass = 'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial'
 
 export interface NamedExpression {
@@ -46,6 +55,8 @@ export interface ModulePlan {
   readonly surfaceHints: readonly string[]
   readonly uniforms: readonly NamedExpression[]
   readonly texturePlaceholders: readonly string[]
+  /** The Main Light components the graph reads; each becomes a `lights` uniform. */
+  readonly lights: readonly MainLightComponent[]
   readonly entries: readonly MaterialAssignment<CodeExpression>[]
   readonly transparent: boolean
   readonly doubleSided: boolean
@@ -85,10 +96,28 @@ function printImports(tslNames: ReadonlySet<string>, threeNames: readonly string
   return lines.join('\n')
 }
 
+/** One shared uniform per Main Light component read, starting at the preview's key light. */
+const lightUniformsOf = (components: readonly MainLightComponent[]): readonly NamedExpression[] =>
+  MAIN_LIGHT_ORDER.filter((component) => components.includes(component)).map((component) => ({
+    name: MAIN_LIGHT_KEYS[component],
+    expression: uniformExpression(
+      { type: 'vec3', value: MAIN_LIGHT_DEFAULTS[component] },
+      undefined,
+    ),
+  }))
+
+const printNamedExpressions = (name: string, expressions: readonly NamedExpression[]): string =>
+  printObject(
+    name,
+    expressions.map(({ name: key, expression }) => `${key}: ${expression.code}`),
+  )
+
 /** Prints the plan as a JS module. Output is stable: the same plan always prints the same text. */
 export function printModule(plan: ModulePlan): string {
+  const lights = lightUniformsOf(plan.lights)
   const roots = [
     ...plan.uniforms.map(({ expression }) => expression),
+    ...lights.map(({ expression }) => expression),
     ...plan.entries.map((entry) => entry.expression),
   ]
   const dependencies = collectDependencies(roots)
@@ -105,11 +134,9 @@ export function printModule(plan: ModulePlan): string {
 
   const sections = [
     `${printHeader(plan)}\n${printImports(tslNames, threeNames)}`,
-    plan.uniforms.length > 0
-      ? printObject(
-          'uniforms',
-          plan.uniforms.map(({ name, expression }) => `${name}: ${expression.code}`),
-        )
+    plan.uniforms.length > 0 ? printNamedExpressions('uniforms', plan.uniforms) : '',
+    lights.length > 0
+      ? `${MAIN_LIGHT_NOTICE}\n${printNamedExpressions(LIGHTS_OBJECT, lights)}`
       : '',
     hasTextures ? NEUTRAL_TEXTURE_SOURCE : '',
     hasTextures

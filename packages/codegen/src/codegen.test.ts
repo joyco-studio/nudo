@@ -18,6 +18,7 @@ import {
 import type { BlackboardProperty, Graph, ParamValue, PortRef, PortValue } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import { describe, expect, it } from 'vitest'
+import { createLightsPropertyGraph } from './fixtures/lights-property-graph'
 import { unwrap } from './fixtures/unwrap'
 import waterGraphV1 from './fixtures/water-graph-v1.json'
 import { generateModule } from './index'
@@ -385,6 +386,46 @@ describe('generateModule', () => {
 
       expect(lines(code)[2]).toBe('// Surface: opaque · single-sided · alpha clip (alphaTestNode)')
       expect(code).toContain('alphaTestNode: checkerboard1,')
+    })
+  })
+
+  describe('main light', () => {
+    const LIGHTS_EXPORT = [
+      'export const lights = {',
+      '  mainLightDirection: uniform(vec3(0.424264, 0.565685, 0.707107)),',
+      '  mainLightColor: uniform(vec3(2.5, 2.5, 2.5)),',
+      '}',
+    ].join('\n')
+
+    it('exports the shared light uniforms and reads them by name', () => {
+      let graph = withNode(createGraph(), 'sun', 'input/main-light')
+      graph = withLink(graph, port('sun', 'halfLambert'), port('master', 'roughness'))
+      const code = generate(graph)
+
+      expect(code).toContain(
+        "// Main Light: keep in step with your scene's key DirectionalLight, e.g. lights.mainLightDirection.value.copy(light.position).normalize(); lights.mainLightColor.value.setFromColor(light.color).multiplyScalar(light.intensity)",
+      )
+      expect(code).toContain(LIGHTS_EXPORT)
+      expect(code).toContain('dot(normalize(normalWorld), lights.mainLightDirection)')
+      expect(importLine(code, 'three/tsl')).toMatch(/\buniform\b.*\bvec3\b/)
+    })
+
+    it('prints no lights when nothing reads the main light', () => {
+      expect(generate(waterGraph())).not.toContain('lights')
+    })
+
+    it('keeps a Blackboard property named lights apart from the lights export', () => {
+      const code = generate(createLightsPropertyGraph(registry))
+      const topLevelNames = [...code.matchAll(/^(?:export )?const (\w+)/gm)].map(
+        (match) => match[1],
+      )
+
+      expect(code).toContain('export const uniforms = {\n  lights: uniform(0.5),\n}')
+      expect(code).toContain(LIGHTS_EXPORT)
+      expect(code).toContain('uniforms.lights.mul(')
+      expect(topLevelNames.filter((name, index) => topLevelNames.indexOf(name) !== index)).toEqual(
+        [],
+      )
     })
   })
 

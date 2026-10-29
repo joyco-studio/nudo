@@ -104,6 +104,8 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ['sceneColor', (tsl, { vec2 }) => tsl.sceneColor(vec2)],
   ['sceneDepthFade', (tsl, { b }) => tsl.sceneDepthFade(b)],
   ['normalFromHeight', (tsl, { a, b }) => tsl.normalFromHeight(a, b)],
+  ['mainLight direction', (tsl) => tsl.mainLight('direction')],
+  ['mainLight color', (tsl) => tsl.mainLight('color')],
   ['construct float', (tsl) => tsl.construct('float', [1])],
   ['construct vec2', (tsl) => tsl.construct('vec2', [1, 2])],
   ['construct vec3', (tsl, { vec2 }) => tsl.construct('vec3', [vec2, 3])],
@@ -150,6 +152,14 @@ describe('createLiveFacade', () => {
 
   it.each(FACADE_OPERATIONS)('%s returns a node', (_name, createExpression) => {
     expect(createExpression(tsl, operands)).toBeInstanceOf(Node)
+  })
+
+  it('reads one shared main light, the same node for every facade', () => {
+    const other = createLiveFacade()
+
+    expect(other.mainLight('direction')).toBe(tsl.mainLight('direction'))
+    expect(other.mainLight('color')).toBe(tsl.mainLight('color'))
+    expect(tsl.mainLight('direction')).not.toBe(tsl.mainLight('color'))
   })
 
   it('constructs vectors from numbers and nodes', () => {
