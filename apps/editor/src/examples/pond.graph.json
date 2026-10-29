@@ -6,7 +6,7 @@
       "type": "math/multiply",
       "position": {
         "x": -6664,
-        "y": 139
+        "y": 156
       },
       "inputValues": {},
       "params": {}
@@ -16,7 +16,7 @@
       "type": "vector/split",
       "position": {
         "x": -6984,
-        "y": 129
+        "y": 146
       },
       "inputValues": {},
       "params": {}
@@ -26,7 +26,7 @@
       "type": "math/min",
       "position": {
         "x": -6344,
-        "y": -3
+        "y": 14
       },
       "inputValues": {
         "b": {
@@ -41,7 +41,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10584,
-        "y": 1558
+        "y": 1569
       },
       "inputValues": {
         "b": {
@@ -56,7 +56,7 @@
       "type": "math/add",
       "position": {
         "x": -5384,
-        "y": -59
+        "y": -42
       },
       "inputValues": {},
       "params": {}
@@ -66,7 +66,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5064,
-        "y": 16
+        "y": 33
       },
       "inputValues": {},
       "params": {}
@@ -76,7 +76,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7304,
-        "y": 250
+        "y": 267
       },
       "inputValues": {
         "b": {
@@ -119,7 +119,7 @@
       "type": "vector/dot",
       "position": {
         "x": -9944,
-        "y": 1929
+        "y": 1940
       },
       "inputValues": {
         "b": {
@@ -137,7 +137,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 1984
+        "y": 1993
       },
       "inputValues": {
         "scale": {
@@ -152,7 +152,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 1446
+        "y": 1455
       },
       "inputValues": {
         "scale": {
@@ -167,7 +167,7 @@
       "type": "math/subtract",
       "position": {
         "x": -13208,
-        "y": 1227
+        "y": 1237
       },
       "inputValues": {
         "b": {
@@ -182,7 +182,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": -146
+        "y": -129
       },
       "inputValues": {},
       "params": {}
@@ -192,7 +192,7 @@
       "type": "math/subtract",
       "position": {
         "x": -6024,
-        "y": -123
+        "y": -106
       },
       "inputValues": {},
       "params": {}
@@ -202,7 +202,7 @@
       "type": "math/remap",
       "position": {
         "x": -8920,
-        "y": 1315
+        "y": 1324
       },
       "inputValues": {
         "outMax": {
@@ -256,7 +256,7 @@
       "type": "math/min",
       "position": {
         "x": -8600,
-        "y": 1458
+        "y": 1467
       },
       "inputValues": {},
       "params": {}
@@ -389,8 +389,8 @@
       },
       "inputValues": {},
       "params": {
-        "body": "The open water between rosettes and the creases where they touch, as one crisp mask: AA Step cuts depth at an edge that breathes with the refraction, widens under the sun and backs off where stamps are.",
-        "height": 702,
+        "body": "The open water between rosettes and the creases where they touch, as one crisp mask: AA Step cuts depth at an edge that breathes with the refraction, widens under the sun and backs off where stamps are, with a Clamp so overlapping stamps bite no more than one.",
+        "height": 823,
         "title": "Lace",
         "width": 1248
       }
@@ -400,7 +400,7 @@
       "type": "utility/comment",
       "position": {
         "x": -13560,
-        "y": 1110
+        "y": 1120
       },
       "inputValues": {},
       "params": {
@@ -415,7 +415,7 @@
       "type": "utility/comment",
       "position": {
         "x": -12536,
-        "y": 1243
+        "y": 1254
       },
       "inputValues": {},
       "params": {
@@ -430,7 +430,7 @@
       "type": "utility/comment",
       "position": {
         "x": -9592,
-        "y": 1219
+        "y": 1228
       },
       "inputValues": {},
       "params": {
@@ -445,7 +445,7 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 824
+        "y": 841
       },
       "inputValues": {},
       "params": {
@@ -460,7 +460,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8248,
-        "y": -226
+        "y": -209
       },
       "inputValues": {},
       "params": {
@@ -505,7 +505,7 @@
       "type": "math/subtract",
       "position": {
         "x": -7944,
-        "y": 186
+        "y": 203
       },
       "inputValues": {
         "b": {
@@ -523,7 +523,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": 129
+        "y": 146
       },
       "inputValues": {},
       "params": {}
@@ -533,7 +533,7 @@
       "type": "math/add",
       "position": {
         "x": -6024,
-        "y": 180
+        "y": 197
       },
       "inputValues": {},
       "params": {}
@@ -543,7 +543,7 @@
       "type": "math/remap",
       "position": {
         "x": -6344,
-        "y": 300
+        "y": 317
       },
       "inputValues": {
         "outMax": {
@@ -562,7 +562,7 @@
       "type": "math/remap",
       "position": {
         "x": -5064,
-        "y": 319
+        "y": 336
       },
       "inputValues": {
         "inMax": {
@@ -595,7 +595,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -4744,
-        "y": 1427
+        "y": 1444
       },
       "inputValues": {
         "edge0": {
@@ -694,7 +694,7 @@
       "type": "property/float",
       "position": {
         "x": -8216,
-        "y": 577
+        "y": 594
       },
       "inputValues": {},
       "params": {
@@ -706,7 +706,7 @@
       "type": "property/float",
       "position": {
         "x": -5336,
-        "y": 244
+        "y": 261
       },
       "inputValues": {},
       "params": {
@@ -745,7 +745,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 1681
+        "y": 1692
       },
       "inputValues": {
         "scale": {
@@ -762,7 +762,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 1755
+        "y": 1766
       },
       "inputValues": {},
       "params": {}
@@ -772,7 +772,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 2021
+        "y": 2032
       },
       "inputValues": {
         "scale": {
@@ -789,7 +789,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 2095
+        "y": 2106
       },
       "inputValues": {},
       "params": {}
@@ -799,7 +799,7 @@
       "type": "vector/combine",
       "position": {
         "x": -10904,
-        "y": 1781
+        "y": 1792
       },
       "inputValues": {},
       "params": {}
@@ -809,7 +809,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 923
+        "y": 940
       },
       "inputValues": {
         "edge": {
@@ -824,7 +824,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1226
+        "y": 1243
       },
       "inputValues": {
         "edge": {
@@ -839,7 +839,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1529
+        "y": 1546
       },
       "inputValues": {
         "edge": {
@@ -854,7 +854,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12888,
-        "y": 1190
+        "y": 1200
       },
       "inputValues": {
         "b": {
@@ -872,7 +872,7 @@
       "type": "vector/split",
       "position": {
         "x": -5384,
-        "y": 356
+        "y": 373
       },
       "inputValues": {},
       "params": {}
@@ -882,7 +882,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1323
+        "y": 1334
       },
       "inputValues": {},
       "params": {}
@@ -892,7 +892,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1626
+        "y": 1637
       },
       "inputValues": {},
       "params": {}
@@ -902,7 +902,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7944,
-        "y": 489
+        "y": 506
       },
       "inputValues": {
         "b": {
@@ -917,7 +917,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 1947
+        "y": 1956
       },
       "inputValues": {
         "outMax": {
@@ -936,7 +936,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 1560
+        "y": 1569
       },
       "inputValues": {
         "outMax": {
@@ -955,7 +955,7 @@
       "type": "math/add",
       "position": {
         "x": -8920,
-        "y": 1702
+        "y": 1711
       },
       "inputValues": {},
       "params": {}
@@ -1011,7 +1011,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 1734
+        "y": 1745
       },
       "inputValues": {
         "b": {
@@ -1029,7 +1029,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2340
+        "y": 2351
       },
       "inputValues": {
         "b": {
@@ -1266,7 +1266,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 904
+        "y": 921
       },
       "inputValues": {
         "scale": {
@@ -1281,7 +1281,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 1291
+        "y": 1308
       },
       "inputValues": {
         "scale": {
@@ -1296,7 +1296,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 1678
+        "y": 1695
       },
       "inputValues": {
         "scale": {
@@ -1311,7 +1311,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4424,
-        "y": 1225
+        "y": 1242
       },
       "inputValues": {},
       "params": {}
@@ -1321,7 +1321,7 @@
       "type": "vector/combine",
       "position": {
         "x": -5064,
-        "y": 1105
+        "y": 1122
       },
       "inputValues": {
         "w": {
@@ -1338,7 +1338,7 @@
       "type": "vector/dot",
       "position": {
         "x": -4744,
-        "y": 1124
+        "y": 1141
       },
       "inputValues": {
         "b": {
@@ -1358,7 +1358,7 @@
       "type": "math/clamp",
       "position": {
         "x": -4424,
-        "y": 79
+        "y": 96
       },
       "inputValues": {},
       "params": {}
@@ -1368,7 +1368,7 @@
       "type": "math/add",
       "position": {
         "x": -4744,
-        "y": 116
+        "y": 133
       },
       "inputValues": {},
       "params": {}
@@ -1393,7 +1393,7 @@
       "type": "input/time",
       "position": {
         "x": -12504,
-        "y": 2003
+        "y": 2014
       },
       "inputValues": {},
       "params": {}
@@ -1473,12 +1473,22 @@
       },
       "params": {}
     },
+    "touching": {
+      "id": "touching",
+      "type": "math/clamp",
+      "position": {
+        "x": -4040,
+        "y": 1664
+      },
+      "inputValues": {},
+      "params": {}
+    },
     "turnB": {
       "id": "turnB",
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 1384
+        "y": 1401
       },
       "inputValues": {
         "angle": {
@@ -1493,7 +1503,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 1771
+        "y": 1788
       },
       "inputValues": {
         "angle": {
@@ -1508,7 +1518,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -7624,
-        "y": 287
+        "y": 304
       },
       "inputValues": {
         "center": {
@@ -1526,7 +1536,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2037
+        "y": 2048
       },
       "inputValues": {
         "b": {
@@ -1544,7 +1554,7 @@
       "type": "input/uv",
       "position": {
         "x": -13528,
-        "y": 1278
+        "y": 1288
       },
       "inputValues": {},
       "params": {}
@@ -1571,7 +1581,7 @@
       "type": "property/float",
       "position": {
         "x": -12456,
-        "y": 2311
+        "y": 2322
       },
       "inputValues": {},
       "params": {
@@ -1583,7 +1593,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12184,
-        "y": 2074
+        "y": 2085
       },
       "inputValues": {},
       "params": {}
@@ -1593,7 +1603,7 @@
       "type": "math/remap",
       "position": {
         "x": -4040,
-        "y": 1333
+        "y": 1277
       },
       "inputValues": {
         "outMax": {
@@ -1622,7 +1632,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10264,
-        "y": 1691
+        "y": 1702
       },
       "inputValues": {
         "b": {
@@ -2778,17 +2788,6 @@
         "portId": "in"
       }
     },
-    "stampCount.out-bite.a": {
-      "id": "stampCount.out-bite.a",
-      "from": {
-        "nodeId": "stampCount",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "bite",
-        "portId": "a"
-      }
-    },
     "stampCount.out-darknessTerms.x": {
       "id": "stampCount.out-darknessTerms.x",
       "from": {
@@ -2798,6 +2797,17 @@
       "to": {
         "nodeId": "darknessTerms",
         "portId": "x"
+      }
+    },
+    "stampCount.out-touching.in": {
+      "id": "stampCount.out-touching.in",
+      "from": {
+        "nodeId": "stampCount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "touching",
+        "portId": "in"
       }
     },
     "stampTerms.vec4-stampsHit.a": {
@@ -3040,6 +3050,17 @@
       "to": {
         "nodeId": "stamp3Tone",
         "portId": "t"
+      }
+    },
+    "touching.out-bite.a": {
+      "id": "touching.out-bite.a",
+      "from": {
+        "nodeId": "touching",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bite",
+        "portId": "a"
       }
     },
     "turnB.out-stampCellsB.uv": {

@@ -13,7 +13,7 @@ const isCi = Boolean(process.env.CI)
 const WORKERS = isCi ? 2 : 6
 
 /**
- * Specs that open the 119-node pond or render many node previews. They run one at a time in
+ * Specs that open the 120-node pond or render many node previews. They run one at a time in
  * their own project, so two of them never fight over the CPU.
  */
 const HEAVY_SPECS = /(pond|pond-performance|phase-2-golden-path|node-previews)\.spec\.ts/

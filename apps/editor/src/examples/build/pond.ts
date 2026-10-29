@@ -305,17 +305,18 @@ export const POND: ExampleSpec = {
       title: 'Lace',
       es: {
         title: 'Encaje',
-        body: 'El agua abierta entre rosetas y los pliegues donde se tocan, como una máscara nítida: AA Step corta depth en un borde que respira con la refracción, se ensancha bajo el sol y retrocede donde hay sellos.',
+        body: 'El agua abierta entre rosetas y los pliegues donde se tocan, como una máscara nítida: AA Step corta depth en un borde que respira con la refracción, se ensancha bajo el sol y retrocede donde hay sellos; un Clamp evita que varios sellos superpuestos muerdan más de uno.',
       },
       body:
         'The open water between rosettes and the creases where they touch, as one crisp mask: ' +
         'AA Step cuts depth at an edge that breathes with the refraction, widens under the sun ' +
-        'and backs off where stamps are.',
+        'and backs off where stamps are, with a Clamp so overlapping stamps bite no more than one.',
       nodes: [
         node('widen', 'math/remap', {
           outMin: float(LACE_EDGE),
           outMax: float(LACE_EDGE + LACE_WIDEN),
         }),
+        node('touching', 'math/clamp'),
         node('bite', 'math/multiply', { b: float(LACE_BITE) }),
         node('growing', 'math/add'),
         node('laceEdge', 'math/subtract'),
@@ -471,7 +472,8 @@ export const POND: ExampleSpec = {
     ['darkness.out', 'toStamp3.in'],
     // Lace
     ['sun.out', 'widen.in'],
-    ['stampCount.out', 'bite.a'],
+    ['stampCount.out', 'touching.in'],
+    ['touching.out', 'bite.a'],
     ['breath.out', 'growing.a'],
     ['widen.out', 'growing.b'],
     ['growing.out', 'laceEdge.a'],
