@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn the phase-1 editor into a complete shader-graph editor that can recreate the lettra pond water. It needs:
+**Goal:** Turn the phase-1 editor into a complete shader-graph editor that can recreate a stylized pond water shader. It needs:
 - the full node catalog, node params and Blackboard properties (with schema v2 and the first real migration);
 - textures, an unlit master, per-node live previews, an Inspector and a live TSL code panel backed by a new `codegen` package.
 
@@ -37,7 +37,7 @@ Everything in the phase-1 plan's Global Constraints still applies (`docs/superpo
 - **Preview animation budget:**
   - Per-node previews of Time-dependent nodes animate at ≤ 20 fps and only while visible in the viewport.
   - Static previews re-render only when dirty.
-- **lettra quality target:** the pond example must render without node errors and visually show rosettes, lace lines, toned stamps, a sun band and animated refraction. Ripples are out of scope.
+- **Pond quality target:** the pond example must render without node errors and visually show rosettes, lace lines, toned stamps, a sun band and animated refraction. Ripples are out of scope.
 - localStorage keys: phase 1's (`nudo-tsl:autosave`, `nudo-tsl:autosave:corrupt`, `nudo-tsl:theme`) are unchanged. Phase 2 adds two UI-preference keys: `nudo-tsl:panels` (panel layout, ruling P2-R2) and `nudo-tsl:locale` (UI language, Task 7e). Texture assets live in IndexedDB database `nudo-tsl`, store `assets`, keyed by lowercase hex SHA-256 of the file bytes.
 
 ## Review Focus
@@ -83,7 +83,7 @@ apps/editor/src/
   features/blackboard/*  features/inspector/*  features/code-panel/*
   features/node-previews/*  features/assets/*
   features/canvas/{param-field,texture-field,comment-node-view}.tsx
-  examples/{lettra-pond,simple-water}.graph.json + examples/index.ts
+  examples/{pond,simple-water}.graph.json + examples/index.ts (`simple-water` removed by user request on 2026-10-28)
 ```
 
 ---
@@ -218,7 +218,7 @@ Definitions (generic `T` group = same arity, widest wins, as in phase 1):
 | `math/distance` | a T `0`, b T `0` | out float = distance |
 | `interpolation/step` | edge T `0.5`, in T `0` | step |
 | `interpolation/smoothstep` | edge0 float `0`, edge1 float `1`, in T `0.5` | smoothstep |
-| `interpolation/aa-step` | edge float `0.5`, in float `0` | `smoothstep(edge - w, edge + w, in)` with `w = max(fwidth(in), 1e-4) * 0.75` (lettra's `aastep`) |
+| `interpolation/aa-step` | edge float `0.5`, in float `0` | `smoothstep(edge - w, edge + w, in)` with `w = max(fwidth(in), 1e-4) * 0.75` (the standard anti-aliased step) |
 | `logic/select` | a float `0`, b float `0`, whenTrue T `1`, whenFalse T `0`; param `op` enum lt/lte/gt/gte/eq (labels `<`, `≤`, `>`, `≥`, `=`), default `lt` | select |
 | `vector/split` | in generic (vec2..vec4) `vec4(0)` | outputs x, y, z, w float via swizzle (components beyond the arity → `construct('float',[0])`) |
 | `vector/combine` | x, y, z, w float `0` | outputs vec2, vec3, vec4 |
@@ -231,7 +231,7 @@ Every definition has a one-sentence `description` and `keywords` (e.g. Select: `
 
 - [ ] **Step 1: Failing tests:**
   - `registry contains every catalog-A type` (an explicit list).
-  - `aa-step builds lettra's formula` (exact recording string).
+  - `aa-step builds the anti-aliased step formula` (exact recording string).
   - `split of a vec2 gives zero z/w`.
   - `select prints op`.
   - `rotate-2d builds around center`.
@@ -381,7 +381,7 @@ export default nodes
   - `generates the exact module for the phase-1 water fixture`: a snapshot file, reviewed by eye in the report.
   - `only used imports, sorted`.
   - `property uniforms are named`.
-  - **Parity:** write the generated module to a temp `.mjs` inside the package, `import()` it, and assert every exported node slot is a three `Node`. Repeat for the lettra pond fixture once Task 12 adds it; until then use a fixture exercising every catalog node.
+  - **Parity:** write the generated module to a temp `.mjs` inside the package, `import()` it, and assert every exported node slot is a three `Node`. Repeat for the Pond example fixture once Task 12 adds it; until then use a fixture exercising every catalog node.
 - [ ] **Step 2:** Run. Expected: FAIL.
 - [ ] **Step 3:** Implement.
 - [ ] **Step 4:** Run `pnpm lint && pnpm typecheck && pnpm test`. Expected: PASS.
@@ -782,13 +782,13 @@ Behavior:
 
 ---
 
-### Task 13: Examples (lettra pond, simple water), phase-2 e2e and docs
+### Task 13: Examples (Pond; simple water removed by user request on 2026-10-28), phase-2 e2e and docs
 
 **Files:**
-- Create: `apps/editor/src/examples/{lettra-pond.graph.json,simple-water.graph.json,index.ts}`, `e2e/phase-2-golden-path.spec.ts`, `e2e/lettra-pond.spec.ts`.
+- Create: `apps/editor/src/examples/{pond.graph.json,index.ts}` (`simple-water.graph.json` removed by user request on 2026-10-28), `e2e/phase-2-golden-path.spec.ts`, `e2e/pond.spec.ts`.
 - Modify: `README.md` (catalog, panels, shortcuts), the codegen parity test (adds the pond).
 
-The **lettra pond** graph, built with nudo nodes and NOT copied code, follows the structure of `joyco-studio/lettra-landing/src/lib/scenes/models/water.ts` (clone it to /tmp to read it):
+The **Pond** example (id `pond`) is a stylized pond water shader built with nudo nodes, with this structure:
 - pond-space UV;
 - two scrolling noise reads, giving a refraction offset;
 - Voronoi F1 rosettes with Voronoi bumps on the rim;
@@ -800,16 +800,16 @@ The **lettra pond** graph, built with nudo nodes and NOT copied code, follows th
 - Screen UV vignette darkening;
 - unlit master.
 
-Expose the palette, light angle/strength and wave speed as Blackboard properties. The example must render without node errors and look like the reference. Compare visually with a screenshot of the lettra site if reachable, and note any differences in the report.
+Expose the palette, light angle/strength and wave speed as Blackboard properties. The example must render without node errors and show the technique above at the quality bar described in the quality target (rosettes, lace, toned stamps, sun band, animated refraction).
 
 `examples/index.ts` exports `{ id, title, graph }[]`. Phase 5 builds the full gallery UI. For now, add a header dropdown "Examples" listing both items. It must be keyboard operable. Picking one replaces the graph as a single undo step, after a confirm dialog when the current graph has more than the master.
 
 - [ ] **Step 1: Failing e2e:**
-  - `lettra pond example loads, has no node errors, renders a non-uniform image` (pixel variance in the preview above a threshold), `and scrubbing a palette property triggers no compile` (Review Focus 5).
+  - `Pond example loads, has no node errors, renders a non-uniform image` (pixel variance in the preview above a threshold), `and scrubbing a palette property triggers no compile` (Review Focus 5).
   - `phase-1 v1 autosave opens migrated` (Review Focus 1, seeded with the phase-1 water JSON as schemaVersion 1).
   - Phase-2 golden path: create a property, sample a texture, use Voronoi, Split and Select, switch to unlit, check the code panel and the node previews, reload, all intact.
 - [ ] **Step 2:** Run. Expected: FAIL.
 - [ ] **Step 3:** Build the example graphs, using a small script with core ops like the phase-1 water snippet. Commit the JSON, the examples menu and the README update.
 - [ ] **Step 4:** Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e`. Expected: all green.
-- [ ] **Step 5:** Screenshot `.context/phase-2/lettra-pond.png`.
-- [ ] **Step 6:** Commit `feat(editor): add lettra pond and water examples with phase-2 e2e`.
+- [ ] **Step 5:** Screenshot `.context/phase-2/pond.png`.
+- [ ] **Step 6:** Commit `feat(editor): add the Pond example with phase-2 e2e`.
