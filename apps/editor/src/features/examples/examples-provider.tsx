@@ -81,7 +81,9 @@ function useFitWhenMeasured(): (graph: Graph) => void {
 /**
  * Owns the templates browser (the bundled examples): the header button and the command palette
  * open it, and it opens the chosen template in place of the graph. A graph with work in it asks
- * first; opening is one undo step and frames the template in the view. Must sit inside a
+ * first; opening is one undo step and frames the template in the view. The browser stays open,
+ * its Open button busy, until the template's textures are stored and the graph is replaced; then
+ * it closes. Closing it before then gives up on that template. Must sit inside a
  * `ReactFlowProvider`.
  */
 export function ExamplesProvider({ children }: ExamplesProviderProps) {
@@ -90,6 +92,12 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
   const fitWhenMeasured = useFitWhenMeasured()
   const overlayId = useId()
   const [isBrowserOpen, setIsBrowserOpenState] = useState(false)
+  /** A template is waiting for its textures; the browser stays open until it lands. */
+  const [isOpening, setIsOpening] = useState(false)
+  /** Mirrors `isBrowserOpen` for callbacks that run after an await or an overlay closes. */
+  const isBrowserOpenRef = useRef(false)
+  /** Counts open requests: only the newest one, not given up on, replaces the graph. */
+  const openRequestRef = useRef(0)
   const [selectedId, setSelectedId] = useState<ExampleId>(FIRST_EXAMPLE_ID)
   const [pending, setPending] = useState<PendingExample | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -99,17 +107,30 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
   const cancelFocusRef = useRef<HTMLElement | null>(null)
   const isConfirmedRef = useRef(false)
 
+  /** Forgets the template being opened, if any: its textures may land, the graph stays. */
+  const abandonOpening = useCallback(() => {
+    openRequestRef.current += 1
+    setIsOpening(false)
+  }, [])
+
   const setIsBrowserOpen = useCallback(
     (open: boolean) => {
+      isBrowserOpenRef.current = open
       setIsBrowserOpenState(open)
-      if (open) claimOverlay(overlayId)
-      else releaseOverlay(overlayId)
+      if (open) {
+        claimOverlay(overlayId)
+        return
+      }
+      releaseOverlay(overlayId)
+      abandonOpening()
     },
-    [overlayId],
+    [overlayId, abandonOpening],
   )
 
   useCloseWhenReplaced(overlayId, isBrowserOpen, () => {
+    isBrowserOpenRef.current = false
     setIsBrowserOpenState(false)
+    abandonOpening()
   })
 
   const openBrowser = useCallback<OpenTemplatesBrowser>(
@@ -123,14 +144,24 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
 
   const open = useCallback(
     (example: Example) => {
-      if (openExample(example, locale)) fitWhenMeasured(useEditorStore.getState().graph)
-      setIsBrowserOpen(false)
+      openRequestRef.current += 1
+      const request = openRequestRef.current
+      const isStillWanted = (): boolean => request === openRequestRef.current
+      setIsOpening(true)
+      void openExample(example, locale, isStillWanted).then((isOpened) => {
+        if (!isStillWanted()) return
+        setIsOpening(false)
+        if (!isOpened) return
+        setIsBrowserOpen(false)
+        fitWhenMeasured(useEditorStore.getState().graph)
+      })
     },
     [locale, fitWhenMeasured, setIsBrowserOpen],
   )
 
   const openSelected = useCallback(
     (returnFocusTo: HTMLElement | null) => {
+      if (isOpening) return
       const example = findExample(selectedId)
       if (example === undefined) return
       const contents = graphContents(useEditorStore.getState().graph)
@@ -143,7 +174,7 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
       setPending({ example, contents })
       setIsConfirmOpen(true)
     },
-    [open, selectedId],
+    [isOpening, open, selectedId],
   )
 
   const confirm = useCallback(() => {
@@ -152,9 +183,12 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
     setIsConfirmOpen(false)
   }, [open, pending])
 
-  /** Confirmed: the browser closed with it, so back to the browser's opener; else into the browser. */
+  /**
+   * Back into the browser (cancelled, or confirmed and still waiting for the textures), or to the
+   * browser's opener when the template already landed and closed it.
+   */
   const restoreConfirmFocus = useCallback(() => {
-    if (isConfirmedRef.current) {
+    if (isConfirmedRef.current && !isBrowserOpenRef.current) {
       focusOpenerOrCanvas(openerRef.current)
       return
     }
@@ -180,6 +214,7 @@ export function ExamplesProvider({ children }: ExamplesProviderProps) {
         selectedId={selectedId}
         onSelect={setSelectedId}
         onOpenTemplate={openSelected}
+        isOpening={isOpening}
         onCloseAutoFocus={onBrowserCloseAutoFocus}
       />
       <ReplaceGraphDialog

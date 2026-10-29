@@ -160,6 +160,28 @@ describe('history', () => {
   })
 })
 
+describe('graphGeneration', () => {
+  it('moves on when the whole graph is replaced, reset, undone or redone, and on nothing else', () => {
+    const generation = () => getState().graphGeneration
+    const start = generation()
+
+    addNodeOrFail(FLOAT_NODE)
+    expect(generation()).toBe(start)
+    getState().replaceGraph(createGraph())
+    getState().resetGraph()
+    expect(generation()).toBe(start + 2)
+    undo()
+    redo()
+    expect(generation()).toBe(start + 4)
+    expect(historyLength()).toBe(3)
+
+    useEditorStore.temporal.getState().clear()
+    undo()
+    redo()
+    expect(generation()).toBe(start + 4)
+  })
+})
+
 describe('commitMove without movement', () => {
   it('clears draft positions without creating a history entry', () => {
     const id = addNodeOrFail(FLOAT_NODE, { x: 7, y: 7 })

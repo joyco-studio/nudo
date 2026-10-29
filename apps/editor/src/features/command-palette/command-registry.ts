@@ -3,7 +3,7 @@ import type { NodeId, NodeTypeId } from '@nudo-tsl/core'
 import { commentNode } from '@nudo-tsl/nodes'
 
 import { EXAMPLE_IDS } from '@/examples'
-import type { ExampleId } from '@/examples'
+import type { ExampleId, PublishedExampleId } from '@/examples'
 import type { PlacementOrigin } from '@/features/add-node-menu/add-node-placement'
 import { flowNodeIdOf, resolveActionNodeIds } from '@/features/canvas/canvas-keyboard-model'
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
@@ -26,7 +26,7 @@ export type CommandGroupId = 'actions' | 'view' | 'examples'
 type PanelCommandId = `toggle-${PanelId}`
 type LayoutCommandId = `preview-${PreviewLayout}`
 type LanguageCommandId = `language-${Locale}`
-type ExampleCommandId = `example-${ExampleId}`
+type ExampleCommandId = `example-${PublishedExampleId}`
 
 export type CommandId =
   | GlobalShortcutAction
@@ -161,7 +161,7 @@ function languageCommand(locale: Locale): Command {
 }
 
 /** Opens the templates browser on one template: it shows live there, and opens from there. */
-function exampleCommand(id: ExampleId): Command {
+function exampleCommand(id: PublishedExampleId): Command {
   return {
     id: `example-${id}`,
     group: 'examples',

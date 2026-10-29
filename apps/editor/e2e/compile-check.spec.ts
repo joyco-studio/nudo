@@ -244,7 +244,8 @@ test.describe('real renderer compile check', () => {
 
   test('the templates browser lists every example file', async ({ page }) => {
     expect(examples.length).toBeGreaterThan(0)
-    await page.goto('/')
+    // The test fixtures' files sit next to the published ones; the dev server lists them on request.
+    await page.goto('/?template-fixtures')
     await templatesButton(page).click()
     await expect(templatesBrowser(page).getByRole('option')).toHaveCount(examples.length)
   })

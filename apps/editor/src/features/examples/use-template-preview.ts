@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Graph } from '@nudo-tsl/core'
 import { createMaterial } from '@nudo-tsl/runtime'
 import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { findExample } from '@/examples'
 import type { ExampleId } from '@/examples'
+import { bindTemplateTextures } from '@/examples/bind-template-textures'
 import { textureCache } from '@/features/assets/texture-cache'
 import { registry } from '@/store/registry'
 
+import { loadTemplateTextures } from './load-template-textures'
 import { templateGraph } from './template-facts'
 import { createTemplatePreviewScheduler } from './template-preview-scheduler'
 import type { TemplatePreviewScheduler, TemplatePreviewState } from './template-preview-scheduler'
@@ -22,17 +25,23 @@ export interface TemplatePreviewHandle {
   readonly handOver: (material: RuntimeMaterial) => void
 }
 
+const buildMaterial = (graph: Graph): RuntimeMaterial | null =>
+  createMaterial(graph, registry, { resolveTexture: (assetId) => textureCache.peek(assetId) })
+    .material
+
 /**
  * Builds the template's own material, apart from the editor graph: the Main Preview, its compile
- * count and the node errors never hear of it.
+ * count and the node errors never hear of it. A template with textures waits for them: they are
+ * fetched and decoded for the preview but not stored, which waits until the template is opened.
  */
-function compileTemplate(id: ExampleId): RuntimeMaterial | null {
+function compileTemplate(id: ExampleId): RuntimeMaterial | null | Promise<RuntimeMaterial | null> {
   const example = findExample(id)
   const graph = example === undefined ? null : templateGraph(example)
-  if (graph === null) return null
-  return createMaterial(graph, registry, {
-    resolveTexture: (assetId) => textureCache.peek(assetId),
-  }).material
+  if (example === undefined || graph === null) return null
+  if (example.textures.length === 0) return buildMaterial(graph)
+  return loadTemplateTextures(example.textures, 'preview').then(({ bindings }) =>
+    buildMaterial(bindTemplateTextures(graph, bindings)),
+  )
 }
 
 const releaseMaterial = (material: RuntimeMaterial): void => {

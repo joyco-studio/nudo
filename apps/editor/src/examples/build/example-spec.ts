@@ -1,5 +1,7 @@
 import type { NodeTypeId, ParamValue, PortValue } from '@nudo-tsl/core'
 
+import type { TemplateTexture } from '../template-texture'
+
 /**
  * An example graph written as data: its properties, its nodes in commented groups and its wires.
  * `buildExampleGraph` turns it into a `Graph` with core operations and lays it out.
@@ -58,16 +60,24 @@ export type PortPath = `${string}.${string}`
 export type WireSpec = readonly [from: PortPath, to: PortPath]
 
 export interface ExampleSpec {
+  /**
+   * Images the template ships with (see `bundled-textures.ts`). Its nodes and properties name one
+   * with `templateTexture(TEXTURE)` as a texture value; opening the template stores the image and
+   * points them at it.
+   */
+  readonly textures?: readonly TemplateTexture[]
   readonly properties: readonly PropertySpec[]
   readonly groups: readonly GroupSpec[]
   readonly wires: readonly WireSpec[]
   readonly master: { readonly inputs?: Values; readonly params?: Params }
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function node(id: string, type: NodeTypeId, inputs: Values = {}, params: Params = {}) {
   return { kind: 'node', id, type, inputs, params } as const satisfies PlainNodeSpec
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function reader(id: string, property: string) {
   return { kind: 'reader', id, property } as const satisfies ReaderNodeSpec
 }

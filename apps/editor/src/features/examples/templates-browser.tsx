@@ -1,11 +1,13 @@
 import { useRef } from 'react'
+import { LoaderCircle } from 'lucide-react'
 
-import { EXAMPLES, findExample } from '@/examples'
+import { findExample, listedExamples } from '@/examples'
 import type { ExampleId } from '@/examples'
 import { useT } from '@/i18n/use-t'
 import { KeyHints } from '@/shared/components/key-hints'
 import { htmlElementOf } from '@/shared/lib/html-element-of'
 import { useMediaQuery } from '@/shared/lib/use-media-query'
+import { cn } from '@/shared/lib/utils'
 import type { KeyHint } from '@/shared/components/key-hints'
 import { Button } from '@/shared/ui/button'
 import {
@@ -41,8 +43,35 @@ export interface TemplatesBrowserProps {
    * confirmation that replacing their graph asks for.
    */
   onOpenTemplate: (returnFocusTo: HTMLElement | null) => void
+  /** The chosen template is waiting for its textures: Open shows it is busy and does nothing. */
+  isOpening: boolean
   /** Runs once the sheet has closed, in place of Radix's default, to put focus back. */
   onCloseAutoFocus: (event: Event) => void
+}
+
+/**
+ * Swaps "Open template" for "Opening…" in place, so the button keeps its width. The swap waits a
+ * moment: a template whose textures land at once never flashes the busy label.
+ */
+function OpenButtonLabel({ isOpening }: { isOpening: boolean }) {
+  const t = useT()
+  const swapAfterDelay = 'transition-[visibility] duration-0 delay-200'
+  return (
+    <span className="grid place-items-center">
+      <span className={cn('col-start-1 row-start-1', isOpening && `invisible ${swapAfterDelay}`)}>
+        {t('templates.open')}
+      </span>
+      <span
+        className={cn(
+          'col-start-1 row-start-1 inline-flex items-center gap-1.5',
+          isOpening ? `visible ${swapAfterDelay}` : 'invisible',
+        )}
+      >
+        <LoaderCircle aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" />
+        {t('templates.opening')}
+      </span>
+    </span>
+  )
 }
 
 /**
@@ -56,6 +85,7 @@ export function TemplatesBrowser({
   selectedId,
   onSelect,
   onOpenTemplate,
+  isOpening,
   onCloseAutoFocus,
 }: TemplatesBrowserProps) {
   const t = useT()
@@ -70,7 +100,7 @@ export function TemplatesBrowser({
     >
       <div className="min-h-0 overflow-y-auto max-md:flex-1">
         <TemplateList
-          examples={EXAMPLES}
+          examples={listedExamples()}
           selectedId={selectedId}
           onSelect={onSelect}
           onOpen={() => {
@@ -143,11 +173,15 @@ export function TemplatesBrowser({
           <Button
             ref={openButtonRef}
             size="sm"
+            // Stays focusable while busy (a disabled button would drop focus to the page).
+            aria-busy={isOpening}
+            aria-disabled={isOpening}
+            className="aria-disabled:cursor-progress"
             onClick={() => {
               onOpenTemplate(openButtonRef.current)
             }}
           >
-            {t('templates.open')}
+            <OpenButtonLabel isOpening={isOpening} />
           </Button>
         </SheetFooter>
       </SheetContent>

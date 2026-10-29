@@ -21,7 +21,7 @@ function toHex(bytes: ArrayBuffer): string {
 }
 
 /** The lowercase hex SHA-256 of the file's bytes: the same bytes always get the same id. */
-async function hashAsset(file: Blob): Promise<string> {
+export async function hashAsset(file: Blob): Promise<string> {
   return toHex(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))
 }
 

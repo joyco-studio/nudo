@@ -29,12 +29,24 @@ export const useEditorStore = create<EditorState>()(
   ),
 )
 
+/** Steps through the history; a step that swaps the graph counts as a new graph generation. */
+function travel(step: () => void): void {
+  const before = useEditorStore.getState().graph
+  step()
+  const { graph, graphGeneration } = useEditorStore.getState()
+  if (graph !== before) useEditorStore.setState({ graphGeneration: graphGeneration + 1 })
+}
+
 export function undo(): void {
-  useEditorStore.temporal.getState().undo()
+  travel(() => {
+    useEditorStore.temporal.getState().undo()
+  })
 }
 
 export function redo(): void {
-  useEditorStore.temporal.getState().redo()
+  travel(() => {
+    useEditorStore.temporal.getState().redo()
+  })
 }
 
 /**

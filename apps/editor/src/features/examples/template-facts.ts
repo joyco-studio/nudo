@@ -4,6 +4,9 @@ import { commentNode } from '@nudo-tsl/nodes'
 
 import { exampleGraph } from '@/examples'
 import type { Example } from '@/examples'
+import { templateTextureIdOf } from '@/examples/template-texture'
+import type { TemplateTexture } from '@/examples/template-texture'
+import type { MessageKey } from '@/i18n/translate'
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import { linearToSrgb, srgbToHex } from '@/shared/components/color-picker/color-math'
 
@@ -44,18 +47,34 @@ export function templateFacts(example: Example): TemplateFacts | null {
 export type PropertyDisplay =
   | { readonly kind: 'color'; readonly chip: string; readonly hex: string }
   | { readonly kind: 'number'; readonly chip: string; readonly text: string }
-  | { readonly kind: 'texture'; readonly chip: string }
+  /** `label`: the bundled image the template fills it with; null when it starts empty. */
+  | { readonly kind: 'texture'; readonly chip: string; readonly label: MessageKey | null }
 
 /** Enough digits to tell values apart in a list, without a long tail of float noise. */
 const MAX_FRACTION_DIGITS = 3
 
 const formatNumber = (value: number): string => String(Number(value.toFixed(MAX_FRACTION_DIGITS)))
 
-export function propertyDisplay(property: BlackboardProperty): PropertyDisplay {
+/** The label of the bundled texture a template's value names, if the template bundles it. */
+function bundledTextureLabel(
+  assetId: string | null,
+  textures: readonly TemplateTexture[],
+): MessageKey | null {
+  const textureId = templateTextureIdOf(assetId)
+  return textures.find((texture) => texture.id === textureId)?.label ?? null
+}
+
+/** `textures`: the template's bundled images, which its texture properties may start with. */
+export function propertyDisplay(
+  property: BlackboardProperty,
+  textures: readonly TemplateTexture[] = [],
+): PropertyDisplay {
   const kind = propertyKindOf(property)
   const { chip } = PROPERTY_KIND_SPECS[kind]
   const { value } = property
-  if (value.type === 'texture') return { kind: 'texture', chip }
+  if (value.type === 'texture') {
+    return { kind: 'texture', chip, label: bundledTextureLabel(value.assetId, textures) }
+  }
   if (kind === 'color' && value.type === 'vec3') {
     return { kind: 'color', chip, hex: srgbToHex(linearToSrgb(value.value)) }
   }

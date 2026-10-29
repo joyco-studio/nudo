@@ -4,7 +4,8 @@ import { commentNode } from '@nudo-tsl/nodes'
 
 import { COMMENT_BODY_PARAM, COMMENT_TITLE_PARAM } from '@/features/canvas/comment-params'
 
-import type { CommentText } from './build/example-spec'
+import { frameIdOf } from './build/example-spec'
+import type { CommentText, ExampleSpec } from './build/example-spec'
 
 /** The words of each comment frame in one language, by frame id. */
 export type CommentTexts = Readonly<Record<string, CommentText>>
@@ -21,4 +22,9 @@ function localized(node: GraphNode, text: CommentText | undefined): GraphNode {
 export function localizeComments(graph: Graph, texts: CommentTexts): Graph {
   const nodes = Object.values(graph.nodes).map((node) => localized(node, texts[node.id]))
   return { ...graph, nodes: Object.fromEntries(nodes.map((node) => [asNodeId(node.id), node])) }
+}
+
+/** What the spec's comment frames say in Spanish, by frame id. */
+export function spanishComments(spec: ExampleSpec): CommentTexts {
+  return Object.fromEntries(spec.groups.map((group) => [frameIdOf(group.id), group.es]))
 }
