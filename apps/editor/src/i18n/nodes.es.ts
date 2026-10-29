@@ -260,6 +260,67 @@ export const NODES_ES: NodeTranslations = {
     },
   },
 
+  'color/color-ramp': {
+    label: 'Rampa de color',
+    description:
+      'Lleva un valor de 0 a 1 a un degradado de hasta ocho colores, cada uno con su propia posición.',
+    formula: 'rampa(Entrada)',
+    keywords: ['rampa', 'color', 'degradado', 'gradiente', 'paleta', 'paradas', 'mapa'],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description: 'El valor a buscar en la rampa: 0 es la primera parada, 1 la última.',
+      },
+      stop0Position: {
+        label: 'Posición 1',
+        description: 'Dónde queda la parada 1 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop0Color: { label: 'Color 1', description: 'El color de la parada 1.' },
+      stop1Position: {
+        label: 'Posición 2',
+        description: 'Dónde queda la parada 2 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop1Color: { label: 'Color 2', description: 'El color de la parada 2.' },
+      stop2Position: {
+        label: 'Posición 3',
+        description: 'Dónde queda la parada 3 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop2Color: { label: 'Color 3', description: 'El color de la parada 3.' },
+      stop3Position: {
+        label: 'Posición 4',
+        description: 'Dónde queda la parada 4 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop3Color: { label: 'Color 4', description: 'El color de la parada 4.' },
+      stop4Position: {
+        label: 'Posición 5',
+        description: 'Dónde queda la parada 5 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop4Color: { label: 'Color 5', description: 'El color de la parada 5.' },
+      stop5Position: {
+        label: 'Posición 6',
+        description: 'Dónde queda la parada 6 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop5Color: { label: 'Color 6', description: 'El color de la parada 6.' },
+      stop6Position: {
+        label: 'Posición 7',
+        description: 'Dónde queda la parada 7 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop6Color: { label: 'Color 7', description: 'El color de la parada 7.' },
+      stop7Position: {
+        label: 'Posición 8',
+        description: 'Dónde queda la parada 8 a lo largo de la rampa, de 0 a 1.',
+      },
+      stop7Color: { label: 'Color 8', description: 'El color de la parada 8.' },
+    },
+    outputs: { out: { label: 'Salida', description: 'El color de la rampa en la Entrada.' } },
+    params: {
+      interpolation: {
+        label: 'Interpolación',
+        options: { linear: 'Lineal', constant: 'Constante', smooth: 'Suave' },
+      },
+    },
+  },
+
   // Math
   'math/add': {
     label: 'Sumar',

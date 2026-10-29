@@ -37,8 +37,16 @@ function isUnlitMaster(node: GraphNode): boolean {
   return node.id === MASTER_NODE_ID && node.params.lighting === 'unlit'
 }
 
+/** The inputs the node's params leave in play: those its `hiddenWhen` does not hide. */
+export function inputsInPlay(
+  node: GraphNode,
+  inputs: readonly InputDefinition<string>[],
+): readonly InputDefinition<string>[] {
+  return inputs.filter((input) => input.hiddenWhen?.(node.params) !== true)
+}
+
 function visibleInputs(data: FlowNodeData): readonly InputDefinition<string>[] {
-  const { inputs } = data.definition
+  const inputs = inputsInPlay(data.node, data.definition.inputs)
   if (!isNodeCollapsed(data)) return inputs
   return inputs.filter((input) => data.connectedInputs.has(input.id))
 }

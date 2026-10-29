@@ -35,6 +35,14 @@ const sine = (params: GraphNode['params'] = {}): GraphNode => ({
   params,
 })
 
+const colorRamp = (params: GraphNode['params'] = {}): GraphNode => ({
+  id: asNodeId('ramp'),
+  type: 'color/color-ramp',
+  position: { x: 0, y: 0 },
+  inputValues: {},
+  params,
+})
+
 const master = (params: GraphNode['params'] = {}): GraphNode => ({
   id: MASTER_NODE_ID,
   type: 'master/stack',
@@ -57,6 +65,19 @@ describe('node port layout', () => {
     const data = dataFor(sine({ collapsed: true }), { inputs: ['in'] })
     expect(inputIds(data)).toEqual(['in'])
     expect(visibleOutputs(data)).toEqual([])
+  })
+
+  it('leaves out the inputs a node hides for its params', () => {
+    expect(inputIds(dataFor(colorRamp()))).toEqual([
+      'in',
+      'stop0Position',
+      'stop0Color',
+      'stop1Position',
+      'stop1Color',
+    ])
+    expect(inputIds(dataFor(colorRamp({ count: 3 })))).toContain('stop2Color')
+    expect(inputIds(dataFor(colorRamp({ count: 3 })))).not.toContain('stop3Position')
+    expect(inputIds(dataFor(colorRamp({ count: 8 })))).toHaveLength(17)
   })
 
   it('groups the master inputs into Vertex and Fragment', () => {

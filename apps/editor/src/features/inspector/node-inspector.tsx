@@ -6,7 +6,7 @@ import { commentBody } from '@/features/canvas/comment-params'
 import { CommentTitleField } from '@/features/canvas/comment-title-field'
 import { frameOf, sizedFrame } from '@/features/canvas/node-frame'
 import type { ResizableFrame } from '@/features/canvas/node-frame'
-import { groupInputs } from '@/features/canvas/node-port-layout'
+import { groupInputs, inputsInPlay } from '@/features/canvas/node-port-layout'
 import { NumberField } from '@/features/canvas/number-field'
 import { ParamField, bodyParams } from '@/features/canvas/param-field'
 import { nodeTitle } from '@/features/canvas/to-flow'
@@ -112,7 +112,9 @@ interface InputSectionsProps {
 
 /** Every input of the node, collapsed or not, grouped like the node groups them. */
 function InputSections({ graph, node, definition, types }: InputSectionsProps) {
-  const groups = groupInputs(node, definition.inputs).filter((group) => group.rows.length > 0)
+  const groups = groupInputs(node, inputsInPlay(node, definition.inputs)).filter(
+    (group) => group.rows.length > 0,
+  )
   const t = useT()
 
   return groups.map((group) => (

@@ -35,6 +35,11 @@ export interface InputDefinition<I extends string> {
   readonly fallback?: BuiltinName
   /** What the input means, in one short sentence an artist reads in the port tooltip. */
   readonly description?: string
+  /**
+   * True while the node's params leave this input out of play (a color ramp's stops past its
+   * count). The editor shows no row for it and the node's `build` must not read it.
+   */
+  readonly hiddenWhen?: (params: Readonly<Record<string, ParamValue>>) => boolean
 }
 
 /**

@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest'
 import {
   PHASE_3_CATALOG_C,
   blendNode,
+  COLOR_RAMP_MAX_STOPS,
+  colorRampCount,
+  colorRampNode,
+  colorRampStopInputIds,
   createDefaultRegistry,
   createRecordingFacade,
   mainLightNode,
@@ -20,6 +24,7 @@ const CATALOG_C_TYPES = [
   'effects/voronoi-3d',
   'texture/triplanar',
   'input/main-light',
+  'color/color-ramp',
 ]
 
 const buildWith = (
@@ -237,6 +242,144 @@ describe('main light', () => {
       ['color', { kind: 'concrete', type: 'vec3' }],
       ['lambert', { kind: 'concrete', type: 'float' }],
       ['halfLambert', { kind: 'concrete', type: 'float' }],
+    ])
+  })
+})
+
+describe('color ramp', () => {
+  const k = (n: number): string => `construct(float,[${String(n)}])`
+  const RAMP_INPUTS: Readonly<Record<string, string>> = {
+    in: 'x',
+    stop0Position: 'p0',
+    stop0Color: 'c0',
+    stop1Position: 'p1',
+    stop1Color: 'c1',
+    stop2Position: 'p2',
+    stop2Color: 'c2',
+    stop3Position: 'p3',
+    stop3Color: 'c3',
+  }
+  const progress = (from: string, to: string): string =>
+    `clamp(div(sub(x,${from}),max(sub(${to},${from}),${k(0.00001)})),${k(0)},${k(1)})`
+  const smoothed = (t: string): string => `mul(mul(${t},${t}),sub(${k(3)},mul(${k(2)},${t})))`
+  const ramp = (params: Readonly<Record<string, ParamValue>>): string | undefined =>
+    buildWith(colorRampNode, RAMP_INPUTS, { count: 3, ...params }).out
+
+  it('mixes each segment in turn by how far In has travelled along it', () => {
+    const first = `mix(c0,c1,${progress('p0', 'p1')})`
+    expect(ramp({})).toBe(`mix(${first},c2,${progress('p1', 'p2')})`)
+  })
+
+  it('eases each segment with smooth interpolation', () => {
+    const first = `mix(c0,c1,${smoothed(progress('p0', 'p1'))})`
+    expect(ramp({ interpolation: 'smooth' })).toBe(
+      `mix(${first},c2,${smoothed(progress('p1', 'p2'))})`,
+    )
+  })
+
+  it('switches color at each stop position with constant interpolation', () => {
+    const first = 'mix(c0,c1,step(p1,x))'
+    expect(ramp({ interpolation: 'constant' })).toBe(`mix(${first},c2,step(p2,x))`)
+  })
+
+  it('falls back to linear for an unknown interpolation', () => {
+    expect(ramp({ interpolation: 'wobbly' })).toBe(ramp({}))
+  })
+
+  it('never reads a stop at or above the count', () => {
+    const expression = ramp({})
+    expect(expression).not.toContain('p3')
+    expect(expression).not.toContain('c3')
+  })
+
+  it('guards equal positions against a division by zero', () => {
+    expect(ramp({})).toContain(`max(sub(p1,p0),${k(0.00001)})`)
+  })
+
+  it('a two-stop ramp is one mix from the first color to the second', () => {
+    expect(ramp({ count: 2 })).toBe(`mix(c0,c1,${progress('p0', 'p1')})`)
+  })
+
+  it('names the inputs of a stop', () => {
+    expect(colorRampStopInputIds(3)).toEqual({ position: 'stop3Position', color: 'stop3Color' })
+  })
+
+  it('clamps and rounds the stop count, defaulting to two', () => {
+    expect(COLOR_RAMP_MAX_STOPS).toBe(8)
+    expect(colorRampCount({})).toBe(2)
+    expect(colorRampCount({ count: 0 })).toBe(2)
+    expect(colorRampCount({ count: 99 })).toBe(8)
+    expect(colorRampCount({ count: 4.6 })).toBe(5)
+    expect(colorRampCount({ count: 'many' })).toBe(2)
+    expect(colorRampCount({ count: Number.NaN })).toBe(2)
+  })
+
+  it('declares In plus a position and a color for each of the eight stops', () => {
+    expect(colorRampNode.inputs).toHaveLength(1 + 2 * COLOR_RAMP_MAX_STOPS)
+    expect(
+      colorRampNode.inputs.map((input) => [input.id, input.type, input.default, input.widget]),
+    ).toEqual([
+      ['in', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0.5 }, undefined],
+      ...Array.from({ length: COLOR_RAMP_MAX_STOPS }, (_, index) => {
+        const isFirst = index === 0
+        const ids = colorRampStopInputIds(index)
+        return [
+          [
+            ids.position,
+            { kind: 'concrete', type: 'float' },
+            { type: 'float', value: isFirst ? 0 : 1 },
+            undefined,
+          ],
+          [
+            ids.color,
+            { kind: 'concrete', type: 'vec3' },
+            { type: 'vec3', value: isFirst ? [0, 0, 0] : [1, 1, 1] },
+            'color',
+          ],
+        ]
+      }).flat(),
+    ])
+    expect(colorRampNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['out', { kind: 'concrete', type: 'vec3' }],
+    ])
+  })
+
+  it('hides the stops at or above the count', () => {
+    const hiddenIds = (params: Readonly<Record<string, ParamValue>>): string[] =>
+      colorRampNode.inputs
+        .filter((input) => input.hiddenWhen?.(params) === true)
+        .map((input) => input.id)
+
+    expect(hiddenIds({})).toHaveLength(2 * (COLOR_RAMP_MAX_STOPS - 2))
+    expect(hiddenIds({ count: 3 })).not.toContain('stop2Color')
+    expect(hiddenIds({ count: 3 })).toContain('stop3Position')
+    expect(hiddenIds({ count: 8 })).toEqual([])
+    expect(hiddenIds({ count: 2 })).not.toContain('in')
+  })
+
+  it('stores the count as a hidden number param between two and eight', () => {
+    expect(colorRampNode.params).toEqual([
+      {
+        id: 'count',
+        label: 'Stops',
+        kind: 'number',
+        min: 2,
+        max: 8,
+        step: 1,
+        default: 2,
+        hidden: true,
+      },
+      {
+        id: 'interpolation',
+        label: 'Interpolation',
+        kind: 'enum',
+        options: [
+          { value: 'linear', label: 'Linear' },
+          { value: 'constant', label: 'Constant' },
+          { value: 'smooth', label: 'Smooth' },
+        ],
+        default: 'linear',
+      },
     ])
   })
 })

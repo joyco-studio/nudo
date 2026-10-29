@@ -7,6 +7,7 @@ import { noiseNode } from './effects/noise-node'
 import { voronoi3dNode } from './effects/voronoi-3d-node'
 import { voronoiNode } from './effects/voronoi-node'
 import { blendNode } from './color/blend-node'
+import { colorRampNode } from './color/color-ramp-node'
 import { colorSpaceNode } from './color/color-space-node'
 import { cameraPositionNode } from './input/camera-position-node'
 import { mainLightNode } from './input/main-light-node'
@@ -142,6 +143,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   voronoi3dNode,
   triplanarNode,
   mainLightNode,
+  colorRampNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

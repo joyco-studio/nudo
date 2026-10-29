@@ -1,7 +1,7 @@
 import { MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { AnyNodeDefinition, GraphNode, NodeId, XY } from '@nudo-tsl/core'
 
-import { groupInputs } from '@/features/canvas/node-port-layout'
+import { groupInputs, inputsInPlay } from '@/features/canvas/node-port-layout'
 import { bodyParams } from '@/features/canvas/param-field'
 import type { NodeGeometry } from '@/features/canvas/tidy-up/plan-tidy-up'
 import { hasNodePreview, isPreviewShown } from '@/features/node-previews/preview-graph'
@@ -58,9 +58,10 @@ export function estimateGeometry(
   }
 
   const inputY: Record<string, number> = {}
-  if (definition.inputs.length > 0) {
+  const inputs = inputsInPlay(node, definition.inputs)
+  if (inputs.length > 0) {
     y += LIST_PADDING + (definition.outputs.length > 0 ? DIVIDER : 0)
-    for (const group of groupInputs(node, definition.inputs)) {
+    for (const group of groupInputs(node, inputs)) {
       if (group.rows.length > 0 && group.title !== null) y += GROUP_HEADING_HEIGHT
       for (const row of group.rows) {
         inputY[row.input.id] = y + ROW_HEIGHT / 2
