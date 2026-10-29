@@ -626,6 +626,41 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'math/hash': {
+    label: 'Aleatorio',
+    description:
+      'Ruido blanco: cada posición recibe su propio valor al azar, igual en cada fotograma.',
+    formula: 'hash(Entrada, Semilla)',
+    keywords: [
+      'aleatorio',
+      'azar',
+      'hash',
+      'ruido',
+      'ruido blanco',
+      'semilla',
+      'random',
+      'dispersar',
+    ],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description:
+          'De dónde sale el azar: la UV de la malla si no hay nada conectado. El mismo valor siempre da el mismo resultado.',
+      },
+      seed: {
+        label: 'Semilla',
+        description: 'Un número cualquiera: cada uno da otro patrón al azar con la misma entrada.',
+      },
+    },
+    outputs: {
+      out: { label: 'Salida', description: 'Un valor al azar desde 0 hasta justo debajo de 1.' },
+      out3: {
+        label: 'Salida3',
+        description:
+          'Tres valores al azar sin relación entre sí, de 0 hasta justo debajo de 1, p. ej. para un color al azar.',
+      },
+    },
+  },
 
   // Interpolation
   'interpolation/lerp': {

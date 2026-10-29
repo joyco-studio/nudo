@@ -3,6 +3,7 @@ import type {
   CellDimensions,
   ColorSpaceDirection,
   CompareOp,
+  HashKind,
   MainLightComponent,
   NoiseKind,
   Swizzle,
@@ -32,6 +33,11 @@ const CELL_NOISE = 'mx_cell_noise_float'
 const CELL_SEARCHES: Readonly<Record<CellDimensions, HelperName>> = {
   2: 'voronoiCell2',
   3: 'voronoiCell3',
+}
+
+const HASHES: Readonly<Record<HashKind, HelperName>> = {
+  float: 'hashFloat',
+  vec3: 'hashVec3',
 }
 
 const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, string>> = {
@@ -136,6 +142,7 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     voronoiCell: (dimensions, p, jitter, metric) =>
       callHelper(CELL_SEARCHES[dimensions], [p, jitter, printMetric(metric)]),
     cellNoise: (p) => call(CELL_NOISE, [p]),
+    hash: (kind, p, seed) => callHelper(HASHES[kind], [p, seed]),
     checker: (uv) => call('checker', [uv]),
     textureSample: (texture, uv, level) => {
       const sampled = method(texture, 'sample', [uv])

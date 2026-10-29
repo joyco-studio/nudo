@@ -36,6 +36,7 @@ export function createRecordingFacade(): TslFacade<string> {
     voronoiCell: (dimensions, p, jitter, metric) =>
       `voronoiCell(${String(dimensions)},${p},${jitter},${metric})`,
     cellNoise: (p) => `cellNoise(${p})`,
+    hash: (kind, p, seed) => `hash(${kind},${p},${seed})`,
     checker: (uv) => `checker(${uv})`,
     textureSample: (texture, uv, level) => `textureSample(${texture},${uv},${level ?? 'null'})`,
     colorSpace: (direction, color) => `colorSpace(${direction},${color})`,

@@ -315,6 +315,49 @@ describe('generateModule', () => {
     })
   })
 
+  describe('random hash', () => {
+    const hashTo = (outputId: string, slot: string): Graph =>
+      withLink(
+        withNode(createGraph(), 'random', 'math/hash'),
+        port('random', outputId),
+        port('master', slot),
+      )
+
+    it('prints the mesh UV and seed 0 into the float hash, and declares only the hash helper', () => {
+      const code = generate(hashTo('out', 'roughness'))
+
+      expect(code).toContain('hashFloat(uv(), float(0))')
+      expect(code).toContain('const hashFloat = Fn(([pointInput, seed]) => {')
+      expect(code).not.toContain('simplexNoise3')
+    })
+
+    it('prints the vec3 output through its own call', () => {
+      expect(generate(hashTo('out3', 'emission'))).toContain('hashVec3(uv(), float(0))')
+    })
+
+    it('declares the helper source once however many outputs are used', () => {
+      const graph = withLink(
+        hashTo('out', 'roughness'),
+        port('random', 'out3'),
+        port('master', 'emission'),
+      )
+      const code = generate(graph)
+
+      expect(code).toContain('hashFloat(uv(), float(0))')
+      expect(code).toContain('hashVec3(uv(), float(0))')
+      expect(code.match(/const scrambledPoint = /g)).toHaveLength(1)
+      expect(code.match(/const hashFloat = Fn\(/g)).toHaveLength(1)
+      expect(code.match(/const hashVec3 = Fn\(/g)).toHaveLength(1)
+    })
+
+    it('prints a wired seed', () => {
+      let graph = withNode(hashTo('out', 'roughness'), 'seed', 'input/float')
+      graph = withLink(graph, port('seed', 'out'), port('random', 'seed'))
+
+      expect(generate(graph)).toMatch(/hashFloat\(uv\(\), float\d*\)/)
+    })
+  })
+
   it('emits the scene depth fade and normal-from-height helpers when used', () => {
     let graph = withNode(createGraph(), 'fade', 'scene/depth-fade')
     graph = withNode(graph, 'bump', 'normal/normal-from-height')

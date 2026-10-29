@@ -1,4 +1,14 @@
-import { addNode, asNodeId, createGraph, setParam, topologyKey } from '@nudo-tsl/core'
+import {
+  addNode,
+  asEdgeId,
+  asNodeId,
+  connect,
+  createGraph,
+  portKey,
+  resolvePortTypes,
+  setParam,
+  topologyKey,
+} from '@nudo-tsl/core'
 import type { AnyNodeDefinition, DataType, Graph, ParamValue, Result } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import {
@@ -11,6 +21,7 @@ import {
   colorRampStopInputIds,
   createDefaultRegistry,
   createRecordingFacade,
+  hashNode,
   mainLightNode,
   moduloNode,
   posterizeNode,
@@ -27,6 +38,7 @@ const CATALOG_C_TYPES = [
   'texture/triplanar',
   'input/main-light',
   'color/color-ramp',
+  'math/hash',
 ]
 
 const buildWith = (
@@ -402,5 +414,98 @@ describe('color ramp', () => {
         default: 'linear',
       },
     ])
+  })
+})
+
+describe('random hash', () => {
+  const hashed = buildWith(hashNode, { in: 'p', seed: 's' })
+
+  it('hashes the input with the seed, once for the float and once for the vec3', () => {
+    expect(hashed).toEqual({ out: 'hash(float,p,s)', out3: 'hash(vec3,p,s)' })
+  })
+
+  it('reads the mesh UV when nothing is plugged in, with seed 0', () => {
+    expect(
+      hashNode.inputs.map((input) => [input.id, input.type, input.default, input.fallback]),
+    ).toEqual([
+      [
+        'in',
+        { kind: 'generic', group: 'T', allowed: ['float', 'vec2', 'vec3'] },
+        { type: 'float', value: 0 },
+        'uv',
+      ],
+      ['seed', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0 }, undefined],
+    ])
+  })
+
+  it('outputs a float and a vec3 whatever the input is', () => {
+    expect(hashNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['out', { kind: 'concrete', type: 'float' }],
+      ['out3', { kind: 'concrete', type: 'vec3' }],
+    ])
+  })
+
+  it('is found by its artist-facing names', () => {
+    expect(hashNode.label).toBe('Random')
+    expect(hashNode.keywords).toEqual(expect.arrayContaining(['hash', 'random', 'white noise']))
+  })
+
+  it.each([
+    ['input/float', 'float'],
+    ['input/vector2', 'vec2'],
+    ['input/vector3', 'vec3'],
+  ] as const)('takes the type of a %s wired into In (%s)', (sourceType, expected) => {
+    const unwrap = <T, E>(result: Result<T, E>): T => {
+      if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
+      return result.value
+    }
+    const origin = { x: 0, y: 0 }
+    const withSource = unwrap(
+      addNode(createGraph(), registry, {
+        id: asNodeId('source'),
+        type: sourceType,
+        position: origin,
+      }),
+    )
+    const withHash = unwrap(
+      addNode(withSource, registry, { id: asNodeId('hash'), type: 'math/hash', position: origin }),
+    )
+    const wired = unwrap(
+      connect(withHash, registry, {
+        id: asEdgeId('source-to-hash'),
+        from: { nodeId: asNodeId('source'), portId: 'out' },
+        to: { nodeId: asNodeId('hash'), portId: 'in' },
+      }),
+    )
+
+    const resolved = resolvePortTypes(wired, registry)
+
+    expect(resolved.inputs.get(portKey({ nodeId: asNodeId('hash'), portId: 'in' }))).toBe(expected)
+    expect(resolved.outputs.get(portKey({ nodeId: asNodeId('hash'), portId: 'out' }))).toBe('float')
+    expect(resolved.outputs.get(portKey({ nodeId: asNodeId('hash'), portId: 'out3' }))).toBe('vec3')
+  })
+
+  it('refuses a vec4 in In, which has no hash', () => {
+    const origin = { x: 0, y: 0 }
+    const withSource = addNode(createGraph(), registry, {
+      id: asNodeId('source'),
+      type: 'input/vector4',
+      position: origin,
+    })
+    if (!withSource.ok) throw new Error('Cannot add the vec4 source')
+    const withHash = addNode(withSource.value, registry, {
+      id: asNodeId('hash'),
+      type: 'math/hash',
+      position: origin,
+    })
+    if (!withHash.ok) throw new Error('Cannot add the hash')
+
+    const wired = connect(withHash.value, registry, {
+      id: asEdgeId('source-to-hash'),
+      from: { nodeId: asNodeId('source'), portId: 'out' },
+      to: { nodeId: asNodeId('hash'), portId: 'in' },
+    })
+
+    expect(wired.ok).toBe(false)
   })
 })

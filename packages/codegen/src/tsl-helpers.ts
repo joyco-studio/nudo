@@ -8,7 +8,7 @@ export interface TslHelper {
 
 /**
  * These sources mirror the live runtime's helpers (`packages/runtime/src/simplex-noise.ts`,
- * `normal-from-height.ts`, `scene-depth-fade.ts` and `voronoi-cell.ts`) minus their type
+ * `normal-from-height.ts`, `scene-depth-fade.ts`, `voronoi-cell.ts` and `hash-noise.ts`) minus their type
  * annotations. A parity test compares them with the runtime files, so a change on one side must be
  * made on the other.
  */
@@ -284,6 +284,50 @@ const VORONOI_CELL: TslHelper = {
   source: VORONOI_CELL_SOURCE,
 }
 
+const HASH_SOURCE = `/**
+ * White noise from a point, after Dave Hoskins' "hash without sine" (MIT, shadertoy.com/view/4djSRW,
+ * 'hash13' and 'hash33'). It only uses fract, multiply and add, so every GPU and both backends give
+ * the same values, and it needs no integer math. Three's own 'hash' is no substitute: it truncates
+ * its input to an integer, which collapses a continuous point such as UV into a few values.
+ * Returns floats in [0, 1).
+ */
+
+/** Multiplied into the point first, so a float (repeated into all three axes) is not symmetric. */
+const AXIS_SKEW = [1, 1.6180339887, 2.7182818285]
+/** Per-axis scale of the point before its fraction is taken. */
+const HASH_SCALE = [0.1031, 0.103, 0.0973]
+/** Moves each seed to its own offset: the plastic constant's powers spread seeds evenly. */
+const SEED_STRIDE = [0.7548776662, 0.569840291, 0.430159709]
+const MIX_OFFSET = 33.33
+
+/** Adds the mix of all three axes to each axis. */
+const mixAxes = (value) =>
+  value.add(dot(value, value.yxz.add(MIX_OFFSET)))
+
+/**
+ * Two rounds of scale, fraction and mix. One round leaves a point that moves a little (a pixel of
+ * UV) with a nearly unchanged value; the second makes neighbors unrelated.
+ */
+const scrambledPoint = (pointInput, seed) => {
+  const point = vec3(pointInput).mul(vec3(...AXIS_SKEW))
+  const seedOffset = fract(seed.mul(vec3(...SEED_STRIDE)))
+  const firstRound = mixAxes(fract(point.mul(vec3(...HASH_SCALE)).add(seedOffset))).toVar()
+  return mixAxes(fract(firstRound.mul(vec3(...HASH_SCALE))))
+}
+
+const hashFloat = Fn(([pointInput, seed]) => {
+  const scrambled = scrambledPoint(pointInput, seed).toVar()
+  return fract(scrambled.y.add(scrambled.z).mul(scrambled.x))
+})
+
+const hashVec3 = Fn(([pointInput, seed]) => {
+  const scrambled = scrambledPoint(pointInput, seed).toVar()
+  return fract(scrambled.xxy.add(scrambled.yxx).mul(scrambled.zyx))
+})`
+
+/** One source declares both hashes; a module that uses both prints it once. */
+const HASH: TslHelper = { imports: ['Fn', 'dot', 'fract', 'vec3'], source: HASH_SOURCE }
+
 export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
   simplexNoise3: {
     imports: ['Fn', 'abs', 'dot', 'floor', 'max', 'min', 'step', 'vec3', 'vec4'],
@@ -308,6 +352,8 @@ export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
   },
   voronoiCell2: VORONOI_CELL,
   voronoiCell3: VORONOI_CELL,
+  hashFloat: HASH,
+  hashVec3: HASH,
 }
 
 /** Declaration order: a helper never reads another, so any stable order works. */
@@ -317,4 +363,6 @@ export const HELPER_ORDER: readonly HelperName[] = [
   'sceneDepthFade',
   'voronoiCell2',
   'voronoiCell3',
+  'hashFloat',
+  'hashVec3',
 ]

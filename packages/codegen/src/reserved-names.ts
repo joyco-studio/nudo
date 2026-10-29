@@ -21,6 +21,8 @@ const HELPER_INTERNAL_NAMES = [
   'taylorInverseSqrt',
   'cellDistance2',
   'cellDistance3',
+  'scrambledPoint',
+  'mixAxes',
 ] as const
 
 /**

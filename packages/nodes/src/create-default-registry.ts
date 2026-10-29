@@ -35,6 +35,7 @@ import { divideNode } from './math/divide-node'
 import { expNode } from './math/exp-node'
 import { floorNode } from './math/floor-node'
 import { fractNode } from './math/fract-node'
+import { hashNode } from './math/hash-node'
 import { maxNode } from './math/max-node'
 import { minNode } from './math/min-node'
 import { moduloNode } from './math/modulo-node'
@@ -135,7 +136,7 @@ export const PHASE_2_CATALOG_B: readonly AnyNodeDefinition[] = [
   rerouteNode,
 ]
 
-/** Batch 1 of the catalog phase: math additions. */
+/** The catalog phase's additions: math, color, effects, texture and input nodes. */
 export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   posterizeNode,
   moduloNode,
@@ -144,6 +145,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   triplanarNode,
   mainLightNode,
   colorRampNode,
+  hashNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

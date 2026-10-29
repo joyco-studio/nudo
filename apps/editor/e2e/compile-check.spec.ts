@@ -95,6 +95,34 @@ const VORONOI_CELLS = graphDocumentV2(
 )
 
 /**
+ * The catalog graph wires one Random node, on the mesh UV, and only its first output. These feed
+ * Random a float, a vec2 and a vec3 (with a wired seed) and read both of its outputs, so each
+ * input type and both hash helpers reach the renderer.
+ */
+const RANDOM_INPUT_TYPES = graphDocumentV2(
+  [
+    { id: 'scatter', type: 'math/hash', position: { x: 300, y: 0 } },
+    { id: 'floatSource', type: 'input/float', position: { x: 0, y: 0 } },
+    { id: 'planar', type: 'math/hash', position: { x: 300, y: 400 } },
+    { id: 'planarSource', type: 'input/vector2', position: { x: 0, y: 400 } },
+    { id: 'spatial', type: 'math/hash', position: { x: 300, y: 800 } },
+    { id: 'spatialSource', type: 'input/position', position: { x: 0, y: 800 } },
+    { id: 'seedSource', type: 'input/float', position: { x: 0, y: 1200 } },
+  ],
+  [
+    { id: 'float-to-scatter', from: ['floatSource', 'out'], to: ['scatter', 'in'] },
+    { id: 'vec2-to-planar', from: ['planarSource', 'out'], to: ['planar', 'in'] },
+    { id: 'position-to-spatial', from: ['spatialSource', 'out'], to: ['spatial', 'in'] },
+    { id: 'seed-to-spatial', from: ['seedSource', 'out'], to: ['spatial', 'seed'] },
+    { id: 'scatter-to-roughness', from: ['scatter', 'out'], to: ['master', 'roughness'] },
+    { id: 'planar-to-base-color', from: ['planar', 'out3'], to: ['master', 'baseColor'] },
+    { id: 'spatial-to-emission', from: ['spatial', 'out3'], to: ['master', 'emission'] },
+    { id: 'spatial-to-metalness', from: ['spatial', 'out'], to: ['master', 'metalness'] },
+  ],
+  [],
+)
+
+/**
  * The catalog graph holds Color Ramps with two stops only. These take more (the most a ramp has,
  * and two in between), one per interpolation, so every extra mix step reaches the renderer.
  */
@@ -218,6 +246,15 @@ test.describe('real renderer compile check', () => {
   test('color ramps with three to eight stops compile in a real renderer', async ({ page }) => {
     test.setTimeout(COMPILE_TIMEOUT_MS * 2)
     await seedAutosave(page, MANY_STOP_RAMPS)
+    await page.goto('/')
+    await expectCompiled(page)
+  })
+
+  test('random hashes of a float, a vec2 and a vec3 compile in a real renderer', async ({
+    page,
+  }) => {
+    test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+    await seedAutosave(page, RANDOM_INPUT_TYPES)
     await page.goto('/')
     await expectCompiled(page)
   })

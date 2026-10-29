@@ -34,6 +34,9 @@ export const WORLEY_METRIC_IDS: Readonly<Record<VoronoiMetric, number>> = {
   chebyshev: 3,
 }
 
+/** What a hash returns: one random float, or three decorrelated ones as a vec3. */
+export type HashKind = 'float' | 'vec3'
+
 /** The 2D or 3D variant of a cell search. */
 export type CellDimensions = 2 | 3
 
@@ -81,6 +84,12 @@ export interface TslFacade<E> {
   voronoiCell(dimensions: CellDimensions, p: E, jitter: E, metric: VoronoiMetric): E
   /** A random float from 0 to 1, constant inside each unit cell of `p`. */
   cellNoise(p: E): E
+  /**
+   * White noise at a point: each value of `p` (float, vec2 or vec3) maps to its own random value in
+   * [0, 1), the same on every frame. A different `seed` (float) gives a different field. Returns a
+   * float or, for `'vec3'`, three decorrelated floats.
+   */
+  hash(kind: HashKind, p: E, seed: E): E
   /** Checkerboard pattern: float. */
   checker(uv: E): E
   /** Samples a texture: vec4. A `null` level samples with automatic mip selection. */

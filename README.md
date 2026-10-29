@@ -37,19 +37,19 @@ The header's **Templates** button (or **Browse templates** in the `Ctrl/⌘` `K`
 
 ## Node catalog
 
-| Category      | Nodes                                                                                                                                  |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Input         | UV, Screen UV, Position, Normal, View Direction, Camera Position, Time, Float, Vector 2/3/4, Color, Blackboard properties              |
-| Math          | Add, Subtract, Multiply, Divide, Power, Exponential, Sine, Cosine, Absolute, Fract, Floor, Min, Max, Clamp, One Minus, Remap, Distance |
-| Interpolation | Lerp, Step, Smoothstep, AA Step                                                                                                        |
-| Logic         | Select                                                                                                                                 |
-| Vector        | Split, Combine, Dot Product, Length, Normalize, Rotate 2D                                                                              |
-| Effects       | Noise (simplex, Perlin), Voronoi, Checkerboard, Gradient, Fresnel                                                                      |
-| Texture       | Sample Texture 2D (images live in the browser's IndexedDB)                                                                             |
-| Color         | Color Space                                                                                                                            |
-| Normal, scene | Normal From Height, Depth Fade, Scene Color                                                                                            |
-| Utility       | Comment, Reroute                                                                                                                       |
-| Output        | Master Stack, standard (lit) or unlit                                                                                                  |
+| Category      | Nodes                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Input         | UV, Screen UV, Position, Normal, View Direction, Camera Position, Time, Float, Vector 2/3/4, Color, Blackboard properties                             |
+| Math          | Add, Subtract, Multiply, Divide, Power, Exponential, Sine, Cosine, Absolute, Fract, Floor, Min, Max, Clamp, One Minus, Remap, Distance, Random (hash) |
+| Interpolation | Lerp, Step, Smoothstep, AA Step                                                                                                                       |
+| Logic         | Select                                                                                                                                                |
+| Vector        | Split, Combine, Dot Product, Length, Normalize, Rotate 2D                                                                                             |
+| Effects       | Noise (simplex, Perlin), Voronoi, Checkerboard, Gradient, Fresnel                                                                                     |
+| Texture       | Sample Texture 2D (images live in the browser's IndexedDB)                                                                                            |
+| Color         | Color Space                                                                                                                                           |
+| Normal, scene | Normal From Height, Depth Fade, Scene Color                                                                                                           |
+| Utility       | Comment, Reroute                                                                                                                                      |
+| Output        | Master Stack, standard (lit) or unlit                                                                                                                 |
 
 ## Scripts
 

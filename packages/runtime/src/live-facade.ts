@@ -4,6 +4,7 @@ import type {
   CellDimensions,
   ColorSpaceDirection,
   CompareOp,
+  HashKind,
   NoiseKind,
   Swizzle,
   TslFacade,
@@ -67,6 +68,7 @@ import {
   vec4,
   viewportSharedTexture,
 } from 'three/tsl'
+import { hashFloat, hashVec3 } from './hash-noise'
 import { MAIN_LIGHT_UNIFORMS } from './main-light'
 import { normalFromHeight } from './normal-from-height'
 import { sceneDepthFade } from './scene-depth-fade'
@@ -139,6 +141,11 @@ const NOISES: Readonly<Record<NoiseKind, TslFunction>> = {
 const CELL_SEARCHES: Readonly<Record<CellDimensions, TslFunction>> = {
   2: widen(voronoiCell2),
   3: widen(voronoiCell3),
+}
+
+const HASHES: Readonly<Record<HashKind, TslFunction>> = {
+  float: widen(hashFloat),
+  vec3: widen(hashVec3),
 }
 
 const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, TslFunction>> = {
@@ -228,6 +235,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     voronoiCell: (dimensions, p, jitter, metric) =>
       CELL_SEARCHES[dimensions](p, jitter, WORLEY_METRIC_IDS[metric]),
     cellNoise: (p) => cellNoiseNode(p),
+    hash: (kind, p, seed) => HASHES[kind](p, seed),
     checker: (uvNode) => checkerNode(uvNode),
     textureSample: sampleTexture,
     colorSpace: (direction, color) => COLOR_SPACE_CONVERSIONS[direction](color),

@@ -1,6 +1,7 @@
 import type {
   BuiltinName,
   CompareOp,
+  HashKind,
   NoiseKind,
   Swizzle,
   TslFacade,
@@ -29,6 +30,8 @@ const BUILTIN_NAMES = [
 ] as const satisfies readonly BuiltinName[]
 
 const COMPARE_OPS = ['lt', 'lte', 'gt', 'gte', 'eq'] as const satisfies readonly CompareOp[]
+
+const HASH_KINDS = ['float', 'vec3'] as const satisfies readonly HashKind[]
 
 const NOISE_KINDS = ['perlin', 'simplex'] as const satisfies readonly NoiseKind[]
 
@@ -113,6 +116,11 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ...COMPARE_OPS.map((op): readonly [string, ExpressionFactory] => [
     `select ${op}`,
     (tsl, { a, b, vec3 }) => tsl.select(op, a, b, vec3, tsl.construct('vec3', [0])),
+  ]),
+  ...HASH_KINDS.flatMap((kind): readonly (readonly [string, ExpressionFactory])[] => [
+    [`hash ${kind} of a float`, (tsl, { a, c }) => tsl.hash(kind, a, c)],
+    [`hash ${kind} of a vec2`, (tsl, { vec2, c }) => tsl.hash(kind, vec2, c)],
+    [`hash ${kind} of a vec3`, (tsl, { vec3, c }) => tsl.hash(kind, vec3, c)],
   ]),
   ...NOISE_KINDS.map((kind): readonly [string, ExpressionFactory] => [
     `noise ${kind}`,
