@@ -10,14 +10,24 @@ import { frameIdOf } from './build/example-spec'
 import type { ExampleSpec } from './build/example-spec'
 import { IRIDESCENT_BLOB } from './build/iridescent-blob'
 import { LETTRA_POND } from './build/lettra-pond'
+import { MAGMA } from './build/magma'
+import { POST_HOPE } from './build/post-hope'
 import { SIMPLE_WATER } from './build/simple-water'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
 import lettraPondGraph from './lettra-pond.graph.json'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
+import magmaGraph from './magma.graph.json'
+import postHopeGraph from './post-hope.graph.json'
 import simpleWaterGraph from './simple-water.graph.json'
 
-export const EXAMPLE_IDS = ['lettra-pond', 'simple-water', 'iridescent-blob'] as const
+export const EXAMPLE_IDS = [
+  'lettra-pond',
+  'simple-water',
+  'iridescent-blob',
+  'post-hope',
+  'magma',
+] as const
 export type ExampleId = (typeof EXAMPLE_IDS)[number]
 
 export interface Example {
@@ -58,6 +68,20 @@ export const EXAMPLES: readonly Example[] = [
     graph: iridescentBlobGraph,
     previewShape: 'knot',
     comments: { es: spanishComments(IRIDESCENT_BLOB) },
+  },
+  {
+    id: 'post-hope',
+    title: 'example.post-hope.title',
+    graph: postHopeGraph,
+    previewShape: 'suzanne',
+    comments: { es: spanishComments(POST_HOPE) },
+  },
+  {
+    id: 'magma',
+    title: 'example.magma.title',
+    graph: magmaGraph,
+    previewShape: 'torus',
+    comments: { es: spanishComments(MAGMA) },
   },
 ]
 

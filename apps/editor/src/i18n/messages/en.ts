@@ -104,6 +104,11 @@ export const en = {
   'command.example-simple-water.keywords': 'example sample demo template',
   'command.example-iridescent-blob.label': 'Open example: Iridescent blob',
   'command.example-iridescent-blob.keywords': 'example sample demo template tutorial',
+  'command.example-post-hope.label': 'Open example: Post Hope',
+  'command.example-post-hope.keywords':
+    'example sample demo template poster stencil toon sketch spite',
+  'command.example-magma.label': 'Open example: Magma',
+  'command.example-magma.keywords': 'example sample demo template lava fire volcano voronoi',
 
   // Command palette
   'palette.button': 'Commands',
@@ -176,6 +181,10 @@ export const en = {
   'example.simple-water.description': 'Rolling waves with a fresnel rim',
   'example.iridescent-blob.title': 'Iridescent blob',
   'example.iridescent-blob.description': 'A breathing blob that shifts color',
+  'example.post-hope.title': 'Post Hope',
+  'example.post-hope.description': 'Four-ink poster shading with stripes and an outline',
+  'example.magma.title': 'Magma',
+  'example.magma.description': 'Swirling lava with veins that burn white-hot',
   'openExample.title': 'Open “{title}”?',
   'openExample.description':
     'This replaces your graph ({contents}) with the example. Undo (Ctrl/⌘ Z) brings it back.',

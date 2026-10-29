@@ -10,7 +10,9 @@ import { frameIdOf } from './example-spec'
 import type { ExampleSpec } from './example-spec'
 import { IRIDESCENT_BLOB } from './iridescent-blob'
 import { LETTRA_POND } from './lettra-pond'
+import { MAGMA } from './magma'
 import { estimateGeometry } from './node-geometry'
+import { POST_HOPE } from './post-hope'
 import { SIMPLE_WATER } from './simple-water'
 
 /**
@@ -22,6 +24,8 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['lettra-pond', LETTRA_POND],
   ['simple-water', SIMPLE_WATER],
   ['iridescent-blob', IRIDESCENT_BLOB],
+  ['post-hope', POST_HOPE],
+  ['magma', MAGMA],
 ]
 
 interface Box {

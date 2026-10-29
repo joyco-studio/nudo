@@ -1,0 +1,991 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "blue": {
+      "id": "blue",
+      "type": "property/vec3",
+      "position": {
+        "x": -1688,
+        "y": 578
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "blue"
+      }
+    },
+    "cream": {
+      "id": "cream",
+      "type": "property/vec3",
+      "position": {
+        "x": -1048,
+        "y": 504
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "cream"
+      }
+    },
+    "cutShade": {
+      "id": "cutShade",
+      "type": "math/add",
+      "position": {
+        "x": -2392,
+        "y": 532
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeWobble": {
+      "id": "edgeWobble",
+      "type": "property/float",
+      "position": {
+        "x": -2984,
+        "y": 825
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "edgeWobble"
+      }
+    },
+    "facing": {
+      "id": "facing",
+      "type": "vector/dot",
+      "position": {
+        "x": -4696,
+        "y": 606
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "frame-hand-cut": {
+      "id": "frame-hand-cut",
+      "type": "utility/comment",
+      "position": {
+        "x": -3384,
+        "y": 405
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A little noise added to the light makes the edges between inks waver, like a stencil cut by hand.",
+        "height": 495,
+        "title": "Hand-cut edges",
+        "width": 1248
+      }
+    },
+    "frame-inks": {
+      "id": "frame-inks",
+      "type": "utility/comment",
+      "position": {
+        "x": -2040,
+        "y": 28
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Each Select paints its ink from one light level up: navy, red, blue, stripes and cream, from shadow to light.",
+        "height": 612,
+        "title": "Four inks",
+        "width": 1520
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -5320,
+        "y": 472
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Normal · light direction: how much each point faces the light. The Remap takes it from -1…1 to 0…1, so the dark side still has shades in it.",
+        "height": 579,
+        "title": "Light",
+        "width": 1200
+      }
+    },
+    "frame-outline": {
+      "id": "frame-outline",
+      "type": "utility/comment",
+      "position": {
+        "x": -424,
+        "y": -61
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Fresnel grows toward the edges that turn away from you; AA Step cuts it into a navy line. Raise outline to thin it.",
+        "height": 547,
+        "title": "Outline",
+        "width": 928
+      }
+    },
+    "frame-stripes": {
+      "id": "frame-stripes",
+      "type": "utility/comment",
+      "position": {
+        "x": -4024,
+        "y": -175
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Screen UV.y × density through a sine gives rows across the screen; AA Step cuts them into crisp blue and cream stripes.",
+        "height": 548,
+        "title": "Stripes",
+        "width": 1888
+      }
+    },
+    "fresnel": {
+      "id": "fresnel",
+      "type": "effects/fresnel",
+      "position": {
+        "x": -392,
+        "y": 19
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "inkBlue": {
+      "id": "inkBlue",
+      "type": "logic/select",
+      "position": {
+        "x": -1416,
+        "y": 229
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.56
+        }
+      },
+      "params": {
+        "op": "gte"
+      }
+    },
+    "inkCream": {
+      "id": "inkCream",
+      "type": "logic/select",
+      "position": {
+        "x": -776,
+        "y": 155
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.82
+        }
+      },
+      "params": {
+        "op": "gte"
+      }
+    },
+    "inkRed": {
+      "id": "inkRed",
+      "type": "logic/select",
+      "position": {
+        "x": -1736,
+        "y": 182
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.42
+        }
+      },
+      "params": {
+        "op": "gte"
+      }
+    },
+    "inkStripes": {
+      "id": "inkStripes",
+      "type": "logic/select",
+      "position": {
+        "x": -1096,
+        "y": 108
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.7
+        }
+      },
+      "params": {
+        "op": "gte"
+      }
+    },
+    "lightDirection": {
+      "id": "lightDirection",
+      "type": "property/vec3",
+      "position": {
+        "x": -5288,
+        "y": 864
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lightDirection"
+      }
+    },
+    "lightNormalized": {
+      "id": "lightNormalized",
+      "type": "vector/normalize",
+      "position": {
+        "x": -5016,
+        "y": 776
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "navy": {
+      "id": "navy",
+      "type": "property/vec3",
+      "position": {
+        "x": -2008,
+        "y": 408
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "navy"
+      }
+    },
+    "normal": {
+      "id": "normal",
+      "type": "input/normal",
+      "position": {
+        "x": -5016,
+        "y": 552
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outline": {
+      "id": "outline",
+      "type": "property/float",
+      "position": {
+        "x": -344,
+        "y": 350
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "outline"
+      }
+    },
+    "outlineMask": {
+      "id": "outlineMask",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -72,
+        "y": 108
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outlineNavy": {
+      "id": "outlineNavy",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 411
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "navy"
+      }
+    },
+    "position": {
+      "id": "position",
+      "type": "input/position",
+      "position": {
+        "x": -3352,
+        "y": 536
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "poster": {
+      "id": "poster",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": 155
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "red": {
+      "id": "red",
+      "type": "property/vec3",
+      "position": {
+        "x": -2008,
+        "y": 346
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "red"
+      }
+    },
+    "screenAxes": {
+      "id": "screenAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3672,
+        "y": -48
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "screenUv": {
+      "id": "screenUv",
+      "type": "input/screen-uv",
+      "position": {
+        "x": -3992,
+        "y": 87
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shade": {
+      "id": "shade",
+      "type": "math/remap",
+      "position": {
+        "x": -4376,
+        "y": 569
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "stripeBlue": {
+      "id": "stripeBlue",
+      "type": "property/vec3",
+      "position": {
+        "x": -2664,
+        "y": -95
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "blue"
+      }
+    },
+    "stripeCream": {
+      "id": "stripeCream",
+      "type": "property/vec3",
+      "position": {
+        "x": -2664,
+        "y": 270
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "cream"
+      }
+    },
+    "stripeDensity": {
+      "id": "stripeDensity",
+      "type": "property/float",
+      "position": {
+        "x": -3624,
+        "y": 311
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "stripeDensity"
+      }
+    },
+    "stripeMask": {
+      "id": "stripeMask",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -2712,
+        "y": -33
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "stripePhase": {
+      "id": "stripePhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -3352,
+        "y": 69
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stripeWave": {
+      "id": "stripeWave",
+      "type": "math/sin",
+      "position": {
+        "x": -3032,
+        "y": 32
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stripes": {
+      "id": "stripes",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2392,
+        "y": -52
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "math/multiply",
+      "position": {
+        "x": -2712,
+        "y": 597
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wobbleNoise": {
+      "id": "wobbleNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -3032,
+        "y": 485
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 7
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    }
+  },
+  "edges": {
+    "blue.out-inkBlue.whenTrue": {
+      "id": "blue.out-inkBlue.whenTrue",
+      "from": {
+        "nodeId": "blue",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkBlue",
+        "portId": "whenTrue"
+      }
+    },
+    "cream.out-inkCream.whenTrue": {
+      "id": "cream.out-inkCream.whenTrue",
+      "from": {
+        "nodeId": "cream",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkCream",
+        "portId": "whenTrue"
+      }
+    },
+    "cutShade.out-inkBlue.a": {
+      "id": "cutShade.out-inkBlue.a",
+      "from": {
+        "nodeId": "cutShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkBlue",
+        "portId": "a"
+      }
+    },
+    "cutShade.out-inkCream.a": {
+      "id": "cutShade.out-inkCream.a",
+      "from": {
+        "nodeId": "cutShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkCream",
+        "portId": "a"
+      }
+    },
+    "cutShade.out-inkRed.a": {
+      "id": "cutShade.out-inkRed.a",
+      "from": {
+        "nodeId": "cutShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkRed",
+        "portId": "a"
+      }
+    },
+    "cutShade.out-inkStripes.a": {
+      "id": "cutShade.out-inkStripes.a",
+      "from": {
+        "nodeId": "cutShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkStripes",
+        "portId": "a"
+      }
+    },
+    "edgeWobble.out-wobble.b": {
+      "id": "edgeWobble.out-wobble.b",
+      "from": {
+        "nodeId": "edgeWobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobble",
+        "portId": "b"
+      }
+    },
+    "facing.out-shade.in": {
+      "id": "facing.out-shade.in",
+      "from": {
+        "nodeId": "facing",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shade",
+        "portId": "in"
+      }
+    },
+    "fresnel.out-outlineMask.in": {
+      "id": "fresnel.out-outlineMask.in",
+      "from": {
+        "nodeId": "fresnel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineMask",
+        "portId": "in"
+      }
+    },
+    "inkBlue.out-inkStripes.whenFalse": {
+      "id": "inkBlue.out-inkStripes.whenFalse",
+      "from": {
+        "nodeId": "inkBlue",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkStripes",
+        "portId": "whenFalse"
+      }
+    },
+    "inkCream.out-poster.a": {
+      "id": "inkCream.out-poster.a",
+      "from": {
+        "nodeId": "inkCream",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "poster",
+        "portId": "a"
+      }
+    },
+    "inkRed.out-inkBlue.whenFalse": {
+      "id": "inkRed.out-inkBlue.whenFalse",
+      "from": {
+        "nodeId": "inkRed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkBlue",
+        "portId": "whenFalse"
+      }
+    },
+    "inkStripes.out-inkCream.whenFalse": {
+      "id": "inkStripes.out-inkCream.whenFalse",
+      "from": {
+        "nodeId": "inkStripes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkCream",
+        "portId": "whenFalse"
+      }
+    },
+    "lightDirection.out-lightNormalized.in": {
+      "id": "lightDirection.out-lightNormalized.in",
+      "from": {
+        "nodeId": "lightDirection",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightNormalized",
+        "portId": "in"
+      }
+    },
+    "lightNormalized.out-facing.b": {
+      "id": "lightNormalized.out-facing.b",
+      "from": {
+        "nodeId": "lightNormalized",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facing",
+        "portId": "b"
+      }
+    },
+    "navy.out-inkRed.whenFalse": {
+      "id": "navy.out-inkRed.whenFalse",
+      "from": {
+        "nodeId": "navy",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkRed",
+        "portId": "whenFalse"
+      }
+    },
+    "normal.out-facing.a": {
+      "id": "normal.out-facing.a",
+      "from": {
+        "nodeId": "normal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facing",
+        "portId": "a"
+      }
+    },
+    "outline.out-outlineMask.edge": {
+      "id": "outline.out-outlineMask.edge",
+      "from": {
+        "nodeId": "outline",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineMask",
+        "portId": "edge"
+      }
+    },
+    "outlineMask.out-poster.t": {
+      "id": "outlineMask.out-poster.t",
+      "from": {
+        "nodeId": "outlineMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "poster",
+        "portId": "t"
+      }
+    },
+    "outlineNavy.out-poster.b": {
+      "id": "outlineNavy.out-poster.b",
+      "from": {
+        "nodeId": "outlineNavy",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "poster",
+        "portId": "b"
+      }
+    },
+    "position.out-wobbleNoise.p": {
+      "id": "position.out-wobbleNoise.p",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleNoise",
+        "portId": "p"
+      }
+    },
+    "poster.out-master.baseColor": {
+      "id": "poster.out-master.baseColor",
+      "from": {
+        "nodeId": "poster",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "red.out-inkRed.whenTrue": {
+      "id": "red.out-inkRed.whenTrue",
+      "from": {
+        "nodeId": "red",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkRed",
+        "portId": "whenTrue"
+      }
+    },
+    "screenAxes.y-stripePhase.a": {
+      "id": "screenAxes.y-stripePhase.a",
+      "from": {
+        "nodeId": "screenAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "stripePhase",
+        "portId": "a"
+      }
+    },
+    "screenUv.out-screenAxes.in": {
+      "id": "screenUv.out-screenAxes.in",
+      "from": {
+        "nodeId": "screenUv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "screenAxes",
+        "portId": "in"
+      }
+    },
+    "shade.out-cutShade.a": {
+      "id": "shade.out-cutShade.a",
+      "from": {
+        "nodeId": "shade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cutShade",
+        "portId": "a"
+      }
+    },
+    "stripeBlue.out-stripes.a": {
+      "id": "stripeBlue.out-stripes.a",
+      "from": {
+        "nodeId": "stripeBlue",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripes",
+        "portId": "a"
+      }
+    },
+    "stripeCream.out-stripes.b": {
+      "id": "stripeCream.out-stripes.b",
+      "from": {
+        "nodeId": "stripeCream",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripes",
+        "portId": "b"
+      }
+    },
+    "stripeDensity.out-stripePhase.b": {
+      "id": "stripeDensity.out-stripePhase.b",
+      "from": {
+        "nodeId": "stripeDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripePhase",
+        "portId": "b"
+      }
+    },
+    "stripeMask.out-stripes.t": {
+      "id": "stripeMask.out-stripes.t",
+      "from": {
+        "nodeId": "stripeMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripes",
+        "portId": "t"
+      }
+    },
+    "stripePhase.out-stripeWave.in": {
+      "id": "stripePhase.out-stripeWave.in",
+      "from": {
+        "nodeId": "stripePhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripeWave",
+        "portId": "in"
+      }
+    },
+    "stripeWave.out-stripeMask.in": {
+      "id": "stripeWave.out-stripeMask.in",
+      "from": {
+        "nodeId": "stripeWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripeMask",
+        "portId": "in"
+      }
+    },
+    "stripes.out-inkStripes.whenTrue": {
+      "id": "stripes.out-inkStripes.whenTrue",
+      "from": {
+        "nodeId": "stripes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkStripes",
+        "portId": "whenTrue"
+      }
+    },
+    "wobble.out-cutShade.b": {
+      "id": "wobble.out-cutShade.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cutShade",
+        "portId": "b"
+      }
+    },
+    "wobbleNoise.out-wobble.a": {
+      "id": "wobbleNoise.out-wobble.a",
+      "from": {
+        "nodeId": "wobbleNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobble",
+        "portId": "a"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "lightDirection",
+      "label": "Light direction",
+      "name": "lightDirection",
+      "exposed": true,
+      "type": "vec3",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.6,
+          0.8,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "navy",
+      "label": "Navy",
+      "name": "navy",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0,
+          0.031896,
+          0.072272
+        ]
+      }
+    },
+    {
+      "id": "red",
+      "label": "Red",
+      "name": "red",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.686685,
+          0.01096,
+          0.015209
+        ]
+      }
+    },
+    {
+      "id": "blue",
+      "label": "Blue",
+      "name": "blue",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.208637,
+          0.371238,
+          0.423268
+        ]
+      }
+    },
+    {
+      "id": "cream",
+      "label": "Cream",
+      "name": "cream",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.982251,
+          0.775822,
+          0.391572
+        ]
+      }
+    },
+    {
+      "id": "edgeWobble",
+      "label": "Edge wobble",
+      "name": "edgeWobble",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.05
+      }
+    },
+    {
+      "id": "stripeDensity",
+      "label": "Stripe density",
+      "name": "stripeDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 380
+      }
+    },
+    {
+      "id": "outline",
+      "label": "Outline",
+      "name": "outline",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.62
+      }
+    }
+  ]
+}

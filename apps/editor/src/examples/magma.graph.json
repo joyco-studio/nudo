@@ -1,0 +1,954 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "burning": {
+      "id": "burning",
+      "type": "math/add",
+      "position": {
+        "x": 248,
+        "y": 155
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "clouds": {
+      "id": "clouds",
+      "type": "effects/noise",
+      "position": {
+        "x": -5064,
+        "y": 512
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1.4
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "colorSquared": {
+      "id": "colorSquared",
+      "type": "math/multiply",
+      "position": {
+        "x": -2056,
+        "y": 561
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crust": {
+      "id": "crust",
+      "type": "property/vec3",
+      "position": {
+        "x": -3032,
+        "y": 689
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crustColor"
+      }
+    },
+    "drift": {
+      "id": "drift",
+      "type": "math/multiply",
+      "position": {
+        "x": -5704,
+        "y": 756
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "drifting": {
+      "id": "drifting",
+      "type": "math/add",
+      "position": {
+        "x": -5384,
+        "y": 586
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "flowSpeed": {
+      "id": "flowSpeed",
+      "type": "property/float",
+      "position": {
+        "x": -5976,
+        "y": 994
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "flowSpeed"
+      }
+    },
+    "frame-clouds": {
+      "id": "frame-clouds",
+      "type": "utility/comment",
+      "position": {
+        "x": -6056,
+        "y": 415
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A slow noise sliding with Time: the original reads it from a cloud texture. Everything else bends with it.",
+        "height": 644,
+        "title": "Clouds",
+        "width": 1248
+      }
+    },
+    "frame-heat": {
+      "id": "frame-heat",
+      "type": "utility/comment",
+      "position": {
+        "x": -2408,
+        "y": 178
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The original's formula: color × pulse × 2 + color² − 0.1. It can pass 1: the next step uses what is over.",
+        "height": 686,
+        "title": "Heat",
+        "width": 1248
+      }
+    },
+    "frame-pulse": {
+      "id": "frame-pulse",
+      "type": "utility/comment",
+      "position": {
+        "x": -4024,
+        "y": 55
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Position plus clouds × swirl: a strong swirl. Another noise read through it gives the pulse that stokes and dims the lava.",
+        "height": 522,
+        "title": "Pulse",
+        "width": 1520
+      }
+    },
+    "frame-veins": {
+      "id": "frame-veins",
+      "type": "utility/comment",
+      "position": {
+        "x": -4712,
+        "y": 609
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The clouds nudge the drifting position a little. 1 − |noise| is 1 along its zero crossings: thin veins, thinner through Power. They paint from crust to lava.",
+        "height": 556,
+        "title": "Veins",
+        "width": 2208
+      }
+    },
+    "frame-white-hot": {
+      "id": "frame-white-hot",
+      "type": "utility/comment",
+      "position": {
+        "x": -1064,
+        "y": 75
+      },
+      "inputValues": {},
+      "params": {
+        "body": "As in the original, whatever red has past 1 spills over, mostly into green: the hottest veins turn yellow, then white.",
+        "height": 615,
+        "title": "White-hot",
+        "width": 1568
+      }
+    },
+    "heat": {
+      "id": "heat",
+      "type": "math/subtract",
+      "position": {
+        "x": -1416,
+        "y": 322
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.1
+        }
+      },
+      "params": {}
+    },
+    "heatChannels": {
+      "id": "heatChannels",
+      "type": "vector/split",
+      "position": {
+        "x": -1032,
+        "y": 331
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "heatSum": {
+      "id": "heatSum",
+      "type": "math/add",
+      "position": {
+        "x": -1736,
+        "y": 359
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lava": {
+      "id": "lava",
+      "type": "property/vec3",
+      "position": {
+        "x": -3032,
+        "y": 1054
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lavaColor"
+      }
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "nudge": {
+      "id": "nudge",
+      "type": "math/multiply",
+      "position": {
+        "x": -4680,
+        "y": 852
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.2
+        }
+      },
+      "params": {}
+    },
+    "nudged": {
+      "id": "nudged",
+      "type": "math/subtract",
+      "position": {
+        "x": -4360,
+        "y": 787
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "position": {
+      "id": "position",
+      "type": "input/position",
+      "position": {
+        "x": -5704,
+        "y": 495
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "pulse": {
+      "id": "pulse",
+      "type": "math/remap",
+      "position": {
+        "x": -2760,
+        "y": 135
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "pulseNoise": {
+      "id": "pulseNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -3080,
+        "y": 135
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "pulseTwice": {
+      "id": "pulseTwice",
+      "type": "math/multiply",
+      "position": {
+        "x": -2376,
+        "y": 323
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "redOver": {
+      "id": "redOver",
+      "type": "math/subtract",
+      "position": {
+        "x": -712,
+        "y": 294
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "spill": {
+      "id": "spill",
+      "type": "math/max",
+      "position": {
+        "x": -392,
+        "y": 257
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "spillTint": {
+      "id": "spillTint",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 220
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.2,
+            0.75,
+            0.3
+          ]
+        }
+      },
+      "params": {}
+    },
+    "stoked": {
+      "id": "stoked",
+      "type": "math/multiply",
+      "position": {
+        "x": -2056,
+        "y": 258
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "swirl": {
+      "id": "swirl",
+      "type": "property/float",
+      "position": {
+        "x": -3992,
+        "y": 390
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "swirl"
+      }
+    },
+    "swirlOffset": {
+      "id": "swirlOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -3720,
+        "y": 274
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "swirled": {
+      "id": "swirled",
+      "type": "math/add",
+      "position": {
+        "x": -3400,
+        "y": 209
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "time": {
+      "id": "time",
+      "type": "input/time",
+      "position": {
+        "x": -6024,
+        "y": 686
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "vein": {
+      "id": "vein",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3400,
+        "y": 788
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "veinColor": {
+      "id": "veinColor",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2760,
+        "y": 732
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "veinDistance": {
+      "id": "veinDistance",
+      "type": "math/abs",
+      "position": {
+        "x": -3720,
+        "y": 825
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "veinNoise": {
+      "id": "veinNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -4040,
+        "y": 825
+      },
+      "inputValues": {},
+      "params": {
+        "kind": "simplex"
+      }
+    },
+    "veinScale": {
+      "id": "veinScale",
+      "type": "property/float",
+      "position": {
+        "x": -4312,
+        "y": 1090
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "veinScale"
+      }
+    },
+    "veinSharp": {
+      "id": "veinSharp",
+      "type": "math/power",
+      "position": {
+        "x": -3080,
+        "y": 751
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 4
+        }
+      },
+      "params": {}
+    }
+  },
+  "edges": {
+    "burning.out-master.baseColor": {
+      "id": "burning.out-master.baseColor",
+      "from": {
+        "nodeId": "burning",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "clouds.out-nudge.a": {
+      "id": "clouds.out-nudge.a",
+      "from": {
+        "nodeId": "clouds",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "nudge",
+        "portId": "a"
+      }
+    },
+    "clouds.out-swirlOffset.a": {
+      "id": "clouds.out-swirlOffset.a",
+      "from": {
+        "nodeId": "clouds",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "swirlOffset",
+        "portId": "a"
+      }
+    },
+    "colorSquared.out-heatSum.b": {
+      "id": "colorSquared.out-heatSum.b",
+      "from": {
+        "nodeId": "colorSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heatSum",
+        "portId": "b"
+      }
+    },
+    "crust.out-veinColor.a": {
+      "id": "crust.out-veinColor.a",
+      "from": {
+        "nodeId": "crust",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinColor",
+        "portId": "a"
+      }
+    },
+    "drift.out-drifting.b": {
+      "id": "drift.out-drifting.b",
+      "from": {
+        "nodeId": "drift",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drifting",
+        "portId": "b"
+      }
+    },
+    "drifting.out-clouds.p": {
+      "id": "drifting.out-clouds.p",
+      "from": {
+        "nodeId": "drifting",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "clouds",
+        "portId": "p"
+      }
+    },
+    "drifting.out-nudged.a": {
+      "id": "drifting.out-nudged.a",
+      "from": {
+        "nodeId": "drifting",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "nudged",
+        "portId": "a"
+      }
+    },
+    "drifting.out-swirled.a": {
+      "id": "drifting.out-swirled.a",
+      "from": {
+        "nodeId": "drifting",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "swirled",
+        "portId": "a"
+      }
+    },
+    "flowSpeed.out-drift.b": {
+      "id": "flowSpeed.out-drift.b",
+      "from": {
+        "nodeId": "flowSpeed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drift",
+        "portId": "b"
+      }
+    },
+    "heat.out-burning.a": {
+      "id": "heat.out-burning.a",
+      "from": {
+        "nodeId": "heat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "burning",
+        "portId": "a"
+      }
+    },
+    "heat.out-heatChannels.in": {
+      "id": "heat.out-heatChannels.in",
+      "from": {
+        "nodeId": "heat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heatChannels",
+        "portId": "in"
+      }
+    },
+    "heatChannels.x-redOver.a": {
+      "id": "heatChannels.x-redOver.a",
+      "from": {
+        "nodeId": "heatChannels",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "redOver",
+        "portId": "a"
+      }
+    },
+    "heatSum.out-heat.a": {
+      "id": "heatSum.out-heat.a",
+      "from": {
+        "nodeId": "heatSum",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heat",
+        "portId": "a"
+      }
+    },
+    "lava.out-veinColor.b": {
+      "id": "lava.out-veinColor.b",
+      "from": {
+        "nodeId": "lava",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinColor",
+        "portId": "b"
+      }
+    },
+    "nudge.out-nudged.b": {
+      "id": "nudge.out-nudged.b",
+      "from": {
+        "nodeId": "nudge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "nudged",
+        "portId": "b"
+      }
+    },
+    "nudged.out-veinNoise.p": {
+      "id": "nudged.out-veinNoise.p",
+      "from": {
+        "nodeId": "nudged",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinNoise",
+        "portId": "p"
+      }
+    },
+    "position.out-drifting.a": {
+      "id": "position.out-drifting.a",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drifting",
+        "portId": "a"
+      }
+    },
+    "pulse.out-pulseTwice.a": {
+      "id": "pulse.out-pulseTwice.a",
+      "from": {
+        "nodeId": "pulse",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseTwice",
+        "portId": "a"
+      }
+    },
+    "pulseNoise.out-pulse.in": {
+      "id": "pulseNoise.out-pulse.in",
+      "from": {
+        "nodeId": "pulseNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulse",
+        "portId": "in"
+      }
+    },
+    "pulseTwice.out-stoked.b": {
+      "id": "pulseTwice.out-stoked.b",
+      "from": {
+        "nodeId": "pulseTwice",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stoked",
+        "portId": "b"
+      }
+    },
+    "redOver.out-spill.a": {
+      "id": "redOver.out-spill.a",
+      "from": {
+        "nodeId": "redOver",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spill",
+        "portId": "a"
+      }
+    },
+    "spill.out-spillTint.a": {
+      "id": "spill.out-spillTint.a",
+      "from": {
+        "nodeId": "spill",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "spillTint",
+        "portId": "a"
+      }
+    },
+    "spillTint.out-burning.b": {
+      "id": "spillTint.out-burning.b",
+      "from": {
+        "nodeId": "spillTint",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "burning",
+        "portId": "b"
+      }
+    },
+    "stoked.out-heatSum.a": {
+      "id": "stoked.out-heatSum.a",
+      "from": {
+        "nodeId": "stoked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heatSum",
+        "portId": "a"
+      }
+    },
+    "swirl.out-swirlOffset.b": {
+      "id": "swirl.out-swirlOffset.b",
+      "from": {
+        "nodeId": "swirl",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "swirlOffset",
+        "portId": "b"
+      }
+    },
+    "swirlOffset.out-swirled.b": {
+      "id": "swirlOffset.out-swirled.b",
+      "from": {
+        "nodeId": "swirlOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "swirled",
+        "portId": "b"
+      }
+    },
+    "swirled.out-pulseNoise.p": {
+      "id": "swirled.out-pulseNoise.p",
+      "from": {
+        "nodeId": "swirled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseNoise",
+        "portId": "p"
+      }
+    },
+    "time.out-drift.a": {
+      "id": "time.out-drift.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drift",
+        "portId": "a"
+      }
+    },
+    "vein.out-veinSharp.a": {
+      "id": "vein.out-veinSharp.a",
+      "from": {
+        "nodeId": "vein",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinSharp",
+        "portId": "a"
+      }
+    },
+    "veinColor.out-colorSquared.a": {
+      "id": "veinColor.out-colorSquared.a",
+      "from": {
+        "nodeId": "veinColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "colorSquared",
+        "portId": "a"
+      }
+    },
+    "veinColor.out-colorSquared.b": {
+      "id": "veinColor.out-colorSquared.b",
+      "from": {
+        "nodeId": "veinColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "colorSquared",
+        "portId": "b"
+      }
+    },
+    "veinColor.out-stoked.a": {
+      "id": "veinColor.out-stoked.a",
+      "from": {
+        "nodeId": "veinColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stoked",
+        "portId": "a"
+      }
+    },
+    "veinDistance.out-vein.in": {
+      "id": "veinDistance.out-vein.in",
+      "from": {
+        "nodeId": "veinDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "vein",
+        "portId": "in"
+      }
+    },
+    "veinNoise.out-veinDistance.in": {
+      "id": "veinNoise.out-veinDistance.in",
+      "from": {
+        "nodeId": "veinNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinDistance",
+        "portId": "in"
+      }
+    },
+    "veinScale.out-veinNoise.scale": {
+      "id": "veinScale.out-veinNoise.scale",
+      "from": {
+        "nodeId": "veinScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinNoise",
+        "portId": "scale"
+      }
+    },
+    "veinSharp.out-veinColor.t": {
+      "id": "veinSharp.out-veinColor.t",
+      "from": {
+        "nodeId": "veinSharp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "veinColor",
+        "portId": "t"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "flowSpeed",
+      "label": "Flow speed",
+      "name": "flowSpeed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.12
+      }
+    },
+    {
+      "id": "swirl",
+      "label": "Swirl",
+      "name": "swirl",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.2
+      }
+    },
+    {
+      "id": "veinScale",
+      "label": "Vein scale",
+      "name": "veinScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 3
+      }
+    },
+    {
+      "id": "crustColor",
+      "label": "Crust color",
+      "name": "crustColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.01033,
+          0.001518,
+          0.000911
+        ]
+      }
+    },
+    {
+      "id": "lavaColor",
+      "label": "Lava color",
+      "name": "lavaColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          1,
+          0.194618,
+          0.013702
+        ]
+      }
+    }
+  ]
+}

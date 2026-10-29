@@ -108,6 +108,11 @@ export const es = {
   'command.example-simple-water.keywords': 'ejemplo muestra demo plantilla',
   'command.example-iridescent-blob.label': 'Abrir ejemplo: Blob iridiscente',
   'command.example-iridescent-blob.keywords': 'ejemplo muestra demo plantilla tutorial',
+  'command.example-post-hope.label': 'Abrir ejemplo: Post Hope',
+  'command.example-post-hope.keywords':
+    'ejemplo muestra demo plantilla póster esténcil toon boceto spite',
+  'command.example-magma.label': 'Abrir ejemplo: Magma',
+  'command.example-magma.keywords': 'ejemplo muestra demo plantilla lava fuego volcán voronoi',
 
   // Command palette
   'palette.button': 'Comandos',
@@ -182,6 +187,10 @@ export const es = {
   'example.simple-water.description': 'Olas que ruedan con un borde fresnel',
   'example.iridescent-blob.title': 'Blob iridiscente',
   'example.iridescent-blob.description': 'Un blob que respira y cambia de color',
+  'example.post-hope.title': 'Post Hope',
+  'example.post-hope.description': 'Sombreado de póster en cuatro tintas, con rayas y contorno',
+  'example.magma.title': 'Magma',
+  'example.magma.description': 'Lava que se arremolina, con venas al rojo blanco',
   'openExample.title': '¿Abrir «{title}»?',
   'openExample.description':
     'Esto reemplaza tu grafo ({contents}) por el ejemplo. Deshacer (Ctrl/⌘ Z) lo recupera.',
