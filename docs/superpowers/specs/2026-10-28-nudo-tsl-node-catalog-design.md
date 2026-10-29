@@ -43,6 +43,8 @@ Cada tanda va en su propio PR, en este orden. La tanda 1 arranca con el chequeo 
 
 ### Tanda 1: imprescindibles + Master Physical (7 nuevos, 2 mejoras)
 
+**Estado: hecha (2026-10-29).** Implementada según `docs/superpowers/plans/2026-10-28-nudo-tsl-catalog-batch-1.md`. Decisiones tomadas durante la ejecución: los ejemplos se regeneran cuando una mejora de nodo solo cambia el layout (el código generado queda idéntico); "subir/bajar" del Color Ramp intercambia colores junto con sus cables, y las posiciones quedan.
+
 | Nodo | Tipo | Categoría | Qué hace |
 |---|---|---|---|
 | Color Ramp | `color/color-ramp` | color | Lleva un float de 0 a 1 a un color siguiendo hasta 8 paradas. Ver §4.1. |
