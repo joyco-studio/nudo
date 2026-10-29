@@ -6,6 +6,7 @@ import {
   settledCompileCount,
   waitForAutosave,
 } from './support/pending-work'
+import { disableGpuContexts } from './support/no-gpu'
 import { readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, seedAutosave } from './support/seed-graph'
 
@@ -198,20 +199,7 @@ test.describe('main preview', () => {
 test.describe('without WebGPU or WebGL2', () => {
   test.beforeEach(async ({ page }) => {
     await seedAutosave(page, COLOR_TO_BASE_COLOR)
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'gpu', { value: undefined, configurable: true })
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- re-applied with the canvas as `this` below
-      const originalGetContext = HTMLCanvasElement.prototype.getContext
-      Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-        configurable: true,
-        writable: true,
-        value(this: HTMLCanvasElement, contextId: string, ...rest: unknown[]): unknown {
-          if (contextId === 'webgl2' || contextId === 'webgl' || contextId === 'webgpu') return null
-          const context: unknown = Reflect.apply(originalGetContext, this, [contextId, ...rest])
-          return context
-        },
-      })
-    })
+    await disableGpuContexts(page)
   })
 
   test('no WebGPU/WebGL2 shows fallback message while canvas editing still works', async ({

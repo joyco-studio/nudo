@@ -24,7 +24,7 @@ import {
   panelCommandId,
   placementNear,
 } from './command-registry'
-import type { CommandServices } from './command-registry'
+import type { CommandId, CommandServices } from './command-registry'
 import { searchCommands } from './command-search'
 import { commandLabelKey, commandMenuLabelKey } from './command-text'
 
@@ -104,18 +104,22 @@ describe('command registry', () => {
     ])
   })
 
-  it('opens each example through the services, from the Examples group', () => {
-    const opened: string[] = []
+  it('browses the templates, on one template or the first, from the Templates group', () => {
+    const browsed: (string | null)[] = []
     const services: CommandServices = {
       ...NO_SERVICES,
-      openExample: (id) => opened.push(id),
+      browseTemplates: (_opener, selected) => browsed.push(selected),
     }
-    for (const id of EXAMPLE_IDS) {
-      const command = findCommand(`example-${id}`)
+    const ids: readonly CommandId[] = [
+      'browse-templates',
+      ...EXAMPLE_IDS.map((example): CommandId => `example-${example}`),
+    ]
+    for (const id of ids) {
+      const command = findCommand(id)
       expect(command?.group, id).toBe('examples')
       command?.run({ ...UNTARGETED, services })
     }
-    expect(opened).toEqual([...EXAMPLE_IDS])
+    expect(browsed).toEqual([null, ...EXAMPLE_IDS])
     const spanish = createTranslator(es)
     expect(searchCommands(PALETTE_COMMANDS, 'estanque', spanish).map((c) => c.id)).toEqual([
       'example-lettra-pond',
@@ -139,7 +143,7 @@ const NO_SERVICES: CommandServices = {
   openAddNodeMenu: () => undefined,
   addNode: () => null,
   openCommandPalette: () => undefined,
-  openExample: () => undefined,
+  browseTemplates: () => undefined,
 }
 
 function addSine(x: number): NodeId {

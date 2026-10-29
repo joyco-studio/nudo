@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   iconSwapStates,
+  panelRevealStates,
   pressFeedback,
   surfaceStates,
   switchThumbTransition,
@@ -158,5 +159,33 @@ describe('text morph', () => {
     expect(textMorphWidthTransition('reduced')).toEqual({ duration: 0 })
     expect(textMorphStates('instant').visible.transition).toEqual({ duration: 0 })
     expect(textMorphWidthTransition('instant')).toEqual({ duration: 0 })
+  })
+})
+
+describe('panelRevealStates', () => {
+  it('slides a side sheet in from the left in 400ms and out in 350ms, with no filter (reference 07)', () => {
+    expect(panelRevealStates('full')).toEqual({
+      hidden: { opacity: 0, transform: 'translateX(-100px)' },
+      visible: {
+        opacity: 1,
+        transform: 'translateX(0px)',
+        transition: { duration: 0.4, ease: EASE.smoothOut },
+      },
+      exit: {
+        opacity: 0,
+        transform: 'translateX(-100px)',
+        transition: { duration: 0.35, ease: EASE.smoothOut },
+      },
+    })
+  })
+
+  it('only fades with reduced motion, and moves nothing when a key opened it', () => {
+    const reduced = panelRevealStates('reduced')
+    expect(reduced.hidden).toEqual({ opacity: 0 })
+    expect(reduced.visible).toEqual({
+      opacity: 1,
+      transition: { duration: 0.15, ease: EASE.smoothOut },
+    })
+    expect(panelRevealStates('instant').visible.transition.duration).toBe(0)
   })
 })

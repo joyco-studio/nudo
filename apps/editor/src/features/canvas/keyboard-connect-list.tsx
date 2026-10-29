@@ -83,9 +83,7 @@ function ConnectSearch({ title, loadCandidates, onPick }: ConnectSearchProps) {
     >
       <CommandInput placeholder={t('connect.placeholder')} aria-label={t('connect.search')} />
       <CommandList label={t('connect.list')} className="max-h-[min(18rem,50dvh)]">
-        <CommandEmpty className="text-muted-foreground">
-          {t('connect.empty')}
-        </CommandEmpty>
+        <CommandEmpty className="text-muted-foreground">{t('connect.empty')}</CommandEmpty>
         {candidates.map((candidate) => (
           <CommandItem
             key={candidate.label}

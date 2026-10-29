@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { useOpenCommandPalette } from './command-context'
 
-/** Header action that opens the command palette, so Ctrl/⌘ K is discoverable. Hidden on phones. */
+/** Header action that opens the command palette, so Ctrl/⌘ K is discoverable. */
 export function CommandPaletteButton() {
   const openCommandPalette = useOpenCommandPalette()
   const t = useT()
@@ -16,10 +16,7 @@ export function CommandPaletteButton() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        {/*
-         * Left out of a narrow (phone) header: the palette is a keyboard accelerator, and every
-         * action it runs has its own control. The header keeps room for the graph name there.
-         */}
+        {/* A narrow (phone) header keeps it in the More menu (HeaderOverflowMenu). */}
         <Button
           variant="accent"
           size="sm"

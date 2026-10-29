@@ -12,6 +12,16 @@ export async function tabUntilFocused(page: Page, target: Locator): Promise<void
   throw new Error('Could not reach the target element with Tab')
 }
 
+/** `tabUntilFocused`, backwards. */
+export async function shiftTabUntilFocused(page: Page, target: Locator): Promise<void> {
+  for (let press = 0; press < MAX_TAB_PRESSES; press += 1) {
+    await page.keyboard.press('Shift+Tab')
+    const isFocused = await target.evaluate((element) => element === document.activeElement)
+    if (isFocused) return
+  }
+  throw new Error('Could not reach the target element with Shift+Tab')
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

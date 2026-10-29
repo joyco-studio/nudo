@@ -43,6 +43,7 @@ export type CommandId =
   | 'open-command-palette'
   | 'tidy-up-selection'
   | 'frame-selection'
+  | 'browse-templates'
 
 /** What commands need from the React tree: the view, the theme, the language and the dialogs. */
 export interface CommandServices {
@@ -59,8 +60,8 @@ export interface CommandServices {
   /** Adds and selects a node near the origin, clear of other nodes. Null when it can't be added. */
   addNode: (type: NodeTypeId, origin: PlacementOrigin) => NodeId | null
   openCommandPalette: (opener: HTMLElement | null) => void
-  /** Opens an example, asking first when that would replace work. */
-  openExample: (id: ExampleId, opener: HTMLElement | null) => void
+  /** Opens the templates browser, with a template selected or the first one. */
+  browseTemplates: (opener: HTMLElement | null, selected: ExampleId | null) => void
 }
 
 /** Where a command was asked for. */
@@ -159,15 +160,25 @@ function languageCommand(locale: Locale): Command {
   }
 }
 
+/** Opens the templates browser on one template: it shows live there, and opens from there. */
 function exampleCommand(id: ExampleId): Command {
   return {
     id: `example-${id}`,
     group: 'examples',
     shortcut: [],
     run: ({ opener, services }) => {
-      services.openExample(id, opener)
+      services.browseTemplates(opener, id)
     },
   }
+}
+
+const BROWSE_TEMPLATES: Command = {
+  id: 'browse-templates',
+  group: 'examples',
+  shortcut: [],
+  run: ({ opener, services }) => {
+    services.browseTemplates(opener, null)
+  },
 }
 
 const ACTION_COMMANDS: readonly Command[] = [
@@ -354,6 +365,7 @@ const VIEW_COMMANDS: readonly Command[] = [
 export const COMMANDS: readonly Command[] = [
   ...ACTION_COMMANDS,
   ...VIEW_COMMANDS,
+  BROWSE_TEMPLATES,
   ...EXAMPLE_IDS.map(exampleCommand),
 ]
 

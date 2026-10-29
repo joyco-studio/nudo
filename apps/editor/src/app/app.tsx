@@ -12,8 +12,9 @@ import { CodePanelContainer } from '@/features/code-panel/code-panel-container'
 import { CopyCodeButton } from '@/features/code-panel/copy-code-button'
 import { CommandPaletteButton } from '@/features/command-palette/command-palette-button'
 import { CommandPaletteProvider } from '@/features/command-palette/command-palette-provider'
-import { ExamplesMenu } from '@/features/examples/examples-menu'
 import { ExamplesProvider } from '@/features/examples/examples-provider'
+import { TemplatesButton } from '@/features/examples/templates-button'
+import { HeaderOverflowMenu } from '@/features/header-menu/header-overflow-menu'
 import { InspectorContainer } from '@/features/inspector/inspector-container'
 import { LanguageMenu } from '@/features/language/language-menu'
 import { MainPreview } from '@/features/main-preview/main-preview'
@@ -43,7 +44,8 @@ function HeaderActions() {
     <>
       <CommandPaletteButton />
       <NewGraphButton />
-      <ExamplesMenu />
+      <TemplatesButton />
+      <HeaderOverflowMenu />
       <AddNodeButton />
       <LanguageMenu />
     </>

@@ -18,16 +18,15 @@ import { useT } from '@/i18n/use-t'
 
 import { BackdropField } from './backdrop-field'
 import { BackgroundColorField, useBackgroundColor } from './background-color-field'
-import { createRenderer } from './create-renderer'
 import type { RendererBackend } from './create-renderer'
 import { disposeModel, loadGlbModel } from './glb-model'
 import { ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR, zoomView } from './orbit-view'
 import type { OrbitView } from './orbit-view'
 import { PreviewErrorBoundary } from './preview-error-boundary'
+import { MAX_PREVIEW_PIXEL_RATIO, PREVIEW_CAMERA, startPreviewRenderer } from './preview-gl'
 import { PreviewScene } from './preview-scene'
 import { PRIMITIVE_SHAPES, isPreviewShape, shapeLabelKey } from './preview-shape'
 import type { PreviewShape } from './preview-shape'
-import { RendererUnavailableError } from './renderer-unavailable-error'
 import type { MaterialRejection } from './validate-material'
 import { useLiveMaterial } from './use-live-material'
 
@@ -35,8 +34,6 @@ const BACKEND_LABELS: Readonly<Record<RendererBackend, string>> = {
   webgpu: 'WebGPU',
   webgl2: 'WebGL2',
 }
-const CAMERA = { position: [0, 0, 3.6], fov: 40 } as const
-const MAX_PIXEL_RATIO = 2
 const MODEL_FILE_TYPES = '.glb,.gltf,model/gltf-binary,model/gltf+json'
 
 const STATUS_CLASS = 'border-t px-3 py-2 text-xs text-muted-foreground'
@@ -66,13 +63,9 @@ function Viewport({ onBackend, ...scene }: ViewportProps) {
   // R3F calls the factory once per root, so a new function identity never creates a renderer.
   const createGl = useCallback(
     async ({ canvas }: { canvas: HTMLCanvasElement | EventTarget }) => {
-      if (!(canvas instanceof HTMLCanvasElement)) {
-        throw new RendererUnavailableError('The preview needs an HTML canvas element.')
-      }
-      const result = await createRenderer(canvas)
-      if (!result.ok) throw new RendererUnavailableError(result.message)
-      onBackend(result.backend)
-      return result.renderer
+      const { renderer, backend } = await startPreviewRenderer(canvas)
+      onBackend(backend)
+      return renderer
     },
     [onBackend],
   )
@@ -81,8 +74,8 @@ function Viewport({ onBackend, ...scene }: ViewportProps) {
     <Canvas
       flat
       gl={createGl}
-      camera={CAMERA}
-      dpr={[1, MAX_PIXEL_RATIO]}
+      camera={PREVIEW_CAMERA}
+      dpr={[1, MAX_PREVIEW_PIXEL_RATIO]}
       onCreated={({ gl }) => {
         // Keyboard users orbit the view from the canvas itself, so it takes focus.
         gl.domElement.tabIndex = 0
