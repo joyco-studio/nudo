@@ -16,7 +16,7 @@
       "type": "effects/noise",
       "position": {
         "x": -5064,
-        "y": 512
+        "y": 526
       },
       "inputValues": {
         "scale": {
@@ -43,7 +43,7 @@
       "type": "property/vec3",
       "position": {
         "x": -3032,
-        "y": 717
+        "y": 731
       },
       "inputValues": {},
       "params": {
@@ -55,7 +55,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5704,
-        "y": 784
+        "y": 826
       },
       "inputValues": {},
       "params": {}
@@ -65,7 +65,7 @@
       "type": "math/add",
       "position": {
         "x": -5384,
-        "y": 614
+        "y": 656
       },
       "inputValues": {},
       "params": {}
@@ -75,7 +75,7 @@
       "type": "property/float",
       "position": {
         "x": -5976,
-        "y": 1022
+        "y": 1064
       },
       "inputValues": {},
       "params": {
@@ -87,12 +87,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 432
+        "y": 446
       },
       "inputValues": {},
       "params": {
         "body": "A slow noise sliding with Time: the original reads it from a cloud texture. Everything else bends with it.",
-        "height": 655,
+        "height": 683,
         "title": "Clouds",
         "width": 1248
       }
@@ -117,12 +117,12 @@
       "type": "utility/comment",
       "position": {
         "x": -4024,
-        "y": 55
+        "y": 41
       },
       "inputValues": {},
       "params": {
         "body": "Position plus clouds × swirl: a strong swirl. Another noise read through it gives the pulse that stokes and dims the lava.",
-        "height": 550,
+        "height": 578,
         "title": "Pulse",
         "width": 1520
       }
@@ -132,12 +132,12 @@
       "type": "utility/comment",
       "position": {
         "x": -4712,
-        "y": 637
+        "y": 651
       },
       "inputValues": {},
       "params": {
         "body": "The clouds nudge the drifting position a little. 1 − |noise| is 1 along its zero crossings: thin veins, thinner through Power. They paint from crust to lava.",
-        "height": 612,
+        "height": 640,
         "title": "Veins",
         "width": 2208
       }
@@ -197,7 +197,7 @@
       "type": "property/vec3",
       "position": {
         "x": -3032,
-        "y": 1082
+        "y": 1096
       },
       "inputValues": {},
       "params": {
@@ -221,7 +221,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4680,
-        "y": 880
+        "y": 922
       },
       "inputValues": {
         "b": {
@@ -236,7 +236,7 @@
       "type": "math/subtract",
       "position": {
         "x": -4360,
-        "y": 815
+        "y": 857
       },
       "inputValues": {},
       "params": {}
@@ -246,7 +246,7 @@
       "type": "input/position",
       "position": {
         "x": -5704,
-        "y": 523
+        "y": 565
       },
       "inputValues": {},
       "params": {
@@ -258,7 +258,7 @@
       "type": "math/remap",
       "position": {
         "x": -2760,
-        "y": 163
+        "y": 149
       },
       "inputValues": {
         "inMax": {
@@ -277,7 +277,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3080,
-        "y": 135
+        "y": 121
       },
       "inputValues": {
         "scale": {
@@ -368,7 +368,7 @@
       "type": "property/float",
       "position": {
         "x": -3992,
-        "y": 418
+        "y": 432
       },
       "inputValues": {},
       "params": {
@@ -380,7 +380,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3720,
-        "y": 302
+        "y": 316
       },
       "inputValues": {},
       "params": {}
@@ -390,7 +390,7 @@
       "type": "math/add",
       "position": {
         "x": -3400,
-        "y": 237
+        "y": 251
       },
       "inputValues": {},
       "params": {}
@@ -400,7 +400,7 @@
       "type": "input/time",
       "position": {
         "x": -6024,
-        "y": 714
+        "y": 756
       },
       "inputValues": {},
       "params": {}
@@ -410,7 +410,7 @@
       "type": "math/one-minus",
       "position": {
         "x": -3400,
-        "y": 816
+        "y": 830
       },
       "inputValues": {},
       "params": {}
@@ -420,7 +420,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -2760,
-        "y": 760
+        "y": 774
       },
       "inputValues": {},
       "params": {}
@@ -430,7 +430,7 @@
       "type": "math/abs",
       "position": {
         "x": -3720,
-        "y": 853
+        "y": 867
       },
       "inputValues": {},
       "params": {}
@@ -440,7 +440,7 @@
       "type": "effects/noise",
       "position": {
         "x": -4040,
-        "y": 825
+        "y": 839
       },
       "inputValues": {},
       "params": {
@@ -452,7 +452,7 @@
       "type": "property/float",
       "position": {
         "x": -4312,
-        "y": 1118
+        "y": 1160
       },
       "inputValues": {},
       "params": {
@@ -464,7 +464,7 @@
       "type": "math/power",
       "position": {
         "x": -3080,
-        "y": 779
+        "y": 793
       },
       "inputValues": {
         "b": {

@@ -6,7 +6,7 @@
       "type": "math/add",
       "position": {
         "x": -1736,
-        "y": 191
+        "y": 212
       },
       "inputValues": {},
       "params": {}
@@ -38,12 +38,12 @@
       "type": "utility/comment",
       "position": {
         "x": -2408,
-        "y": 9
+        "y": 2
       },
       "inputValues": {},
       "params": {
         "body": "Position + (Time × speed) gives the Noise a coordinate that slides over time, so the blotches move on their own. The Remap takes the noise from -1…1 to 0…1: the mask.",
-        "height": 655,
+        "height": 683,
         "title": "1 · Animated noise",
         "width": 1568
       }
@@ -186,7 +186,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": 361
+        "y": 382
       },
       "inputValues": {},
       "params": {}
@@ -226,7 +226,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1416,
-        "y": 89
+        "y": 82
       },
       "inputValues": {
         "scale": {
@@ -253,7 +253,7 @@
       "type": "input/position",
       "position": {
         "x": -2056,
-        "y": 100
+        "y": 121
       },
       "inputValues": {},
       "params": {
@@ -265,7 +265,7 @@
       "type": "math/remap",
       "position": {
         "x": -1096,
-        "y": 117
+        "y": 110
       },
       "inputValues": {
         "inMax": {
@@ -315,7 +315,7 @@
       "type": "property/float",
       "position": {
         "x": -2328,
-        "y": 599
+        "y": 620
       },
       "inputValues": {},
       "params": {
@@ -327,7 +327,7 @@
       "type": "input/time",
       "position": {
         "x": -2376,
-        "y": 291
+        "y": 312
       },
       "inputValues": {},
       "params": {}

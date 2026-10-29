@@ -35,6 +35,7 @@ const stringFacade: TslFacade<string> = {
   max: (a, b) => `max(${a},${b})`,
   exp: (a) => `exp(${a})`,
   pow: (a, b) => `pow(${a},${b})`,
+  atan2: (y, x) => `atan2(${y},${x})`,
   oneMinus: (a) => `oneMinus(${a})`,
   clamp: (x, low, high) => `clamp(${x},${low},${high})`,
   dot: (a, b) => `dot(${a},${b})`,

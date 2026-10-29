@@ -62,6 +62,8 @@ export interface TslFacade<E> {
   max(a: E, b: E): E
   exp(a: E): E
   pow(a: E, b: E): E
+  /** The angle of the point (x, y) from the +X axis, in radians from -π to π. */
+  atan2(y: E, x: E): E
   oneMinus(a: E): E
   clamp(x: E, low: E, high: E): E
   dot(a: E, b: E): E

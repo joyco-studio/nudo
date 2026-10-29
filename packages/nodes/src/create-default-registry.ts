@@ -28,6 +28,7 @@ import { stepNode } from './interpolation/step-node'
 import { selectNode } from './logic/select-node'
 import { masterStackNode } from './master/master-stack'
 import { absNode } from './math/abs-node'
+import { atan2Node } from './math/atan2-node'
 import { addMathNode } from './math/add-node'
 import { clampNode } from './math/clamp-node'
 import { cosNode } from './math/cos-node'
@@ -150,6 +151,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   hashNode,
   mappingNode,
   brightContrastNode,
+  atan2Node,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

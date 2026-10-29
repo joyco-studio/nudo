@@ -13,6 +13,7 @@ import type { AnyNodeDefinition, DataType, Graph, ParamValue, Result } from '@nu
 import { describe, expect, it } from 'vitest'
 import {
   PHASE_3_CATALOG_C,
+  atan2Node,
   blendNode,
   brightContrastNode,
   COLOR_RAMP_MAX_STOPS,
@@ -27,6 +28,7 @@ import {
   mappingNode,
   moduloNode,
   posterizeNode,
+  powerNode,
   triplanarNode,
   voronoi3dNode,
   voronoiNode,
@@ -43,6 +45,7 @@ const CATALOG_C_TYPES = [
   'math/hash',
   'vector/mapping',
   'color/bright-contrast',
+  'math/atan2',
 ]
 
 const buildWith = (
@@ -632,5 +635,19 @@ describe('bright/contrast', () => {
         ['contrast', { kind: 'concrete', type: 'float' }, { type: 'float', value: 0 }],
       ],
     )
+  })
+})
+
+describe('arctangent 2', () => {
+  it('measures the angle of (X, Y) with Y first, like atan2', () => {
+    expect(buildWith(atan2Node, { y: 'y', x: 'x' }).out).toBe('atan2(y,x)')
+  })
+
+  it('takes any matching types and starts at the point (1, 0), angle 0', () => {
+    expect(atan2Node.inputs.map((input) => [input.id, input.type, input.default])).toEqual([
+      ['y', powerNode.inputs[0]?.type, { type: 'float', value: 0 }],
+      ['x', powerNode.inputs[1]?.type, { type: 'float', value: 1 }],
+    ])
+    expect(atan2Node.outputs[0]?.type).toEqual(powerNode.outputs[0]?.type)
   })
 })

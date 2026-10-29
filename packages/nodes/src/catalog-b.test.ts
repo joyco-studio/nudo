@@ -226,6 +226,24 @@ describe('effects nodes', () => {
     ])
   })
 
+  it('noise color is Out and two offset samples, remapped from -1..1 to 0..1', () => {
+    const outputs = buildWith(noiseNode, { p: 'p', scale: 's' })
+    const toUnit = (value: string): string =>
+      `add(mul(${value},construct(float,[0.5])),construct(float,[0.5]))`
+
+    expect(outputs.color).toBe(
+      `construct(vec3,[${[
+        toUnit('noise(simplex,mul(p,s))'),
+        toUnit('noise(simplex,add(mul(p,s),construct(vec3,[19.1,33.4,47.2])))'),
+        toUnit('noise(simplex,add(mul(p,s),construct(vec3,[74.2,-124.5,99.4])))'),
+      ].join(',')}])`,
+    )
+    expect(noiseNode.outputs.map((output) => [output.id, output.type])).toEqual([
+      ['out', { kind: 'concrete', type: 'float' }],
+      ['color', { kind: 'concrete', type: 'vec3' }],
+    ])
+  })
+
   describe('noise octaves', () => {
     const inputs = { p: 'p', scale: 's', roughness: 'r', lacunarity: 'l' }
     const single = 'noise(simplex,mul(p,s))'

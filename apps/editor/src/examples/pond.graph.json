@@ -171,7 +171,7 @@
       "type": "math/subtract",
       "position": {
         "x": -13208,
-        "y": 1294
+        "y": 1305
       },
       "inputValues": {
         "b": {
@@ -404,7 +404,7 @@
       "type": "utility/comment",
       "position": {
         "x": -13560,
-        "y": 1177
+        "y": 1188
       },
       "inputValues": {},
       "params": {
@@ -424,7 +424,7 @@
       "inputValues": {},
       "params": {
         "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water; the rosettes bend a little more. breath makes the lace breathe with them.",
-        "height": 1414,
+        "height": 1447,
         "title": "Refraction",
         "width": 2848
       }
@@ -749,7 +749,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 1740
+        "y": 1726
       },
       "inputValues": {
         "scale": {
@@ -766,7 +766,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 1842
+        "y": 1856
       },
       "inputValues": {},
       "params": {}
@@ -776,7 +776,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 2164
+        "y": 2178
       },
       "inputValues": {
         "scale": {
@@ -793,7 +793,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 2266
+        "y": 2308
       },
       "inputValues": {},
       "params": {}
@@ -858,7 +858,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12888,
-        "y": 1257
+        "y": 1268
       },
       "inputValues": {
         "b": {
@@ -1015,7 +1015,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 1877
+        "y": 1910
       },
       "inputValues": {
         "b": {
@@ -1033,7 +1033,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2483
+        "y": 2516
       },
       "inputValues": {
         "b": {
@@ -1403,7 +1403,7 @@
       "type": "input/time",
       "position": {
         "x": -12504,
-        "y": 2146
+        "y": 2179
       },
       "inputValues": {},
       "params": {}
@@ -1546,7 +1546,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2180
+        "y": 2213
       },
       "inputValues": {
         "b": {
@@ -1564,7 +1564,7 @@
       "type": "input/uv",
       "position": {
         "x": -13528,
-        "y": 1345
+        "y": 1356
       },
       "inputValues": {},
       "params": {}
@@ -1591,7 +1591,7 @@
       "type": "property/float",
       "position": {
         "x": -12456,
-        "y": 2454
+        "y": 2487
       },
       "inputValues": {},
       "params": {
@@ -1603,7 +1603,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12184,
-        "y": 2217
+        "y": 2250
       },
       "inputValues": {},
       "params": {}

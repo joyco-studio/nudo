@@ -97,7 +97,8 @@ const VORONOI_CELLS = graphDocumentV2(
 /**
  * The painterly recipe of the user's Blender shaders: a Mapping places a 3D Minkowski Voronoi, whose
  * cell bends the normal and, through Bright/Contrast, colors the surface, beside a 2D Minkowski
- * Voronoi. The catalog graph only reaches the first output of each, so the Minkowski cell searches
+ * Voronoi placed by a vec2 Arctangent 2, and a Noise Color bending the Mapping's input. The catalog
+ * graph only reaches the first output of each, so the Minkowski cell searches and the Noise Color
  * reach the renderer here, 2D and 3D, next to a MaterialX metric in the same material.
  */
 const MINKOWSKI_BRUSH = graphDocumentV2(
@@ -122,6 +123,9 @@ const MINKOWSKI_BRUSH = graphDocumentV2(
     },
     { id: 'grain', type: 'effects/voronoi', position: { x: 300, y: 800 } },
     { id: 'levels', type: 'color/bright-contrast', position: { x: 600, y: 0 } },
+    { id: 'bend', type: 'effects/noise', position: { x: 0, y: 400 }, params: { octaves: 3 } },
+    { id: 'angle', type: 'math/atan2', position: { x: 0, y: 800 } },
+    { id: 'uvSource', type: 'input/uv', position: { x: -300, y: 800 } },
   ],
   [
     { id: 'placement-to-brush3d', from: ['placement', 'out'], to: ['brush3d', 'position'] },
@@ -132,6 +136,10 @@ const MINKOWSKI_BRUSH = graphDocumentV2(
     { id: 'random2d-to-metalness', from: ['brush2d', 'random'], to: ['master', 'metalness'] },
     { id: 'edge2d-to-opacity', from: ['brush2d', 'edge'], to: ['master', 'opacity'] },
     { id: 'grain-to-alpha-clip', from: ['grain', 'random'], to: ['master', 'alphaClip'] },
+    { id: 'bend-to-placement', from: ['bend', 'color'], to: ['placement', 'vector'] },
+    { id: 'uv-to-angle-y', from: ['uvSource', 'out'], to: ['angle', 'y'] },
+    { id: 'uv-to-angle-x', from: ['uvSource', 'out'], to: ['angle', 'x'] },
+    { id: 'angle-to-brush2d', from: ['angle', 'out'], to: ['brush2d', 'uv'] },
   ],
   [],
 )
@@ -286,7 +294,7 @@ test.describe('real renderer compile check', () => {
     await expectCompiled(page)
   })
 
-  test('the Minkowski voronoi, mapping and bright/contrast compile in a real renderer', async ({
+  test('the Minkowski voronoi, mapping, bright/contrast, noise color and atan2 compile in a real renderer', async ({
     page,
   }) => {
     test.setTimeout(COMPILE_TIMEOUT_MS * 2)

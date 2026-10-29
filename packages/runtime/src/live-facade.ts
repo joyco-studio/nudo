@@ -15,6 +15,7 @@ import { Node, TextureNode } from 'three/webgpu'
 import {
   abs,
   add,
+  atan,
   cameraPosition,
   checker,
   clamp,
@@ -108,6 +109,7 @@ const minNodes = widen(min)
 const maxNodes = widen(max)
 const expNode = widen(exp)
 const powNodes = widen(pow)
+const atanNodes = widen(atan)
 const oneMinusNode = widen(oneMinus)
 const clampNodes = widen(clamp)
 const dotNodes = widen(dot)
@@ -235,6 +237,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     max: (a, b) => maxNodes(a, b),
     exp: (a) => expNode(a),
     pow: (a, b) => powNodes(a, b),
+    atan2: (y, x) => atanNodes(y, x),
     oneMinus: (a) => oneMinusNode(a),
     clamp: (x, low, high) => clampNodes(x, low, high),
     dot: (a, b) => dotNodes(a, b),

@@ -443,6 +443,24 @@ export const NODES_ES: NodeTranslations = {
     },
     outputs: { out: { label: 'Salida', description: 'A dividido por B.' } },
   },
+  'math/atan2': {
+    label: 'Arcotangente 2',
+    description:
+      'El ángulo del punto (X, Y) alrededor del origen, en radianes: para gradientes radiales y UV polares.',
+    formula: 'atan2(Y, X)',
+    keywords: ['atan2', 'arcotangente', 'ángulo', 'polar', 'radial', 'dirección', 'remolino'],
+    inputs: {
+      y: { label: 'Y', description: 'La coordenada vertical del punto, medida desde el origen.' },
+      x: { label: 'X', description: 'La coordenada horizontal del punto, medida desde el origen.' },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description:
+          'El ángulo desde el eje +X, de -3,14 a 3,14: 0 apunta a la derecha, 1,57 arriba.',
+      },
+    },
+  },
   'math/power': {
     label: 'Potencia',
     description: 'Eleva A a la potencia B.',
@@ -1036,6 +1054,11 @@ export const NODES_ES: NodeTranslations = {
       out: {
         label: 'Salida',
         description: 'Valores aleatorios suaves, más o menos entre -1 y 1.',
+      },
+      color: {
+        label: 'Color',
+        description:
+          'Tres ruidos sin relación entre sí, de 0 a 1, como el Noise Color de Blender, para teñir o doblar un vector.',
       },
     },
     params: {

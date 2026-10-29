@@ -9,6 +9,14 @@ const MAX_OCTAVES = 8
 const DEFAULT_OCTAVES = 1
 const DEFAULT_ROUGHNESS = 0.5
 const DEFAULT_LACUNARITY = 2
+/**
+ * Where the Color output's green and blue channels sample, away from red (which is Out itself), so
+ * the three are unrelated, as in Blender's Noise Color. Any large offsets work.
+ */
+const GREEN_OFFSET = [19.1, 33.4, 47.2] as const
+const BLUE_OFFSET = [74.2, -124.5, 99.4] as const
+/** Out runs from -1 to 1; Color, like a Blender Noise Color, from 0 to 1. */
+const HALF = 0.5
 
 const KIND_OPTIONS: readonly EnumOption<NoiseKind>[] = [
   { value: 'perlin', label: 'Perlin' },
@@ -25,6 +33,8 @@ interface FractalNoiseInputs<E> {
   readonly kind: NoiseKind
   readonly octaves: number
   readonly p: E
+  /** Added to the scaled point, to sample an unrelated stretch of the same noise. */
+  readonly offset: E | null
   readonly scale: E
   readonly roughness: E
   readonly lacunarity: E
@@ -35,8 +45,8 @@ interface FractalNoiseInputs<E> {
  * summed weights so the range stays -1 to 1. One octave is the plain noise call.
  */
 function fractalNoise<E>(tsl: TslFacade<E>, inputs: FractalNoiseInputs<E>): E {
-  const { kind, octaves, p, scale, roughness, lacunarity } = inputs
-  const scaled = tsl.mul(p, scale)
+  const { kind, octaves, p, offset, scale, roughness, lacunarity } = inputs
+  const scaled = offset === null ? tsl.mul(p, scale) : tsl.add(tsl.mul(p, scale), offset)
   const base = tsl.noise(kind, scaled)
   if (octaves <= MIN_OCTAVES) return base
 
@@ -96,6 +106,13 @@ export const noiseNode = defineNode({
       type: concrete('float'),
       description: 'Smooth random values, roughly between -1 and 1.',
     },
+    {
+      id: 'color',
+      label: 'Color',
+      type: concrete('vec3'),
+      description:
+        "Three unrelated noises from 0 to 1, like Blender's Noise Color, to tint or to bend a vector.",
+    },
   ],
   params: [
     { id: 'kind', label: 'Kind', kind: 'enum', options: KIND_OPTIONS, default: DEFAULT_KIND },
@@ -109,14 +126,27 @@ export const noiseNode = defineNode({
       step: 1,
     },
   ],
-  build: ({ tsl, inputs, params }) => ({
-    out: fractalNoise(tsl, {
-      kind: resolveEnumParam(KIND_OPTIONS, params.kind, DEFAULT_KIND),
-      octaves: resolveOctaves(params.octaves),
-      p: inputs.p,
-      scale: inputs.scale,
-      roughness: inputs.roughness,
-      lacunarity: inputs.lacunarity,
-    }),
-  }),
+  build: ({ tsl, inputs, params }) => {
+    const sample = (offset: readonly number[] | null) =>
+      fractalNoise(tsl, {
+        kind: resolveEnumParam(KIND_OPTIONS, params.kind, DEFAULT_KIND),
+        octaves: resolveOctaves(params.octaves),
+        p: inputs.p,
+        offset: offset === null ? null : tsl.construct('vec3', offset),
+        scale: inputs.scale,
+        roughness: inputs.roughness,
+        lacunarity: inputs.lacunarity,
+      })
+    const out = sample(null)
+    const half = tsl.construct('float', [HALF])
+    const toUnit = (value: typeof out) => tsl.add(tsl.mul(value, half), half)
+    return {
+      out,
+      color: tsl.construct('vec3', [
+        toUnit(out),
+        toUnit(sample(GREEN_OFFSET)),
+        toUnit(sample(BLUE_OFFSET)),
+      ]),
+    }
+  },
 })

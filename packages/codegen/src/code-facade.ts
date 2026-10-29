@@ -132,6 +132,7 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     max: (a, b) => call('max', [a, b]),
     exp: (a) => call('exp', [a]),
     pow: (a, b) => call('pow', [a, b]),
+    atan2: (y, x) => call('atan', [y, x]),
     oneMinus: (a) => call('oneMinus', [a]),
     clamp: (x, low, high) => call('clamp', [x, low, high]),
     dot: (a, b) => call('dot', [a, b]),

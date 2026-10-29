@@ -78,6 +78,7 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ['fract', (tsl, { a }) => tsl.fract(a)],
   ['floor', (tsl, { a }) => tsl.floor(a)],
   ['min', (tsl, { a, b }) => tsl.min(a, b)],
+  ['atan2', (tsl, { a, b }) => tsl.atan2(a, b)],
   ['max', (tsl, { a, b }) => tsl.max(a, b)],
   ['exp', (tsl, { a }) => tsl.exp(a)],
   ['pow', (tsl, { a, b }) => tsl.pow(a, b)],

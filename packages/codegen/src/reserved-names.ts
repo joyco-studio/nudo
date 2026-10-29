@@ -82,6 +82,7 @@ export const TSL_IMPORT_NAMES = [
   'positionViewDirection',
   'positionWorld',
   'pow',
+  'atan',
   'remap',
   'screenUV',
   'select',
