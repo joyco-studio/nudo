@@ -885,6 +885,47 @@ export const NODES_ES: NodeTranslations = {
     },
   },
 
+  'color/blend': {
+    label: 'Mezcla',
+    description:
+      'Superpone un color sobre otro con un modo de mezcla estilo Photoshop, atenuado por la Opacidad.',
+    formula: 'mix(Base, modo, Opacidad)',
+    keywords: ['mezcla', 'mezclar', 'capa', 'multiplicar', 'trama', 'superponer', 'componer'],
+    inputs: {
+      base: { label: 'Base', description: 'El color de abajo, sobre el que se aplica la capa.' },
+      blend: { label: 'Mezcla', description: 'El color que se superpone a la Base.' },
+      opacity: {
+        label: 'Opacidad',
+        description: 'Cuánto se nota la mezcla: 0 = solo la Base, 1 = el modo completo.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description: 'La Base con el modo de mezcla aplicado a la opacidad elegida.',
+      },
+    },
+    params: {
+      mode: {
+        label: 'Modo',
+        options: {
+          multiply: 'Multiplicar',
+          screen: 'Trama',
+          overlay: 'Superponer',
+          'soft-light': 'Luz suave',
+          'linear-light': 'Luz lineal',
+          'color-burn': 'Subexponer color',
+          'color-dodge': 'Sobreexponer color',
+          darken: 'Oscurecer',
+          lighten: 'Aclarar',
+          difference: 'Diferencia',
+          add: 'Sumar',
+          subtract: 'Restar',
+        },
+      },
+    },
+  },
+
   // Scene
   'scene/scene-color': {
     label: 'Color de escena',

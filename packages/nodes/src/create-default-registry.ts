@@ -5,6 +5,7 @@ import { fresnelNode } from './effects/fresnel-node'
 import { gradientNode } from './effects/gradient-node'
 import { noiseNode } from './effects/noise-node'
 import { voronoiNode } from './effects/voronoi-node'
+import { blendNode } from './color/blend-node'
 import { colorSpaceNode } from './color/color-space-node'
 import { cameraPositionNode } from './input/camera-position-node'
 import { colorNode } from './input/color-node'
@@ -131,7 +132,11 @@ export const PHASE_2_CATALOG_B: readonly AnyNodeDefinition[] = [
 ]
 
 /** Batch 1 of the catalog phase: math additions. */
-export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [posterizeNode, moduloNode]
+export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
+  posterizeNode,
+  moduloNode,
+  blendNode,
+]
 
 export function createDefaultRegistry(): NodeRegistry {
   const registry = createNodeRegistry()
