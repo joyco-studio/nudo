@@ -1,15 +1,12 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import { en } from '../src/i18n/messages/en'
 import { catalogDocument, masterLightingOptions } from './support/catalog-document'
-import { centerColor, colorDistance } from './support/center-color'
-import type { Rgb } from './support/center-color'
-import {
-  pickExampleByKeyboard,
-  selectTemplateByKeyboard,
-  templatesBrowser,
-  templatesButton,
-  templateTitles,
-} from './support/open-example'
+import { centerColor, colorDistance, cornerColor } from './support/center-color'
+import { templatesBrowser, templatesButton } from './support/open-example'
 import { settledCompileCount } from './support/pending-work'
 import { graphDocumentV2, seedAutosave } from './support/seed-graph'
 
@@ -28,9 +25,29 @@ function mainPreview(page: Page): Locator {
   return page.getByRole('region', { name: 'Main preview' })
 }
 
+/** The start of the `preview.rejected` message, before the reason: the notice is on screen. */
+const REJECTED_PREFIX = en['preview.rejected'].split('{reason}')[0] ?? ''
+
 /** The status line under the preview: it holds the rejection, if the newest material has one. */
 function rejectionNotice(page: Page): Locator {
-  return mainPreview(page).getByText('did not compile')
+  return mainPreview(page).getByText(REJECTED_PREFIX)
+}
+
+function compileFailedNotice(page: Page): Locator {
+  return mainPreview(page).getByText(en['preview.compileFailed'])
+}
+
+const EXAMPLES_DIRECTORY = join(import.meta.dirname, '../src/examples')
+const GRAPH_FILE_SUFFIX = '.graph.json'
+
+/** Every bundled example's stored document, by file name, so a new example is covered at once. */
+function exampleDocuments(): readonly { readonly id: string; readonly document: string }[] {
+  return readdirSync(EXAMPLES_DIRECTORY)
+    .filter((file) => file.endsWith(GRAPH_FILE_SUFFIX))
+    .map((file) => ({
+      id: file.slice(0, -GRAPH_FILE_SUFFIX.length),
+      document: readFileSync(join(EXAMPLES_DIRECTORY, file), 'utf8'),
+    }))
 }
 
 /**
@@ -52,44 +69,17 @@ const DERIVATIVE_IN_VERTEX_STAGE = graphDocumentV2(
  * mesh itself is the proof: the middle of the frame stops matching its background.
  */
 const MESH_VISIBLE_DISTANCE = 6
-/** The corner of the frame, where only the background is: a fifth of each side. */
-const CORNER_SHARE = 0.2
-
-async function backgroundColor(page: Page, screenshot: Buffer): Promise<Rgb> {
-  const [red, green, blue] = await page.evaluate(
-    async ([base64, share]) => {
-      const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))
-      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }))
-      const side = Math.max(1, Math.floor(Math.min(bitmap.width, bitmap.height) * share))
-      const surface = document.createElement('canvas')
-      surface.width = side
-      surface.height = side
-      const context = surface.getContext('2d')
-      if (context === null) throw new Error('2D canvas unavailable')
-      context.drawImage(bitmap, 0, 0, side, side, 0, 0, side, side)
-      const { data } = context.getImageData(0, 0, side, side)
-      const sums = [0, 0, 0]
-      for (let index = 0; index < data.length; index += 4) {
-        sums[0] = (sums[0] ?? 0) + (data[index] ?? 0)
-        sums[1] = (sums[1] ?? 0) + (data[index + 1] ?? 0)
-        sums[2] = (sums[2] ?? 0) + (data[index + 2] ?? 0)
-      }
-      const pixels = data.length / 4
-      return sums.map((sum) => sum / pixels)
-    },
-    [screenshot.toString('base64'), CORNER_SHARE] as const,
-  )
-  return [red ?? 0, green ?? 0, blue ?? 0]
-}
 
 async function meshContrast(page: Page): Promise<number> {
   const screenshot = await mainPreview(page).locator('canvas').screenshot()
-  return colorDistance(await centerColor(page, screenshot), await backgroundColor(page, screenshot))
+  return colorDistance(await centerColor(page, screenshot), await cornerColor(page, screenshot))
 }
 
 /**
  * Waits until the newest material is on screen, then expects no rejection. Neither failure notice
- * may show: `preview.rejected` ("did not compile") or `preview.compileFailed`.
+ * may show: `preview.rejected` ("did not compile") or `preview.compileFailed`. It needs a page
+ * whose first compile is the graph under test: later on, the preview keeps showing the last
+ * accepted material until the renderer answers for the new one, so a mesh proves nothing.
  */
 async function expectCompiled(page: Page): Promise<void> {
   await settledCompileCount(page)
@@ -102,31 +92,28 @@ async function expectCompiled(page: Page): Promise<void> {
     )
     .toBe(true)
   await expect(rejectionNotice(page)).toHaveCount(0)
-  await expect(mainPreview(page).getByText('failed to compile')).toHaveCount(0)
+  await expect(compileFailedNotice(page)).toHaveCount(0)
 }
 
 test.describe('real renderer compile check', () => {
-  test('every example compiles in a real renderer', async ({ page }) => {
-    test.setTimeout(COMPILE_TIMEOUT_MS * 4)
+  const examples = exampleDocuments()
+
+  test('the templates browser lists every example file', async ({ page }) => {
+    expect(examples.length).toBeGreaterThan(0)
     await page.goto('/')
     await templatesButton(page).click()
-    await expect(templatesBrowser(page)).toBeVisible()
-    const titles = await templateTitles(page)
-    expect(titles.length).toBeGreaterThan(0)
-
-    // The browser is open on an empty graph: the first template opens at once, every later one
-    // replaces a graph with work in it and asks first.
-    const [first, ...rest] = titles
-    await selectTemplateByKeyboard(page, first ?? '')
-    await page.keyboard.press('Enter')
-    await expectCompiled(page)
-
-    for (const title of rest) {
-      await pickExampleByKeyboard(page, title)
-      await page.getByRole('alertdialog').getByRole('button', { name: 'Open template' }).click()
-      await expectCompiled(page)
-    }
+    await expect(templatesBrowser(page).getByRole('option')).toHaveCount(examples.length)
   })
+
+  // Each example loads on a page of its own, as the first graph it compiles (see `expectCompiled`).
+  for (const { id, document } of examples) {
+    test(`the ${id} example compiles in a real renderer`, async ({ page }) => {
+      test.setTimeout(COMPILE_TIMEOUT_MS * 2)
+      await seedAutosave(page, document)
+      await page.goto('/')
+      await expectCompiled(page)
+    })
+  }
 
   for (const lighting of masterLightingOptions()) {
     test(`the catalog graph compiles under ${lighting} lighting`, async ({ page }) => {
