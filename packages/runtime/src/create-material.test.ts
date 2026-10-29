@@ -21,7 +21,7 @@ import {
 } from '@nudo-tsl/core'
 import type { Graph, NodeRegistry, Result } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
-import { DataTexture, DoubleSide, FrontSide, Vector3 } from 'three'
+import { BackSide, DataTexture, DoubleSide, FrontSide, Vector3 } from 'three'
 import {
   MeshBasicNodeMaterial,
   MeshPhysicalNodeMaterial,
@@ -31,6 +31,7 @@ import {
   TextureNode,
   VarNode,
 } from 'three/webgpu'
+import { modelScale, normalLocal, positionLocal } from 'three/tsl'
 import { describe, expect, it } from 'vitest'
 import { applyBuildInputValue } from './apply-build-input-value'
 import { applyInputValue } from './apply-input-value'
@@ -60,6 +61,8 @@ const INLINE_MASTER_SLOTS = [
   'sheenRoughness',
   'iridescence',
   'iridescenceIOR',
+  'outlineWidth',
+  'outlineColor',
 ]
 
 const masterKey = (slot: string) => portKey({ nodeId: asNodeId('master'), portId: slot })
@@ -442,6 +445,110 @@ describe('master settings', () => {
     expect(applyBuildInputValue(transparent, opacity, float(1))).toBe('applied')
     expect(opaque.material?.transparent).toBe(false)
     expect(transparent.material?.transparent).toBe(true)
+  })
+})
+
+/** Every node an expression is built from, itself included. */
+function nodesIn(root: Node): ReadonlySet<Node> {
+  const found = new Set<Node>()
+  const visit = (node: Node): void => {
+    if (found.has(node)) return
+    found.add(node)
+    for (const child of node.getChildren()) visit(child)
+  }
+  visit(root)
+  return found
+}
+
+describe('outline', () => {
+  const registry = createDefaultRegistry()
+  const outlined = withMasterParam(createGraph(), registry, 'outline', true)
+  const outlineWidth = { nodeId: MASTER, portId: 'outlineWidth' }
+  const outlineColor = { nodeId: MASTER, portId: 'outlineColor' }
+
+  it('builds no outline material while the switch is off', () => {
+    const build = createMaterial(createGraph(), registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.outline).toBeNull()
+  })
+
+  it('builds a second, unlit material that draws back faces only', () => {
+    const { material, outline, errors } = createMaterial(outlined, registry)
+
+    expect(errors).toEqual([])
+    expect(material).toBeInstanceOf(MeshStandardNodeMaterial)
+    expect(outline).toBeInstanceOf(MeshBasicNodeMaterial)
+    expect(outline).not.toBe(material)
+    expect(outline?.side).toBe(BackSide)
+    expect(outline?.transparent).toBe(false)
+  })
+
+  it('keeps fog and tone mapping in step with the surface', () => {
+    const { material, outline } = createMaterial(outlined, registry)
+
+    expect(outline?.fog).toBe(material?.fog)
+    expect(outline?.toneMapped).toBe(material?.toneMapped)
+  })
+
+  it('pushes the hull out along the normal by the width uniform, over the world scale', () => {
+    const build = createMaterial(outlined, registry)
+    const width = build.uniforms.get(portKey(outlineWidth))
+    const position = build.outline?.positionNode
+    if (width === undefined || position === null || position === undefined) {
+      throw new Error('Expected an outline position reading the width uniform')
+    }
+
+    const parts = nodesIn(position)
+    expect(parts.has(width)).toBe(true)
+    expect(parts.has(normalLocal)).toBe(true)
+    expect(parts.has(modelScale)).toBe(true)
+    expect(parts.has(positionLocal)).toBe(true)
+    expect(unwrapVar(position)).toBeInstanceOf(OperatorNode)
+  })
+
+  it('fills the hull with the outline color uniform', () => {
+    const build = createMaterial(outlined, registry)
+    const color = build.uniforms.get(portKey(outlineColor))
+    const colorNode = build.outline?.colorNode
+
+    expect(color).toBeDefined()
+    expect(colorNode === null || colorNode === undefined ? null : unwrapVar(colorNode)).toBe(color)
+  })
+
+  it('moves the width and color uniforms without rebuilding either material', () => {
+    const build = createMaterial(outlined, registry)
+    const { material, outline } = build
+    const versionBefore = outline?.version
+
+    expect(applyBuildInputValue(build, outlineWidth, float(0.08))).toBe('applied')
+    expect(applyBuildInputValue(build, outlineColor, vec3(0, 1, 0))).toBe('applied')
+    expect(build.material).toBe(material)
+    expect(build.outline).toBe(outline)
+    expect(outline?.version).toBe(versionBefore)
+    expect(build.uniforms.get(portKey(outlineWidth))?.value).toBe(0.08)
+    expect(build.uniforms.get(portKey(outlineColor))?.value).toEqual(new Vector3(0, 1, 0))
+  })
+
+  it('wobbles when a noise is wired into the width', () => {
+    let graph = withNode(outlined, registry, 'wobble', 'effects/noise')
+    graph = withEdge(graph, registry, ['wobble', 'out'], ['master', 'outlineWidth'])
+
+    const { outline, errors } = createMaterial(graph, registry)
+
+    expect(errors).toEqual([])
+    expect(outline?.positionNode).toBeInstanceOf(Node)
+  })
+
+  it('outlines an unlit or transparent surface too', () => {
+    let graph = withMasterParam(outlined, registry, 'lighting', 'unlit')
+    graph = withMasterParam(graph, registry, 'surface', 'transparent')
+
+    const { material, outline } = createMaterial(graph, registry)
+
+    expect(material?.transparent).toBe(true)
+    expect(outline).toBeInstanceOf(MeshBasicNodeMaterial)
+    expect(outline?.transparent).toBe(false)
   })
 })
 

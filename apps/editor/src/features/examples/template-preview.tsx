@@ -16,8 +16,8 @@ import {
   getThemeBackgroundHex,
   subscribeToThemeBackground,
 } from '@/features/main-preview/theme-background'
+import type { PreviewMaterials } from '@/features/main-preview/preview-materials'
 import type { MaterialRejection } from '@/features/main-preview/validate-material'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 import { useT } from '@/i18n/use-t'
 import { useMotionMode } from '@/shared/motion/use-motion-preset'
 import type { MotionMode } from '@/shared/motion/motion-presets'
@@ -55,18 +55,19 @@ function statusOf(
 }
 
 interface HandOverProps {
-  material: RuntimeMaterial | null
-  onHandOver: (material: RuntimeMaterial) => void
+  materials: PreviewMaterials | null
+  onHandOver: (materials: PreviewMaterials) => void
 }
 
 /**
  * Inside the canvas, so its effect runs exactly when the scene's does: from then on the scene owns
- * the material (it frees it once a newer one replaces it, or on unmount) and the scheduler doesn't.
+ * the materials (it frees them once newer ones replace them, or on unmount) and the scheduler
+ * doesn't.
  */
-function HandOver({ material, onHandOver }: HandOverProps) {
+function HandOver({ materials, onHandOver }: HandOverProps) {
   useEffect(() => {
-    if (material !== null) onHandOver(material)
-  }, [material, onHandOver])
+    if (materials !== null) onHandOver(materials)
+  }, [materials, onHandOver])
   return null
 }
 
@@ -184,7 +185,7 @@ export function TemplatePreview({ example, title }: TemplatePreviewProps) {
             orbitRef={orbitRef}
             onMaterialStatus={onMaterialStatus}
           />
-          <HandOver material={candidate} onHandOver={handOver} />
+          <HandOver materials={candidate} onHandOver={handOver} />
         </Canvas>
       </PreviewErrorBoundary>
       <AnimatePresence initial={false}>

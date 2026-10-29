@@ -537,17 +537,17 @@ test.describe('equal padding', () => {
       const style = getComputedStyle(element)
       const box = element.getBoundingClientRect()
       const headerBox = header.getBoundingClientRect()
+      // Boxes are on screen, scaled by the canvas zoom; styles are not. Measure in node pixels.
+      const zoom = headerBox.width / header.offsetWidth
       const lineHeight = parseFloat(style.lineHeight)
-      const contentHeight = box.height - parseFloat(style.borderTopWidth) * 2
+      const contentHeight = box.height / zoom - parseFloat(style.borderTopWidth) * 2
       return {
         x:
-          box.left -
-          headerBox.left +
+          (box.left - headerBox.left) / zoom +
           parseFloat(style.borderLeftWidth) +
           parseFloat(style.paddingLeft),
         y:
-          box.top -
-          headerBox.top +
+          (box.top - headerBox.top) / zoom +
           parseFloat(style.borderTopWidth) +
           (contentHeight - lineHeight) / 2,
         background: style.backgroundColor,

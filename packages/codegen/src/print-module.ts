@@ -39,6 +39,13 @@ const MAIN_LIGHT_NOTICE = [
   `${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS.color}.value.setFromColor(light.color).multiplyScalar(light.intensity)`,
 ].join(' ')
 
+/** How to put the outline pass on a mesh: the same geometry, drawn again with this material. */
+const OUTLINE_USAGE = [
+  '// Outline: draw the geometry again with this, e.g. mesh.add(new Mesh(mesh.geometry, outline))',
+  '// const outline = Object.assign(new MeshBasicNodeMaterial(), outlineNodes, outlineMaterialSettings)',
+]
+const OUTLINE_SIDE = 'BackSide'
+
 export type MaterialClass =
   'MeshStandardNodeMaterial' | 'MeshBasicNodeMaterial' | 'MeshPhysicalNodeMaterial'
 
@@ -59,6 +66,8 @@ export interface ModulePlan {
   /** The Main Light components the graph reads; each becomes a `lights` uniform. */
   readonly lights: readonly MainLightComponent[]
   readonly entries: readonly MaterialAssignment<CodeExpression>[]
+  /** The outline pass's properties; empty while the master's Outline is off. */
+  readonly outline: readonly MaterialAssignment<CodeExpression>[]
   readonly transparent: boolean
   readonly doubleSided: boolean
 }
@@ -84,6 +93,7 @@ function printHeader(plan: ModulePlan): string {
     `// three ${plan.threeVersion}${SEPARATOR}${plan.materialClass}`,
     `// Surface: ${plan.surfaceHints.join(SEPARATOR)}`,
     `// Apply: Object.assign(new ${plan.materialClass}(), nodes, materialSettings)`,
+    ...(plan.outline.length > 0 ? OUTLINE_USAGE : []),
   ]
   return lines.join('\n')
 }
@@ -113,6 +123,15 @@ const printNamedExpressions = (name: string, expressions: readonly NamedExpressi
     expressions.map(({ name: key, expression }) => `${key}: ${expression.code}`),
   )
 
+const printAssignments = (
+  name: string,
+  assignments: readonly MaterialAssignment<CodeExpression>[],
+): string =>
+  printObject(
+    name,
+    assignments.map(({ property, expression }) => `${property}: ${expression.code}`),
+  )
+
 /** Prints the plan as a JS module. Output is stable: the same plan always prints the same text. */
 export function printModule(plan: ModulePlan): string {
   const lights = lightUniformsOf(plan.lights)
@@ -120,6 +139,7 @@ export function printModule(plan: ModulePlan): string {
     ...plan.uniforms.map(({ expression }) => expression),
     ...lights.map(({ expression }) => expression),
     ...plan.entries.map((entry) => entry.expression),
+    ...plan.outline.map((entry) => entry.expression),
   ]
   const dependencies = collectDependencies(roots)
   const helpers = HELPER_ORDER.filter((name) => dependencies.helpers.has(name))
@@ -131,7 +151,12 @@ export function printModule(plan: ModulePlan): string {
   const [firstTexture] = plan.texturePlaceholders
   const hasTextures = firstTexture !== undefined
   if (hasTextures) tslNames.add('texture')
-  const threeNames = hasTextures ? [sideConstant, ...TEXTURE_THREE_IMPORTS] : [sideConstant]
+  const hasOutline = plan.outline.length > 0
+  const threeNames = [
+    ...(hasOutline ? [OUTLINE_SIDE] : []),
+    sideConstant,
+    ...(hasTextures ? TEXTURE_THREE_IMPORTS : []),
+  ]
 
   const sections = [
     `${printHeader(plan)}\n${printImports(tslNames, threeNames)}`,
@@ -152,14 +177,13 @@ export function printModule(plan: ModulePlan): string {
     // Helpers that share a source (the 2D and 3D cell searches) declare it once.
     ...new Set(helpers.map((name) => TSL_HELPERS[name].source)),
     dependencies.declarations.map(printDeclaration).join('\n'),
-    printObject(
-      'nodes',
-      plan.entries.map(({ property, expression }) => `${property}: ${expression.code}`),
-    ),
+    printAssignments('nodes', plan.entries),
     printObject('materialSettings', [
       `transparent: ${String(plan.transparent)}`,
       `side: ${sideConstant}`,
     ]),
+    hasOutline ? printAssignments('outlineNodes', plan.outline) : '',
+    hasOutline ? printObject('outlineMaterialSettings', [`side: ${OUTLINE_SIDE}`]) : '',
     'export default nodes',
   ]
   return `${sections.filter((section) => section.length > 0).join('\n\n')}\n`

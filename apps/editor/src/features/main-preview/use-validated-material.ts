@@ -1,8 +1,9 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
-import { validateMaterial } from './validate-material'
+import { disposePreviewMaterials, materialsIn } from './preview-materials'
+import type { PreviewMaterials } from './preview-materials'
+import { validateMaterials } from './validate-material'
 import type { MaterialRejection } from './validate-material'
 
 /** Called with the reason when the newest material was rejected, and with null once one passes. */
@@ -10,44 +11,45 @@ export type MaterialStatusHandler = (rejection: MaterialRejection | null) => voi
 
 /** Releases GPU resources of materials that are neither shown nor waiting to be validated. */
 function useDisposeRetiredMaterials(
-  accepted: RuntimeMaterial | null,
-  candidate: RuntimeMaterial | null,
+  accepted: PreviewMaterials | null,
+  candidate: PreviewMaterials | null,
 ): void {
-  const known = useRef(new Set<RuntimeMaterial>())
+  const known = useRef(new Set<PreviewMaterials>())
 
   useEffect(() => {
     const seen = known.current
-    for (const material of [accepted, candidate]) {
-      if (material !== null) seen.add(material)
+    for (const materials of [accepted, candidate]) {
+      if (materials !== null) seen.add(materials)
     }
-    for (const material of seen) {
-      if (material === accepted || material === candidate) continue
-      material.dispose()
-      seen.delete(material)
+    for (const materials of seen) {
+      if (materials === accepted || materials === candidate) continue
+      disposePreviewMaterials(materials)
+      seen.delete(materials)
     }
   }, [accepted, candidate])
 
   useEffect(() => {
     const seen = known.current
     return () => {
-      for (const material of seen) material.dispose()
+      for (const materials of seen) disposePreviewMaterials(materials)
       seen.clear()
     }
   }, [])
 }
 
 /**
- * Holds the last material the renderer could actually build. A new candidate only replaces it once
- * it compiles, so a broken graph never blanks the preview. Must run inside the R3F canvas.
+ * Holds the last materials (a surface and its outline pass) the renderer could actually build. A
+ * new candidate only replaces them once both compile, so a broken graph never blanks the preview.
+ * Must run inside the R3F canvas.
  */
 export function useValidatedMaterial(
-  candidate: RuntimeMaterial | null,
+  candidate: PreviewMaterials | null,
   onStatus: MaterialStatusHandler,
-): RuntimeMaterial | null {
+): PreviewMaterials | null {
   const gl = useThree((state) => state.gl)
   const scene = useThree((state) => state.scene)
   const camera = useThree((state) => state.camera)
-  const [accepted, setAccepted] = useState<RuntimeMaterial | null>(null)
+  const [accepted, setAccepted] = useState<PreviewMaterials | null>(null)
   const reportStatus = useEffectEvent(onStatus)
 
   useDisposeRetiredMaterials(accepted, candidate)
@@ -55,7 +57,8 @@ export function useValidatedMaterial(
   useEffect(() => {
     if (candidate === null) return
     let isCurrent = true
-    void validateMaterial(gl, scene, camera, candidate, () => !isCurrent).then((validation) => {
+    const materials = materialsIn(candidate)
+    void validateMaterials(gl, scene, camera, materials, () => !isCurrent).then((validation) => {
       if (!isCurrent) return
       if (validation.ok) setAccepted(candidate)
       reportStatus(validation.ok ? null : validation.rejection)

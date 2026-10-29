@@ -1,10 +1,11 @@
-import type { MasterSlot } from '../compiler/compile-backend'
-import { MASTER_SLOTS } from '../compiler/compile-backend'
+import type { MasterSlot, SurfaceSlot } from '../compiler/compile-backend'
+import { SURFACE_SLOTS } from '../compiler/compile-backend'
 import type { NodeRegistry } from '../registry/node-registry'
 import { portKey } from '../type-inference/port-key'
 import type { Graph } from '../types/graph'
 import { MASTER_NODE_ID, MASTER_NODE_TYPE } from '../types/ids'
 import type { TslFacade } from '../types/tsl-facade'
+import { OUTLINE_PARAM } from './master-outline'
 
 export type MasterLighting = 'standard' | 'unlit' | 'physical'
 export type MasterSurface = 'auto' | 'opaque' | 'transparent'
@@ -20,6 +21,8 @@ export interface MasterSettings {
     readonly sheen: boolean
     readonly iridescence: boolean
   }
+  /** Whether the mesh is drawn a second time as an inverted hull, around its silhouette. */
+  readonly outline: boolean
 }
 
 /** A feature of a physical material that has its own switch on the master. */
@@ -30,10 +33,11 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   surface: 'auto',
   twoSided: false,
   physical: { transmission: false, clearcoat: false, sheen: false, iridescence: false },
+  outline: false,
 }
 
 /** The master slots each physical feature switch turns on. */
-export const PHYSICAL_FEATURE_SLOTS: Readonly<Record<PhysicalFeature, readonly MasterSlot[]>> = {
+export const PHYSICAL_FEATURE_SLOTS: Readonly<Record<PhysicalFeature, readonly SurfaceSlot[]>> = {
   transmission: ['transmission', 'ior', 'thickness'],
   clearcoat: ['clearcoat', 'clearcoatRoughness'],
   sheen: ['sheen', 'sheenRoughness'],
@@ -86,8 +90,8 @@ const readPhysicalFeatures = (
 })
 
 /**
- * The master stack's lighting, surface, two-sided and physical feature params. A param that is not
- * stored (or holds an unknown option) takes the master definition's default.
+ * The master stack's lighting, surface, two-sided, physical feature and outline params. A param
+ * that is not stored (or holds an unknown option) takes the master definition's default.
  */
 export function readMasterSettings(graph: Graph, registry: NodeRegistry): MasterSettings {
   const params = graph.nodes[MASTER_NODE_ID]?.params
@@ -105,6 +109,7 @@ export function readMasterSettings(graph: Graph, registry: NodeRegistry): Master
       ...defaults,
       twoSided: DEFAULT_MASTER_SETTINGS.twoSided,
       physical: DEFAULT_MASTER_SETTINGS.physical,
+      outline: DEFAULT_MASTER_SETTINGS.outline,
     }
   }
   return {
@@ -112,6 +117,7 @@ export function readMasterSettings(graph: Graph, registry: NodeRegistry): Master
     surface: pickOption(SURFACE_VALUES, params.surface, defaults.surface),
     twoSided: params.twoSided === true,
     physical: readPhysicalFeatures(params),
+    outline: params[OUTLINE_PARAM] === true,
   }
 }
 
@@ -182,9 +188,9 @@ export interface MaterialAssignment<E> {
 /** All the master needs from a facade: adding emission to the base color. */
 type ColorFacade<E> = Pick<TslFacade<E>, 'add'>
 
-type MasterSlots<E> = Partial<Record<MasterSlot, E>>
+export type MasterSlots<E> = Partial<Record<MasterSlot, E>>
 
-const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MasterMaterialProperty>> = {
+const SLOT_PROPERTIES: Readonly<Record<SurfaceSlot, MasterMaterialProperty>> = {
   position: 'positionNode',
   baseColor: 'colorNode',
   emission: 'emissiveNode',
@@ -205,14 +211,14 @@ const SLOT_PROPERTIES: Readonly<Record<MasterSlot, MasterMaterialProperty>> = {
 }
 
 /** The feature switch each physical slot belongs to; standard slots belong to none. */
-const SLOT_FEATURES: ReadonlyMap<MasterSlot, PhysicalFeature> = new Map(
+const SLOT_FEATURES: ReadonlyMap<SurfaceSlot, PhysicalFeature> = new Map(
   PHYSICAL_FEATURES.flatMap((feature) =>
-    PHYSICAL_FEATURE_SLOTS[feature].map((slot): [MasterSlot, PhysicalFeature] => [slot, feature]),
+    PHYSICAL_FEATURE_SLOTS[feature].map((slot): [SurfaceSlot, PhysicalFeature] => [slot, feature]),
   ),
 )
 
 /** A standard slot is always lit; a physical one only on a physical material with it switched on. */
-function isLitSlotAssigned(slot: MasterSlot, settings: MasterSettings): boolean {
+function isLitSlotAssigned(slot: SurfaceSlot, settings: MasterSettings): boolean {
   const feature = SLOT_FEATURES.get(slot)
   if (feature === undefined) return true
   return settings.lighting === 'physical' && settings.physical[feature]
@@ -231,10 +237,11 @@ const assignment = <E>(
 ): readonly MaterialAssignment<E>[] => (expression === undefined ? [] : [{ property, expression }])
 
 /**
- * The material properties a compiled master assigns, in slot order. A standard material takes
- * every non-physical slot, and a physical one adds the slots of each feature switched on. An unlit
- * one reads only position, color (base + emission), opacity and alpha clip, so metalness,
- * roughness and normal are ignored.
+ * The surface material properties a compiled master assigns, in slot order; the outline slots
+ * belong to the outline pass (`outlineMaterialAssignments`), never to the surface. A standard
+ * material takes every non-physical slot, and a physical one adds the slots of each feature
+ * switched on. An unlit one reads only position, color (base + emission), opacity and alpha clip,
+ * so metalness, roughness and normal are ignored.
  */
 export function masterMaterialAssignments<E>(
   tsl: ColorFacade<E>,
@@ -242,7 +249,7 @@ export function masterMaterialAssignments<E>(
   settings: MasterSettings,
 ): readonly MaterialAssignment<E>[] {
   if (settings.lighting !== 'unlit') {
-    return MASTER_SLOTS.filter((slot) => isLitSlotAssigned(slot, settings)).flatMap((slot) =>
+    return SURFACE_SLOTS.filter((slot) => isLitSlotAssigned(slot, settings)).flatMap((slot) =>
       assignment(SLOT_PROPERTIES[slot], slots[slot]),
     )
   }

@@ -71,6 +71,19 @@ export function applyMaterialToModel(model: Object3D, material: Material): void 
   })
 }
 
+/**
+ * A copy of the model's node tree, with the same transforms and the same geometry (shared, not
+ * duplicated), every mesh wearing `outline`. Drawn beside the model, it is the model's outline
+ * pass. The model owns the geometry: the copy is never disposed, only dropped.
+ */
+export function createOutlineCopy(model: Object3D, outline: Material): Object3D {
+  const copy = model.clone()
+  forEachMesh(copy, (mesh) => {
+    mesh.material = outline
+  })
+  return copy
+}
+
 /** Frees the model's geometry and whatever is left of the file's own materials. */
 export function disposeModel(model: Object3D): void {
   forEachMesh(model, (mesh) => {

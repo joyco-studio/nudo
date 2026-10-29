@@ -1,7 +1,8 @@
-import { Suspense, useLayoutEffect } from 'react'
-import type { Group, Material } from 'three'
+import { Suspense, useLayoutEffect, useMemo } from 'react'
+import type { Group } from 'three'
 
-import { applyMaterialToModel } from './glb-model'
+import { applyMaterialToModel, createOutlineCopy } from './glb-model'
+import type { PreviewMaterials } from './preview-materials'
 import type { PreviewShape, PrimitiveShape } from './preview-shape'
 import { SuzanneMesh } from './suzanne-mesh'
 
@@ -33,38 +34,56 @@ function GeneratedGeometry({ shape }: { shape: GeneratedShape }) {
 
 interface ModelMeshProps {
   model: Group
-  material: Material
+  materials: PreviewMaterials
 }
 
-function ModelMesh({ model, material }: ModelMeshProps) {
+/** The model's meshes wear the surface; a copy on the same geometry wears the outline. */
+function ModelMesh({ model, materials }: ModelMeshProps) {
+  const { surface, outline } = materials
   // Layout effect: the file's own materials are swapped out before the next frame draws them.
   useLayoutEffect(() => {
-    applyMaterialToModel(model, material)
-  }, [model, material])
-  return <primitive object={model} />
+    applyMaterialToModel(model, surface)
+  }, [model, surface])
+  const outlineCopy = useMemo(
+    () => (outline === null ? null : createOutlineCopy(model, outline)),
+    [model, outline],
+  )
+  return (
+    <>
+      <primitive object={model} />
+      {outlineCopy !== null && <primitive object={outlineCopy} />}
+    </>
+  )
 }
 
 export interface PreviewMeshProps {
   shape: PreviewShape
-  material: Material
+  materials: PreviewMaterials
   model: Group | null
 }
 
-/** The mesh that wears the compiled material. */
-export function PreviewMesh({ shape, material, model }: PreviewMeshProps) {
+/** The mesh that wears the compiled material, drawn again with the outline pass when it is on. */
+export function PreviewMesh({ shape, materials, model }: PreviewMeshProps) {
   if (shape === 'model') {
-    return model === null ? null : <ModelMesh model={model} material={material} />
+    return model === null ? null : <ModelMesh model={model} materials={materials} />
   }
   if (shape === 'suzanne') {
     return (
       <Suspense fallback={null}>
-        <SuzanneMesh material={material} />
+        <SuzanneMesh materials={materials} />
       </Suspense>
     )
   }
   return (
-    <mesh material={material}>
-      <GeneratedGeometry shape={shape} />
-    </mesh>
+    <>
+      <mesh material={materials.surface}>
+        <GeneratedGeometry shape={shape} />
+      </mesh>
+      {materials.outline !== null && (
+        <mesh material={materials.outline}>
+          <GeneratedGeometry shape={shape} />
+        </mesh>
+      )}
+    </>
   )
 }

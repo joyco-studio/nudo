@@ -66,6 +66,7 @@ const master = defineNode({
     { id: 'useClearcoat', label: 'Enable clearcoat', kind: 'boolean', default: false },
     { id: 'useSheen', label: 'Enable sheen', kind: 'boolean', default: false },
     { id: 'useIridescence', label: 'Enable iridescence', kind: 'boolean', default: false },
+    { id: 'outline', label: 'Outline', kind: 'boolean', default: false },
   ],
   build: () => ({}),
 })
@@ -108,6 +109,16 @@ describe('readMasterSettings', () => {
       surface: 'transparent',
       twoSided: true,
       physical: NO_PHYSICAL_FEATURES,
+      outline: false,
+    })
+  })
+
+  it('reads the outline switch', () => {
+    const graph = withParam(createGraph(), 'outline', true)
+
+    expect(readMasterSettings(graph, registry)).toEqual({
+      ...DEFAULT_MASTER_SETTINGS,
+      outline: true,
     })
   })
 
@@ -121,6 +132,7 @@ describe('readMasterSettings', () => {
       surface: 'auto',
       twoSided: false,
       physical: { transmission: true, clearcoat: false, sheen: true, iridescence: false },
+      outline: false,
     })
   })
 
@@ -131,6 +143,7 @@ describe('readMasterSettings', () => {
       surface: 'auto',
       twoSided: false,
       physical: NO_PHYSICAL_FEATURES,
+      outline: false,
     })
   })
 
@@ -144,7 +157,7 @@ describe('readMasterSettings', () => {
         ...graph.nodes,
         [MASTER_NODE_ID]: {
           ...stored,
-          params: { lighting: 'glossy', surface: 7, useClearcoat: 'yes' },
+          params: { lighting: 'glossy', surface: 7, useClearcoat: 'yes', outline: 'on' },
         },
       },
     }

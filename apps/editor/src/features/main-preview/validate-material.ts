@@ -1,4 +1,4 @@
-import { Mesh, SphereGeometry, getConsoleFunction, setConsoleFunction } from 'three'
+import { Group, Mesh, SphereGeometry, getConsoleFunction, setConsoleFunction } from 'three'
 import type { Camera, Material, Scene, WebGLRenderer } from 'three'
 
 import type { MessageKey } from '@/i18n/translate'
@@ -72,25 +72,32 @@ async function withTimeout<T>(task: Promise<T>, timeoutMs: number, fallback: T):
   }
 }
 
+/** One throwaway mesh per material, all on the same geometry. */
+function probeOf(geometry: SphereGeometry, materials: readonly Material[]): Group {
+  const probe = new Group()
+  for (const material of materials) probe.add(new Mesh(geometry, material))
+  return probe
+}
+
 /**
  * TSL nodes are lazy: some mistakes only surface when the renderer builds the shader. This
- * compiles the material on a throwaway mesh, against the real scene's lights, so a broken one is
- * caught before it replaces the working material. Never throws. `isCancelled` is asked when the
- * validation reaches the front of the queue. A compile that never finishes is
- * let through: the check is a safeguard, not a gate that can freeze the preview.
+ * compiles the materials (a surface and its outline pass) on throwaway meshes, against the real
+ * scene's lights, so a broken one is caught before it replaces the working ones. Never throws.
+ * `isCancelled` is asked when the validation reaches the front of the queue. A compile that never
+ * finishes is let through: the check is a safeguard, not a gate that can freeze the preview.
  */
-export function validateMaterial(
+export function validateMaterials(
   renderer: CompilingRenderer,
   scene: Scene,
   camera: Camera,
-  material: Material,
+  materials: readonly Material[],
   isCancelled: () => boolean = () => false,
 ): Promise<MaterialValidation> {
   return runOneAtATime(async () => {
     // Waiting in the queue can outlast the material: a superseded one never reaches the GPU.
     if (isCancelled()) return { ok: false, rejection: { messageKey: 'preview.compileReplaced' } }
     const geometry = new SphereGeometry(1, PROBE_SEGMENTS.width, PROBE_SEGMENTS.height)
-    const probe = new Mesh(geometry, material)
+    const probe = probeOf(geometry, materials)
     try {
       const compiled = collectingErrors(() => renderer.compileAsync(probe, camera, scene))
       const errors = await withTimeout(compiled, COMPILE_TIMEOUT_MS, [])

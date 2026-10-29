@@ -118,6 +118,15 @@ export const NODES_ES: NodeTranslations = {
         label: 'IOR de iridiscencia',
         description: 'Cuánto desvía la luz la película fina, lo que corre sus colores de arcoíris.',
       },
+      outlineWidth: {
+        label: 'Grosor del contorno',
+        description:
+          'Cuánto sobresale la línea de la superficie, en unidades de escena; conecta un Ruido para que vibre.',
+      },
+      outlineColor: {
+        label: 'Color del contorno',
+        description: 'El color plano de la línea; la luz nunca lo cambia.',
+      },
     },
     params: {
       lighting: {
@@ -129,6 +138,11 @@ export const NODES_ES: NodeTranslations = {
         options: { auto: 'Automática', opaque: 'Opaca', transparent: 'Transparente' },
       },
       twoSided: { label: 'Doble cara' },
+      outline: {
+        label: 'Contorno',
+        description:
+          'Dibuja una línea plana alrededor de la silueta dibujando la malla una segunda vez.',
+      },
       useTransmission: {
         label: 'Activar transmisión',
         description:

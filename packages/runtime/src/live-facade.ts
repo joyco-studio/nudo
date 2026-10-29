@@ -36,6 +36,7 @@ import {
   max,
   min,
   mix,
+  modelScale,
   mul,
   mx_cell_noise_float,
   mx_noise_float,
@@ -166,6 +167,7 @@ const BUILTINS: Readonly<Record<BuiltinName, () => LiveNode>> = {
   positionView: () => positionView,
   screenUV: () => screenUV,
   cameraPosition: () => cameraPosition,
+  modelScale: () => modelScale,
 }
 
 const isLiveNode = (candidate: unknown): candidate is LiveNode => candidate instanceof Node

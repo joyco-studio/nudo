@@ -122,7 +122,7 @@ interface InputSectionProps {
   types: ResolvedTypes
 }
 
-/** One group of inputs; a folding group (the master's Physical) folds as the node's does. */
+/** One group of inputs; a folding group (Physical, Outline) folds as the node's does. */
 function InputSection({ graph, node, group, types }: InputSectionProps) {
   const [isOpen, toggle] = useGroupOpen(group.disclosure)
   const listId = useId()

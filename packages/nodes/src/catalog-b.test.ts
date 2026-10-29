@@ -5,6 +5,7 @@ import {
   createGraph,
   parseGraph,
   serializeGraph,
+  setInputValue,
   setParam,
   topologyKey,
 } from '@nudo-tsl/core'
@@ -542,8 +543,9 @@ describe('master stack', () => {
     expect(description).toMatch(/scene behind/)
   })
 
-  it('appends the physical inputs with inline fields and their defaults', () => {
-    const physical = master.inputs.slice(-9).map((input) => ({
+  it('lists the physical inputs with inline fields and their defaults', () => {
+    const physicalInputs = master.inputs.slice(-11, -2)
+    const physical = physicalInputs.map((input) => ({
       id: input.id,
       type: input.type,
       default: input.default,
@@ -575,9 +577,75 @@ describe('master stack', () => {
       float('iridescence', 0),
       float('iridescenceIOR', 1.3),
     ])
-    for (const input of master.inputs.slice(-9)) {
+    for (const input of physicalInputs) {
       expect(input.description, input.id).toBeTruthy()
     }
+  })
+
+  it('declares an outline switch, off, that says it draws the mesh again', () => {
+    const outline = master.params?.find((param) => param.id === 'outline')
+
+    expect(outline).toMatchObject({
+      id: 'outline',
+      label: 'Outline',
+      kind: 'boolean',
+      default: false,
+    })
+    expect(outline?.kind === 'boolean' ? outline.description : '').toMatch(/second time/)
+  })
+
+  it('appends the outline width and color with inline fields', () => {
+    const outline = master.inputs.slice(-2).map((input) => ({
+      id: input.id,
+      label: input.label,
+      type: input.type,
+      default: input.default,
+      optional: input.optional === true,
+      widget: input.widget,
+    }))
+
+    expect(outline).toEqual([
+      {
+        id: 'outlineWidth',
+        label: 'Outline Width',
+        type: { kind: 'concrete', type: 'float' },
+        default: { type: 'float', value: 0.02 },
+        optional: false,
+        widget: undefined,
+      },
+      {
+        id: 'outlineColor',
+        label: 'Outline Color',
+        type: { kind: 'concrete', type: 'vec3' },
+        // #111111 in linear light.
+        default: { type: 'vec3', value: [0.0056, 0.0056, 0.0056] },
+        optional: false,
+        widget: 'color',
+      },
+    ])
+    for (const input of master.inputs.slice(-2)) {
+      expect(input.description, input.id).toBeTruthy()
+    }
+  })
+
+  it('recompiles when the outline is switched, never when its width or color moves', () => {
+    const master = { nodeId: asNodeId('master'), portId: 'outlineWidth' }
+    const base = createGraph()
+    const outlined = unwrap(
+      setParam(base, registry, { nodeId: asNodeId('master'), paramId: 'outline' }, true),
+    )
+    const wider = unwrap(setInputValue(outlined, master, { type: 'float', value: 0.1 }))
+    const recolored = unwrap(
+      setInputValue(
+        wider,
+        { nodeId: asNodeId('master'), portId: 'outlineColor' },
+        { type: 'vec3', value: [1, 0, 0] },
+      ),
+    )
+
+    expect(topologyKey(outlined, registry)).not.toBe(topologyKey(base, registry))
+    expect(topologyKey(wider, registry)).toBe(topologyKey(outlined, registry))
+    expect(topologyKey(recolored, registry)).toBe(topologyKey(outlined, registry))
   })
 
   it('declares surface and two-sided params', () => {

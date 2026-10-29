@@ -412,6 +412,7 @@ describe('preview engine', () => {
   it('reports an error when the preview cannot be built', async () => {
     const failing = vi.fn((): MaterialBuild => ({
       material: null,
+      outline: null,
       uniforms: new Map(),
       properties: new Map(),
       missingTextures: [],

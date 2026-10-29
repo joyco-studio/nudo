@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { countReddishPixels } from './support/count-reddish-pixels'
+import { countReddishPixels } from './support/count-tinted-pixels'
 import {
   firstSettledCompileCount,
   settledCompileCount,

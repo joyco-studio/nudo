@@ -3,7 +3,6 @@ import type { ChangeEvent, RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { RotateCcw, Upload, ZoomIn, ZoomOut } from 'lucide-react'
 import type { Group } from 'three'
-import type { RuntimeMaterial } from '@nudo-tsl/runtime'
 
 import { effectivePreviewLayout } from '@/features/panels/panel-state'
 import type { PreviewBackdrop } from '@/features/panels/panel-state'
@@ -24,6 +23,7 @@ import { ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR, zoomView } from './orbit-view'
 import type { OrbitView } from './orbit-view'
 import { PreviewErrorBoundary } from './preview-error-boundary'
 import { MAX_PREVIEW_PIXEL_RATIO, PREVIEW_CAMERA, startPreviewRenderer } from './preview-gl'
+import type { PreviewMaterials } from './preview-materials'
 import { PreviewScene } from './preview-scene'
 import { PRIMITIVE_SHAPES, isPreviewShape, shapeLabelKey } from './preview-shape'
 import type { PreviewShape } from './preview-shape'
@@ -39,7 +39,7 @@ const MODEL_FILE_TYPES = '.glb,.gltf,model/gltf-binary,model/gltf+json'
 const STATUS_CLASS = 'border-t px-3 py-2 text-xs text-muted-foreground'
 
 interface ViewportProps {
-  candidate: RuntimeMaterial | null
+  candidate: PreviewMaterials | null
   shape: PreviewShape
   model: Group | null
   backgroundColor: string
@@ -212,7 +212,7 @@ function LoadModelButton({ onModelLoaded, onError }: LoadModelButtonProps) {
 }
 
 interface PreviewWorkspaceProps {
-  candidate: RuntimeMaterial | null
+  candidate: PreviewMaterials | null
   buildFailed: boolean
   errorCount: number
 }

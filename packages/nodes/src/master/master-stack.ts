@@ -1,10 +1,15 @@
-import { MASTER_NODE_TYPE, concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
+import { MASTER_NODE_TYPE, OUTLINE_PARAM, concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
 
 const LIGHTING_OPTIONS = [
   { value: 'standard', label: 'Standard' },
   { value: 'unlit', label: 'Unlit' },
   { value: 'physical', label: 'Physical' },
 ] as const
+
+/** #111111, a near-black that still reads as ink against a black background, in linear light. */
+const OUTLINE_INK = 0.0056
+/** Thin enough to read as a line on the 1-unit sphere, in scene units. */
+const OUTLINE_WIDTH = 0.02
 
 const SURFACE_OPTIONS = [
   { value: 'auto', label: 'Auto' },
@@ -147,6 +152,22 @@ export const masterStackNode = defineNode({
       type: concrete('float'),
       default: float(1.3),
     },
+    {
+      id: 'outlineWidth',
+      label: 'Outline Width',
+      description:
+        'How far the line reaches past the surface, in scene units; wire Noise in to make it wobble.',
+      type: concrete('float'),
+      default: float(OUTLINE_WIDTH),
+    },
+    {
+      id: 'outlineColor',
+      label: 'Outline Color',
+      description: "The line's flat color; lighting never changes it.",
+      type: concrete('vec3'),
+      default: vec3(OUTLINE_INK, OUTLINE_INK, OUTLINE_INK),
+      widget: 'color',
+    },
   ],
   outputs: [],
   params: [
@@ -165,6 +186,13 @@ export const masterStackNode = defineNode({
       default: 'auto',
     },
     { id: 'twoSided', label: 'Two sided', kind: 'boolean', default: false },
+    {
+      id: OUTLINE_PARAM,
+      label: 'Outline',
+      kind: 'boolean',
+      default: false,
+      description: 'Draws a flat line around the silhouette by drawing the mesh a second time.',
+    },
     {
       id: 'useTransmission',
       label: 'Enable transmission',

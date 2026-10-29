@@ -6,7 +6,7 @@
       "type": "math/add",
       "position": {
         "x": -1736,
-        "y": 163
+        "y": 191
       },
       "inputValues": {},
       "params": {}
@@ -16,7 +16,7 @@
       "type": "math/add",
       "position": {
         "x": 248,
-        "y": -620
+        "y": -592
       },
       "inputValues": {},
       "params": {}
@@ -26,7 +26,7 @@
       "type": "property/vec3",
       "position": {
         "x": -24,
-        "y": 365
+        "y": 393
       },
       "inputValues": {},
       "params": {
@@ -38,7 +38,7 @@
       "type": "utility/comment",
       "position": {
         "x": -2408,
-        "y": -19
+        "y": 9
       },
       "inputValues": {},
       "params": {
@@ -53,7 +53,7 @@
       "type": "utility/comment",
       "position": {
         "x": -104,
-        "y": 285
+        "y": 313
       },
       "inputValues": {},
       "params": {
@@ -68,7 +68,7 @@
       "type": "utility/comment",
       "position": {
         "x": -744,
-        "y": -710
+        "y": -682
       },
       "inputValues": {},
       "params": {
@@ -83,7 +83,7 @@
       "type": "utility/comment",
       "position": {
         "x": 104,
-        "y": 852
+        "y": 880
       },
       "inputValues": {},
       "params": {
@@ -98,7 +98,7 @@
       "type": "utility/comment",
       "position": {
         "x": -104,
-        "y": -220
+        "y": -192
       },
       "inputValues": {},
       "params": {
@@ -113,7 +113,7 @@
       "type": "effects/fresnel",
       "position": {
         "x": -72,
-        "y": -140
+        "y": -112
       },
       "inputValues": {
         "power": {
@@ -128,7 +128,7 @@
       "type": "property/vec3",
       "position": {
         "x": -24,
-        "y": 758
+        "y": 786
       },
       "inputValues": {},
       "params": {
@@ -140,7 +140,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": 248,
-        "y": 418
+        "y": 446
       },
       "inputValues": {},
       "params": {}
@@ -150,7 +150,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": 192,
-        "y": 932
+        "y": 960
       },
       "inputValues": {
         "a": {
@@ -186,7 +186,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": 333
+        "y": 361
       },
       "inputValues": {},
       "params": {}
@@ -196,7 +196,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": -630
+        "y": -602
       },
       "inputValues": {},
       "params": {}
@@ -206,7 +206,7 @@
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": -555
+        "y": -527
       },
       "inputValues": {},
       "params": {}
@@ -216,7 +216,7 @@
       "type": "math/multiply",
       "position": {
         "x": 248,
-        "y": -51
+        "y": -23
       },
       "inputValues": {},
       "params": {}
@@ -226,7 +226,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1416,
-        "y": 61
+        "y": 89
       },
       "inputValues": {
         "scale": {
@@ -243,7 +243,7 @@
       "type": "input/normal",
       "position": {
         "x": -712,
-        "y": -579
+        "y": -551
       },
       "inputValues": {},
       "params": {}
@@ -253,7 +253,7 @@
       "type": "input/position",
       "position": {
         "x": -2056,
-        "y": 72
+        "y": 100
       },
       "inputValues": {},
       "params": {
@@ -265,7 +265,7 @@
       "type": "math/remap",
       "position": {
         "x": -1096,
-        "y": 89
+        "y": 117
       },
       "inputValues": {
         "inMax": {
@@ -284,7 +284,7 @@
       "type": "property/vec3",
       "position": {
         "x": -24,
-        "y": 191
+        "y": 219
       },
       "inputValues": {},
       "params": {
@@ -296,7 +296,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -72,
-        "y": 427
+        "y": 455
       },
       "inputValues": {
         "edge0": {
@@ -315,7 +315,7 @@
       "type": "property/float",
       "position": {
         "x": -2328,
-        "y": 571
+        "y": 599
       },
       "inputValues": {},
       "params": {
@@ -327,7 +327,7 @@
       "type": "input/time",
       "position": {
         "x": -2376,
-        "y": 263
+        "y": 291
       },
       "inputValues": {},
       "params": {}
@@ -337,7 +337,7 @@
       "type": "property/float",
       "position": {
         "x": -344,
-        "y": -327
+        "y": -299
       },
       "inputValues": {},
       "params": {

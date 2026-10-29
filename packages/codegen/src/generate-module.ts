@@ -3,6 +3,7 @@ import {
   compile,
   isOpacityConnected,
   masterMaterialAssignments,
+  outlineMaterialAssignments,
   readInlineOpacity,
   readMasterSettings,
   resolveTransparency,
@@ -140,6 +141,7 @@ export function generateModule(
     texturePlaceholders: texturePlaceholdersOf(graph.properties, backend.texturePlaceholders),
     lights: [...backend.lights],
     entries,
+    outline: outlineMaterialAssignments(backend.tsl, slots, settings),
     transparent,
     doubleSided: settings.twoSided,
   }

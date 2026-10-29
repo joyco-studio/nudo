@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { countReddishPixels } from './support/count-reddish-pixels'
+import { countReddishPixels } from './support/count-tinted-pixels'
 import { compileCount, firstSettledCompileCount, settledCompileCount } from './support/pending-work'
 import { readStoredEdgeCount, readStoredNodes } from './support/read-autosave'
 import { COLOR_TO_BASE_COLOR, graphDocumentV2, seedAutosave } from './support/seed-graph'
