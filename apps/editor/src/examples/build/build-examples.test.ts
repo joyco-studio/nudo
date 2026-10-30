@@ -13,7 +13,6 @@ import { IRIDESCENT_BLOB } from './iridescent-blob'
 import { LAVA_FLOW } from './lava-flow'
 import { estimateGeometry } from './node-geometry'
 import {
-  BANDED_GIANT_SPEC,
   BUBBLEGUM_SPEC,
   CHARCOAL_CHROME_SPEC,
   DUSK_GLAZE_SPEC,
@@ -43,7 +42,6 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['pastel-planet', PASTEL_PLANET_SPEC],
   ['bubblegum', BUBBLEGUM_SPEC],
   ['frost-speckle', FROST_SPECKLE_SPEC],
-  ['banded-giant', BANDED_GIANT_SPEC],
   ['dusk-glaze', DUSK_GLAZE_SPEC],
   ['charcoal-chrome', CHARCOAL_CHROME_SPEC],
   ['pewter-haze', PEWTER_HAZE_SPEC],

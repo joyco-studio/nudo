@@ -125,9 +125,6 @@ export const es = {
   'command.example-frost-speckle.label': 'Plantilla: Escarcha',
   'command.example-frost-speckle.keywords':
     'plantilla ejemplo muestra demo pictórico blender escarcha hielo motas nieve contorno',
-  'command.example-banded-giant.label': 'Plantilla: Gigante a rayas',
-  'command.example-banded-giant.keywords':
-    'plantilla ejemplo muestra demo pictórico blender gigante gaseoso júpiter planeta bandas rayas contorno',
   'command.example-dusk-glaze.label': 'Plantilla: Esmalte de atardecer',
   'command.example-dusk-glaze.keywords':
     'plantilla ejemplo muestra demo pictórico blender atardecer durazno índigo esmalte',
@@ -268,11 +265,6 @@ export const es = {
   'example.frost-speckle.description': 'Motas heladas en bandas planas, con contorno',
   'example.frost-speckle.teaches':
     'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un grano grueso de Voronoi arma las motas, y encima van rayas temblorosas.',
-  'example.banded-giant.title': 'Gigante a rayas',
-  'example.banded-giant.description':
-    'Bandas de gigante gaseoso con un Voronoi aplastado, con contorno',
-  'example.banded-giant.teaches':
-    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un Mapping aplasta Y y Z a 0, así el grano de Voronoi solo varía en X y dibuja bandas.',
   'example.dusk-glaze.title': 'Esmalte de atardecer',
   'example.dusk-glaze.description': 'Un corte durazno e índigo bajo una pintura suave',
   'example.dusk-glaze.teaches':

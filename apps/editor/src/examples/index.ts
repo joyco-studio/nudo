@@ -11,7 +11,6 @@ import { LAVA_FLOW } from './build/lava-flow'
 import { POND } from './build/pond'
 import { POSTER } from './build/poster'
 import {
-  BANDED_GIANT_SPEC,
   BUBBLEGUM_SPEC,
   CHARCOAL_CHROME_SPEC,
   DUSK_GLAZE_SPEC,
@@ -35,7 +34,6 @@ import midnightGlazeGraph from './midnight-glaze.graph.json'
 import pastelPlanetGraph from './pastel-planet.graph.json'
 import bubblegumGraph from './bubblegum.graph.json'
 import frostSpeckleGraph from './frost-speckle.graph.json'
-import bandedGiantGraph from './banded-giant.graph.json'
 import duskGlazeGraph from './dusk-glaze.graph.json'
 import charcoalChromeGraph from './charcoal-chrome.graph.json'
 import pewterHazeGraph from './pewter-haze.graph.json'
@@ -54,7 +52,6 @@ export const EXAMPLE_IDS = [
   'pastel-planet',
   'bubblegum',
   'frost-speckle',
-  'banded-giant',
   'dusk-glaze',
   'charcoal-chrome',
   'pewter-haze',
@@ -132,7 +129,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'midnight-glaze',
     title: 'example.midnight-glaze.title',
     graph: midnightGlazeGraph,
-    previewShape: 'sphere',
+    previewShape: 'knot',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(MIDNIGHT_GLAZE_SPEC),
   },
@@ -140,7 +137,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'pastel-planet',
     title: 'example.pastel-planet.title',
     graph: pastelPlanetGraph,
-    previewShape: 'sphere',
+    previewShape: 'suzanne',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(PASTEL_PLANET_SPEC),
   },
@@ -148,7 +145,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'bubblegum',
     title: 'example.bubblegum.title',
     graph: bubblegumGraph,
-    previewShape: 'sphere',
+    previewShape: 'torus',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(BUBBLEGUM_SPEC),
   },
@@ -156,23 +153,15 @@ export const EXAMPLES: readonly Example[] = [
     id: 'frost-speckle',
     title: 'example.frost-speckle.title',
     graph: frostSpeckleGraph,
-    previewShape: 'sphere',
+    previewShape: 'cube',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(FROST_SPECKLE_SPEC),
-  },
-  {
-    id: 'banded-giant',
-    title: 'example.banded-giant.title',
-    graph: bandedGiantGraph,
-    previewShape: 'sphere',
-    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
-    ...fromSpec(BANDED_GIANT_SPEC),
   },
   {
     id: 'dusk-glaze',
     title: 'example.dusk-glaze.title',
     graph: duskGlazeGraph,
-    previewShape: 'sphere',
+    previewShape: 'torus',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(DUSK_GLAZE_SPEC),
   },
@@ -180,7 +169,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'charcoal-chrome',
     title: 'example.charcoal-chrome.title',
     graph: charcoalChromeGraph,
-    previewShape: 'sphere',
+    previewShape: 'torus',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(CHARCOAL_CHROME_SPEC),
   },
@@ -188,7 +177,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'pewter-haze',
     title: 'example.pewter-haze.title',
     graph: pewterHazeGraph,
-    previewShape: 'sphere',
+    previewShape: 'knot',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(PEWTER_HAZE_SPEC),
   },
@@ -196,7 +185,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'rose-moon',
     title: 'example.rose-moon.title',
     graph: roseMoonGraph,
-    previewShape: 'sphere',
+    previewShape: 'suzanne',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(ROSE_MOON_SPEC),
   },
@@ -204,7 +193,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'ink-swirl',
     title: 'example.ink-swirl.title',
     graph: inkSwirlGraph,
-    previewShape: 'sphere',
+    previewShape: 'knot',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(INK_SWIRL_SPEC),
   },
@@ -212,7 +201,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'night-leaf',
     title: 'example.night-leaf.title',
     graph: nightLeafGraph,
-    previewShape: 'sphere',
+    previewShape: 'suzanne',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(NIGHT_LEAF_SPEC),
   },

@@ -121,9 +121,6 @@ export const en = {
   'command.example-frost-speckle.label': 'Template: Frost speckle',
   'command.example-frost-speckle.keywords':
     'template example sample demo painterly blender frost ice speckle snow outline',
-  'command.example-banded-giant.label': 'Template: Banded giant',
-  'command.example-banded-giant.keywords':
-    'template example sample demo painterly blender gas giant jupiter planet bands stripes outline',
   'command.example-dusk-glaze.label': 'Template: Dusk glaze',
   'command.example-dusk-glaze.keywords':
     'template example sample demo painterly blender dusk sunset peach indigo glaze',
@@ -260,10 +257,6 @@ export const en = {
   'example.frost-speckle.description': 'Icy speckles in flat bands, outlined',
   'example.frost-speckle.teaches':
     'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A coarse Voronoi grain makes the speckles, and wobbly stripes are overlaid.',
-  'example.banded-giant.title': 'Banded giant',
-  'example.banded-giant.description': 'Gas-giant bands from a squashed Voronoi, outlined',
-  'example.banded-giant.teaches':
-    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A Mapping squashes Y and Z to 0, so the Voronoi grain only varies along X and draws bands.',
   'example.dusk-glaze.title': 'Dusk glaze',
   'example.dusk-glaze.description': 'A peach and indigo split under soft paint',
   'example.dusk-glaze.teaches':

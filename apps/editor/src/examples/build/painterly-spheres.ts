@@ -138,16 +138,6 @@ export const FROST_SPECKLE: PainterlyConfig = {
   outline: { width: 0.02 },
 }
 
-/**
- * mat_12: mat_4's tree, but its base Mapping squashes Y and Z to 0, so the Voronoi grain only
- * varies along X: bands like a gas giant's. Its grain of 100 draws 310 hairline bands that the
- * render aliases into broad ones; a grain of 8 draws the broad ones outright. Outlined.
- */
-export const BANDED_GIANT: PainterlyConfig = {
-  ...FROST_SPECKLE,
-  base: { shape: 'spherical', ...UNPLACED, scale: [-3.1, 0, 0], grainScale: 8, gradient: 0 },
-}
-
 /** mat_5: a peach and indigo split under a soft Paint_texture, glowing streaks. */
 export const DUSK_GLAZE: PainterlyConfig = {
   bend: { scale: 5, detail: 2, amount: 0.733 },
@@ -352,7 +342,6 @@ export const MIDNIGHT_GLAZE_SPEC = painterlySpec(MIDNIGHT_GLAZE)
 export const PASTEL_PLANET_SPEC = painterlySpec(PASTEL_PLANET)
 export const BUBBLEGUM_SPEC = painterlySpec(BUBBLEGUM)
 export const FROST_SPECKLE_SPEC = painterlySpec(FROST_SPECKLE)
-export const BANDED_GIANT_SPEC = painterlySpec(BANDED_GIANT)
 export const DUSK_GLAZE_SPEC = painterlySpec(DUSK_GLAZE)
 export const CHARCOAL_CHROME_SPEC = painterlySpec(CHARCOAL_CHROME)
 export const PEWTER_HAZE_SPEC = painterlySpec(PEWTER_HAZE)
