@@ -6,8 +6,10 @@ import type { Locale } from '@/i18n/locale'
 import type { MessageKey } from '@/i18n/translate'
 import { registry } from '@/store/registry'
 
-import { IRIDESCENT_BLOB } from './build/iridescent-blob'
+import { BRUSH_TOON } from './build/brush-toon'
 import { LAVA_FLOW } from './build/lava-flow'
+import { LINES } from './build/lines'
+import { PATCH } from './build/patch'
 import { POND } from './build/pond'
 import { POSTER } from './build/poster'
 import {
@@ -17,12 +19,15 @@ import {
   PEWTER_HAZE_SPEC,
   ROSE_MOON_SPEC,
 } from './build/painterly-spheres'
-import iridescentBlobGraph from './iridescent-blob.graph.json'
+import { SCRIBBLE } from './build/scribble'
 import { fromSpec } from './example-from-spec'
 import { fixtureExamples } from './fixtures'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
+import brushToonGraph from './brush-toon.graph.json'
 import lavaFlowGraph from './lava-flow.graph.json'
+import linesGraph from './lines.graph.json'
+import patchGraph from './patch.graph.json'
 import pondGraph from './pond.graph.json'
 import posterGraph from './poster.graph.json'
 import midnightGlazeGraph from './midnight-glaze.graph.json'
@@ -30,14 +35,18 @@ import pastelPlanetGraph from './pastel-planet.graph.json'
 import pewterHazeGraph from './pewter-haze.graph.json'
 import roseMoonGraph from './rose-moon.graph.json'
 import inkSwirlGraph from './ink-swirl.graph.json'
+import scribbleGraph from './scribble.graph.json'
 import type { TemplateTexture } from './template-texture'
 
 /** The templates people see, in the browser and as ⌘K commands. */
 export const EXAMPLE_IDS = [
   'pond',
-  'iridescent-blob',
   'poster',
   'lava-flow',
+  'lines',
+  'scribble',
+  'patch',
+  'brush-toon',
   'midnight-glaze',
   'pastel-planet',
   'pewter-haze',
@@ -87,14 +96,6 @@ export const EXAMPLES: readonly Example[] = [
     ...fromSpec(POND),
   },
   {
-    id: 'iridescent-blob',
-    title: 'example.iridescent-blob.title',
-    graph: iridescentBlobGraph,
-    previewShape: 'knot',
-    tags: ['vertex', 'noise', 'fresnel'],
-    ...fromSpec(IRIDESCENT_BLOB),
-  },
-  {
     id: 'poster',
     title: 'example.poster.title',
     graph: posterGraph,
@@ -107,8 +108,40 @@ export const EXAMPLES: readonly Example[] = [
     title: 'example.lava-flow.title',
     graph: lavaFlowGraph,
     previewShape: 'torus',
-    tags: ['unlit', 'noise'],
+    tags: ['voronoi', 'noise'],
     ...fromSpec(LAVA_FLOW),
+  },
+  {
+    id: 'lines',
+    title: 'example.lines.title',
+    graph: linesGraph,
+    previewShape: 'knot',
+    tags: ['unlit'],
+    ...fromSpec(LINES),
+  },
+  {
+    id: 'scribble',
+    title: 'example.scribble.title',
+    graph: scribbleGraph,
+    previewShape: 'suzanne',
+    tags: ['unlit', 'noise'],
+    ...fromSpec(SCRIBBLE),
+  },
+  {
+    id: 'patch',
+    title: 'example.patch.title',
+    graph: patchGraph,
+    previewShape: 'sphere',
+    tags: ['unlit', 'voronoi'],
+    ...fromSpec(PATCH),
+  },
+  {
+    id: 'brush-toon',
+    title: 'example.brush-toon.title',
+    graph: brushToonGraph,
+    previewShape: 'sphere',
+    tags: ['unlit', 'voronoi', 'noise', 'fresnel'],
+    ...fromSpec(BRUSH_TOON),
   },
   {
     id: 'midnight-glaze',
@@ -146,7 +179,7 @@ export const EXAMPLES: readonly Example[] = [
     id: 'ink-swirl',
     title: 'example.ink-swirl.title',
     graph: inkSwirlGraph,
-    previewShape: 'knot',
+    previewShape: 'torus',
     tags: ['painterly', 'voronoi', 'noise', 'unlit'],
     ...fromSpec(INK_SWIRL_SPEC),
   },

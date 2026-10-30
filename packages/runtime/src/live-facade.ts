@@ -1,4 +1,4 @@
-import { WORLEY_METRIC_IDS } from '@nudo-tsl/core'
+import { VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
   BuiltinName,
   CellDimensions,
@@ -7,6 +7,7 @@ import type {
   HashKind,
   NoiseKind,
   Swizzle,
+  ToneMapKind,
   TslFacade,
   VectorType,
   VoronoiMetric,
@@ -14,10 +15,13 @@ import type {
 import { Node, TextureNode } from 'three/webgpu'
 import {
   abs,
+  acesFilmicToneMapping,
   add,
+  agxToneMapping,
   atan,
   cameraPosition,
   checker,
+  cineonToneMapping,
   clamp,
   cos,
   deltaTime,
@@ -29,11 +33,14 @@ import {
   float,
   floor,
   fract,
+  dFdx,
+  dFdy,
   fwidth,
   greaterThan,
   greaterThanEqual,
   length,
   lessThan,
+  linearToneMapping,
   lessThanEqual,
   max,
   min,
@@ -44,6 +51,7 @@ import {
   mx_noise_float,
   mx_worley_noise_vec2,
   mx_worley_noise_vec3,
+  neutralToneMapping,
   normalView,
   normalLocal,
   normalWorld,
@@ -54,6 +62,9 @@ import {
   positionViewDirection,
   positionWorld,
   pow,
+  reflect,
+  refract,
+  reinhardToneMapping,
   remap,
   sRGBTransferEOTF,
   sRGBTransferOETF,
@@ -75,6 +86,8 @@ import { MAIN_LIGHT_UNIFORMS } from './main-light'
 import { normalFromHeight } from './normal-from-height'
 import { sceneDepthFade } from './scene-depth-fade'
 import { simplexNoise3 } from './simplex-noise'
+import { tiledNoise3 } from './tiled-noise'
+import { tiledVoronoi2 } from './tiled-voronoi'
 import { voronoiCell2, voronoiCell3 } from './voronoi-cell'
 import {
   voronoiMinkowski2,
@@ -116,14 +129,20 @@ const dotNodes = widen(dot)
 const lengthNode = widen(length)
 const normalizeNode = widen(normalize)
 const distanceNodes = widen(distance)
+const reflectNodes = widen(reflect)
+const refractNodes = widen(refract)
 const mixNodes = widen(mix)
 const stepNodes = widen(step)
 const smoothstepNodes = widen(smoothstep)
 const fwidthNode = widen(fwidth)
+const dFdxNode = widen(dFdx)
+const dFdyNode = widen(dFdy)
 const remapNodes = widen(remap)
 const selectNodes = widen(select)
 const perlinNoiseNode = widen(mx_noise_float)
 const simplexNoiseNode = widen(simplexNoise3)
+const tiledNoiseNode = widen(tiledNoise3)
+const tiledVoronoiNode = widen(tiledVoronoi2)
 const worleyNoiseVec2Nodes = widen(mx_worley_noise_vec2)
 const worleyNoiseVec3Nodes = widen(mx_worley_noise_vec3)
 const cellNoiseNode = widen(mx_cell_noise_float)
@@ -170,6 +189,15 @@ const HASHES: Readonly<Record<HashKind, TslFunction>> = {
 const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, TslFunction>> = {
   'srgb-to-linear': srgbToLinearNode,
   'linear-to-srgb': linearToSrgbNode,
+}
+
+const TONE_MAPPINGS: Readonly<Record<ToneMapKind, TslFunction>> = {
+  'aces-filmic': widen(acesFilmicToneMapping),
+  agx: widen(agxToneMapping),
+  neutral: widen(neutralToneMapping),
+  reinhard: widen(reinhardToneMapping),
+  cineon: widen(cineonToneMapping),
+  linear: widen(linearToneMapping),
 }
 
 const CONSTRUCTORS: Readonly<Record<VectorType, TslFunction>> = {
@@ -244,14 +272,20 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     length: (a) => lengthNode(a),
     normalize: (a) => normalizeNode(a),
     distance: (a, b) => distanceNodes(a, b),
+    reflect: (i, n) => reflectNodes(i, n),
+    refract: (i, n, eta) => refractNodes(i, n, eta),
+    toneMap: (kind, color, exposure) => TONE_MAPPINGS[kind](color, exposure),
     mix: (a, b, t) => mixNodes(a, b, t),
     step: (edge, x) => stepNodes(edge, x),
     smoothstep: (edge0, edge1, x) => smoothstepNodes(edge0, edge1, x),
     fwidth: (x) => fwidthNode(x),
+    dFdx: (x) => dFdxNode(x),
+    dFdy: (x) => dFdyNode(x),
     remap: (x, inLow, inHigh, outLow, outHigh) => remapNodes(x, inLow, inHigh, outLow, outHigh),
     select: (op, a, b, whenTrue, whenFalse) =>
       selectNodes(COMPARISONS[op](a, b), whenTrue, whenFalse),
     noise: (kind, p) => NOISES[kind](p),
+    tiledNoise: (p, period) => tiledNoiseNode(p, period),
     voronoi: worleyDistances,
     voronoiCell: (dimensions, p, jitter, metric) =>
       CELL_SEARCHES[dimensions](p, jitter, WORLEY_METRIC_IDS[metric]),
@@ -259,6 +293,8 @@ export function createLiveFacade(): TslFacade<LiveNode> {
       MINKOWSKI_DISTANCES[dimensions](p, jitter, exponent),
     voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
       MINKOWSKI_CELL_SEARCHES[dimensions](p, jitter, exponent),
+    tiledVoronoi: (p, jitter, distance, exponent, period) =>
+      tiledVoronoiNode(p, jitter, VORONOI_DISTANCE_IDS[distance], exponent, period),
     cellNoise: (p) => cellNoiseNode(p),
     hash: (kind, p, seed) => HASHES[kind](p, seed),
     checker: (uvNode) => checkerNode(uvNode),

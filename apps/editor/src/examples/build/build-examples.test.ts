@@ -6,11 +6,12 @@ import { describe, expect, it } from 'vitest'
 import { registry } from '@/store/registry'
 
 import { templateTexturesIn } from '../bind-template-textures'
+import { BRUSH_TOON } from './brush-toon'
 import { buildExampleGraph } from './build-example-graph'
 import { frameIdOf } from './example-spec'
 import type { ExampleSpec } from './example-spec'
-import { IRIDESCENT_BLOB } from './iridescent-blob'
 import { LAVA_FLOW } from './lava-flow'
+import { LINES } from './lines'
 import { estimateGeometry } from './node-geometry'
 import {
   INK_SWIRL_SPEC,
@@ -19,8 +20,10 @@ import {
   PEWTER_HAZE_SPEC,
   ROSE_MOON_SPEC,
 } from './painterly-spheres'
+import { PATCH } from './patch'
 import { POND } from './pond'
 import { POSTER } from './poster'
+import { SCRIBBLE } from './scribble'
 import { TEXTURE_FIXTURE } from './texture-fixture'
 
 /**
@@ -30,9 +33,12 @@ import { TEXTURE_FIXTURE } from './texture-fixture'
  */
 const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['pond', POND],
-  ['iridescent-blob', IRIDESCENT_BLOB],
   ['poster', POSTER],
   ['lava-flow', LAVA_FLOW],
+  ['lines', LINES],
+  ['scribble', SCRIBBLE],
+  ['patch', PATCH],
+  ['brush-toon', BRUSH_TOON],
   ['midnight-glaze', MIDNIGHT_GLAZE_SPEC],
   ['pastel-planet', PASTEL_PLANET_SPEC],
   ['pewter-haze', PEWTER_HAZE_SPEC],

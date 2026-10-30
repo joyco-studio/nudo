@@ -1,5 +1,6 @@
 import {
   DEFAULT_PANEL_PREFS,
+  clampExposure,
   clampSplitPercent,
   effectivePreviewLayout,
   nextPreviewLayout,
@@ -103,6 +104,15 @@ export const createUiSlice: EditorSliceCreator<UiSlice> = (set) => ({
   },
   setPreviewBackdrop: (backdrop) => {
     set((state) => withPanels(state, { backdrop }))
+  },
+  setPreviewToneMapping: (toneMapping) => {
+    set((state) => withPanels(state, { toneMapping }))
+  },
+  setPreviewExposure: (exposure) => {
+    set((state) => withPanels(state, { exposure: clampExposure(exposure) }))
+  },
+  setPreviewEnvironment: (environment) => {
+    set((state) => withPanels(state, { environment }))
   },
   setPreviewShape: (shape) => {
     set({ previewShape: shape })

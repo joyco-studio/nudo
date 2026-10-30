@@ -349,6 +349,13 @@ describe('master settings', () => {
     expect(build.material?.colorNode).toBeTruthy()
   })
 
+  it('keeps unlit out of the tone mapping and lit materials in it', () => {
+    const unlit = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
+
+    expect(createMaterial(unlit, registry).material?.toneMapped).toBe(false)
+    expect(createMaterial(createGraph(), registry).material?.toneMapped).toBe(true)
+  })
+
   it('unlit adds emission to the base color', () => {
     const graph = withMasterParam(createGraph(), registry, 'lighting', 'unlit')
 

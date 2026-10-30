@@ -27,7 +27,9 @@ import type {
   PanelId,
   PanelPrefs,
   PreviewBackdrop,
+  PreviewEnvironment,
   PreviewLayout,
+  PreviewToneMapping,
 } from '@/features/panels/panel-state'
 
 /** Where a resizable node (a comment frame) ends up after a resize. */
@@ -169,6 +171,10 @@ export interface UiSlice {
   /** Ends a draft that no person made (a layout the library adjusted on its own). */
   discardSplitDraft(): void
   setPreviewBackdrop(backdrop: PreviewBackdrop): void
+  setPreviewToneMapping(toneMapping: PreviewToneMapping): void
+  /** Clamped to the preview's exposure range. */
+  setPreviewExposure(exposure: number): void
+  setPreviewEnvironment(environment: PreviewEnvironment): void
   setPreviewShape(shape: PreviewShape): void
 }
 

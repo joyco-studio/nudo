@@ -11,6 +11,7 @@ import {
   PREVIEW_CAMERA,
   startPreviewRenderer,
 } from '@/features/main-preview/preview-gl'
+import { usePreviewLook } from '@/features/main-preview/preview-look-fields'
 import { PreviewScene } from '@/features/main-preview/preview-scene'
 import {
   getThemeBackgroundHex,
@@ -125,6 +126,8 @@ export function TemplatePreview({ example, title }: TemplatePreviewProps) {
   const [isUnavailable, setIsUnavailable] = useState(false)
   const backgroundColor = useSyncExternalStore(subscribeToThemeBackground, getThemeBackgroundHex)
   const orbitRef = useRef<OrbitView | null>(null)
+  // The same look as the main preview, so a template opens looking as it was browsed.
+  const look = usePreviewLook()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const canvasLabel = t('templates.preview', { title })
   const status = isUnavailable ? 'unavailable' : statusOf(example.id, preview, shown)
@@ -182,6 +185,9 @@ export function TemplatePreview({ example, title }: TemplatePreviewProps) {
             model={null}
             backgroundColor={backgroundColor}
             backdrop="grid"
+            toneMapping={look.toneMapping}
+            exposure={look.exposure}
+            environment={look.environment}
             orbitRef={orbitRef}
             onMaterialStatus={onMaterialStatus}
           />

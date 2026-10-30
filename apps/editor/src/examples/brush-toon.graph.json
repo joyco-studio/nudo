@@ -1,0 +1,1038 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "brush": {
+      "id": "brush",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": -2760,
+        "y": 210
+      },
+      "inputValues": {
+        "texture": {
+          "type": "texture",
+          "assetId": "template:brush-stroke"
+        }
+      },
+      "params": {
+        "mip": "auto"
+      }
+    },
+    "brushCentered": {
+      "id": "brushCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -2056,
+        "y": 804
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "brushScale": {
+      "id": "brushScale",
+      "type": "property/float",
+      "position": {
+        "x": -3352,
+        "y": 582
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "brushScale"
+      }
+    },
+    "brushShift": {
+      "id": "brushShift",
+      "type": "math/multiply",
+      "position": {
+        "x": -1736,
+        "y": 879
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "brushUv": {
+      "id": "brushUv",
+      "type": "math/multiply",
+      "position": {
+        "x": -3080,
+        "y": 354
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "brushValue": {
+      "id": "brushValue",
+      "type": "vector/split",
+      "position": {
+        "x": -2440,
+        "y": 140
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cellDirection": {
+      "id": "cellDirection",
+      "type": "math/remap",
+      "position": {
+        "x": -3400,
+        "y": 913
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 1
+        },
+        "outMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "cellRandom": {
+      "id": "cellRandom",
+      "type": "math/hash",
+      "position": {
+        "x": -3720,
+        "y": 922
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeBite": {
+      "id": "edgeBite",
+      "type": "property/float",
+      "position": {
+        "x": -712,
+        "y": 321
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "edgeBite"
+      }
+    },
+    "edgeOpacity": {
+      "id": "edgeOpacity",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": -332
+      },
+      "inputValues": {
+        "a": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "facetCells": {
+      "id": "facetCells",
+      "type": "effects/voronoi-3d",
+      "position": {
+        "x": -4040,
+        "y": 866
+      },
+      "inputValues": {},
+      "params": {
+        "distance": "euclidean"
+      }
+    },
+    "facetNormal": {
+      "id": "facetNormal",
+      "type": "vector/normalize",
+      "position": {
+        "x": -2440,
+        "y": 823
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "facetScale": {
+      "id": "facetScale",
+      "type": "property/float",
+      "position": {
+        "x": -4312,
+        "y": 1243
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "facetScale"
+      }
+    },
+    "facetTilt": {
+      "id": "facetTilt",
+      "type": "property/float",
+      "position": {
+        "x": -3352,
+        "y": 1300
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "facetTilt"
+      }
+    },
+    "frame-edges": {
+      "id": "frame-edges",
+      "type": "utility/comment",
+      "position": {
+        "x": -744,
+        "y": -529
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The bundled stroke mask, twice as fine as the brush: white strokes with dark gaps. Fresnel rises toward the silhouette; there Lerp swaps full opacity for the mask, and Alpha Clip cuts away what falls under Edge bite, so the edge frays along the strokes. 0 keeps the edge whole.",
+        "height": 912,
+        "title": "Brushed-off edges",
+        "width": 1248
+      }
+    },
+    "frame-facets": {
+      "id": "frame-facets",
+      "type": "utility/comment",
+      "position": {
+        "x": -5352,
+        "y": 689
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Voronoi 3D over a noise-bent position cuts the mesh into cells. Random gives each cell its own direction (Out3, moved to -1…1); added to the normal × facet tilt, it tips every cell toward or away from the light like a flat brush dab.",
+        "height": 740,
+        "title": "Painted facets",
+        "width": 3168
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -2088,
+        "y": 438
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Main Light's Half Lambert on the faceted normal: Blender's Shader to RGB. The brush value, around its middle × paint, shifts it so the colors break along the strokes. Remap squeezes it into the band the palette sits in.",
+        "height": 744,
+        "title": "Light as a value",
+        "width": 1248
+      }
+    },
+    "frame-palette": {
+      "id": "frame-palette",
+      "type": "utility/comment",
+      "position": {
+        "x": -104,
+        "y": 415
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The five colors of the Blender ramp at its positions: navy up to 0.80, then blue, green, coral and cream. Smooth eases between them, like its B-spline. The brush texture goes over them in soft light, half strength, so the streaks show in every color.",
+        "height": 757,
+        "title": "Palette",
+        "width": 608
+      }
+    },
+    "frame-strokes": {
+      "id": "frame-strokes",
+      "type": "utility/comment",
+      "position": {
+        "x": -3752,
+        "y": 60
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The bundled brush texture, read at the UV × 2, 1 (a sphere runs twice as far around as up) × brush scale: flat strokes in many greys, with bristle streaks and dry gaps. Its grey is the brush value.",
+        "height": 597,
+        "title": "Brush strokes",
+        "width": 1568
+      }
+    },
+    "litPaint": {
+      "id": "litPaint",
+      "type": "math/add",
+      "position": {
+        "x": -1416,
+        "y": 691
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "mainLight": {
+      "id": "mainLight",
+      "type": "input/main-light",
+      "position": {
+        "x": -1736,
+        "y": 534
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "mask": {
+      "id": "mask",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": -392,
+        "y": -363
+      },
+      "inputValues": {
+        "texture": {
+          "type": "texture",
+          "assetId": "template:stroke-mask"
+        }
+      },
+      "params": {
+        "mip": "auto"
+      }
+    },
+    "maskUv": {
+      "id": "maskUv",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": -219
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "maskValue": {
+      "id": "maskValue",
+      "type": "vector/split",
+      "position": {
+        "x": -72,
+        "y": -433
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit",
+        "surface": "opaque"
+      }
+    },
+    "normal": {
+      "id": "normal",
+      "type": "input/normal",
+      "position": {
+        "x": -3080,
+        "y": 769
+      },
+      "inputValues": {},
+      "params": {
+        "space": "world"
+      }
+    },
+    "paint": {
+      "id": "paint",
+      "type": "property/float",
+      "position": {
+        "x": -2008,
+        "y": 1107
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paint"
+      }
+    },
+    "painted": {
+      "id": "painted",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 543
+      },
+      "inputValues": {
+        "opacity": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {
+        "mode": "soft-light"
+      }
+    },
+    "palette": {
+      "id": "palette",
+      "type": "color/color-ramp",
+      "position": {
+        "x": -72,
+        "y": 580
+      },
+      "inputValues": {
+        "stop0Color": {
+          "type": "vec3",
+          "value": [
+            0.014,
+            0.003,
+            0.252
+          ]
+        },
+        "stop0Position": {
+          "type": "float",
+          "value": 0.8
+        },
+        "stop1Color": {
+          "type": "vec3",
+          "value": [
+            0.02,
+            0.018,
+            0.882
+          ]
+        },
+        "stop1Position": {
+          "type": "float",
+          "value": 0.84
+        },
+        "stop2Color": {
+          "type": "vec3",
+          "value": [
+            0.005,
+            0.899,
+            0.319
+          ]
+        },
+        "stop2Position": {
+          "type": "float",
+          "value": 0.9
+        },
+        "stop3Color": {
+          "type": "vec3",
+          "value": [
+            1,
+            0.284,
+            0.256
+          ]
+        },
+        "stop3Position": {
+          "type": "float",
+          "value": 0.95
+        },
+        "stop4Color": {
+          "type": "vec3",
+          "value": [
+            0.931,
+            0.905,
+            0.799
+          ]
+        },
+        "stop4Position": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {
+        "count": 5,
+        "interpolation": "smooth"
+      }
+    },
+    "position": {
+      "id": "position",
+      "type": "input/position",
+      "position": {
+        "x": -5320,
+        "y": 1019
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "rampIn": {
+      "id": "rampIn",
+      "type": "math/remap",
+      "position": {
+        "x": -1096,
+        "y": 654
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0.97
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.7
+        }
+      },
+      "params": {}
+    },
+    "rim": {
+      "id": "rim",
+      "type": "effects/fresnel",
+      "position": {
+        "x": -72,
+        "y": -74
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 2.5
+        }
+      },
+      "params": {}
+    },
+    "tilt": {
+      "id": "tilt",
+      "type": "math/multiply",
+      "position": {
+        "x": -3080,
+        "y": 1030
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tilted": {
+      "id": "tilted",
+      "type": "math/add",
+      "position": {
+        "x": -2760,
+        "y": 860
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uv": {
+      "id": "uv",
+      "type": "input/uv",
+      "position": {
+        "x": -3720,
+        "y": 330
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uvAspect": {
+      "id": "uvAspect",
+      "type": "math/multiply",
+      "position": {
+        "x": -3400,
+        "y": 279
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            2,
+            1
+          ]
+        }
+      },
+      "params": {}
+    },
+    "warpNoise": {
+      "id": "warpNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -5000,
+        "y": 949
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1.5
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "tile": false
+      }
+    },
+    "warpOffset": {
+      "id": "warpOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -4680,
+        "y": 1005
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.35
+        }
+      },
+      "params": {}
+    },
+    "warped": {
+      "id": "warped",
+      "type": "math/add",
+      "position": {
+        "x": -4360,
+        "y": 940
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "brush.rgb-brushValue.in": {
+      "id": "brush.rgb-brushValue.in",
+      "from": {
+        "nodeId": "brush",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "brushValue",
+        "portId": "in"
+      }
+    },
+    "brush.rgb-painted.blend": {
+      "id": "brush.rgb-painted.blend",
+      "from": {
+        "nodeId": "brush",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "painted",
+        "portId": "blend"
+      }
+    },
+    "brushCentered.out-brushShift.a": {
+      "id": "brushCentered.out-brushShift.a",
+      "from": {
+        "nodeId": "brushCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brushShift",
+        "portId": "a"
+      }
+    },
+    "brushScale.out-brushUv.b": {
+      "id": "brushScale.out-brushUv.b",
+      "from": {
+        "nodeId": "brushScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brushUv",
+        "portId": "b"
+      }
+    },
+    "brushShift.out-litPaint.b": {
+      "id": "brushShift.out-litPaint.b",
+      "from": {
+        "nodeId": "brushShift",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "litPaint",
+        "portId": "b"
+      }
+    },
+    "brushUv.out-brush.uv": {
+      "id": "brushUv.out-brush.uv",
+      "from": {
+        "nodeId": "brushUv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brush",
+        "portId": "uv"
+      }
+    },
+    "brushUv.out-maskUv.a": {
+      "id": "brushUv.out-maskUv.a",
+      "from": {
+        "nodeId": "brushUv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "maskUv",
+        "portId": "a"
+      }
+    },
+    "brushValue.x-brushCentered.a": {
+      "id": "brushValue.x-brushCentered.a",
+      "from": {
+        "nodeId": "brushValue",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "brushCentered",
+        "portId": "a"
+      }
+    },
+    "cellDirection.out-tilt.a": {
+      "id": "cellDirection.out-tilt.a",
+      "from": {
+        "nodeId": "cellDirection",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tilt",
+        "portId": "a"
+      }
+    },
+    "cellRandom.out3-cellDirection.in": {
+      "id": "cellRandom.out3-cellDirection.in",
+      "from": {
+        "nodeId": "cellRandom",
+        "portId": "out3"
+      },
+      "to": {
+        "nodeId": "cellDirection",
+        "portId": "in"
+      }
+    },
+    "edgeBite.out-master.alphaClip": {
+      "id": "edgeBite.out-master.alphaClip",
+      "from": {
+        "nodeId": "edgeBite",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "alphaClip"
+      }
+    },
+    "edgeOpacity.out-master.opacity": {
+      "id": "edgeOpacity.out-master.opacity",
+      "from": {
+        "nodeId": "edgeOpacity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "opacity"
+      }
+    },
+    "facetCells.cell-cellRandom.in": {
+      "id": "facetCells.cell-cellRandom.in",
+      "from": {
+        "nodeId": "facetCells",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "cellRandom",
+        "portId": "in"
+      }
+    },
+    "facetNormal.out-mainLight.normal": {
+      "id": "facetNormal.out-mainLight.normal",
+      "from": {
+        "nodeId": "facetNormal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mainLight",
+        "portId": "normal"
+      }
+    },
+    "facetScale.out-facetCells.scale": {
+      "id": "facetScale.out-facetCells.scale",
+      "from": {
+        "nodeId": "facetScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facetCells",
+        "portId": "scale"
+      }
+    },
+    "facetTilt.out-tilt.b": {
+      "id": "facetTilt.out-tilt.b",
+      "from": {
+        "nodeId": "facetTilt",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tilt",
+        "portId": "b"
+      }
+    },
+    "litPaint.out-rampIn.in": {
+      "id": "litPaint.out-rampIn.in",
+      "from": {
+        "nodeId": "litPaint",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rampIn",
+        "portId": "in"
+      }
+    },
+    "mainLight.halfLambert-litPaint.a": {
+      "id": "mainLight.halfLambert-litPaint.a",
+      "from": {
+        "nodeId": "mainLight",
+        "portId": "halfLambert"
+      },
+      "to": {
+        "nodeId": "litPaint",
+        "portId": "a"
+      }
+    },
+    "mask.rgb-maskValue.in": {
+      "id": "mask.rgb-maskValue.in",
+      "from": {
+        "nodeId": "mask",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "maskValue",
+        "portId": "in"
+      }
+    },
+    "maskUv.out-mask.uv": {
+      "id": "maskUv.out-mask.uv",
+      "from": {
+        "nodeId": "maskUv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "mask",
+        "portId": "uv"
+      }
+    },
+    "maskValue.x-edgeOpacity.b": {
+      "id": "maskValue.x-edgeOpacity.b",
+      "from": {
+        "nodeId": "maskValue",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "edgeOpacity",
+        "portId": "b"
+      }
+    },
+    "normal.out-tilted.a": {
+      "id": "normal.out-tilted.a",
+      "from": {
+        "nodeId": "normal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tilted",
+        "portId": "a"
+      }
+    },
+    "paint.out-brushShift.b": {
+      "id": "paint.out-brushShift.b",
+      "from": {
+        "nodeId": "paint",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brushShift",
+        "portId": "b"
+      }
+    },
+    "painted.out-master.baseColor": {
+      "id": "painted.out-master.baseColor",
+      "from": {
+        "nodeId": "painted",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "palette.out-painted.base": {
+      "id": "palette.out-painted.base",
+      "from": {
+        "nodeId": "palette",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "painted",
+        "portId": "base"
+      }
+    },
+    "position.out-warpNoise.p": {
+      "id": "position.out-warpNoise.p",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warpNoise",
+        "portId": "p"
+      }
+    },
+    "position.out-warped.a": {
+      "id": "position.out-warped.a",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warped",
+        "portId": "a"
+      }
+    },
+    "rampIn.out-palette.in": {
+      "id": "rampIn.out-palette.in",
+      "from": {
+        "nodeId": "rampIn",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "palette",
+        "portId": "in"
+      }
+    },
+    "rim.out-edgeOpacity.t": {
+      "id": "rim.out-edgeOpacity.t",
+      "from": {
+        "nodeId": "rim",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeOpacity",
+        "portId": "t"
+      }
+    },
+    "tilt.out-tilted.b": {
+      "id": "tilt.out-tilted.b",
+      "from": {
+        "nodeId": "tilt",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tilted",
+        "portId": "b"
+      }
+    },
+    "tilted.out-facetNormal.in": {
+      "id": "tilted.out-facetNormal.in",
+      "from": {
+        "nodeId": "tilted",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facetNormal",
+        "portId": "in"
+      }
+    },
+    "uv.out-uvAspect.a": {
+      "id": "uv.out-uvAspect.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "uvAspect",
+        "portId": "a"
+      }
+    },
+    "uvAspect.out-brushUv.a": {
+      "id": "uvAspect.out-brushUv.a",
+      "from": {
+        "nodeId": "uvAspect",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brushUv",
+        "portId": "a"
+      }
+    },
+    "warpNoise.out-warpOffset.a": {
+      "id": "warpNoise.out-warpOffset.a",
+      "from": {
+        "nodeId": "warpNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warpOffset",
+        "portId": "a"
+      }
+    },
+    "warpOffset.out-warped.b": {
+      "id": "warpOffset.out-warped.b",
+      "from": {
+        "nodeId": "warpOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warped",
+        "portId": "b"
+      }
+    },
+    "warped.out-facetCells.position": {
+      "id": "warped.out-facetCells.position",
+      "from": {
+        "nodeId": "warped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facetCells",
+        "portId": "position"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "facetScale",
+      "label": "Facet scale",
+      "name": "facetScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 6
+      }
+    },
+    {
+      "id": "facetTilt",
+      "label": "Facet tilt",
+      "name": "facetTilt",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.18
+      }
+    },
+    {
+      "id": "paint",
+      "label": "Paint",
+      "name": "paint",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.3
+      }
+    },
+    {
+      "id": "brushScale",
+      "label": "Brush scale",
+      "name": "brushScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.6
+      }
+    },
+    {
+      "id": "edgeBite",
+      "label": "Edge bite",
+      "name": "edgeBite",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.5
+      }
+    }
+  ]
+}

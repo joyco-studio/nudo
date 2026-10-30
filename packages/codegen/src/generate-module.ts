@@ -144,6 +144,7 @@ export function generateModule(
     outline: outlineMaterialAssignments(backend.tsl, slots, settings),
     transparent,
     doubleSided: settings.twoSided,
+    toneMapped: settings.lighting !== 'unlit',
   }
   return { code: printModule(plan), errors: [] }
 }

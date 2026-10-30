@@ -22,11 +22,11 @@ function property(overrides: Partial<BlackboardProperty>): BlackboardProperty {
 
 describe('templateFacts', () => {
   it('counts the nodes that do the work: no master, no comment frames', () => {
-    const blob = EXAMPLES.find((example) => example.id === 'iridescent-blob')
-    if (blob === undefined) throw new Error('No blob')
+    const lava = EXAMPLES.find((example) => example.id === 'lava-flow')
+    if (lava === undefined) throw new Error('No lava flow')
 
-    // 26 on the canvas: 20 nodes, 5 comment frames and the master.
-    expect(templateFacts(blob)?.nodeCount).toBe(20)
+    // 89 on the canvas: 80 nodes, 8 comment frames and the master.
+    expect(templateFacts(lava)?.nodeCount).toBe(80)
   })
 
   it('lists every template’s properties', () => {

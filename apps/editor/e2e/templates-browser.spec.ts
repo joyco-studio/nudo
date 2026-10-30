@@ -16,9 +16,9 @@ import { TIME_TO_SINE, seedAutosave } from './support/seed-graph'
 const PALETTE_CHORD = 'ControlOrMeta+k'
 const UNDO_CHORD = 'ControlOrMeta+z'
 const SHEET = '[data-slot="sheet-content"]'
-const BLOB = 'Iridescent blob'
-/** The iridescent blob on the canvas: 20 nodes, five comment frames and the master. */
-const BLOB_NODE_COUNT = 26
+const POSTER = 'Poster'
+/** The poster on the canvas: 32 nodes, five comment frames and the master. */
+const POSTER_NODE_COUNT = 38
 /** Two different templates on two different meshes read as clearly different colors. */
 const MIN_COLOR_DISTANCE = 30
 /** A shader compile in software WebGL (the pond is large) can take a while. */
@@ -88,11 +88,11 @@ test.describe('templates browser', () => {
     await expect(canvas).toBeFocused()
 
     await page.keyboard.press(PALETTE_CHORD)
-    await page.keyboard.type('blob')
-    await expect(palette.getByRole('option').first()).toContainText(`Template: ${BLOB}`)
+    await page.keyboard.type('poster')
+    await expect(palette.getByRole('option').first()).toContainText(`Template: ${POSTER}`)
     await page.keyboard.press('Enter')
-    await expect(browser.getByRole('option', { name: BLOB })).toBeFocused()
-    await expect(browser.getByRole('option', { name: BLOB })).toHaveAttribute(
+    await expect(browser.getByRole('option', { name: POSTER })).toBeFocused()
+    await expect(browser.getByRole('option', { name: POSTER })).toHaveAttribute(
       'aria-selected',
       'true',
     )
@@ -110,7 +110,7 @@ test.describe('templates browser', () => {
     const first = await shownTemplate(page)
     const firstColor = await centerColor(page, await canvas.screenshot())
 
-    await selectTemplateByKeyboard(page, BLOB)
+    await selectTemplateByKeyboard(page, POSTER)
     const second = await shownTemplate(page, first)
     const secondColor = await centerColor(page, await canvas.screenshot())
 
@@ -124,9 +124,9 @@ test.describe('templates browser', () => {
     const browser = templatesBrowser(page)
     await expect(browser.getByRole('option', { selected: true })).toBeFocused()
 
-    await page.keyboard.type('iri')
-    await expect(browser.getByRole('option', { name: BLOB })).toBeFocused()
-    await expect(browser.getByRole('option', { name: BLOB })).toHaveAttribute(
+    await page.keyboard.type('pos')
+    await expect(browser.getByRole('option', { name: POSTER })).toBeFocused()
+    await expect(browser.getByRole('option', { name: POSTER })).toHaveAttribute(
       'aria-selected',
       'true',
     )
@@ -142,21 +142,21 @@ test.describe('templates browser', () => {
     await page.keyboard.press('Enter')
     const browser = templatesBrowser(page)
     await expect(browser.getByRole('option', { selected: true })).toBeFocused()
-    await selectTemplateByKeyboard(page, BLOB)
+    await selectTemplateByKeyboard(page, POSTER)
     const openButton = browser.getByRole('button', { name: 'Open template' })
     // Tab stays inside the sheet on its way to the button.
     await tabUntilFocused(page, openButton)
     await expectFocusRing(page, openButton)
 
     // Back into the list: the selected option says it has focus, apart from being selected.
-    const blobOption = browser.getByRole('option', { name: BLOB })
-    await shiftTabUntilFocused(page, blobOption)
-    await expect(blobOption).toHaveCSS('box-shadow', /inset/)
+    const posterOption = browser.getByRole('option', { name: POSTER })
+    await shiftTabUntilFocused(page, posterOption)
+    await expect(posterOption).toHaveCSS('box-shadow', /inset/)
     await tabUntilFocused(page, openButton)
     await page.keyboard.press('Enter')
 
     await expect(browser).toBeHidden()
-    await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
+    await expect(page.locator('.react-flow__node')).toHaveCount(POSTER_NODE_COUNT)
     await expect(templatesButton(page)).toBeFocused()
   })
 
@@ -170,12 +170,12 @@ test.describe('templates browser', () => {
 
     await templatesButton(page).click()
     const browser = templatesBrowser(page)
-    await browser.getByRole('option', { name: BLOB }).click()
+    await browser.getByRole('option', { name: POSTER }).click()
     const openButton = browser.getByRole('button', { name: 'Open template' })
     await openButton.click()
 
     const confirm = page.getByRole('alertdialog')
-    await expect(confirm).toContainText(`Open “${BLOB}”?`)
+    await expect(confirm).toContainText(`Open “${POSTER}”?`)
     // Cancelling keeps the graph and the browser, focus back on the button that asked.
     await confirm.getByRole('button', { name: 'Cancel' }).click()
     await expect(confirm).toBeHidden()
@@ -185,8 +185,8 @@ test.describe('templates browser', () => {
     await openButton.click()
     await confirm.getByRole('button', { name: 'Open template' }).click()
     await expect(browser).toBeHidden()
-    await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
-    await expect(page.getByRole('radio', { name: 'Knot', exact: true })).toBeChecked()
+    await expect(page.locator('.react-flow__node')).toHaveCount(POSTER_NODE_COUNT)
+    await expect(page.getByRole('radio', { name: 'Suzanne', exact: true })).toBeChecked()
     await expect.poll(() => storedNodeIds(page)).not.toEqual(before)
 
     await page.getByRole('main', { name: 'Node canvas' }).focus()

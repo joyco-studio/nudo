@@ -13,7 +13,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createCatalogGraph } from './fixtures/catalog-graph'
 import { createLightsPropertyGraph } from './fixtures/lights-property-graph'
 import { unwrap } from './fixtures/unwrap'
-import iridescentBlobGraph from '../../../apps/editor/src/examples/iridescent-blob.graph.json'
+import lavaFlowGraph from '../../../apps/editor/src/examples/lava-flow.graph.json'
 import pondGraph from '../../../apps/editor/src/examples/pond.graph.json'
 import waterGraphV1 from './fixtures/water-graph-v1.json'
 import { generateModule } from './index'
@@ -34,6 +34,8 @@ const RUNTIME_SOURCES: Readonly<Record<(typeof HELPER_ORDER)[number], string>> =
   voronoiMinkowskiCell3: '../../runtime/src/voronoi-minkowski.ts',
   hashFloat: '../../runtime/src/hash-noise.ts',
   hashVec3: '../../runtime/src/hash-noise.ts',
+  tiledNoise3: '../../runtime/src/tiled-noise.ts',
+  tiledVoronoi2: '../../runtime/src/tiled-voronoi.ts',
 }
 
 const registry = createDefaultRegistry()
@@ -120,8 +122,8 @@ describe('generated module parity', () => {
     expect(uniforms).toContain('laceSun')
   })
 
-  it('builds the iridescent blob example as three nodes', async () => {
-    const loaded = await loadGenerated(unwrap(parseGraph(iridescentBlobGraph, registry)))
+  it('builds the lava flow example as three nodes', async () => {
+    const loaded = await loadGenerated(unwrap(parseGraph(lavaFlowGraph, registry)))
 
     expect(expectEverySlotIsANode(loaded).length).toBeGreaterThan(0)
   })

@@ -8,7 +8,7 @@ import {
   typeaheadIndex,
 } from './template-listbox'
 
-const TITLES = ['Pond', 'Simple water', 'Iridescent blob', 'Soft sand'] as const
+const TITLES = ['Pond', 'Simple water', 'Lava flow', 'Soft sand'] as const
 const RESET_MS = 500
 
 describe('moveSelection', () => {
@@ -37,7 +37,7 @@ describe('moveSelection', () => {
 
 describe('typeaheadIndex', () => {
   it('finds the first title that starts with the typed text, from the current option on', () => {
-    expect(typeaheadIndex(TITLES, 'iri', 0)).toBe(2)
+    expect(typeaheadIndex(TITLES, 'lav', 0)).toBe(2)
     expect(typeaheadIndex(TITLES, 'pond', 3)).toBe(0)
   })
 

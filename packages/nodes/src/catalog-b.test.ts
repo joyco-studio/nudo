@@ -36,6 +36,7 @@ import {
   timeNode,
   voronoiNode,
 } from './index'
+import { TILE_PARAM } from './effects/tile-period'
 
 const CATALOG_B_TYPES = [
   'input/vector2',
@@ -204,12 +205,24 @@ describe('effects nodes', () => {
     )
   })
 
-  it('noise declares kind and octaves, a vec3 point at zero, a scale of 1, roughness and lacunarity', () => {
+  it("noise's Perlin 2D reads the scaled point's X and Y with MaterialX's 2D Perlin", () => {
+    const params = { kind: 'perlin-2d' }
+    expect(buildWith(noiseNode, { p: 'p', scale: 's' }, params).out).toBe(
+      'noise(perlin,swizzle(mul(p,s),xy))',
+    )
+    // Tiling has one periodic noise for every kind, 2D included.
+    expect(
+      buildWith(noiseNode, { p: 'p', scale: 's', period: 'q' }, { ...params, tile: true }).out,
+    ).toMatch(/^tiledNoise\(/)
+  })
+
+  it('noise declares kind, octaves and tile, a vec3 point at zero, a scale of 1, roughness, lacunarity and a period', () => {
     expect(noiseNode.inputs.map((input) => [input.id, input.default])).toEqual([
       ['p', { type: 'vec3', value: [0, 0, 0] }],
       ['scale', { type: 'float', value: 1 }],
       ['roughness', { type: 'float', value: 0.5 }],
       ['lacunarity', { type: 'float', value: 2 }],
+      ['period', { type: 'vec3', value: [1, 1, 0] }],
     ])
     expect(noiseNode.params).toEqual([
       {
@@ -219,10 +232,12 @@ describe('effects nodes', () => {
         options: [
           { value: 'perlin', label: 'Perlin' },
           { value: 'simplex', label: 'Simplex' },
+          { value: 'perlin-2d', label: 'Perlin 2D' },
         ],
         default: 'simplex',
       },
       { id: 'octaves', label: 'Octaves', kind: 'number', default: 1, min: 1, max: 8, step: 1 },
+      TILE_PARAM,
     ])
   })
 
@@ -242,6 +257,14 @@ describe('effects nodes', () => {
       ['out', { kind: 'concrete', type: 'float' }],
       ['color', { kind: 'concrete', type: 'vec3' }],
     ])
+  })
+
+  it('shows the period only while the noise tiles', () => {
+    const period = noiseNode.inputs.find((input) => input.id === 'period')
+
+    expect(period?.hiddenWhen?.({})).toBe(true)
+    expect(period?.hiddenWhen?.({ tile: false })).toBe(true)
+    expect(period?.hiddenWhen?.({ tile: true })).toBe(false)
   })
 
   describe('noise octaves', () => {
@@ -279,6 +302,42 @@ describe('effects nodes', () => {
 
     it('ignores a stored octave count that is not a number', () => {
       expect(buildWith(noiseNode, inputs, { octaves: 'many' }).out).toBe(single)
+    })
+
+    it('never reads the period while it does not tile', () => {
+      const withPeriod = { ...inputs, period: 'period' }
+
+      expect(buildWith(noiseNode, withPeriod).out).toBe(single)
+      expect(buildWith(noiseNode, withPeriod, { octaves: 3 })).toEqual(
+        buildWith(noiseNode, inputs, { octaves: 3 }),
+      )
+    })
+
+    it('tiles every octave on a whole number of lattice cells', () => {
+      const tiled = buildWith(
+        noiseNode,
+        { ...inputs, period: 'period' },
+        { tile: true, octaves: 2 },
+      ).out
+      if (tiled === undefined) throw new Error('No noise output')
+      const lattice = (cells: string): string =>
+        `max(floor(add(${cells},construct(float,[0.5]))),step(construct(float,[0.0001]),${cells}))`
+      const firstCells = 'mul(mul(period,s),construct(float,[1]))'
+
+      expect(tiled).not.toContain('noise(simplex')
+      expect(tiled.match(/tiledNoise\(/g)).toHaveLength(2)
+      expect(tiled).toContain(lattice(firstCells))
+      expect(tiled).toContain('mul(mul(period,s),pow(l,construct(float,[1])))')
+    })
+
+    it('tiles every channel of its color too, each offset sample on the same lattice', () => {
+      const { color } = buildWith(noiseNode, { ...inputs, period: 'period' }, { tile: true })
+      if (color === undefined) throw new Error('No noise color')
+
+      expect(color).not.toContain('noise(simplex')
+      expect(color.match(/tiledNoise\(/g)).toHaveLength(3)
+      expect(color).toContain('add(mul(p,s),construct(vec3,[19.1,33.4,47.2]))')
+      expect(color).toContain('add(mul(p,s),construct(vec3,[74.2,-124.5,99.4]))')
     })
   })
 
@@ -364,7 +423,39 @@ describe('effects nodes', () => {
           ],
           default: 'euclidean',
         },
+        TILE_PARAM,
       ])
+    })
+
+    it('searches a wrapped lattice while it tiles, and wraps the cell it names for Random', () => {
+      const outputs = buildWith(
+        voronoiNode,
+        { ...VORONOI_INPUTS, period: 'period' },
+        { tile: true, distance: 'manhattan' },
+      )
+
+      expect(outputs.f1).toMatch(
+        /^swizzle\(tiledVoronoi\(mul\(mul\(uv,scale\),mix\(.*\),jitter,manhattan,exponent,max\(floor/,
+      )
+      expect(outputs.cell).toMatch(/^construct\(vec2,\[swizzle\(tiledVoronoi/)
+      expect(outputs.random).toMatch(/^cellNoise\(sub\(floor\(construct\(vec2/)
+    })
+
+    it('tiles under the Minkowski distance too, with its exponent', () => {
+      const outputs = buildWith(
+        voronoiNode,
+        { ...VORONOI_INPUTS, period: 'period' },
+        { tile: true, distance: 'minkowski' },
+      )
+
+      expect(outputs.f1).toMatch(/^swizzle\(tiledVoronoi\(.*,jitter,minkowski,exponent,max\(floor/)
+      expect(outputs.f1).not.toContain('voronoiMinkowski')
+    })
+
+    it('never reads the period while it does not tile', () => {
+      expect(buildWith(voronoiNode, { ...VORONOI_INPUTS, period: 'period' })).toEqual(
+        buildWith(voronoiNode, VORONOI_INPUTS),
+      )
     })
 
     it('keeps its UV input a concrete vec2', () => {

@@ -10,6 +10,7 @@ import { blendNode } from './color/blend-node'
 import { brightContrastNode } from './color/bright-contrast-node'
 import { colorRampNode } from './color/color-ramp-node'
 import { colorSpaceNode } from './color/color-space-node'
+import { toneMapNode } from './color/tone-map-node'
 import { cameraPositionNode } from './input/camera-position-node'
 import { mainLightNode } from './input/main-light-node'
 import { colorNode } from './input/color-node'
@@ -38,6 +39,8 @@ import { expNode } from './math/exp-node'
 import { floorNode } from './math/floor-node'
 import { fractNode } from './math/fract-node'
 import { hashNode } from './math/hash-node'
+import { derivativesNode } from './math/derivatives-node'
+import { blackbodyNode } from './color/blackbody-node'
 import { maxNode } from './math/max-node'
 import { minNode } from './math/min-node'
 import { moduloNode } from './math/modulo-node'
@@ -67,6 +70,8 @@ import { dotNode } from './vector/dot-node'
 import { lengthNode } from './vector/length-node'
 import { mappingNode } from './vector/mapping-node'
 import { normalizeNode } from './vector/normalize-node'
+import { reflectNode } from './vector/reflect-node'
+import { refractNode } from './vector/refract-node'
 import { rotate2dNode } from './vector/rotate-2d-node'
 import { splitNode } from './vector/split-node'
 
@@ -139,7 +144,7 @@ export const PHASE_2_CATALOG_B: readonly AnyNodeDefinition[] = [
   rerouteNode,
 ]
 
-/** The catalog phase's additions: math, color, effects, texture and input nodes. */
+/** The catalog phase's additions: math, color, effects, texture, input and vector nodes. */
 export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   posterizeNode,
   moduloNode,
@@ -152,6 +157,11 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   mappingNode,
   brightContrastNode,
   atan2Node,
+  blackbodyNode,
+  derivativesNode,
+  reflectNode,
+  refractNode,
+  toneMapNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {

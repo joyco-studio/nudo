@@ -95,7 +95,7 @@
       "type": "property/float",
       "position": {
         "x": -6616,
-        "y": 688
+        "y": 700
       },
       "inputValues": {},
       "params": {
@@ -107,7 +107,7 @@
       "type": "effects/noise",
       "position": {
         "x": -6664,
-        "y": 12
+        "y": -41
       },
       "inputValues": {
         "scale": {
@@ -117,7 +117,8 @@
       },
       "params": {
         "kind": "perlin",
-        "octaves": 3
+        "octaves": 3,
+        "tile": false
       }
     },
     "bent": {
@@ -211,7 +212,7 @@
       "type": "math/multiply",
       "position": {
         "x": -8008,
-        "y": 209
+        "y": 201
       },
       "inputValues": {
         "b": {
@@ -256,12 +257,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6696,
-        "y": -84
+        "y": -137
       },
       "inputValues": {},
       "params": {
         "body": "The normal, bent by Noise Color in Linear Light, snaps to the cells of a Minkowski Voronoi: its exponent below 1 pinches each cell into a star. The normalized cell is the new normal, so the light breaks into brush-stroke facets.",
-        "height": 864,
+        "height": 917,
         "title": "Brush normals",
         "width": 1248
       }
@@ -271,7 +272,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8680,
-        "y": -38
+        "y": -46
       },
       "inputValues": {},
       "params": {
@@ -346,7 +347,7 @@
       "type": "math/add",
       "position": {
         "x": -7048,
-        "y": 42
+        "y": 34
       },
       "inputValues": {
         "b": {
@@ -361,7 +362,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7368,
-        "y": 79
+        "y": 71
       },
       "inputValues": {
         "b": {
@@ -531,10 +532,12 @@
       "type": "input/normal",
       "position": {
         "x": -6664,
-        "y": 464
+        "y": 439
       },
       "inputValues": {},
-      "params": {}
+      "params": {
+        "space": "world"
+      }
     },
     "overlaid": {
       "id": "overlaid",
@@ -725,7 +728,7 @@
       "type": "input/position",
       "position": {
         "x": -8648,
-        "y": 291
+        "y": 283
       },
       "inputValues": {},
       "params": {
@@ -737,7 +740,7 @@
       "type": "vector/split",
       "position": {
         "x": -8328,
-        "y": 193
+        "y": 185
       },
       "inputValues": {},
       "params": {}
@@ -806,7 +809,7 @@
       "type": "effects/noise",
       "position": {
         "x": -712,
-        "y": 464
+        "y": 436
       },
       "inputValues": {
         "scale": {
@@ -816,7 +819,8 @@
       },
       "params": {
         "kind": "perlin",
-        "octaves": 2
+        "octaves": 2,
+        "tile": false
       }
     },
     "sparkled": {
@@ -891,7 +895,7 @@
       "type": "vector/combine",
       "position": {
         "x": -7688,
-        "y": 88
+        "y": 80
       },
       "inputValues": {},
       "params": {}

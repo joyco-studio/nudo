@@ -93,8 +93,10 @@ describe('default registry', () => {
       'metalness',
       'roughness',
       'normal',
+      'ambientOcclusion',
       'opacity',
       'alphaClip',
+      'specularIntensity',
       'transmission',
       'ior',
       'thickness',
@@ -111,7 +113,9 @@ describe('default registry', () => {
     expect(master?.inputs.filter((input) => input.optional === true).map((i) => i.id)).toEqual([
       'position',
       'normal',
+      'ambientOcclusion',
       'alphaClip',
+      'specularIntensity',
     ])
   })
 })

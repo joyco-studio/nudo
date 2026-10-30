@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   DEFAULT_PANEL_PREFS,
+  clampExposure,
   clampSplitPercent,
   defaultPanelPrefsFor,
   effectivePreviewLayout,
@@ -18,7 +19,13 @@ const CUSTOM_PREFS: PanelPrefs = {
   layout: 'split',
   splitPercent: 40,
   backdrop: 'checker-room',
+  toneMapping: 'agx',
+  exposure: 1.5,
+  environment: 'neutral',
 }
+
+/** What every outdated version takes for the preview's look. */
+const DEFAULT_LOOK = { toneMapping: 'aces', exposure: 1, environment: 'studio' } as const
 
 describe('parsePanelPrefs', () => {
   it('round-trips through serialize', () => {
@@ -44,6 +51,9 @@ describe('parsePanelPrefs', () => {
       layout: DEFAULT_PANEL_PREFS.layout,
       splitPercent: 75,
       backdrop: 'checker-room',
+      toneMapping: DEFAULT_PANEL_PREFS.toneMapping,
+      exposure: DEFAULT_PANEL_PREFS.exposure,
+      environment: DEFAULT_PANEL_PREFS.environment,
     })
   })
 })
@@ -83,13 +93,14 @@ describe('backdrop migration', () => {
   it('moves older and unknown versions to the grid too', () => {
     expect(parsePanelPrefs(stored(1, 'checker-room')).backdrop).toBe('grid')
     expect(parsePanelPrefs(stored(1, 'none')).backdrop).toBe('grid')
-    expect(parsePanelPrefs(stored('2', 'checker-room')).backdrop).toBe('grid')
+    expect(parsePanelPrefs(stored('3', 'checker-room')).backdrop).toBe('grid')
     expect(parsePanelPrefs(stored(null, 'none')).backdrop).toBe('grid')
   })
 
   it('keeps the rest of the stored prefs while migrating', () => {
     expect(parsePanelPrefs(stored(1, 'checker-room'))).toEqual({
       ...CUSTOM_PREFS,
+      ...DEFAULT_LOOK,
       backdrop: 'grid',
     })
   })
@@ -113,13 +124,48 @@ describe('backdrop migration', () => {
     expect(parsePanelPrefs('[]').backdrop).toBe('grid')
   })
 
-  it('migratePanelPrefs only touches the backdrop of outdated versions', () => {
-    expect(migratePanelPrefs(CUSTOM_PREFS, 1)).toEqual({ ...CUSTOM_PREFS, backdrop: 'grid' })
+  it('migratePanelPrefs only touches the backdrop and the look of outdated versions', () => {
+    expect(migratePanelPrefs(CUSTOM_PREFS, 1)).toEqual({
+      ...CUSTOM_PREFS,
+      ...DEFAULT_LOOK,
+      backdrop: 'grid',
+    })
     expect(migratePanelPrefs(CUSTOM_PREFS, undefined)).toEqual({
       ...CUSTOM_PREFS,
+      ...DEFAULT_LOOK,
       backdrop: 'grid',
     })
     expect(migratePanelPrefs(CUSTOM_PREFS, PANEL_PREFS_VERSION)).toBe(CUSTOM_PREFS)
+  })
+
+  it('gives version 2 prefs the default look once, keeping their backdrop', () => {
+    expect(migratePanelPrefs(CUSTOM_PREFS, 2)).toEqual({ ...CUSTOM_PREFS, ...DEFAULT_LOOK })
+  })
+})
+
+describe('preview look', () => {
+  it('starts on ACES, exposure 1 and the studio environment', () => {
+    expect(DEFAULT_PANEL_PREFS).toMatchObject(DEFAULT_LOOK)
+  })
+
+  it('keeps a stored look of the current version and replaces only invalid fields', () => {
+    const rawText = JSON.stringify({
+      toneMapping: 'filmic',
+      exposure: 9,
+      environment: 'none',
+      prefsVersion: PANEL_PREFS_VERSION,
+    })
+    expect(parsePanelPrefs(rawText)).toMatchObject({
+      toneMapping: 'aces',
+      exposure: 3,
+      environment: 'none',
+    })
+  })
+
+  it('clamps the exposure and ignores one that is not a number', () => {
+    expect(clampExposure(0)).toBe(0.25)
+    expect(clampExposure(Number.NaN)).toBe(1)
+    expect(clampExposure(1.3)).toBe(1.3)
   })
 })
 

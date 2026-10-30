@@ -1,7 +1,7 @@
 import { graphDocumentV2 } from './seed-graph'
 
 /**
- * The user's "iridescent blob" tutorial graph (about 20 nodes, five properties): Time-driven
+ * The user's blob tutorial graph (about 20 nodes, five properties): Time-driven
  * noise deforms the surface, a remapped mask mixes two colors and the roughness, and a fresnel
  * adds a rim. Most of its previews are animated, which makes it the frame-budget reference.
  */

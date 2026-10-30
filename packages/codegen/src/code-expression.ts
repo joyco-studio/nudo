@@ -11,6 +11,8 @@ export type HelperName =
   | 'voronoiMinkowskiCell3'
   | 'hashFloat'
   | 'hashVec3'
+  | 'tiledNoise3'
+  | 'tiledVoronoi2'
 
 /**
  * A piece of generated JavaScript plus what it needs around it: the `three/tsl` names to import,

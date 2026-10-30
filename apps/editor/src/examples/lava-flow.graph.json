@@ -1,71 +1,496 @@
 {
   "schemaVersion": 2,
   "nodes": {
-    "burning": {
-      "id": "burning",
-      "type": "math/add",
+    "baked": {
+      "id": "baked",
+      "type": "interpolation/lerp",
       "position": {
-        "x": 248,
-        "y": 183
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "clouds": {
-      "id": "clouds",
-      "type": "effects/noise",
-      "position": {
-        "x": -5064,
-        "y": 526
+        "x": -72,
+        "y": -1169
       },
       "inputValues": {
-        "scale": {
-          "type": "float",
-          "value": 1.4
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.102242,
+            0.008023,
+            0.001821
+          ]
         }
       },
-      "params": {
-        "kind": "simplex"
-      }
+      "params": {}
     },
-    "colorSquared": {
-      "id": "colorSquared",
+    "clock": {
+      "id": "clock",
       "type": "math/multiply",
       "position": {
-        "x": -2056,
-        "y": 589
+        "x": -10152,
+        "y": 868
       },
       "inputValues": {},
       "params": {}
     },
-    "crust": {
-      "id": "crust",
+    "coat": {
+      "id": "coat",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 2113
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.25
+        }
+      },
+      "params": {}
+    },
+    "coverageWidth": {
+      "id": "coverageWidth",
+      "type": "math/remap",
+      "position": {
+        "x": -7896,
+        "y": 788
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0.4
+        },
+        "outMin": {
+          "type": "float",
+          "value": 1.6
+        }
+      },
+      "params": {}
+    },
+    "crackWidth": {
+      "id": "crackWidth",
+      "type": "property/float",
+      "position": {
+        "x": -7848,
+        "y": 1175
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crackWidth"
+      }
+    },
+    "crustColor": {
+      "id": "crustColor",
       "type": "property/vec3",
       "position": {
-        "x": -3032,
-        "y": 731
+        "x": -984,
+        "y": -1086
       },
       "inputValues": {},
       "params": {
         "propertyId": "crustColor"
       }
     },
-    "drift": {
-      "id": "drift",
-      "type": "math/multiply",
+    "crustCoverage": {
+      "id": "crustCoverage",
+      "type": "property/float",
       "position": {
-        "x": -5704,
-        "y": 826
+        "x": -8168,
+        "y": 876
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crustCoverage"
+      }
+    },
+    "crustNormal": {
+      "id": "crustNormal",
+      "type": "normal/normal-from-height",
+      "position": {
+        "x": 248,
+        "y": -39
+      },
+      "inputValues": {
+        "strength": {
+          "type": "float",
+          "value": 0.35
+        }
+      },
+      "params": {}
+    },
+    "crustOnly": {
+      "id": "crustOnly",
+      "type": "math/one-minus",
+      "position": {
+        "x": -712,
+        "y": 329
       },
       "inputValues": {},
       "params": {}
     },
-    "drifting": {
-      "id": "drifting",
+    "crustOrMelt": {
+      "id": "crustOrMelt",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": -1206
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.006995,
+            0.002428,
+            0.001518
+          ]
+        }
+      },
+      "params": {}
+    },
+    "detailChange": {
+      "id": "detailChange",
+      "type": "math/derivatives",
+      "position": {
+        "x": -1352,
+        "y": 128
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "detailFade": {
+      "id": "detailFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -1032,
+        "y": 91
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.15
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "detailHeight": {
+      "id": "detailHeight",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 5
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "detailKeep": {
+      "id": "detailKeep",
+      "type": "math/one-minus",
+      "position": {
+        "x": -712,
+        "y": 54
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "detailMask": {
+      "id": "detailMask",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 140
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "detailNoise": {
+      "id": "detailNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -1672,
+        "y": 38
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 7
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 3,
+        "tile": false
+      }
+    },
+    "displaced": {
+      "id": "displaced",
       "type": "math/add",
       "position": {
-        "x": -5384,
-        "y": 656
+        "x": 248,
+        "y": -342
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "drift": {
+      "id": "drift",
+      "type": "math/multiply",
+      "position": {
+        "x": -9832,
+        "y": 831
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.15,
+            0.05,
+            0.1
+          ]
+        }
+      },
+      "params": {}
+    },
+    "drifted": {
+      "id": "drifted",
+      "type": "math/add",
+      "position": {
+        "x": -9512,
+        "y": 628
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ember": {
+      "id": "ember",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": 1028
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberCells": {
+      "id": "emberCells",
+      "type": "effects/voronoi-3d",
+      "position": {
+        "x": -2632,
+        "y": 1063
+      },
+      "inputValues": {
+        "jitter": {
+          "type": "float",
+          "value": 0.8
+        },
+        "scale": {
+          "type": "float",
+          "value": 12
+        }
+      },
+      "params": {
+        "distance": "euclidean"
+      }
+    },
+    "emberColor": {
+      "id": "emberColor",
+      "type": "color/blackbody",
+      "position": {
+        "x": -392,
+        "y": 716
+      },
+      "inputValues": {
+        "temperature": {
+          "type": "float",
+          "value": 1900
+        }
+      },
+      "params": {}
+    },
+    "emberEdge": {
+      "id": "emberEdge",
+      "type": "math/add",
+      "position": {
+        "x": -1992,
+        "y": 1076
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.03
+        }
+      },
+      "params": {}
+    },
+    "emberFade": {
+      "id": "emberFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -1672,
+        "y": 1103
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberFlicker": {
+      "id": "emberFlicker",
+      "type": "math/remap",
+      "position": {
+        "x": -1032,
+        "y": 1231
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "emberFlickerClock": {
+      "id": "emberFlickerClock",
+      "type": "math/multiply",
+      "position": {
+        "x": -1992,
+        "y": 1682
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 90
+        }
+      },
+      "params": {}
+    },
+    "emberFlickerPhase": {
+      "id": "emberFlickerPhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -1992,
+        "y": 1379
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 40
+        }
+      },
+      "params": {}
+    },
+    "emberFlickerSum": {
+      "id": "emberFlickerSum",
+      "type": "math/add",
+      "position": {
+        "x": -1672,
+        "y": 1434
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberFlickerWave": {
+      "id": "emberFlickerWave",
+      "type": "math/sin",
+      "position": {
+        "x": -1352,
+        "y": 1359
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberGlow": {
+      "id": "emberGlow",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 803
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberLit": {
+      "id": "emberLit",
+      "type": "interpolation/step",
+      "position": {
+        "x": -1672,
+        "y": 799
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.85
+        }
+      },
+      "params": {}
+    },
+    "emberLitSpeck": {
+      "id": "emberLitSpeck",
+      "type": "math/multiply",
+      "position": {
+        "x": -1032,
+        "y": 928
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberNearSeam": {
+      "id": "emberNearSeam",
+      "type": "math/multiply",
+      "position": {
+        "x": -1352,
+        "y": 781
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberPixel": {
+      "id": "emberPixel",
+      "type": "math/derivatives",
+      "position": {
+        "x": -2312,
+        "y": 1057
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberSpeck": {
+      "id": "emberSpeck",
+      "type": "math/one-minus",
+      "position": {
+        "x": -1352,
+        "y": 1084
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "emberStrength": {
+      "id": "emberStrength",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 991
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {}
+    },
+    "emission": {
+      "id": "emission",
+      "type": "math/add",
+      "position": {
+        "x": 248,
+        "y": 738
       },
       "inputValues": {},
       "params": {}
@@ -74,135 +499,210 @@
       "id": "flowSpeed",
       "type": "property/float",
       "position": {
-        "x": -5976,
-        "y": 1064
+        "x": -10424,
+        "y": 1105
       },
       "inputValues": {},
       "params": {
         "propertyId": "flowSpeed"
       }
     },
-    "frame-clouds": {
-      "id": "frame-clouds",
+    "frame-crust": {
+      "id": "frame-crust",
       "type": "utility/comment",
       "position": {
-        "x": -6056,
+        "x": -1384,
+        "y": -1553
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Crust color, a little lighter or darker per plate (Voronoi's Random), rusted in patches by an oxide tint, reddened by the rim, and nearly black inside the seam where only the glow shows.",
+        "height": 1017,
+        "title": "Crust",
+        "width": 1888
+      }
+    },
+    "frame-embers": {
+      "id": "frame-embers",
+      "type": "utility/comment",
+      "position": {
+        "x": -2664,
+        "y": 636
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A fine Voronoi 3D of the drifting crust; its Random lights one cell in ten. F1 draws a soft round speck around each lit point, and Derivatives widens its edge by one pixel (Fwidth) so small specks never alias. Only those along a seam show, flickering with Time.",
+        "height": 1349,
+        "title": "Embers",
+        "width": 3168
+      }
+    },
+    "frame-flow": {
+      "id": "frame-flow",
+      "type": "utility/comment",
+      "position": {
+        "x": -10504,
         "y": 446
       },
       "inputValues": {},
       "params": {
-        "body": "A slow noise sliding with Time: the original reads it from a cloud texture. Everything else bends with it.",
-        "height": 683,
-        "title": "Clouds",
-        "width": 1248
+        "body": "The object position × plate scale, slid by Time × flow speed so the crust drifts, then bent by a slow noise so the plates never look like straight cells.",
+        "height": 725,
+        "title": "Drifting crust",
+        "width": 2208
+      }
+    },
+    "frame-glow": {
+      "id": "frame-glow",
+      "type": "utility/comment",
+      "position": {
+        "x": -3960,
+        "y": 517
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The heat picks a temperature between a dull 850 K and Temperature; Blackbody turns it into the color of glowing rock. Heat² × glow intensity makes it HDR, well past 1, so the tone mapping rolls the hottest seams off into yellow-white.",
+        "height": 792,
+        "title": "Blackbody glow",
+        "width": 1200
       }
     },
     "frame-heat": {
       "id": "frame-heat",
       "type": "utility/comment",
       "position": {
-        "x": -2408,
-        "y": 206
+        "x": -6264,
+        "y": 700
       },
       "inputValues": {},
       "params": {
-        "body": "The original's formula: color × pulse × 2 + color² − 0.1. It can pass 1: the next step uses what is over.",
-        "height": 686,
-        "title": "Heat",
-        "width": 1248
-      }
-    },
-    "frame-pulse": {
-      "id": "frame-pulse",
-      "type": "utility/comment",
-      "position": {
-        "x": -4024,
-        "y": 41
-      },
-      "inputValues": {},
-      "params": {
-        "body": "Position plus clouds × swirl: a strong swirl. Another noise read through it gives the pulse that stokes and dims the lava.",
-        "height": 578,
-        "title": "Pulse",
-        "width": 1520
-      }
-    },
-    "frame-veins": {
-      "id": "frame-veins",
-      "type": "utility/comment",
-      "position": {
-        "x": -4712,
-        "y": 651
-      },
-      "inputValues": {},
-      "params": {
-        "body": "The clouds nudge the drifting position a little. 1 − |noise| is 1 along its zero crossings: thin veins, thinner through Power. They paint from crust to lava.",
-        "height": 640,
-        "title": "Veins",
+        "body": "A sine of Time plus a noise phase sends pulses of heat along the seams. The seam carries the pulse; the rim keeps a third of it. The hotter of the two is the heat, 0 to 1.",
+        "height": 742,
+        "title": "Travelling heat",
         "width": 2208
       }
     },
-    "frame-white-hot": {
-      "id": "frame-white-hot",
+    "frame-plates": {
+      "id": "frame-plates",
       "type": "utility/comment",
       "position": {
-        "x": -1064,
-        "y": 103
+        "x": -8200,
+        "y": 505
       },
       "inputValues": {},
       "params": {
-        "body": "As in the original, whatever red has past 1 spills over, mostly into green: the hottest veins turn yellow, then white.",
-        "height": 615,
-        "title": "White-hot",
-        "width": 1568
+        "body": "Voronoi 3D splits the crust into plates; Edge is small along their borders. Crack width × crust coverage sets how wide the molten seam is; three times that is the hot rim the seam bakes into the crust.",
+        "height": 913,
+        "title": "Plates and seams",
+        "width": 1840
       }
+    },
+    "frame-relief": {
+      "id": "frame-relief",
+      "type": "utility/comment",
+      "position": {
+        "x": -1704,
+        "y": -504
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The seams sink: the position moves in along the mesh's own (object) normal by the seam × depth. A fine noise gives the crust its grain through Normal From Height; Derivatives measures how much that noise changes per pixel and fades it out before it shimmers.",
+        "height": 1108,
+        "title": "Relief",
+        "width": 2208
+      }
+    },
+    "frame-surface": {
+      "id": "frame-surface",
+      "type": "utility/comment",
+      "position": {
+        "x": -744,
+        "y": 2017
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Rough, matte crust; a satin melt under a thin, soft clear coat, its Specular Intensity turned down so the glow, not a reflection, lights the seam; Ambient Occlusion darkens the crust along the rim, where it folds down into the seam.",
+        "height": 483,
+        "title": "Gloss, coat and occlusion",
+        "width": 1248
+      }
+    },
+    "glow": {
+      "id": "glow",
+      "type": "math/multiply",
+      "position": {
+        "x": -3016,
+        "y": 775
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "glowColor": {
+      "id": "glowColor",
+      "type": "color/blackbody",
+      "position": {
+        "x": -3336,
+        "y": 688
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "glowIntensity": {
+      "id": "glowIntensity",
+      "type": "property/float",
+      "position": {
+        "x": -3608,
+        "y": 1247
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "glowIntensity"
+      }
+    },
+    "glowStrength": {
+      "id": "glowStrength",
+      "type": "math/multiply",
+      "position": {
+        "x": -3336,
+        "y": 963
+      },
+      "inputValues": {},
+      "params": {}
     },
     "heat": {
       "id": "heat",
-      "type": "math/subtract",
+      "type": "math/max",
       "position": {
-        "x": -1416,
-        "y": 350
+        "x": -4312,
+        "y": 898
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "heatSquared": {
+      "id": "heatSquared",
+      "type": "math/multiply",
+      "position": {
+        "x": -3656,
+        "y": 944
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "kelvin": {
+      "id": "kelvin",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -3656,
+        "y": 613
       },
       "inputValues": {
-        "b": {
+        "a": {
           "type": "float",
-          "value": 0.1
+          "value": 850
         }
       },
       "params": {}
-    },
-    "heatChannels": {
-      "id": "heatChannels",
-      "type": "vector/split",
-      "position": {
-        "x": -1032,
-        "y": 359
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "heatSum": {
-      "id": "heatSum",
-      "type": "math/add",
-      "position": {
-        "x": -1736,
-        "y": 387
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "lava": {
-      "id": "lava",
-      "type": "property/vec3",
-      "position": {
-        "x": -3032,
-        "y": 1096
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "lavaColor"
-      }
     },
     "master": {
       "id": "master",
@@ -211,42 +711,185 @@
         "x": 600,
         "y": 0
       },
-      "inputValues": {},
+      "inputValues": {
+        "clearcoatRoughness": {
+          "type": "float",
+          "value": 0.4
+        },
+        "metalness": {
+          "type": "float",
+          "value": 0
+        }
+      },
       "params": {
-        "lighting": "unlit"
+        "lighting": "physical",
+        "useClearcoat": true
       }
     },
-    "nudge": {
-      "id": "nudge",
-      "type": "math/multiply",
+    "normal": {
+      "id": "normal",
+      "type": "input/normal",
       "position": {
-        "x": -4680,
-        "y": 922
+        "x": -392,
+        "y": -424
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "occlusion": {
+      "id": "occlusion",
+      "type": "math/remap",
+      "position": {
+        "x": 248,
+        "y": 2113
       },
       "inputValues": {
-        "b": {
+        "outMax": {
           "type": "float",
-          "value": 0.2
+          "value": 0.55
+        },
+        "outMin": {
+          "type": "float",
+          "value": 1
         }
       },
       "params": {}
     },
-    "nudged": {
-      "id": "nudged",
-      "type": "math/subtract",
+    "oxide": {
+      "id": "oxide",
+      "type": "interpolation/smoothstep",
       "position": {
-        "x": -4360,
-        "y": 857
+        "x": -1032,
+        "y": -1016
       },
-      "inputValues": {},
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.1
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.6
+        }
+      },
       "params": {}
+    },
+    "oxideAmount": {
+      "id": "oxideAmount",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": -1053
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "oxideNoise": {
+      "id": "oxideNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -1352,
+        "y": -1016
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 3,
+        "tile": false
+      }
+    },
+    "oxidized": {
+      "id": "oxidized",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -392,
+        "y": -1269
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.104616,
+            0.042311,
+            0.020289
+          ]
+        }
+      },
+      "params": {}
+    },
+    "plateShade": {
+      "id": "plateShade",
+      "type": "math/remap",
+      "position": {
+        "x": -1032,
+        "y": -1473
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 1.2
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.7
+        }
+      },
+      "params": {}
+    },
+    "plateSpace": {
+      "id": "plateSpace",
+      "type": "math/multiply",
+      "position": {
+        "x": -9832,
+        "y": 528
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2.2
+        }
+      },
+      "params": {}
+    },
+    "plates": {
+      "id": "plates",
+      "type": "effects/voronoi-3d",
+      "position": {
+        "x": -7256,
+        "y": 635
+      },
+      "inputValues": {
+        "jitter": {
+          "type": "float",
+          "value": 0.9
+        },
+        "scale": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {
+        "distance": "euclidean"
+      }
     },
     "position": {
       "id": "position",
       "type": "input/position",
       "position": {
-        "x": -5704,
-        "y": 565
+        "x": -10152,
+        "y": 542
       },
       "inputValues": {},
       "params": {
@@ -257,8 +900,8 @@
       "id": "pulse",
       "type": "math/remap",
       "position": {
-        "x": -2760,
-        "y": 149
+        "x": -4952,
+        "y": 863
       },
       "inputValues": {
         "inMax": {
@@ -268,6 +911,29 @@
         "inMin": {
           "type": "float",
           "value": -1
+        },
+        "outMax": {
+          "type": "float",
+          "value": 1
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.55
+        }
+      },
+      "params": {}
+    },
+    "pulseClock": {
+      "id": "pulseClock",
+      "type": "math/multiply",
+      "position": {
+        "x": -5912,
+        "y": 1139
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 25
         }
       },
       "params": {}
@@ -276,210 +942,427 @@
       "id": "pulseNoise",
       "type": "effects/noise",
       "position": {
-        "x": -3080,
-        "y": 121
+        "x": -6232,
+        "y": 780
       },
       "inputValues": {
         "scale": {
           "type": "float",
-          "value": 2
+          "value": 1.3
         }
       },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
       }
     },
-    "pulseTwice": {
-      "id": "pulseTwice",
+    "pulseOffset": {
+      "id": "pulseOffset",
       "type": "math/multiply",
       "position": {
-        "x": -2376,
-        "y": 351
+        "x": -5912,
+        "y": 836
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": 2
+          "value": 6
         }
       },
       "params": {}
     },
-    "redOver": {
-      "id": "redOver",
-      "type": "math/subtract",
+    "pulsePhase": {
+      "id": "pulsePhase",
+      "type": "math/add",
       "position": {
-        "x": -712,
-        "y": 322
+        "x": -5592,
+        "y": 937
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pulseWave": {
+      "id": "pulseWave",
+      "type": "math/sin",
+      "position": {
+        "x": -5272,
+        "y": 900
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rim": {
+      "id": "rim",
+      "type": "math/one-minus",
+      "position": {
+        "x": -6616,
+        "y": 860
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rimFade": {
+      "id": "rimFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6936,
+        "y": 925
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rimHeat": {
+      "id": "rimHeat",
+      "type": "math/multiply",
+      "position": {
+        "x": -4632,
+        "y": 1101
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": 1
+          "value": 0.22
         }
       },
       "params": {}
     },
-    "spill": {
-      "id": "spill",
-      "type": "math/max",
+    "rimTint": {
+      "id": "rimTint",
+      "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": 285
+        "y": -938
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": 0
+          "value": 0.55
         }
       },
       "params": {}
     },
-    "spillTint": {
-      "id": "spillTint",
+    "rimWidth": {
+      "id": "rimWidth",
+      "type": "math/multiply",
+      "position": {
+        "x": -7256,
+        "y": 1115
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 3
+        }
+      },
+      "params": {}
+    },
+    "roughness": {
+      "id": "roughness",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -712,
+        "y": 2113
+      },
+      "inputValues": {
+        "a": {
+          "type": "float",
+          "value": 0.88
+        },
+        "b": {
+          "type": "float",
+          "value": 0.55
+        }
+      },
+      "params": {}
+    },
+    "seam": {
+      "id": "seam",
+      "type": "math/one-minus",
+      "position": {
+        "x": -6616,
+        "y": 585
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "seamFade": {
+      "id": "seamFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6936,
+        "y": 594
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "seamHeat": {
+      "id": "seamHeat",
+      "type": "math/multiply",
+      "position": {
+        "x": -4632,
+        "y": 798
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "seamWidth": {
+      "id": "seamWidth",
+      "type": "math/multiply",
+      "position": {
+        "x": -7576,
+        "y": 905
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadedCrust": {
+      "id": "shadedCrust",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": -1356
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "sink": {
+      "id": "sink",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": -163
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -0.035
+        }
+      },
+      "params": {}
+    },
+    "specular": {
+      "id": "specular",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -72,
+        "y": 2113
+      },
+      "inputValues": {
+        "a": {
+          "type": "float",
+          "value": 1
+        },
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "sunk": {
+      "id": "sunk",
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": 248
-      },
-      "inputValues": {
-        "b": {
-          "type": "vec3",
-          "value": [
-            0.2,
-            0.75,
-            0.3
-          ]
-        }
-      },
-      "params": {}
-    },
-    "stoked": {
-      "id": "stoked",
-      "type": "math/multiply",
-      "position": {
-        "x": -2056,
-        "y": 286
+        "y": -298
       },
       "inputValues": {},
       "params": {}
     },
-    "swirl": {
-      "id": "swirl",
+    "temperature": {
+      "id": "temperature",
       "type": "property/float",
       "position": {
-        "x": -3992,
-        "y": 432
+        "x": -3928,
+        "y": 729
       },
       "inputValues": {},
       "params": {
-        "propertyId": "swirl"
+        "propertyId": "temperature"
       }
-    },
-    "swirlOffset": {
-      "id": "swirlOffset",
-      "type": "math/multiply",
-      "position": {
-        "x": -3720,
-        "y": 316
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "swirled": {
-      "id": "swirled",
-      "type": "math/add",
-      "position": {
-        "x": -3400,
-        "y": 251
-      },
-      "inputValues": {},
-      "params": {}
     },
     "time": {
       "id": "time",
       "type": "input/time",
       "position": {
-        "x": -6024,
-        "y": 756
+        "x": -10472,
+        "y": 797
       },
       "inputValues": {},
       "params": {}
     },
-    "vein": {
-      "id": "vein",
-      "type": "math/one-minus",
-      "position": {
-        "x": -3400,
-        "y": 830
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "veinColor": {
-      "id": "veinColor",
-      "type": "interpolation/lerp",
-      "position": {
-        "x": -2760,
-        "y": 774
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "veinDistance": {
-      "id": "veinDistance",
-      "type": "math/abs",
-      "position": {
-        "x": -3720,
-        "y": 867
-      },
-      "inputValues": {},
-      "params": {}
-    },
-    "veinNoise": {
-      "id": "veinNoise",
+    "warpNoise": {
+      "id": "warpNoise",
       "type": "effects/noise",
       "position": {
-        "x": -4040,
-        "y": 839
+        "x": -9192,
+        "y": 535
       },
-      "inputValues": {},
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 0.6
+        }
+      },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
       }
     },
-    "veinScale": {
-      "id": "veinScale",
-      "type": "property/float",
+    "warpPush": {
+      "id": "warpPush",
+      "type": "math/multiply",
       "position": {
-        "x": -4312,
-        "y": 1160
-      },
-      "inputValues": {},
-      "params": {
-        "propertyId": "veinScale"
-      }
-    },
-    "veinSharp": {
-      "id": "veinSharp",
-      "type": "math/power",
-      "position": {
-        "x": -3080,
-        "y": 793
+        "x": -8872,
+        "y": 591
       },
       "inputValues": {
         "b": {
           "type": "float",
-          "value": 4
+          "value": 0.35
         }
       },
+      "params": {}
+    },
+    "warped": {
+      "id": "warped",
+      "type": "math/add",
+      "position": {
+        "x": -8552,
+        "y": 526
+      },
+      "inputValues": {},
       "params": {}
     }
   },
   "edges": {
-    "burning.out-master.baseColor": {
-      "id": "burning.out-master.baseColor",
+    "baked.out-crustOrMelt.a": {
+      "id": "baked.out-crustOrMelt.a",
       "from": {
-        "nodeId": "burning",
+        "nodeId": "baked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crustOrMelt",
+        "portId": "a"
+      }
+    },
+    "clock.out-drift.a": {
+      "id": "clock.out-drift.a",
+      "from": {
+        "nodeId": "clock",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drift",
+        "portId": "a"
+      }
+    },
+    "clock.out-emberFlickerClock.a": {
+      "id": "clock.out-emberFlickerClock.a",
+      "from": {
+        "nodeId": "clock",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFlickerClock",
+        "portId": "a"
+      }
+    },
+    "clock.out-pulseClock.a": {
+      "id": "clock.out-pulseClock.a",
+      "from": {
+        "nodeId": "clock",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseClock",
+        "portId": "a"
+      }
+    },
+    "coat.out-master.clearcoat": {
+      "id": "coat.out-master.clearcoat",
+      "from": {
+        "nodeId": "coat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "clearcoat"
+      }
+    },
+    "coverageWidth.out-seamWidth.b": {
+      "id": "coverageWidth.out-seamWidth.b",
+      "from": {
+        "nodeId": "coverageWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seamWidth",
+        "portId": "b"
+      }
+    },
+    "crackWidth.out-seamWidth.a": {
+      "id": "crackWidth.out-seamWidth.a",
+      "from": {
+        "nodeId": "crackWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seamWidth",
+        "portId": "a"
+      }
+    },
+    "crustColor.out-shadedCrust.a": {
+      "id": "crustColor.out-shadedCrust.a",
+      "from": {
+        "nodeId": "crustColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadedCrust",
+        "portId": "a"
+      }
+    },
+    "crustCoverage.out-coverageWidth.in": {
+      "id": "crustCoverage.out-coverageWidth.in",
+      "from": {
+        "nodeId": "crustCoverage",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coverageWidth",
+        "portId": "in"
+      }
+    },
+    "crustNormal.out-master.normal": {
+      "id": "crustNormal.out-master.normal",
+      "from": {
+        "nodeId": "crustNormal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "normal"
+      }
+    },
+    "crustOnly.out-detailMask.b": {
+      "id": "crustOnly.out-detailMask.b",
+      "from": {
+        "nodeId": "crustOnly",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "detailMask",
+        "portId": "b"
+      }
+    },
+    "crustOrMelt.out-master.baseColor": {
+      "id": "crustOrMelt.out-master.baseColor",
+      "from": {
+        "nodeId": "crustOrMelt",
         "portId": "out"
       },
       "to": {
@@ -487,208 +1370,670 @@
         "portId": "baseColor"
       }
     },
-    "clouds.out-nudge.a": {
-      "id": "clouds.out-nudge.a",
+    "detailChange.fwidth-detailFade.in": {
+      "id": "detailChange.fwidth-detailFade.in",
       "from": {
-        "nodeId": "clouds",
+        "nodeId": "detailChange",
+        "portId": "fwidth"
+      },
+      "to": {
+        "nodeId": "detailFade",
+        "portId": "in"
+      }
+    },
+    "detailFade.out-detailKeep.in": {
+      "id": "detailFade.out-detailKeep.in",
+      "from": {
+        "nodeId": "detailFade",
         "portId": "out"
       },
       "to": {
-        "nodeId": "nudge",
+        "nodeId": "detailKeep",
+        "portId": "in"
+      }
+    },
+    "detailHeight.out-crustNormal.height": {
+      "id": "detailHeight.out-crustNormal.height",
+      "from": {
+        "nodeId": "detailHeight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crustNormal",
+        "portId": "height"
+      }
+    },
+    "detailKeep.out-detailMask.a": {
+      "id": "detailKeep.out-detailMask.a",
+      "from": {
+        "nodeId": "detailKeep",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "detailMask",
         "portId": "a"
       }
     },
-    "clouds.out-swirlOffset.a": {
-      "id": "clouds.out-swirlOffset.a",
+    "detailMask.out-detailHeight.b": {
+      "id": "detailMask.out-detailHeight.b",
       "from": {
-        "nodeId": "clouds",
+        "nodeId": "detailMask",
         "portId": "out"
       },
       "to": {
-        "nodeId": "swirlOffset",
-        "portId": "a"
-      }
-    },
-    "colorSquared.out-heatSum.b": {
-      "id": "colorSquared.out-heatSum.b",
-      "from": {
-        "nodeId": "colorSquared",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "heatSum",
+        "nodeId": "detailHeight",
         "portId": "b"
       }
     },
-    "crust.out-veinColor.a": {
-      "id": "crust.out-veinColor.a",
+    "detailNoise.out-detailChange.in": {
+      "id": "detailNoise.out-detailChange.in",
       "from": {
-        "nodeId": "crust",
+        "nodeId": "detailNoise",
         "portId": "out"
       },
       "to": {
-        "nodeId": "veinColor",
+        "nodeId": "detailChange",
+        "portId": "in"
+      }
+    },
+    "detailNoise.out-detailHeight.a": {
+      "id": "detailNoise.out-detailHeight.a",
+      "from": {
+        "nodeId": "detailNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "detailHeight",
         "portId": "a"
       }
     },
-    "drift.out-drifting.b": {
-      "id": "drift.out-drifting.b",
+    "displaced.out-master.position": {
+      "id": "displaced.out-master.position",
+      "from": {
+        "nodeId": "displaced",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "position"
+      }
+    },
+    "drift.out-drifted.b": {
+      "id": "drift.out-drifted.b",
       "from": {
         "nodeId": "drift",
         "portId": "out"
       },
       "to": {
-        "nodeId": "drifting",
+        "nodeId": "drifted",
         "portId": "b"
       }
     },
-    "drifting.out-clouds.p": {
-      "id": "drifting.out-clouds.p",
+    "drifted.out-warpNoise.p": {
+      "id": "drifted.out-warpNoise.p",
       "from": {
-        "nodeId": "drifting",
+        "nodeId": "drifted",
         "portId": "out"
       },
       "to": {
-        "nodeId": "clouds",
+        "nodeId": "warpNoise",
         "portId": "p"
       }
     },
-    "drifting.out-nudged.a": {
-      "id": "drifting.out-nudged.a",
+    "drifted.out-warped.a": {
+      "id": "drifted.out-warped.a",
       "from": {
-        "nodeId": "drifting",
+        "nodeId": "drifted",
         "portId": "out"
       },
       "to": {
-        "nodeId": "nudged",
+        "nodeId": "warped",
         "portId": "a"
       }
     },
-    "drifting.out-swirled.a": {
-      "id": "drifting.out-swirled.a",
+    "ember.out-emberStrength.a": {
+      "id": "ember.out-emberStrength.a",
       "from": {
-        "nodeId": "drifting",
+        "nodeId": "ember",
         "portId": "out"
       },
       "to": {
-        "nodeId": "swirled",
+        "nodeId": "emberStrength",
         "portId": "a"
       }
     },
-    "flowSpeed.out-drift.b": {
-      "id": "flowSpeed.out-drift.b",
+    "emberCells.f1-emberFade.in": {
+      "id": "emberCells.f1-emberFade.in",
+      "from": {
+        "nodeId": "emberCells",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "emberFade",
+        "portId": "in"
+      }
+    },
+    "emberCells.f1-emberPixel.in": {
+      "id": "emberCells.f1-emberPixel.in",
+      "from": {
+        "nodeId": "emberCells",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "emberPixel",
+        "portId": "in"
+      }
+    },
+    "emberCells.random-emberFlickerPhase.a": {
+      "id": "emberCells.random-emberFlickerPhase.a",
+      "from": {
+        "nodeId": "emberCells",
+        "portId": "random"
+      },
+      "to": {
+        "nodeId": "emberFlickerPhase",
+        "portId": "a"
+      }
+    },
+    "emberCells.random-emberLit.in": {
+      "id": "emberCells.random-emberLit.in",
+      "from": {
+        "nodeId": "emberCells",
+        "portId": "random"
+      },
+      "to": {
+        "nodeId": "emberLit",
+        "portId": "in"
+      }
+    },
+    "emberColor.color-emberGlow.a": {
+      "id": "emberColor.color-emberGlow.a",
+      "from": {
+        "nodeId": "emberColor",
+        "portId": "color"
+      },
+      "to": {
+        "nodeId": "emberGlow",
+        "portId": "a"
+      }
+    },
+    "emberEdge.out-emberFade.edge1": {
+      "id": "emberEdge.out-emberFade.edge1",
+      "from": {
+        "nodeId": "emberEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFade",
+        "portId": "edge1"
+      }
+    },
+    "emberFade.out-emberSpeck.in": {
+      "id": "emberFade.out-emberSpeck.in",
+      "from": {
+        "nodeId": "emberFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberSpeck",
+        "portId": "in"
+      }
+    },
+    "emberFlicker.out-ember.b": {
+      "id": "emberFlicker.out-ember.b",
+      "from": {
+        "nodeId": "emberFlicker",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ember",
+        "portId": "b"
+      }
+    },
+    "emberFlickerClock.out-emberFlickerSum.b": {
+      "id": "emberFlickerClock.out-emberFlickerSum.b",
+      "from": {
+        "nodeId": "emberFlickerClock",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFlickerSum",
+        "portId": "b"
+      }
+    },
+    "emberFlickerPhase.out-emberFlickerSum.a": {
+      "id": "emberFlickerPhase.out-emberFlickerSum.a",
+      "from": {
+        "nodeId": "emberFlickerPhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFlickerSum",
+        "portId": "a"
+      }
+    },
+    "emberFlickerSum.out-emberFlickerWave.in": {
+      "id": "emberFlickerSum.out-emberFlickerWave.in",
+      "from": {
+        "nodeId": "emberFlickerSum",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFlickerWave",
+        "portId": "in"
+      }
+    },
+    "emberFlickerWave.out-emberFlicker.in": {
+      "id": "emberFlickerWave.out-emberFlicker.in",
+      "from": {
+        "nodeId": "emberFlickerWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberFlicker",
+        "portId": "in"
+      }
+    },
+    "emberGlow.out-emission.b": {
+      "id": "emberGlow.out-emission.b",
+      "from": {
+        "nodeId": "emberGlow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emission",
+        "portId": "b"
+      }
+    },
+    "emberLit.out-emberNearSeam.a": {
+      "id": "emberLit.out-emberNearSeam.a",
+      "from": {
+        "nodeId": "emberLit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberNearSeam",
+        "portId": "a"
+      }
+    },
+    "emberLitSpeck.out-ember.a": {
+      "id": "emberLitSpeck.out-ember.a",
+      "from": {
+        "nodeId": "emberLitSpeck",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ember",
+        "portId": "a"
+      }
+    },
+    "emberNearSeam.out-emberLitSpeck.a": {
+      "id": "emberNearSeam.out-emberLitSpeck.a",
+      "from": {
+        "nodeId": "emberNearSeam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberLitSpeck",
+        "portId": "a"
+      }
+    },
+    "emberPixel.fwidth-emberEdge.a": {
+      "id": "emberPixel.fwidth-emberEdge.a",
+      "from": {
+        "nodeId": "emberPixel",
+        "portId": "fwidth"
+      },
+      "to": {
+        "nodeId": "emberEdge",
+        "portId": "a"
+      }
+    },
+    "emberSpeck.out-emberLitSpeck.b": {
+      "id": "emberSpeck.out-emberLitSpeck.b",
+      "from": {
+        "nodeId": "emberSpeck",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberLitSpeck",
+        "portId": "b"
+      }
+    },
+    "emberStrength.out-emberGlow.b": {
+      "id": "emberStrength.out-emberGlow.b",
+      "from": {
+        "nodeId": "emberStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberGlow",
+        "portId": "b"
+      }
+    },
+    "emission.out-master.emission": {
+      "id": "emission.out-master.emission",
+      "from": {
+        "nodeId": "emission",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "emission"
+      }
+    },
+    "flowSpeed.out-clock.b": {
+      "id": "flowSpeed.out-clock.b",
       "from": {
         "nodeId": "flowSpeed",
         "portId": "out"
       },
       "to": {
-        "nodeId": "drift",
+        "nodeId": "clock",
         "portId": "b"
       }
     },
-    "heat.out-burning.a": {
-      "id": "heat.out-burning.a",
+    "glow.out-emission.a": {
+      "id": "glow.out-emission.a",
       "from": {
-        "nodeId": "heat",
+        "nodeId": "glow",
         "portId": "out"
       },
       "to": {
-        "nodeId": "burning",
+        "nodeId": "emission",
         "portId": "a"
       }
     },
-    "heat.out-heatChannels.in": {
-      "id": "heat.out-heatChannels.in",
+    "glowColor.color-glow.a": {
+      "id": "glowColor.color-glow.a",
+      "from": {
+        "nodeId": "glowColor",
+        "portId": "color"
+      },
+      "to": {
+        "nodeId": "glow",
+        "portId": "a"
+      }
+    },
+    "glowIntensity.out-glowStrength.b": {
+      "id": "glowIntensity.out-glowStrength.b",
+      "from": {
+        "nodeId": "glowIntensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowStrength",
+        "portId": "b"
+      }
+    },
+    "glowStrength.out-glow.b": {
+      "id": "glowStrength.out-glow.b",
+      "from": {
+        "nodeId": "glowStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glow",
+        "portId": "b"
+      }
+    },
+    "heat.out-heatSquared.a": {
+      "id": "heat.out-heatSquared.a",
       "from": {
         "nodeId": "heat",
         "portId": "out"
       },
       "to": {
-        "nodeId": "heatChannels",
+        "nodeId": "heatSquared",
+        "portId": "a"
+      }
+    },
+    "heat.out-heatSquared.b": {
+      "id": "heat.out-heatSquared.b",
+      "from": {
+        "nodeId": "heat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heatSquared",
+        "portId": "b"
+      }
+    },
+    "heat.out-kelvin.t": {
+      "id": "heat.out-kelvin.t",
+      "from": {
+        "nodeId": "heat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "kelvin",
+        "portId": "t"
+      }
+    },
+    "heatSquared.out-glowStrength.a": {
+      "id": "heatSquared.out-glowStrength.a",
+      "from": {
+        "nodeId": "heatSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowStrength",
+        "portId": "a"
+      }
+    },
+    "kelvin.out-glowColor.temperature": {
+      "id": "kelvin.out-glowColor.temperature",
+      "from": {
+        "nodeId": "kelvin",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glowColor",
+        "portId": "temperature"
+      }
+    },
+    "normal.out-sunk.a": {
+      "id": "normal.out-sunk.a",
+      "from": {
+        "nodeId": "normal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sunk",
+        "portId": "a"
+      }
+    },
+    "occlusion.out-master.ambientOcclusion": {
+      "id": "occlusion.out-master.ambientOcclusion",
+      "from": {
+        "nodeId": "occlusion",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "ambientOcclusion"
+      }
+    },
+    "oxide.out-oxideAmount.a": {
+      "id": "oxide.out-oxideAmount.a",
+      "from": {
+        "nodeId": "oxide",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "oxideAmount",
+        "portId": "a"
+      }
+    },
+    "oxideAmount.out-oxidized.t": {
+      "id": "oxideAmount.out-oxidized.t",
+      "from": {
+        "nodeId": "oxideAmount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "oxidized",
+        "portId": "t"
+      }
+    },
+    "oxideNoise.out-oxide.in": {
+      "id": "oxideNoise.out-oxide.in",
+      "from": {
+        "nodeId": "oxideNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "oxide",
         "portId": "in"
       }
     },
-    "heatChannels.x-redOver.a": {
-      "id": "heatChannels.x-redOver.a",
+    "oxidized.out-baked.a": {
+      "id": "oxidized.out-baked.a",
       "from": {
-        "nodeId": "heatChannels",
-        "portId": "x"
+        "nodeId": "oxidized",
+        "portId": "out"
       },
       "to": {
-        "nodeId": "redOver",
+        "nodeId": "baked",
         "portId": "a"
       }
     },
-    "heatSum.out-heat.a": {
-      "id": "heatSum.out-heat.a",
+    "plateShade.out-shadedCrust.b": {
+      "id": "plateShade.out-shadedCrust.b",
       "from": {
-        "nodeId": "heatSum",
+        "nodeId": "plateShade",
         "portId": "out"
       },
       "to": {
-        "nodeId": "heat",
+        "nodeId": "shadedCrust",
+        "portId": "b"
+      }
+    },
+    "plateSpace.out-drifted.a": {
+      "id": "plateSpace.out-drifted.a",
+      "from": {
+        "nodeId": "plateSpace",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drifted",
         "portId": "a"
       }
     },
-    "lava.out-veinColor.b": {
-      "id": "lava.out-veinColor.b",
+    "plates.edge-rimFade.in": {
+      "id": "plates.edge-rimFade.in",
       "from": {
-        "nodeId": "lava",
-        "portId": "out"
+        "nodeId": "plates",
+        "portId": "edge"
       },
       "to": {
-        "nodeId": "veinColor",
-        "portId": "b"
+        "nodeId": "rimFade",
+        "portId": "in"
       }
     },
-    "nudge.out-nudged.b": {
-      "id": "nudge.out-nudged.b",
+    "plates.edge-seamFade.in": {
+      "id": "plates.edge-seamFade.in",
       "from": {
-        "nodeId": "nudge",
-        "portId": "out"
+        "nodeId": "plates",
+        "portId": "edge"
       },
       "to": {
-        "nodeId": "nudged",
-        "portId": "b"
+        "nodeId": "seamFade",
+        "portId": "in"
       }
     },
-    "nudged.out-veinNoise.p": {
-      "id": "nudged.out-veinNoise.p",
+    "plates.random-plateShade.in": {
+      "id": "plates.random-plateShade.in",
       "from": {
-        "nodeId": "nudged",
-        "portId": "out"
+        "nodeId": "plates",
+        "portId": "random"
       },
       "to": {
-        "nodeId": "veinNoise",
-        "portId": "p"
+        "nodeId": "plateShade",
+        "portId": "in"
       }
     },
-    "position.out-drifting.a": {
-      "id": "position.out-drifting.a",
+    "position.out-displaced.a": {
+      "id": "position.out-displaced.a",
       "from": {
         "nodeId": "position",
         "portId": "out"
       },
       "to": {
-        "nodeId": "drifting",
+        "nodeId": "displaced",
         "portId": "a"
       }
     },
-    "pulse.out-pulseTwice.a": {
-      "id": "pulse.out-pulseTwice.a",
+    "position.out-plateSpace.a": {
+      "id": "position.out-plateSpace.a",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "plateSpace",
+        "portId": "a"
+      }
+    },
+    "pulse.out-seamHeat.b": {
+      "id": "pulse.out-seamHeat.b",
       "from": {
         "nodeId": "pulse",
         "portId": "out"
       },
       "to": {
-        "nodeId": "pulseTwice",
+        "nodeId": "seamHeat",
+        "portId": "b"
+      }
+    },
+    "pulseClock.out-pulsePhase.b": {
+      "id": "pulseClock.out-pulsePhase.b",
+      "from": {
+        "nodeId": "pulseClock",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulsePhase",
+        "portId": "b"
+      }
+    },
+    "pulseNoise.out-pulseOffset.a": {
+      "id": "pulseNoise.out-pulseOffset.a",
+      "from": {
+        "nodeId": "pulseNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseOffset",
         "portId": "a"
       }
     },
-    "pulseNoise.out-pulse.in": {
-      "id": "pulseNoise.out-pulse.in",
+    "pulseOffset.out-pulsePhase.a": {
+      "id": "pulseOffset.out-pulsePhase.a",
       "from": {
-        "nodeId": "pulseNoise",
+        "nodeId": "pulseOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulsePhase",
+        "portId": "a"
+      }
+    },
+    "pulsePhase.out-pulseWave.in": {
+      "id": "pulsePhase.out-pulseWave.in",
+      "from": {
+        "nodeId": "pulsePhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseWave",
+        "portId": "in"
+      }
+    },
+    "pulseWave.out-pulse.in": {
+      "id": "pulseWave.out-pulse.in",
+      "from": {
+        "nodeId": "pulseWave",
         "portId": "out"
       },
       "to": {
@@ -696,195 +2041,393 @@
         "portId": "in"
       }
     },
-    "pulseTwice.out-stoked.b": {
-      "id": "pulseTwice.out-stoked.b",
+    "rim.out-emberNearSeam.b": {
+      "id": "rim.out-emberNearSeam.b",
       "from": {
-        "nodeId": "pulseTwice",
+        "nodeId": "rim",
         "portId": "out"
       },
       "to": {
-        "nodeId": "stoked",
+        "nodeId": "emberNearSeam",
         "portId": "b"
       }
     },
-    "redOver.out-spill.a": {
-      "id": "redOver.out-spill.a",
+    "rim.out-occlusion.in": {
+      "id": "rim.out-occlusion.in",
       "from": {
-        "nodeId": "redOver",
+        "nodeId": "rim",
         "portId": "out"
       },
       "to": {
-        "nodeId": "spill",
+        "nodeId": "occlusion",
+        "portId": "in"
+      }
+    },
+    "rim.out-rimHeat.a": {
+      "id": "rim.out-rimHeat.a",
+      "from": {
+        "nodeId": "rim",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimHeat",
         "portId": "a"
       }
     },
-    "spill.out-spillTint.a": {
-      "id": "spill.out-spillTint.a",
+    "rim.out-rimTint.a": {
+      "id": "rim.out-rimTint.a",
       "from": {
-        "nodeId": "spill",
+        "nodeId": "rim",
         "portId": "out"
       },
       "to": {
-        "nodeId": "spillTint",
+        "nodeId": "rimTint",
         "portId": "a"
       }
     },
-    "spillTint.out-burning.b": {
-      "id": "spillTint.out-burning.b",
+    "rimFade.out-rim.in": {
+      "id": "rimFade.out-rim.in",
       "from": {
-        "nodeId": "spillTint",
+        "nodeId": "rimFade",
         "portId": "out"
       },
       "to": {
-        "nodeId": "burning",
+        "nodeId": "rim",
+        "portId": "in"
+      }
+    },
+    "rimHeat.out-heat.b": {
+      "id": "rimHeat.out-heat.b",
+      "from": {
+        "nodeId": "rimHeat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heat",
         "portId": "b"
       }
     },
-    "stoked.out-heatSum.a": {
-      "id": "stoked.out-heatSum.a",
+    "rimTint.out-baked.t": {
+      "id": "rimTint.out-baked.t",
       "from": {
-        "nodeId": "stoked",
+        "nodeId": "rimTint",
         "portId": "out"
       },
       "to": {
-        "nodeId": "heatSum",
+        "nodeId": "baked",
+        "portId": "t"
+      }
+    },
+    "rimWidth.out-rimFade.edge1": {
+      "id": "rimWidth.out-rimFade.edge1",
+      "from": {
+        "nodeId": "rimWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimFade",
+        "portId": "edge1"
+      }
+    },
+    "roughness.out-master.roughness": {
+      "id": "roughness.out-master.roughness",
+      "from": {
+        "nodeId": "roughness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "roughness"
+      }
+    },
+    "seam.out-coat.a": {
+      "id": "seam.out-coat.a",
+      "from": {
+        "nodeId": "seam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coat",
         "portId": "a"
       }
     },
-    "swirl.out-swirlOffset.b": {
-      "id": "swirl.out-swirlOffset.b",
+    "seam.out-crustOnly.in": {
+      "id": "seam.out-crustOnly.in",
       "from": {
-        "nodeId": "swirl",
+        "nodeId": "seam",
         "portId": "out"
       },
       "to": {
-        "nodeId": "swirlOffset",
-        "portId": "b"
+        "nodeId": "crustOnly",
+        "portId": "in"
       }
     },
-    "swirlOffset.out-swirled.b": {
-      "id": "swirlOffset.out-swirled.b",
+    "seam.out-crustOrMelt.t": {
+      "id": "seam.out-crustOrMelt.t",
       "from": {
-        "nodeId": "swirlOffset",
+        "nodeId": "seam",
         "portId": "out"
       },
       "to": {
-        "nodeId": "swirled",
+        "nodeId": "crustOrMelt",
+        "portId": "t"
+      }
+    },
+    "seam.out-roughness.t": {
+      "id": "seam.out-roughness.t",
+      "from": {
+        "nodeId": "seam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "roughness",
+        "portId": "t"
+      }
+    },
+    "seam.out-seamHeat.a": {
+      "id": "seam.out-seamHeat.a",
+      "from": {
+        "nodeId": "seam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seamHeat",
+        "portId": "a"
+      }
+    },
+    "seam.out-sink.a": {
+      "id": "seam.out-sink.a",
+      "from": {
+        "nodeId": "seam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sink",
+        "portId": "a"
+      }
+    },
+    "seam.out-specular.t": {
+      "id": "seam.out-specular.t",
+      "from": {
+        "nodeId": "seam",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "specular",
+        "portId": "t"
+      }
+    },
+    "seamFade.out-seam.in": {
+      "id": "seamFade.out-seam.in",
+      "from": {
+        "nodeId": "seamFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seam",
+        "portId": "in"
+      }
+    },
+    "seamHeat.out-heat.a": {
+      "id": "seamHeat.out-heat.a",
+      "from": {
+        "nodeId": "seamHeat",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heat",
+        "portId": "a"
+      }
+    },
+    "seamWidth.out-rimWidth.a": {
+      "id": "seamWidth.out-rimWidth.a",
+      "from": {
+        "nodeId": "seamWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rimWidth",
+        "portId": "a"
+      }
+    },
+    "seamWidth.out-seamFade.edge1": {
+      "id": "seamWidth.out-seamFade.edge1",
+      "from": {
+        "nodeId": "seamWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seamFade",
+        "portId": "edge1"
+      }
+    },
+    "shadedCrust.out-oxidized.a": {
+      "id": "shadedCrust.out-oxidized.a",
+      "from": {
+        "nodeId": "shadedCrust",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "oxidized",
+        "portId": "a"
+      }
+    },
+    "sink.out-sunk.b": {
+      "id": "sink.out-sunk.b",
+      "from": {
+        "nodeId": "sink",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sunk",
         "portId": "b"
       }
     },
-    "swirled.out-pulseNoise.p": {
-      "id": "swirled.out-pulseNoise.p",
+    "specular.out-master.specularIntensity": {
+      "id": "specular.out-master.specularIntensity",
       "from": {
-        "nodeId": "swirled",
+        "nodeId": "specular",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "specularIntensity"
+      }
+    },
+    "sunk.out-displaced.b": {
+      "id": "sunk.out-displaced.b",
+      "from": {
+        "nodeId": "sunk",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "displaced",
+        "portId": "b"
+      }
+    },
+    "temperature.out-kelvin.b": {
+      "id": "temperature.out-kelvin.b",
+      "from": {
+        "nodeId": "temperature",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "kelvin",
+        "portId": "b"
+      }
+    },
+    "time.out-clock.a": {
+      "id": "time.out-clock.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "clock",
+        "portId": "a"
+      }
+    },
+    "warpNoise.out-warpPush.a": {
+      "id": "warpNoise.out-warpPush.a",
+      "from": {
+        "nodeId": "warpNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warpPush",
+        "portId": "a"
+      }
+    },
+    "warpPush.out-warped.b": {
+      "id": "warpPush.out-warped.b",
+      "from": {
+        "nodeId": "warpPush",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "warped",
+        "portId": "b"
+      }
+    },
+    "warped.out-detailNoise.p": {
+      "id": "warped.out-detailNoise.p",
+      "from": {
+        "nodeId": "warped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "detailNoise",
+        "portId": "p"
+      }
+    },
+    "warped.out-emberCells.position": {
+      "id": "warped.out-emberCells.position",
+      "from": {
+        "nodeId": "warped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "emberCells",
+        "portId": "position"
+      }
+    },
+    "warped.out-oxideNoise.p": {
+      "id": "warped.out-oxideNoise.p",
+      "from": {
+        "nodeId": "warped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "oxideNoise",
+        "portId": "p"
+      }
+    },
+    "warped.out-plates.position": {
+      "id": "warped.out-plates.position",
+      "from": {
+        "nodeId": "warped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "plates",
+        "portId": "position"
+      }
+    },
+    "warped.out-pulseNoise.p": {
+      "id": "warped.out-pulseNoise.p",
+      "from": {
+        "nodeId": "warped",
         "portId": "out"
       },
       "to": {
         "nodeId": "pulseNoise",
         "portId": "p"
       }
-    },
-    "time.out-drift.a": {
-      "id": "time.out-drift.a",
-      "from": {
-        "nodeId": "time",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "drift",
-        "portId": "a"
-      }
-    },
-    "vein.out-veinSharp.a": {
-      "id": "vein.out-veinSharp.a",
-      "from": {
-        "nodeId": "vein",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "veinSharp",
-        "portId": "a"
-      }
-    },
-    "veinColor.out-colorSquared.a": {
-      "id": "veinColor.out-colorSquared.a",
-      "from": {
-        "nodeId": "veinColor",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "colorSquared",
-        "portId": "a"
-      }
-    },
-    "veinColor.out-colorSquared.b": {
-      "id": "veinColor.out-colorSquared.b",
-      "from": {
-        "nodeId": "veinColor",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "colorSquared",
-        "portId": "b"
-      }
-    },
-    "veinColor.out-stoked.a": {
-      "id": "veinColor.out-stoked.a",
-      "from": {
-        "nodeId": "veinColor",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "stoked",
-        "portId": "a"
-      }
-    },
-    "veinDistance.out-vein.in": {
-      "id": "veinDistance.out-vein.in",
-      "from": {
-        "nodeId": "veinDistance",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "vein",
-        "portId": "in"
-      }
-    },
-    "veinNoise.out-veinDistance.in": {
-      "id": "veinNoise.out-veinDistance.in",
-      "from": {
-        "nodeId": "veinNoise",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "veinDistance",
-        "portId": "in"
-      }
-    },
-    "veinScale.out-veinNoise.scale": {
-      "id": "veinScale.out-veinNoise.scale",
-      "from": {
-        "nodeId": "veinScale",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "veinNoise",
-        "portId": "scale"
-      }
-    },
-    "veinSharp.out-veinColor.t": {
-      "id": "veinSharp.out-veinColor.t",
-      "from": {
-        "nodeId": "veinSharp",
-        "portId": "out"
-      },
-      "to": {
-        "nodeId": "veinColor",
-        "portId": "t"
-      }
     }
   },
   "properties": [
+    {
+      "id": "temperature",
+      "label": "Temperature",
+      "name": "temperature",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1600
+      }
+    },
+    {
+      "id": "crustCoverage",
+      "label": "Crust coverage",
+      "name": "crustCoverage",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.55
+      }
+    },
     {
       "id": "flowSpeed",
       "label": "Flow speed",
@@ -897,25 +2440,25 @@
       }
     },
     {
-      "id": "swirl",
-      "label": "Swirl",
-      "name": "swirl",
+      "id": "crackWidth",
+      "label": "Crack width",
+      "name": "crackWidth",
       "exposed": true,
       "type": "float",
       "value": {
         "type": "float",
-        "value": 1.2
+        "value": 0.14
       }
     },
     {
-      "id": "veinScale",
-      "label": "Vein scale",
-      "name": "veinScale",
+      "id": "glowIntensity",
+      "label": "Glow intensity",
+      "name": "glowIntensity",
       "exposed": true,
       "type": "float",
       "value": {
         "type": "float",
-        "value": 3
+        "value": 6
       }
     },
     {
@@ -928,25 +2471,9 @@
       "value": {
         "type": "vec3",
         "value": [
-          0.01033,
-          0.001518,
-          0.000911
-        ]
-      }
-    },
-    {
-      "id": "lavaColor",
-      "label": "Lava color",
-      "name": "lavaColor",
-      "exposed": true,
-      "type": "vec3",
-      "widget": "color",
-      "value": {
-        "type": "vec3",
-        "value": [
-          1,
-          0.194618,
-          0.013702
+          0.028426,
+          0.022174,
+          0.0185
         ]
       }
     }

@@ -78,6 +78,15 @@ export const masterStackNode = defineNode({
       optional: true,
     },
     {
+      id: 'ambientOcclusion',
+      label: 'Ambient Occlusion',
+      description:
+        'How much of the surrounding light reaches crevices: 1 = all of it, 0 = none. Connect a value to use it.',
+      type: concrete('float'),
+      default: float(1),
+      optional: true,
+    },
+    {
       id: 'opacity',
       label: 'Opacity',
       type: concrete('float'),
@@ -90,6 +99,15 @@ export const masterStackNode = defineNode({
       description: 'Pixels whose opacity is below this are cut away completely.',
       type: concrete('float'),
       default: float(0.5),
+      optional: true,
+    },
+    {
+      id: 'specularIntensity',
+      label: 'Specular Intensity',
+      description:
+        'How strong the reflections are on a physical material: 1 = as usual, 0 = none. Connect a value to use it.',
+      type: concrete('float'),
+      default: float(1),
       optional: true,
     },
     {

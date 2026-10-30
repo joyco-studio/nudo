@@ -20,6 +20,7 @@ import {
   COLOR_RAMP_MIN_STOPS,
   colorRampCount,
   colorRampNode,
+  derivativesNode,
   colorRampStopInputIds,
   createDefaultRegistry,
   createRecordingFacade,
@@ -29,6 +30,9 @@ import {
   moduloNode,
   posterizeNode,
   powerNode,
+  reflectNode,
+  refractNode,
+  toneMapNode,
   triplanarNode,
   voronoi3dNode,
   voronoiNode,
@@ -46,6 +50,11 @@ const CATALOG_C_TYPES = [
   'vector/mapping',
   'color/bright-contrast',
   'math/atan2',
+  'color/blackbody',
+  'math/derivatives',
+  'vector/reflect',
+  'vector/refract',
+  'color/tone-map',
 ]
 
 const buildWith = (
@@ -182,9 +191,13 @@ describe('voronoi 3d', () => {
     ])
   })
 
-  it('shares the distance param and the exponent input with the 2D voronoi', () => {
-    expect(voronoi3dNode.params).toEqual(voronoiNode.params)
-    expect(voronoi3dNode.inputs.at(-1)).toBe(voronoiNode.inputs.at(-1))
+  it('shares the distance param and the exponent input with the 2D voronoi, but not its tiling', () => {
+    expect(voronoi3dNode.params).toEqual(
+      (voronoiNode.params ?? []).filter((param) => param.id === 'distance'),
+    )
+    expect(voronoi3dNode.inputs.at(-1)).toBe(
+      voronoiNode.inputs.find((input) => input.id === 'exponent'),
+    )
   })
 })
 
@@ -649,5 +662,62 @@ describe('arctangent 2', () => {
       ['x', powerNode.inputs[1]?.type, { type: 'float', value: 1 }],
     ])
     expect(atan2Node.outputs[0]?.type).toEqual(powerNode.outputs[0]?.type)
+  })
+})
+
+describe('derivatives', () => {
+  it('outputs dFdx, dFdy and fwidth of its input', () => {
+    expect(buildWith(derivativesNode, { in: 'v' })).toEqual({
+      ddx: 'dFdx(v)',
+      ddy: 'dFdy(v)',
+      fwidth: 'fwidth(v)',
+    })
+  })
+})
+
+describe('reflect and refract', () => {
+  it('reflect mirrors In about the normal', () => {
+    expect(buildWith(reflectNode, { in: 'i', normal: 'n' }).out).toBe('reflect(i,n)')
+  })
+
+  it('refract bends In through the normal by the IOR ratio', () => {
+    expect(buildWith(refractNode, { in: 'i', normal: 'n', ratio: 'r' }).out).toBe('refract(i,n,r)')
+  })
+
+  it('both take vec3 directions and fall back to the world normal', () => {
+    for (const definition of [reflectNode, refractNode]) {
+      const normal = definition.inputs.find((input) => input.id === 'normal')
+      expect(normal?.fallback, definition.type).toBe('normalWorld')
+      expect(definition.inputs[0]?.type, definition.type).toEqual({
+        kind: 'concrete',
+        type: 'vec3',
+      })
+      expect(definition.outputs[0]?.type, definition.type).toEqual({
+        kind: 'concrete',
+        type: 'vec3',
+      })
+    }
+    expect(refractNode.inputs.find((input) => input.id === 'ratio')?.default).toEqual({
+      type: 'float',
+      value: 0.75,
+    })
+  })
+})
+
+describe('tone map', () => {
+  it('runs the chosen curve on Color at Exposure, ACES Filmic by default', () => {
+    const inputs = { color: 'c', exposure: 'e' }
+    expect(buildWith(toneMapNode, inputs).out).toBe('toneMap(aces-filmic,c,e)')
+    for (const kind of ['agx', 'neutral', 'reinhard', 'cineon', 'linear']) {
+      expect(buildWith(toneMapNode, inputs, { kind }).out).toBe(`toneMap(${kind},c,e)`)
+    }
+    expect(buildWith(toneMapNode, inputs, { kind: 'nope' }).out).toBe('toneMap(aces-filmic,c,e)')
+  })
+
+  it('takes a white color at exposure 1', () => {
+    expect(toneMapNode.inputs.map((input) => [input.id, input.default])).toEqual([
+      ['color', { type: 'vec3', value: [1, 1, 1] }],
+      ['exposure', { type: 'float', value: 1 }],
+    ])
   })
 })

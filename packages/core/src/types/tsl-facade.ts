@@ -36,6 +36,15 @@ export const WORLEY_METRIC_IDS: Readonly<Record<VoronoiMetric, number>> = {
   chebyshev: 3,
 }
 
+/** Every distance a Voronoi offers: the worley metrics plus Blender's Minkowski. */
+export type VoronoiDistance = VoronoiMetric | 'minkowski'
+
+/** The ids the tiled Voronoi search gives each distance: the worley ids, and 4 for Minkowski. */
+export const VORONOI_DISTANCE_IDS: Readonly<Record<VoronoiDistance, number>> = {
+  ...WORLEY_METRIC_IDS,
+  minkowski: 4,
+}
+
 /** What a hash returns: one random float, or three decorrelated ones as a vec3. */
 export type HashKind = 'float' | 'vec3'
 
@@ -43,6 +52,9 @@ export type HashKind = 'float' | 'vec3'
 export type CellDimensions = 2 | 3
 
 export type ColorSpaceDirection = 'srgb-to-linear' | 'linear-to-srgb'
+
+/** The curve a Tone Map node compresses HDR light with: three.js's renderer tone mappings. */
+export type ToneMapKind = 'aces-filmic' | 'agx' | 'neutral' | 'reinhard' | 'cineon' | 'linear'
 
 /** What a Main Light node reads off the scene's shared key light. */
 export type MainLightComponent = 'direction' | 'color'
@@ -70,15 +82,37 @@ export interface TslFacade<E> {
   length(a: E): E
   normalize(a: E): E
   distance(a: E, b: E): E
+  /** The incident direction `i` mirrored about the surface normal `n` (unit vec3s): vec3. */
+  reflect(i: E, n: E): E
+  /**
+   * The incident direction `i` bent through a surface of normal `n` (unit vec3s) by `eta`, the
+   * ratio of the indices of refraction (outside ÷ inside): vec3, zero past total internal reflection.
+   */
+  refract(i: E, n: E, eta: E): E
+  /**
+   * An HDR color (vec3) brought into the displayable 0…1 range by three.js's `kind` curve, after
+   * scaling by `exposure` (float): what the renderer's tone mapping does, as a step in the graph.
+   */
+  toneMap(kind: ToneMapKind, color: E, exposure: E): E
   mix(a: E, b: E, t: E): E
   step(edge: E, x: E): E
   smoothstep(edge0: E, edge1: E, x: E): E
   fwidth(x: E): E
+  /** How `x` changes from this pixel to the next across the screen (fragment stage only). */
+  dFdx(x: E): E
+  /** How `x` changes from this pixel to the next down the screen (fragment stage only). */
+  dFdy(x: E): E
   remap(x: E, inLow: E, inHigh: E, outLow: E, outHigh: E): E
   /** `whenTrue` if `a <op> b`, else `whenFalse`. */
   select(op: CompareOp, a: E, b: E, whenTrue: E, whenFalse: E): E
   /** Scalar noise: float. */
   noise(kind: NoiseKind, p: E): E
+  /**
+   * Gradient noise that repeats: a float in roughly [-1, 1] at the vec3 `p`, its lattice wrapped
+   * every `period` cells per axis (vec3 of whole numbers; 0 leaves that axis unwrapped), so
+   * `p + period` reads the same value as `p`.
+   */
+  tiledNoise(p: E, period: E): E
   /**
    * Cellular noise around a vec2 or vec3 point: vec2 holding the nearest (F1) and second-nearest
    * (F2) feature distances under `metric`.
@@ -93,6 +127,12 @@ export interface TslFacade<E> {
   voronoiMinkowski(dimensions: CellDimensions, p: E, jitter: E, exponent: E): E
   /** The feature point the Minkowski F1 measures, in the space of `p`: vec2 or vec3. */
   voronoiMinkowskiCell(dimensions: CellDimensions, p: E, jitter: E, exponent: E): E
+  /**
+   * A 2D Voronoi whose cells repeat every `period` cells (vec2 of whole numbers; 0 leaves that axis
+   * unwrapped): vec4 of F1, F2 (as `voronoi` or `voronoiMinkowski` measure them under `distance`)
+   * and F1's feature point. `exponent` (float) is only read under the Minkowski distance.
+   */
+  tiledVoronoi(p: E, jitter: E, distance: VoronoiDistance, exponent: E, period: E): E
   /** A random float from 0 to 1, constant inside each unit cell of `p`. */
   cellNoise(p: E): E
   /**

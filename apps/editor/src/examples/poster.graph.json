@@ -62,12 +62,12 @@
       "type": "utility/comment",
       "position": {
         "x": -3384,
-        "y": -205
+        "y": -233
       },
       "inputValues": {},
       "params": {
         "body": "A little noise added to the light makes the edges between inks waver, like a stencil cut by hand.",
-        "height": 594,
+        "height": 622,
         "title": "Hand-cut edges",
         "width": 1248
       }
@@ -92,12 +92,12 @@
       "type": "utility/comment",
       "position": {
         "x": -5320,
-        "y": -68
+        "y": -105
       },
       "inputValues": {},
       "params": {
         "body": "Normal · light direction: how much each point faces the light. The Remap takes it from -1…1 to 0…1, so the dark side still has shades in it.",
-        "height": 579,
+        "height": 616,
         "title": "Light",
         "width": 1200
       }
@@ -266,10 +266,12 @@
       "type": "input/normal",
       "position": {
         "x": -5016,
-        "y": 12
+        "y": -25
       },
       "inputValues": {},
-      "params": {}
+      "params": {
+        "space": "world"
+      }
     },
     "outline": {
       "id": "outline",
@@ -474,7 +476,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3032,
-        "y": -125
+        "y": -153
       },
       "inputValues": {
         "scale": {
@@ -483,7 +485,8 @@
         }
       },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "tile": false
       }
     }
   },

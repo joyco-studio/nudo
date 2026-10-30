@@ -2,8 +2,16 @@ import { concrete, defineNode, float, vec3 } from '@nudo-tsl/core'
 import type { NoiseKind, ParamValue, TslFacade } from '@nudo-tsl/core'
 import type { EnumOption } from '../shared/resolve-enum-param'
 import { resolveEnumParam } from '../shared/resolve-enum-param'
+import { PERIOD_3D, TILE_PARAM, isTiling, latticeTiling } from './tile-period'
 
-const DEFAULT_KIND: NoiseKind = 'simplex'
+/**
+ * The Noise node's kinds: the facade's 3D noises, plus MaterialX's 2D Perlin, which reads P's X
+ * and Y only. It is not the 3D Perlin at Z = 0: its own lattice gradients and scale, as
+ * `mx_noise_float` gives a vec2.
+ */
+type NoiseNodeKind = NoiseKind | 'perlin-2d'
+
+const DEFAULT_KIND: NoiseNodeKind = 'simplex'
 const MIN_OCTAVES = 1
 const MAX_OCTAVES = 8
 const DEFAULT_OCTAVES = 1
@@ -18,9 +26,10 @@ const BLUE_OFFSET = [74.2, -124.5, 99.4] as const
 /** Out runs from -1 to 1; Color, like a Blender Noise Color, from 0 to 1. */
 const HALF = 0.5
 
-const KIND_OPTIONS: readonly EnumOption<NoiseKind>[] = [
+const KIND_OPTIONS: readonly EnumOption<NoiseNodeKind>[] = [
   { value: 'perlin', label: 'Perlin' },
   { value: 'simplex', label: 'Simplex' },
+  { value: 'perlin-2d', label: 'Perlin 2D' },
 ]
 
 /** The stored octave count, rounded and kept within the supported range. */
@@ -30,7 +39,7 @@ function resolveOctaves(stored: ParamValue | undefined): number {
 }
 
 interface FractalNoiseInputs<E> {
-  readonly kind: NoiseKind
+  readonly kind: NoiseNodeKind
   readonly octaves: number
   readonly p: E
   /** Added to the scaled point, to sample an unrelated stretch of the same noise. */
@@ -38,16 +47,38 @@ interface FractalNoiseInputs<E> {
   readonly scale: E
   readonly roughness: E
   readonly lacunarity: E
+  /** Set while the node tiles: the repeat, in units of `p`. */
+  readonly period: E | null
+}
+
+/** Octave `octave`'s sample: plain noise, or tiled noise whose lattice repeats every period. */
+function octaveSample<E>(
+  tsl: TslFacade<E>,
+  inputs: FractalNoiseInputs<E>,
+  scaled: E,
+  frequency: E | null,
+): E {
+  const { kind, period, scale } = inputs
+  const point = frequency === null ? scaled : tsl.mul(scaled, frequency)
+  if (period === null) {
+    return kind === 'perlin-2d'
+      ? tsl.noise('perlin', tsl.swizzle(point, 'xy'))
+      : tsl.noise(kind, point)
+  }
+  const cells = tsl.mul(tsl.mul(period, scale), frequency ?? tsl.construct('float', [1]))
+  const { lattice, fit } = latticeTiling(tsl, cells)
+  return tsl.tiledNoise(tsl.mul(point, fit), lattice)
 }
 
 /**
  * Octave `i` samples at `scale * lacunarity^i` and weighs `roughness^i`. The sum is divided by the
- * summed weights so the range stays -1 to 1. One octave is the plain noise call.
+ * summed weights so the range stays -1 to 1. One octave is the plain noise call. While tiling,
+ * every octave's lattice repeats on whole cells, so the sum repeats too.
  */
 function fractalNoise<E>(tsl: TslFacade<E>, inputs: FractalNoiseInputs<E>): E {
-  const { kind, octaves, p, offset, scale, roughness, lacunarity } = inputs
+  const { octaves, p, offset, scale, roughness, lacunarity } = inputs
   const scaled = offset === null ? tsl.mul(p, scale) : tsl.add(tsl.mul(p, scale), offset)
-  const base = tsl.noise(kind, scaled)
+  const base = octaveSample(tsl, inputs, scaled, null)
   if (octaves <= MIN_OCTAVES) return base
 
   let sum = base
@@ -55,7 +86,7 @@ function fractalNoise<E>(tsl: TslFacade<E>, inputs: FractalNoiseInputs<E>): E {
   for (let octave = 1; octave < octaves; octave++) {
     const exponent = tsl.construct('float', [octave])
     const amplitude = tsl.pow(roughness, exponent)
-    const sample = tsl.noise(kind, tsl.mul(scaled, tsl.pow(lacunarity, exponent)))
+    const sample = octaveSample(tsl, inputs, scaled, tsl.pow(lacunarity, exponent))
     sum = tsl.add(sum, tsl.mul(sample, amplitude))
     totalAmplitude = tsl.add(totalAmplitude, amplitude)
   }
@@ -98,6 +129,7 @@ export const noiseNode = defineNode({
       default: float(DEFAULT_LACUNARITY),
       description: 'With more than one octave, how much denser each layer is than the last.',
     },
+    PERIOD_3D,
   ],
   outputs: [
     {
@@ -125,6 +157,7 @@ export const noiseNode = defineNode({
       max: MAX_OCTAVES,
       step: 1,
     },
+    TILE_PARAM,
   ],
   build: ({ tsl, inputs, params }) => {
     const sample = (offset: readonly number[] | null) =>
@@ -136,6 +169,7 @@ export const noiseNode = defineNode({
         scale: inputs.scale,
         roughness: inputs.roughness,
         lacunarity: inputs.lacunarity,
+        period: isTiling(params) ? inputs.period : null,
       })
     const out = sample(null)
     const half = tsl.construct('float', [HALF])

@@ -2,6 +2,8 @@
 // three r186 · MeshStandardNodeMaterial
 // Surface: transparent · single-sided
 // Apply: Object.assign(new MeshStandardNodeMaterial(), nodes, materialSettings)
+// Look: the nudo preview defaults to renderer.toneMapping = ACESFilmicToneMapping,
+// toneMappingExposure 1 and a RoomEnvironment (PMREM) as scene.environment.
 import {
   clamp,
   color,

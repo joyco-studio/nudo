@@ -9,9 +9,12 @@ import type { StillOptions } from './support/still-transforms'
 
 const PALETTE_CHORD = 'ControlOrMeta+k'
 const UNDO_CHORD = 'ControlOrMeta+z'
-/** The iridescent blob: 20 nodes, five comment frames and the master. */
-const BLOB_NODE_COUNT = 26
-const BLOB_FIRST_FRAME = '1 · Animated noise'
+/** The lava flow: 80 nodes, eight comment frames and the master. */
+const LAVA_NODE_COUNT = 89
+const LAVA_FIRST_FRAME = 'Drifting crust'
+const LAVA = 'Lava flow'
+const POSTER = 'Poster'
+const POSTER_FIRST_FRAME = 'Hand-cut edges'
 /** Frames (about half a second) the view must hold still: a fit that was going to happen has started by then. */
 const NO_FIT_STILL_FRAMES = 30
 
@@ -70,18 +73,18 @@ test.describe('examples', () => {
     await page.goto('/')
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
 
-    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await pickExampleByKeyboard(page, LAVA)
 
     await expect(templatesBrowser(page)).toBeHidden()
     await expect(confirmDialog(page)).toBeHidden()
-    await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
+    await expect(page.locator('.react-flow__node')).toHaveCount(LAVA_NODE_COUNT)
     await expect(templatesButton(page)).toBeFocused()
-    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
-    await expect(page.getByRole('radio', { name: 'Knot', exact: true })).toBeChecked()
+    await expect(page.getByRole('group', { name: LAVA_FIRST_FRAME, exact: true })).toBeAttached()
+    await expect(page.getByRole('radio', { name: 'Torus', exact: true })).toBeChecked()
     await expect(page.locator('[data-error="true"]')).toHaveCount(0)
   })
 
-  for (const title of ['Iridescent blob', 'Pond']) {
+  for (const title of [LAVA, 'Pond']) {
     test(`lays the ${title} out with its previews on, no node over another`, async ({ page }) => {
       await page.goto('/')
       await pickExampleByKeyboard(page, title)
@@ -104,8 +107,9 @@ test.describe('examples', () => {
   }) => {
     await page.goto('/')
     await expect(page.getByRole('group', { name: 'Master Stack', exact: true })).toBeVisible()
-    await pickExampleByKeyboard(page, 'Iridescent blob')
-    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
+    // A small template: its few previews compile quickly, so the view settles within the wait.
+    await pickExampleByKeyboard(page, POSTER)
+    await expect(page.getByRole('group', { name: POSTER_FIRST_FRAME, exact: true })).toBeAttached()
     const framed = await settledViewport(page)
 
     // Pan away, so the second opening has to frame the example again to land there.
@@ -114,7 +118,7 @@ test.describe('examples', () => {
     expect(await settledViewport(page)).not.toBe(framed)
 
     // Every node of the second copy has the same id as one the canvas already measured.
-    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await pickExampleByKeyboard(page, POSTER)
     await confirmDialog(page).getByRole('button', { name: 'Open template' }).click()
     await expect(confirmDialog(page)).toBeHidden()
     await expect.poll(() => viewportTransform(page)).toBe(framed)
@@ -130,7 +134,7 @@ test.describe('examples', () => {
     await page.goto('/')
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
 
-    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await pickExampleByKeyboard(page, LAVA)
     const dialog = confirmDialog(page)
     const cancel = dialog.getByRole('button', { name: 'Cancel' })
     const confirm = dialog.getByRole('button', { name: 'Open template' })
@@ -144,7 +148,7 @@ test.describe('examples', () => {
     await page.keyboard.press('Enter')
     await expect(dialog).toBeHidden()
     await expect(templatesBrowser(page)).toBeHidden()
-    await expect(page.locator('.react-flow__node')).toHaveCount(BLOB_NODE_COUNT)
+    await expect(page.locator('.react-flow__node')).toHaveCount(LAVA_NODE_COUNT)
     await expect(templatesButton(page)).toBeFocused()
   })
 
@@ -156,10 +160,10 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await pickExampleByKeyboard(page, LAVA)
     const dialog = confirmDialog(page)
     await expect(dialog).toBeVisible()
-    await expect(dialog).toContainText('Open “Iridescent blob”?')
+    await expect(dialog).toContainText('Open “Lava flow”?')
     await expect(dialog).toContainText('2 nodes')
     await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
 
@@ -168,7 +172,7 @@ test.describe('examples', () => {
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
     const browser = templatesBrowser(page)
-    await expect(browser.getByRole('option', { name: 'Iridescent blob' })).toBeFocused()
+    await expect(browser.getByRole('option', { name: LAVA })).toBeFocused()
     await page.keyboard.press('Escape')
     await expect(browser).toBeHidden()
     await expect(templatesButton(page)).toBeFocused()
@@ -181,10 +185,10 @@ test.describe('examples', () => {
     await expect(page.locator('.react-flow__edge-path')).toHaveCount(1)
     const before = await storedNodeIds(page)
 
-    await pickExampleByKeyboard(page, 'Iridescent blob')
+    await pickExampleByKeyboard(page, LAVA)
     await confirmDialog(page).getByRole('button', { name: 'Open template' }).click()
     await expect(confirmDialog(page)).toBeHidden()
-    await expect(page.getByRole('group', { name: BLOB_FIRST_FRAME, exact: true })).toBeAttached()
+    await expect(page.getByRole('group', { name: LAVA_FIRST_FRAME, exact: true })).toBeAttached()
     await expect.poll(() => storedNodeIds(page)).not.toEqual(before)
 
     await page.getByRole('main', { name: 'Node canvas' }).focus()
@@ -212,19 +216,19 @@ test.describe('examples', () => {
     await page.keyboard.press(PALETTE_CHORD)
     const dialog = page.getByRole('dialog').filter({ has: page.getByRole('combobox') })
     await expect(dialog).toBeVisible()
-    await page.keyboard.type('blob')
-    await expect(dialog.getByRole('option').first()).toContainText('Plantilla: Blob iridiscente')
+    await page.keyboard.type('lava')
+    await expect(dialog.getByRole('option').first()).toContainText('Plantilla: Río de lava')
     await page.keyboard.press('Enter')
 
     // The browser opens on that template, focused; Enter opens it.
     const browser = page.getByRole('dialog', { name: 'Plantillas', exact: true })
-    await expect(browser.getByRole('option', { name: 'Blob iridiscente' })).toBeFocused()
+    await expect(browser.getByRole('option', { name: 'Río de lava' })).toBeFocused()
     await page.keyboard.press('Enter')
     await expect(browser).toBeHidden()
 
-    const frame = page.getByRole('group', { name: '1 · Noise animado', exact: true })
+    const frame = page.getByRole('group', { name: 'Costra a la deriva', exact: true })
     await expect(frame.getByRole('textbox', { name: 'Texto del comentario' })).toHaveValue(
-      /se desliza con el tiempo/,
+      /deslizada por Time × flow speed/,
     )
   })
 })

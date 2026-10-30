@@ -106,13 +106,24 @@ export const es = {
   'command.browse-templates.keywords': 'plantillas ejemplos muestras demo galería vista previa',
   'command.example-pond.label': 'Plantilla: Estanque',
   'command.example-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
-  'command.example-iridescent-blob.label': 'Plantilla: Blob iridiscente',
-  'command.example-iridescent-blob.keywords': 'plantilla ejemplo muestra demo tutorial',
   'command.example-poster.label': 'Plantilla: Afiche',
   'command.example-poster.keywords':
     'plantilla ejemplo muestra demo póster esténcil toon serigrafía',
   'command.example-lava-flow.label': 'Plantilla: Río de lava',
-  'command.example-lava-flow.keywords': 'plantilla ejemplo muestra demo lava fuego volcán voronoi',
+  'command.example-lava-flow.keywords':
+    'plantilla ejemplo muestra demo lava magma volcán basalto cuerpo negro emisión brillo físico',
+  'command.example-lines.label': 'Plantilla: Líneas',
+  'command.example-lines.keywords':
+    'plantilla ejemplo muestra demo líneas boceto tinta dibujo grabado spite ilustración',
+  'command.example-scribble.label': 'Plantilla: Garabato',
+  'command.example-scribble.keywords':
+    'plantilla ejemplo muestra demo garabato lapicera caligrafía dibujo tinta boceto aleatorio spite ilustración',
+  'command.example-patch.label': 'Plantilla: Parches',
+  'command.example-patch.keywords':
+    'plantilla ejemplo muestra demo parches trazos tramado voronoi aleatorio tinta boceto spite ilustración',
+  'command.example-brush-toon.label': 'Plantilla: Toon pincel',
+  'command.example-brush-toon.keywords':
+    'plantilla ejemplo muestra demo pincel toon pintura pictórico pinceladas rampa de color paleta blender facetas ilustración',
   'command.example-midnight-glaze.label': 'Plantilla: Esmalte nocturno',
   'command.example-midnight-glaze.keywords':
     'plantilla ejemplo muestra demo pictórico blender medianoche azul esmalte brillo vetas',
@@ -220,18 +231,33 @@ export const es = {
   'example.pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
   'example.pond.teaches':
     'Superpone celdas, bordes y sellos de Voronoi en colores planos, sin iluminación. Un ruido en movimiento curva el dibujo como el agua.',
-  'example.iridescent-blob.title': 'Blob iridiscente',
-  'example.iridescent-blob.description': 'Un blob que respira y cambia de color',
-  'example.iridescent-blob.teaches':
-    'Mueve los vértices sobre sus normales con ruido animado y reusa ese ruido para elegir colores y rugosidad. Cada paso está en un marco de comentario.',
   'example.poster.title': 'Afiche',
   'example.poster.description': 'Sombreado de póster en cuatro tintas, con rayas y contorno',
   'example.poster.teaches':
     'Corta un único valor de iluminación en cuatro tintas planas con Select, hace temblar los cortes con ruido como un esténcil hecho a mano y dibuja el contorno con un fresnel.',
   'example.lava-flow.title': 'Río de lava',
-  'example.lava-flow.description': 'Lava que se arremolina, con venas al rojo blanco',
+  'example.lava-flow.description':
+    'Un campo de lava que se enfría: placas de basalto a la deriva sobre grietas incandescentes',
   'example.lava-flow.teaches':
-    'Deforma la posición con ruido lento, dibuja venas finas con el valor absoluto de otro ruido y deja que el calor que pasa de 1 se derrame sobre los demás canales, así las venas más calientes viran al blanco.',
+    'Parte placas de Voronoi a la deriva en grietas fundidas, manda calor por ellas con el tiempo, las ilumina con el nodo Blackbody en HDR para que el tone mapping las suavice y las termina en físico: costra rugosa y oxidada, fundido satinado con reflejos atenuados, grietas hundidas, y relieve de costra y brasas redondas que Derivatives evita que titilen.',
+  'example.lines.title': 'Líneas',
+  'example.lines.description':
+    'Líneas de tinta que engordan hacia las sombras, sobre papel con grano',
+  'example.lines.teaches':
+    'Convierte la posición en el espacio de la vista en ondas paralelas con un seno y deja que AA Step entinte cada onda donde supera a la luz, así las líneas engordan a medida que la luz baja.',
+  'example.scribble.title': 'Garabato',
+  'example.scribble.description': 'Trazos de lapicera temblorosos que se amontonan en las sombras',
+  'example.scribble.teaches':
+    'Dobla trazos paralelos con un noise fractal para que tiemblen como escritura a mano, después numera cada trazo y deja que el nodo Random le dé su propia presión.',
+  'example.patch.title': 'Parches',
+  'example.patch.description': 'Parches de trazos cortos, cada uno en su dirección',
+  'example.patch.teaches':
+    'Divide la superficie en parches de Voronoi y pasa el centro de cada uno al nodo Random para sacar un ángulo, así cada parche se llena de trazos en su propia dirección.',
+  'example.brush-toon.title': 'Toon pincel',
+  'example.brush-toon.description':
+    'Sombreado toon pictórico en cinco colores, con bordes de pincel',
+  'example.brush-toon.teaches':
+    'Lee la luz como un valor y la pasa por una Color Ramp de cinco colores, inclina la normal por celda de Voronoi para lograr facetas planas pintadas, las pinta encima con una textura de pinceladas incluida y muerde la silueta con una máscara de trazos y Alpha Clip.',
   'example.midnight-glaze.title': 'Esmalte nocturno',
   'example.midnight-glaze.description':
     'Facetas de pincel azul marino con luz azul y vetas que brillan',
@@ -255,6 +281,8 @@ export const es = {
   'example.ink-swirl.teaches':
     'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un pincel Minkowski filoso (exponente 32, celdas casi cuadradas) parte la luz en remolinos de tinta.',
   'templateTexture.paper-grain': 'Grano de papel',
+  'templateTexture.brush-stroke': 'Pinceladas',
+  'templateTexture.stroke-mask': 'Máscara de trazos',
   'example.texture-fixture.title': 'Grano de papel (fixture de prueba)',
   'example.texture-fixture.description': 'Una textura incluida, para las pruebas end-to-end',
   'example.texture-fixture.teaches':
@@ -489,6 +517,17 @@ export const es = {
   'preview.backdrop.none': 'Ninguno',
   'preview.backdrop.grid': 'Grilla',
   'preview.backdrop.checker-room': 'Sala de damero',
+  'preview.look': 'Aspecto',
+  'preview.toneMapping': 'Mapeo de tonos',
+  'preview.toneMapping.none': 'Ninguno',
+  'preview.toneMapping.aces': 'ACES',
+  'preview.toneMapping.agx': 'AgX',
+  'preview.toneMapping.neutral': 'Neutro',
+  'preview.exposure': 'Exposición',
+  'preview.environment': 'Entorno',
+  'preview.environment.studio': 'Estudio',
+  'preview.environment.neutral': 'Neutro',
+  'preview.environment.none': 'Ninguno',
   'preview.background': 'Fondo',
   'preview.backgroundColor': 'Color de fondo',
   'preview.unavailable':

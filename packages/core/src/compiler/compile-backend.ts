@@ -13,8 +13,10 @@ export type SurfaceSlot =
   | 'metalness'
   | 'roughness'
   | 'normal'
+  | 'ambientOcclusion'
   | 'opacity'
   | 'alphaClip'
+  | 'specularIntensity'
   | 'transmission'
   | 'ior'
   | 'thickness'
@@ -37,8 +39,10 @@ export const SURFACE_SLOTS: readonly SurfaceSlot[] = [
   'metalness',
   'roughness',
   'normal',
+  'ambientOcclusion',
   'opacity',
   'alphaClip',
+  'specularIntensity',
   'transmission',
   'ior',
   'thickness',

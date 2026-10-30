@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ChangeEvent, RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { RotateCcw, Upload, ZoomIn, ZoomOut } from 'lucide-react'
 import type { Group } from 'three'
 
 import { effectivePreviewLayout } from '@/features/panels/panel-state'
-import type { PreviewBackdrop } from '@/features/panels/panel-state'
+import type {
+  PreviewBackdrop,
+  PreviewEnvironment,
+  PreviewToneMapping,
+} from '@/features/panels/panel-state'
 import { cn } from '@/shared/lib/utils'
 import { useEditorStore } from '@/store/editor-store'
 import { Badge } from '@/shared/ui/badge'
@@ -17,6 +21,7 @@ import { useT } from '@/i18n/use-t'
 
 import { BackdropField } from './backdrop-field'
 import { BackgroundColorField, useBackgroundColor } from './background-color-field'
+import { PreviewLookPanel, PreviewLookToggle, usePreviewLook } from './preview-look-fields'
 import type { RendererBackend } from './create-renderer'
 import { disposeModel, loadGlbModel } from './glb-model'
 import { ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR, zoomView } from './orbit-view'
@@ -44,6 +49,9 @@ interface ViewportProps {
   model: Group | null
   backgroundColor: string
   backdrop: PreviewBackdrop
+  toneMapping: PreviewToneMapping
+  exposure: number
+  environment: PreviewEnvironment
   orbitRef: RefObject<OrbitView | null>
   onBackend: (backend: RendererBackend) => void
   onMaterialStatus: (rejection: MaterialRejection | null) => void
@@ -225,6 +233,9 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
   const [loadError, setLoadError] = useState<LoadFailure | null>(null)
   const backgroundColor = useBackgroundColor()
   const backdrop = useEditorStore((state) => state.panels.backdrop)
+  const look = usePreviewLook()
+  const [isLookOpen, setIsLookOpen] = useState(false)
+  const lookId = useId()
   // Docked, the viewport is a square; split and full give it all the height the panel has.
   const isFilling = useEditorStore((state) => effectivePreviewLayout(state.panels) !== 'docked')
   const orbitRef = useRef<OrbitView | null>(null)
@@ -262,6 +273,9 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
           model={model}
           backgroundColor={backgroundColor.shown}
           backdrop={backdrop}
+          toneMapping={look.toneMapping}
+          exposure={look.exposure}
+          environment={look.environment}
           orbitRef={orbitRef}
           onBackend={setBackend}
           onMaterialStatus={setRejection}
@@ -324,7 +338,15 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <BackdropField />
           <BackgroundColorField color={backgroundColor} />
+          <PreviewLookToggle
+            isOpen={isLookOpen}
+            controls={lookId}
+            onToggle={() => {
+              setIsLookOpen((open) => !open)
+            }}
+          />
         </div>
+        <PreviewLookPanel id={lookId} isOpen={isLookOpen} />
       </div>
       {/* The live region stays mounted so a message that appears later is announced. */}
       <div aria-live="polite">

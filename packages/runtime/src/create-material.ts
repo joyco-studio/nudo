@@ -108,6 +108,8 @@ function buildMaterial(
   const material = materialFor(settings.lighting)
   assignNodes(material, masterMaterialAssignments(tsl, slots, settings))
   material.side = settings.twoSided ? DoubleSide : FrontSide
+  // Unlit shows the color it is given: the viewer's tone mapping would shift a flat palette.
+  material.toneMapped = settings.lighting !== 'unlit'
   material.transparent = resolveTransparency({
     surface: settings.surface,
     opacityConnected: isOpacityConnected(graph),

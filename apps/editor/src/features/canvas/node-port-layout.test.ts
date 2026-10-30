@@ -53,6 +53,7 @@ const master = (params: GraphNode['params'] = {}): GraphNode => ({
 })
 
 const PHYSICAL_INPUT_IDS: readonly string[] = [
+  'specularIntensity',
   'transmission',
   'ior',
   'thickness',
@@ -180,10 +181,15 @@ describe('node port layout', () => {
     expect(shownRows(vertex, false, new Set())).toEqual(vertex.rows)
   })
 
-  it('marks metalness, roughness and normal as ignored by an unlit master', () => {
+  it('marks metalness, roughness, normal and ambient occlusion as ignored by an unlit master', () => {
     const hints = hintsOf({ lighting: 'unlit' })
     const unlit = [...hints].filter(([, hint]) => hint?.reason === 'unlit')
-    expect(unlit.map(([id]) => id)).toEqual(['metalness', 'roughness', 'normal'])
+    expect(unlit.map(([id]) => id)).toEqual([
+      'metalness',
+      'roughness',
+      'normal',
+      'ambientOcclusion',
+    ])
   })
 
   it('marks the physical inputs as physical only unless the lighting is physical', () => {
@@ -210,6 +216,8 @@ describe('node port layout', () => {
     expect(hints.get('iridescence')).toEqual({ reason: 'featureOff', feature: 'iridescence' })
     expect(hints.get('iridescenceIOR')).toEqual({ reason: 'featureOff', feature: 'iridescence' })
     expect(hints.get('roughness')).toBeNull()
+    // Specular intensity has no switch of its own: physical lighting is enough.
+    expect(hints.get('specularIntensity')).toBeNull()
   })
 
   it('leaves every physical input enabled once every feature is on', () => {

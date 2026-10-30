@@ -6,6 +6,7 @@ import {
   PHYSICAL_FEATURES,
   PHYSICAL_FEATURE_PARAMS,
   PHYSICAL_FEATURE_SLOTS,
+  PHYSICAL_ONLY_SLOTS,
 } from '@nudo-tsl/core'
 import type { GraphNode, InputDefinition, OutputDefinition, PhysicalFeature } from '@nudo-tsl/core'
 
@@ -16,7 +17,12 @@ import type { FlowNodeData } from './to-flow'
 /** Master Stack inputs that run in the vertex stage; every other input is a fragment input. */
 const VERTEX_INPUT_IDS: ReadonlySet<string> = new Set(['position'])
 /** Master Stack inputs an unlit material ignores (it has no lighting to feed). */
-const UNLIT_IGNORED_INPUT_IDS: ReadonlySet<string> = new Set(['metalness', 'roughness', 'normal'])
+const UNLIT_IGNORED_INPUT_IDS: ReadonlySet<string> = new Set([
+  'metalness',
+  'roughness',
+  'normal',
+  'ambientOcclusion',
+])
 /** Each Master Stack input only a physical material reads, with the feature switch it needs. */
 const PHYSICAL_INPUT_FEATURES: ReadonlyMap<string, PhysicalFeature> = new Map(
   PHYSICAL_FEATURES.flatMap((feature) =>
@@ -150,9 +156,15 @@ export function shownRows(
   return group.rows.filter((row) => connectedInputs.has(row.input.id))
 }
 
+/** Master Stack inputs only a physical material reads, with no feature switch of their own. */
+const PHYSICAL_ONLY_INPUT_IDS: ReadonlySet<string> = new Set(PHYSICAL_ONLY_SLOTS)
+
 function masterInputHint(node: GraphNode, inputId: string): DisabledHint | null {
   if (OUTLINE_INPUT_IDS.has(inputId))
     return isOutlinedMaster(node) ? null : { reason: 'outlineOff' }
+  if (PHYSICAL_ONLY_INPUT_IDS.has(inputId)) {
+    return isPhysicalMaster(node) ? null : { reason: 'physicalOnly' }
+  }
   const feature = PHYSICAL_INPUT_FEATURES.get(inputId)
   if (feature !== undefined) {
     if (!isPhysicalMaster(node)) return { reason: 'physicalOnly' }
@@ -183,7 +195,8 @@ export function groupInputs(
     ]
   }
   const rows = shown.map((input) => ({ input, disabledHint: masterInputHint(node, input.id) }))
-  const isPhysicalRow = (row: InputRowModel): boolean => PHYSICAL_INPUT_FEATURES.has(row.input.id)
+  const isPhysicalRow = (row: InputRowModel): boolean =>
+    PHYSICAL_INPUT_FEATURES.has(row.input.id) || PHYSICAL_ONLY_INPUT_IDS.has(row.input.id)
   const isOutlineRow = (row: InputRowModel): boolean => OUTLINE_INPUT_IDS.has(row.input.id)
   const isFragmentRow = (row: InputRowModel): boolean =>
     !VERTEX_INPUT_IDS.has(row.input.id) && !isPhysicalRow(row) && !isOutlineRow(row)

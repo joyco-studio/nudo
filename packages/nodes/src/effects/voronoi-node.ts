@@ -1,7 +1,9 @@
 import { concrete, defineNode, float, vec2 } from '@nudo-tsl/core'
+import { PERIOD_2D, TILE_PARAM, isTiling } from './tile-period'
 import {
   VORONOI_DISTANCE_PARAM,
   VORONOI_EXPONENT_INPUT,
+  buildTiledVoronoiOutputs,
   buildVoronoiOutputs,
 } from './voronoi-cells'
 
@@ -36,6 +38,7 @@ export const voronoiNode = defineNode({
       description: 'How irregular the cells are: 0 = a square grid, 1 = fully random.',
     },
     VORONOI_EXPONENT_INPUT,
+    PERIOD_2D,
   ],
   outputs: [
     {
@@ -69,14 +72,23 @@ export const voronoiNode = defineNode({
       description: 'A random value from 0 to 1 per cell, to give each cell its own color.',
     },
   ],
-  params: [VORONOI_DISTANCE_PARAM],
+  params: [VORONOI_DISTANCE_PARAM, TILE_PARAM],
   build: ({ tsl, inputs, params }) =>
-    buildVoronoiOutputs(
-      tsl,
-      2,
-      tsl.mul(inputs.uv, inputs.scale),
-      inputs.jitter,
-      inputs.exponent,
-      params,
-    ),
+    isTiling(params)
+      ? buildTiledVoronoiOutputs(tsl, {
+          uv: inputs.uv,
+          scale: inputs.scale,
+          period: inputs.period,
+          jitter: inputs.jitter,
+          exponent: inputs.exponent,
+          params,
+        })
+      : buildVoronoiOutputs(
+          tsl,
+          2,
+          tsl.mul(inputs.uv, inputs.scale),
+          inputs.jitter,
+          inputs.exponent,
+          params,
+        ),
 })

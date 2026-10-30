@@ -5,15 +5,13 @@ import type {
   ParamDefinition,
   ParamValue,
   TslFacade,
-  VoronoiMetric,
+  VoronoiDistance,
 } from '@nudo-tsl/core'
 import type { EnumOption } from '../shared/resolve-enum-param'
 import { resolveEnumParam } from '../shared/resolve-enum-param'
+import { latticeTiling, wrapCell } from './tile-period'
 
 /** What the 2D and 3D Voronoi nodes share: the distance param and how their outputs are built. */
-
-/** MaterialX's worley metrics, plus Blender's Minkowski, which runs its own cell search. */
-type VoronoiDistance = VoronoiMetric | 'minkowski'
 
 const DEFAULT_DISTANCE: VoronoiDistance = 'euclidean'
 
@@ -100,4 +98,34 @@ export function buildVoronoiOutputs<E>(
   const f1 = tsl.swizzle(distances, 'x')
   const f2 = tsl.swizzle(distances, 'y')
   return { f1, f2, edge: tsl.sub(f2, f1), cell, random: tsl.cellNoise(tsl.floor(cell)) }
+}
+
+interface TiledVoronoiInputs<E> {
+  readonly uv: E
+  readonly scale: E
+  /** The repeat, in units of `uv`. */
+  readonly period: E
+  readonly jitter: E
+  /** Only read under the Minkowski distance. */
+  readonly exponent: E
+  readonly params: Readonly<Record<string, ParamValue>>
+}
+
+/**
+ * The outputs of a 2D Voronoi that repeats every `period` (in units of `uv`), under any distance:
+ * the lattice is wrapped on whole cells, so F1, F2, Edge and Random repeat. Cell keeps counting
+ * from tile to tile, so Position − Cell stays the point relative to its cell everywhere.
+ */
+export function buildTiledVoronoiOutputs<E>(
+  tsl: TslFacade<E>,
+  { uv, scale, period, jitter, exponent, params }: TiledVoronoiInputs<E>,
+): Readonly<Record<VoronoiOutputId, E>> {
+  const { lattice, fit } = latticeTiling(tsl, tsl.mul(period, scale))
+  const point = tsl.mul(tsl.mul(uv, scale), fit)
+  const search = tsl.tiledVoronoi(point, jitter, resolveDistance(params), exponent, lattice)
+  const f1 = tsl.swizzle(search, 'x')
+  const f2 = tsl.swizzle(search, 'y')
+  const cell = tsl.construct('vec2', [tsl.swizzle(search, 'z'), tsl.swizzle(search, 'w')])
+  const random = tsl.cellNoise(wrapCell(tsl, tsl.floor(cell), lattice))
+  return { f1, f2, edge: tsl.sub(f2, f1), cell, random }
 }

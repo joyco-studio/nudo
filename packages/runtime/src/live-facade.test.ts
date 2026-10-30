@@ -4,6 +4,7 @@ import type {
   HashKind,
   NoiseKind,
   Swizzle,
+  ToneMapKind,
   TslFacade,
   VoronoiMetric,
 } from '@nudo-tsl/core'
@@ -30,6 +31,14 @@ const BUILTIN_NAMES = [
 ] as const satisfies readonly BuiltinName[]
 
 const COMPARE_OPS = ['lt', 'lte', 'gt', 'gte', 'eq'] as const satisfies readonly CompareOp[]
+const TONE_MAP_KINDS = [
+  'aces-filmic',
+  'agx',
+  'neutral',
+  'reinhard',
+  'cineon',
+  'linear',
+] as const satisfies readonly ToneMapKind[]
 
 const HASH_KINDS = ['float', 'vec3'] as const satisfies readonly HashKind[]
 
@@ -88,6 +97,12 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
   ['length', (tsl, { vec3 }) => tsl.length(vec3)],
   ['normalize', (tsl, { vec3 }) => tsl.normalize(vec3)],
   ['distance', (tsl, { vec3 }) => tsl.distance(vec3, tsl.builtin('positionLocal'))],
+  ['reflect', (tsl, { vec3 }) => tsl.reflect(vec3, tsl.builtin('normalWorld'))],
+  ['refract', (tsl, { vec3, c }) => tsl.refract(vec3, tsl.builtin('normalWorld'), c)],
+  ...TONE_MAP_KINDS.map((kind): readonly [string, ExpressionFactory] => [
+    `toneMap ${kind}`,
+    (tsl, { vec3, b }) => tsl.toneMap(kind, vec3, b),
+  ]),
   ['mix', (tsl, { a, b, c }) => tsl.mix(a, b, c)],
   ['step', (tsl, { a, b }) => tsl.step(a, b)],
   ['smoothstep', (tsl, { a, b, c }) => tsl.smoothstep(a, b, c)],
@@ -127,11 +142,23 @@ const FACADE_OPERATIONS: readonly (readonly [string, ExpressionFactory])[] = [
     `noise ${kind}`,
     (tsl, { vec3 }) => tsl.noise(kind, vec3),
   ]),
+  ['dFdx', (tsl, { a }) => tsl.dFdx(a)],
+  ['dFdy', (tsl, { vec3 }) => tsl.dFdy(vec3)],
+  ['tiledNoise', (tsl, { vec3 }) => tsl.tiledNoise(vec3, tsl.construct('vec3', [6, 2, 0]))],
   ...VORONOI_METRICS.flatMap((metric): readonly (readonly [string, ExpressionFactory])[] => [
     [`voronoi ${metric}`, (tsl, { vec2, a }) => tsl.voronoi(vec2, a, metric)],
+    [
+      `tiledVoronoi ${metric}`,
+      (tsl, { vec2, a, c }) => tsl.tiledVoronoi(vec2, a, metric, c, tsl.construct('vec2', [6, 2])),
+    ],
     [`voronoiCell 2 ${metric}`, (tsl, { vec2, a }) => tsl.voronoiCell(2, vec2, a, metric)],
     [`voronoiCell 3 ${metric}`, (tsl, { vec3, a }) => tsl.voronoiCell(3, vec3, a, metric)],
   ]),
+  [
+    'tiledVoronoi minkowski',
+    (tsl, { vec2, a, c }) =>
+      tsl.tiledVoronoi(vec2, a, 'minkowski', c, tsl.construct('vec2', [6, 2])),
+  ],
   ['voronoiMinkowski 2', (tsl, { vec2, a, c }) => tsl.voronoiMinkowski(2, vec2, a, c)],
   ['voronoiMinkowski 3', (tsl, { vec3, a, c }) => tsl.voronoiMinkowski(3, vec3, a, c)],
   ['voronoiMinkowskiCell 2', (tsl, { vec2, a, c }) => tsl.voronoiMinkowskiCell(2, vec2, a, c)],

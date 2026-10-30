@@ -1,4 +1,4 @@
-import { WORLEY_METRIC_IDS } from '@nudo-tsl/core'
+import { VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
   CellDimensions,
   ColorSpaceDirection,
@@ -7,8 +7,10 @@ import type {
   MainLightComponent,
   NoiseKind,
   Swizzle,
+  ToneMapKind,
   TslFacade,
   VectorType,
+  VoronoiDistance,
   VoronoiMetric,
 } from '@nudo-tsl/core'
 import { compose } from './code-expression'
@@ -55,6 +57,16 @@ const COLOR_SPACE_CONVERSIONS: Readonly<Record<ColorSpaceDirection, string>> = {
   'linear-to-srgb': 'sRGBTransferOETF',
 }
 
+/** The `three/tsl` tone mapping function each Tone Map curve is printed with. */
+const TONE_MAPPINGS: Readonly<Record<ToneMapKind, string>> = {
+  'aces-filmic': 'acesFilmicToneMapping',
+  agx: 'agxToneMapping',
+  neutral: 'neutralToneMapping',
+  reinhard: 'reinhardToneMapping',
+  cineon: 'cineonToneMapping',
+  linear: 'linearToneMapping',
+}
+
 /** The module export that holds the shared Main Light uniforms. */
 export const LIGHTS_OBJECT = 'lights'
 
@@ -91,6 +103,9 @@ const callHelper = (name: HelperName, args: readonly CodeExpression[]): CodeExpr
 
 const printMetric = (metric: VoronoiMetric): CodeExpression =>
   compose(formatNumber(WORLEY_METRIC_IDS[metric]), [])
+
+const printDistance = (distance: VoronoiDistance): CodeExpression =>
+  compose(formatNumber(VORONOI_DISTANCE_IDS[distance]), [])
 
 /**
  * F1 and F2 under `metric`. Euclidean keeps the call it has always printed, so old graphs print
@@ -139,16 +154,22 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     length: (a) => call('length', [a]),
     normalize: (a) => call('normalize', [a]),
     distance: (a, b) => call('distance', [a, b]),
+    reflect: (i, n) => call('reflect', [i, n]),
+    refract: (i, n, eta) => call('refract', [i, n, eta]),
+    toneMap: (kind, color, exposure) => call(TONE_MAPPINGS[kind], [color, exposure]),
     mix: (a, b, t) => call('mix', [a, b, t]),
     step: (edge, x) => call('step', [edge, x]),
     smoothstep: (edge0, edge1, x) => call('smoothstep', [edge0, edge1, x]),
     fwidth: (x) => call('fwidth', [x]),
+    dFdx: (x) => call('dFdx', [x]),
+    dFdy: (x) => call('dFdy', [x]),
     remap: (x, inLow, inHigh, outLow, outHigh) =>
       call('remap', [x, inLow, inHigh, outLow, outHigh]),
     select: (op, a, b, whenTrue, whenFalse) =>
       call('select', [call(COMPARISONS[op], [a, b]), whenTrue, whenFalse]),
     noise: (kind: NoiseKind, p) =>
       kind === 'perlin' ? call(PERLIN_NOISE, [p]) : callHelper(SIMPLEX_NOISE, [p]),
+    tiledNoise: (p, period) => callHelper('tiledNoise3', [p, period]),
     voronoi: worleyDistances,
     voronoiCell: (dimensions, p, jitter, metric) =>
       callHelper(CELL_SEARCHES[dimensions], [p, jitter, printMetric(metric)]),
@@ -156,6 +177,8 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
       callHelper(MINKOWSKI_DISTANCES[dimensions], [p, jitter, exponent]),
     voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
       callHelper(MINKOWSKI_CELL_SEARCHES[dimensions], [p, jitter, exponent]),
+    tiledVoronoi: (p, jitter, distance, exponent, period) =>
+      callHelper('tiledVoronoi2', [p, jitter, printDistance(distance), exponent, period]),
     cellNoise: (p) => call(CELL_NOISE, [p]),
     hash: (kind, p, seed) => callHelper(HASHES[kind], [p, seed]),
     checker: (uv) => call('checker', [uv]),

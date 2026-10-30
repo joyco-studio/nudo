@@ -1,6 +1,13 @@
 import type { MessageKey } from '@/i18n/translate'
 
-export const PRIMITIVE_SHAPES = ['sphere', 'cube', 'plane', 'torus', 'knot', 'suzanne'] as const
+export const PRIMITIVE_SHAPES = [
+  'sphere',
+  'cube',
+  'plane',
+  'torus',
+  'knot',
+  'suzanne',
+] as const
 
 export type PrimitiveShape = (typeof PRIMITIVE_SHAPES)[number]
 

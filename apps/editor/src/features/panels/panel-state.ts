@@ -13,13 +13,29 @@ export type NonFullPreviewLayout = Exclude<PreviewLayout, 'full'>
 export const PREVIEW_BACKDROPS = ['none', 'grid', 'checker-room'] as const
 export type PreviewBackdrop = (typeof PREVIEW_BACKDROPS)[number]
 
+/** How the preview maps scene light to the screen; ACES is the first-visit default. */
+export const PREVIEW_TONE_MAPPINGS = ['none', 'aces', 'agx', 'neutral'] as const
+export type PreviewToneMapping = (typeof PREVIEW_TONE_MAPPINGS)[number]
+
+/** The light the scene reflects onto lit materials: a studio room, an even grey, or none. */
+export const PREVIEW_ENVIRONMENTS = ['studio', 'neutral', 'none'] as const
+export type PreviewEnvironment = (typeof PREVIEW_ENVIRONMENTS)[number]
+
+/** The preview's exposure range: stops below and above 1, as a plain multiplier. */
+export const PREVIEW_EXPOSURE_MIN = 0.25
+export const PREVIEW_EXPOSURE_MAX = 3
+export const PREVIEW_EXPOSURE_STEP = 0.05
+
 /**
  * Version stamped on every saved copy of the prefs. Bump it to run a one-time migration over
  * what users already stored.
  * 1 (never written): prefs saved before the grid floor existed.
  * 2: the grid floor is the backdrop, and later backdrop choices are the user's.
+ * 3: the preview gets tone mapping, exposure and an environment; older prefs take their defaults.
  */
-export const PANEL_PREFS_VERSION = 2
+export const PANEL_PREFS_VERSION = 3
+/** The version that introduced the grid floor: older prefs also move to the grid backdrop. */
+const GRID_FLOOR_VERSION = 2
 
 /** The backdrop users stored before the grid floor are moved to, once. */
 const MIGRATED_BACKDROP: PreviewBackdrop = 'grid'
@@ -30,6 +46,10 @@ export interface PanelPrefs {
   /** Share of the workspace width the canvas keeps in split layout, in whole percents. */
   readonly splitPercent: number
   readonly backdrop: PreviewBackdrop
+  readonly toneMapping: PreviewToneMapping
+  /** Multiplies the light before tone mapping: 1 leaves it as it is. */
+  readonly exposure: number
+  readonly environment: PreviewEnvironment
 }
 
 /** The whole workspace width, as a percentage. */
@@ -44,6 +64,9 @@ export const DEFAULT_PANEL_PREFS: PanelPrefs = {
   layout: 'docked',
   splitPercent: 50,
   backdrop: 'grid',
+  toneMapping: 'aces',
+  exposure: 1,
+  environment: 'studio',
 }
 
 /**
@@ -72,6 +95,11 @@ function oneOf<const T extends readonly string[]>(options: T, value: unknown): T
 export function clampSplitPercent(percent: number): number {
   if (!Number.isFinite(percent)) return DEFAULT_PANEL_PREFS.splitPercent
   return Math.min(SPLIT_PERCENT_MAX, Math.max(SPLIT_PERCENT_MIN, Math.round(percent)))
+}
+
+export function clampExposure(exposure: number): number {
+  if (!Number.isFinite(exposure)) return DEFAULT_PANEL_PREFS.exposure
+  return Math.min(PREVIEW_EXPOSURE_MAX, Math.max(PREVIEW_EXPOSURE_MIN, exposure))
 }
 
 export function nextPreviewLayout(layout: PreviewLayout): PreviewLayout {
@@ -107,12 +135,19 @@ function parseJson(rawText: string): unknown {
 }
 
 /**
- * Brings prefs saved by an older version up to date. Prefs without the current version stamp
- * (missing, older or unrecognized) move to the grid backdrop once; current ones are kept as-is.
+ * Brings prefs saved by an older version up to date, once. Prefs from before the grid floor
+ * (no version stamp, or an unrecognized one) move to the grid backdrop; every older version takes
+ * the default tone mapping, exposure and environment. Current prefs are kept as they are.
  */
 export function migratePanelPrefs(prefs: PanelPrefs, storedVersion: unknown): PanelPrefs {
   if (storedVersion === PANEL_PREFS_VERSION) return prefs
-  return { ...prefs, backdrop: MIGRATED_BACKDROP }
+  const look = {
+    toneMapping: DEFAULT_PANEL_PREFS.toneMapping,
+    exposure: DEFAULT_PANEL_PREFS.exposure,
+    environment: DEFAULT_PANEL_PREFS.environment,
+  }
+  if (storedVersion === GRID_FLOOR_VERSION) return { ...prefs, ...look }
+  return { ...prefs, ...look, backdrop: MIGRATED_BACKDROP }
 }
 
 /** Validates stored preferences field by field: an invalid field falls back to its default. */
@@ -122,13 +157,16 @@ export function parsePanelPrefs(
 ): PanelPrefs {
   const input = rawText === null ? null : parseJson(rawText)
   if (!isRecord(input)) return defaults
-  const { splitPercent } = input
+  const { splitPercent, exposure } = input
   const parsed: PanelPrefs = {
     open: parseOpen(input.open, defaults.open),
     layout: oneOf(PREVIEW_LAYOUTS, input.layout) ?? defaults.layout,
     splitPercent:
       typeof splitPercent === 'number' ? clampSplitPercent(splitPercent) : defaults.splitPercent,
     backdrop: oneOf(PREVIEW_BACKDROPS, input.backdrop) ?? defaults.backdrop,
+    toneMapping: oneOf(PREVIEW_TONE_MAPPINGS, input.toneMapping) ?? defaults.toneMapping,
+    exposure: typeof exposure === 'number' ? clampExposure(exposure) : defaults.exposure,
+    environment: oneOf(PREVIEW_ENVIRONMENTS, input.environment) ?? defaults.environment,
   }
   return migratePanelPrefs(parsed, input.prefsVersion)
 }

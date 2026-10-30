@@ -76,15 +76,15 @@ describe('openExample', () => {
         .filter((node) => node.type === 'utility/comment')
         .map((node) => node.params.title)
 
-    await openExample(exampleOrFail('iridescent-blob'), 'es')
-    expect(frameTitles()).toContain('1 · Noise animado')
-    await openExample(exampleOrFail('iridescent-blob'), 'en')
-    expect(frameTitles()).toContain('1 · Animated noise')
+    await openExample(exampleOrFail('lava-flow'), 'es')
+    expect(frameTitles()).toContain('Costra a la deriva')
+    await openExample(exampleOrFail('lava-flow'), 'en')
+    expect(frameTitles()).toContain('Drifting crust')
   })
 
   it('keeps the graph and says so when the example does not parse', async () => {
     const before = getState().graph
-    const broken: Example = { ...exampleOrFail('iridescent-blob'), graph: { schemaVersion: 99 } }
+    const broken: Example = { ...exampleOrFail('lava-flow'), graph: { schemaVersion: 99 } }
 
     expect(await openExample(broken, 'en')).toBe(false)
 

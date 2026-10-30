@@ -2,7 +2,7 @@ import { graphDocumentV2 } from './seed-graph'
 import type { SeedEdge, SeedNode, SeedProperty } from './seed-graph'
 
 /**
- * The "iridescent blob" tutorial graph (.context/blob-tutorial-graph.html): 22 nodes and 23
+ * The blob tutorial graph (.context/blob-tutorial-graph.html): 22 nodes and 23
  * connections into the Master Stack, at the positions the tutorial left them, wires crossing.
  */
 

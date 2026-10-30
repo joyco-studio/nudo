@@ -25,10 +25,15 @@ export function createRecordingFacade(): TslFacade<string> {
     length: (a) => `length(${a})`,
     normalize: (a) => `normalize(${a})`,
     distance: (a, b) => `distance(${a},${b})`,
+    reflect: (i, n) => `reflect(${i},${n})`,
+    refract: (i, n, eta) => `refract(${i},${n},${eta})`,
+    toneMap: (kind, color, exposure) => `toneMap(${kind},${color},${exposure})`,
     mix: (a, b, t) => `mix(${a},${b},${t})`,
     step: (edge, x) => `step(${edge},${x})`,
     smoothstep: (edge0, edge1, x) => `smoothstep(${edge0},${edge1},${x})`,
     fwidth: (x) => `fwidth(${x})`,
+    dFdx: (x) => `dFdx(${x})`,
+    dFdy: (x) => `dFdy(${x})`,
     remap: (x, inLow, inHigh, outLow, outHigh) =>
       `remap(${x},${inLow},${inHigh},${outLow},${outHigh})`,
     select: (op, a, b, whenTrue, whenFalse) => `select(${op},${a},${b},${whenTrue},${whenFalse})`,
@@ -41,6 +46,9 @@ export function createRecordingFacade(): TslFacade<string> {
     voronoiMinkowskiCell: (dimensions, p, jitter, exponent) =>
       `voronoiMinkowskiCell(${String(dimensions)},${p},${jitter},${exponent})`,
     cellNoise: (p) => `cellNoise(${p})`,
+    tiledNoise: (p, period) => `tiledNoise(${p},${period})`,
+    tiledVoronoi: (p, jitter, distance, exponent, period) =>
+      `tiledVoronoi(${p},${jitter},${distance},${exponent},${period})`,
     hash: (kind, p, seed) => `hash(${kind},${p},${seed})`,
     checker: (uv) => `checker(${uv})`,
     textureSample: (texture, uv, level) => `textureSample(${texture},${uv},${level ?? 'null'})`,

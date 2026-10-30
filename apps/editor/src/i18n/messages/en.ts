@@ -102,13 +102,24 @@ export const en = {
   'command.browse-templates.keywords': 'templates examples samples demo gallery preview',
   'command.example-pond.label': 'Template: Pond',
   'command.example-pond.keywords': 'template example sample demo pond water',
-  'command.example-iridescent-blob.label': 'Template: Iridescent blob',
-  'command.example-iridescent-blob.keywords': 'template example sample demo tutorial',
   'command.example-poster.label': 'Template: Poster',
   'command.example-poster.keywords':
     'template example sample demo poster stencil toon screen-print',
   'command.example-lava-flow.label': 'Template: Lava flow',
-  'command.example-lava-flow.keywords': 'template example sample demo lava fire volcano voronoi',
+  'command.example-lava-flow.keywords':
+    'template example sample demo lava magma volcano basalt blackbody emission glow physical',
+  'command.example-lines.label': 'Template: Lines',
+  'command.example-lines.keywords':
+    'template example sample demo lines sketch ink drawing engraving spite illustration',
+  'command.example-scribble.label': 'Template: Scribble',
+  'command.example-scribble.keywords':
+    'template example sample demo scribble pen handwriting doodle ink sketch random spite illustration',
+  'command.example-patch.label': 'Template: Patch',
+  'command.example-patch.keywords':
+    'template example sample demo patch strokes hatching voronoi random ink sketch spite illustration',
+  'command.example-brush-toon.label': 'Template: Brush toon',
+  'command.example-brush-toon.keywords':
+    'template example sample demo brush toon paint painterly strokes color ramp palette blender facets illustration',
   'command.example-midnight-glaze.label': 'Template: Midnight glaze',
   'command.example-midnight-glaze.keywords':
     'template example sample demo painterly blender midnight navy glaze gloss streaks',
@@ -214,18 +225,31 @@ export const en = {
   'example.pond.description': 'Illustrated water: rosettes, lace and a sun band',
   'example.pond.teaches':
     'Layers Voronoi cells, edges and stamps into flat colors with no lighting. Moving noise bends the pattern like water.',
-  'example.iridescent-blob.title': 'Iridescent blob',
-  'example.iridescent-blob.description': 'A breathing blob that shifts color',
-  'example.iridescent-blob.teaches':
-    'Moves the vertices along their normals with animated noise, then reuses that noise to pick colors and roughness. Each step sits in a comment frame.',
   'example.poster.title': 'Poster',
   'example.poster.description': 'Four-ink poster shading with stripes and an outline',
   'example.poster.teaches':
     'Cuts one lighting number into four flat inks with Select, wobbles the cuts with noise like a hand-made stencil, and draws the outline with a fresnel.',
   'example.lava-flow.title': 'Lava flow',
-  'example.lava-flow.description': 'Swirling lava with veins that burn white-hot',
+  'example.lava-flow.description':
+    'A cooling lava field: basalt plates drifting over glowing seams',
   'example.lava-flow.teaches':
-    'Bends the position with slow noise, draws thin veins from the absolute value of more noise, and lets heat past 1 spill into the other channels so the hottest veins turn white.',
+    'Cracks drifting Voronoi plates into molten seams, sends heat along them over time, lights them with the Blackbody node in HDR for the tone mapping to roll off, and finishes them physically: a rough oxidized crust, a satin melt with dimmed reflections, sunken seams, and crust relief and round embers that Derivatives keeps from shimmering.',
+  'example.lines.title': 'Lines',
+  'example.lines.description': 'Ink lines that thicken into the shadows, on grained paper',
+  'example.lines.teaches':
+    'Turns view-space position into parallel waves with a sine, then lets AA Step ink each wave where it rises above the light, so the lines grow thicker as the light drops.',
+  'example.scribble.title': 'Scribble',
+  'example.scribble.description': 'Wobbly pen strokes that crowd into the shadows',
+  'example.scribble.teaches':
+    'Bends parallel strokes with fractal noise so they wobble like handwriting, then numbers each stroke and lets the Random node give it its own pen pressure.',
+  'example.patch.title': 'Patch',
+  'example.patch.description': 'Patches of short strokes, each running its own way',
+  'example.patch.teaches':
+    'Splits the surface into Voronoi patches and feeds each patch center to the Random node for an angle, so every patch fills with strokes in a direction of its own.',
+  'example.brush-toon.title': 'Brush toon',
+  'example.brush-toon.description': 'Painterly toon shading in five colors, with brushed-off edges',
+  'example.brush-toon.teaches':
+    'Reads the light as a value and runs it through a five-color Color Ramp, tilts the normal per Voronoi cell for flat painted facets, paints over them with a bundled brush-stroke texture and bites the silhouette with a stroke mask and Alpha Clip.',
   'example.midnight-glaze.title': 'Midnight glaze',
   'example.midnight-glaze.description': 'Navy brush facets with blue light and glowing streaks',
   'example.midnight-glaze.teaches':
@@ -247,6 +271,8 @@ export const en = {
   'example.ink-swirl.teaches':
     'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A sharp Minkowski brush (exponent 32, nearly square cells) breaks the light into ink swirls.',
   'templateTexture.paper-grain': 'Paper grain',
+  'templateTexture.brush-stroke': 'Brush strokes',
+  'templateTexture.stroke-mask': 'Stroke mask',
   'example.texture-fixture.title': 'Paper grain (test fixture)',
   'example.texture-fixture.description': 'A bundled texture, for the end-to-end tests',
   'example.texture-fixture.teaches':
@@ -479,6 +505,17 @@ export const en = {
   'preview.backdrop.none': 'None',
   'preview.backdrop.grid': 'Grid',
   'preview.backdrop.checker-room': 'Checker room',
+  'preview.look': 'Look',
+  'preview.toneMapping': 'Tone mapping',
+  'preview.toneMapping.none': 'None',
+  'preview.toneMapping.aces': 'ACES',
+  'preview.toneMapping.agx': 'AgX',
+  'preview.toneMapping.neutral': 'Neutral',
+  'preview.exposure': 'Exposure',
+  'preview.environment': 'Environment',
+  'preview.environment.studio': 'Studio',
+  'preview.environment.neutral': 'Neutral',
+  'preview.environment.none': 'None',
   'preview.background': 'Background',
   'preview.backgroundColor': 'Background color',
   'preview.unavailable':

@@ -297,6 +297,24 @@ describe('masterMaterialAssignments', () => {
     ])
   })
 
+  it('assigns ambient occlusion to any lit material, and specular intensity to physical only', () => {
+    const extras = { ...slots, ambientOcclusion: 'ao', specularIntensity: 'si' }
+    const withOcclusion = [
+      ...STANDARD_ASSIGNMENTS.slice(0, 6),
+      { property: 'aoNode', expression: 'ao' },
+      ...STANDARD_ASSIGNMENTS.slice(6),
+    ]
+
+    expect(masterMaterialAssignments(tsl, extras, settings('standard'))).toEqual(withOcclusion)
+    expect(masterMaterialAssignments(tsl, extras, settings('physical'))).toEqual([
+      ...withOcclusion,
+      { property: 'specularIntensityNode', expression: 'si' },
+    ])
+    expect(
+      masterMaterialAssignments(tsl, extras, settings('unlit')).map(({ property }) => property),
+    ).not.toContain('aoNode')
+  })
+
   it('maps each feature to its slots', () => {
     expect(PHYSICAL_FEATURE_SLOTS).toEqual({
       transmission: ['transmission', 'ior', 'thickness'],

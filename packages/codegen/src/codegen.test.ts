@@ -274,6 +274,15 @@ describe('generateModule', () => {
     expect(perlin).not.toMatch(/\bFn\b/)
   })
 
+  it("prints Perlin 2D as MaterialX's 2D Perlin on the point's X and Y", () => {
+    let graph = withNode(createGraph(), 'noise', 'effects/noise')
+    graph = withParam(graph, 'noise', 'kind', 'perlin-2d')
+    const code = generate(withLink(graph, port('noise', 'out'), port('master', 'roughness')))
+
+    expect(code).toMatch(/mx_noise_float\(vec3\([^;]*\)\.mul\([^;]*\)\.xy\)/)
+    expect(code).not.toContain('simplexNoise3')
+  })
+
   describe('voronoi', () => {
     const voronoiTo = (outputId: string, distance: string | null = null): Graph => {
       let graph = withNode(createGraph(), 'cells', 'effects/voronoi')
@@ -345,6 +354,84 @@ describe('generateModule', () => {
       )
       expect(code.match(/const MINKOWSKI_CELL_CENTER = /g)).toHaveLength(1)
       expect(code.match(/const searchMinkowski3 = /g)).toHaveLength(1)
+    })
+  })
+
+  describe('tiled noise and voronoi', () => {
+    const tiledTo = (type: string, outputId: string): Graph =>
+      withLink(
+        withParam(withNode(createGraph(), 'pattern', type), 'pattern', 'tile', true),
+        port('pattern', outputId),
+        port('master', 'roughness'),
+      )
+
+    it('prints the tiled noise helper only while the noise tiles', () => {
+      const plain = generate(
+        withLink(
+          withNode(createGraph(), 'pattern', 'effects/noise'),
+          port('pattern', 'out'),
+          port('master', 'roughness'),
+        ),
+      )
+      const tiled = generate(tiledTo('effects/noise', 'out'))
+
+      expect(plain).not.toContain('tiledNoise3')
+      expect(tiled).toContain('const tiledNoise3 = Fn(')
+      expect(tiled).toMatch(/tiledNoise3\(/)
+    })
+
+    it('prints the tiled Voronoi search while the Voronoi tiles', () => {
+      const code = generate(tiledTo('effects/voronoi', 'f1'))
+
+      expect(code).toContain('const tiledVoronoi2 = Fn(')
+      expect(code).not.toContain('mx_worley_noise_vec2(')
+    })
+
+    it('runs a Minkowski Voronoi through the same tiled search, as distance id 4', () => {
+      const graph = withParam(tiledTo('effects/voronoi', 'f1'), 'pattern', 'distance', 'minkowski')
+      const code = generate(graph)
+
+      expect(code).toMatch(/tiledVoronoi2\([^;]*, 4, /)
+      expect(code).not.toContain('voronoiMinkowski2(')
+    })
+  })
+
+  describe('derivatives', () => {
+    it('prints the derivatives as dFdx, dFdy and fwidth', () => {
+      const derivativeTo = (outputId: string): string =>
+        generate(
+          withLink(
+            withNode(createGraph(), 'slope', 'math/derivatives'),
+            port('slope', outputId),
+            port('master', 'roughness'),
+          ),
+        )
+
+      expect(derivativeTo('ddx')).toMatch(/dFdx\(float\(/)
+      expect(derivativeTo('ddy')).toMatch(/dFdy\(float\(/)
+      expect(derivativeTo('fwidth')).toMatch(/fwidth\(float\(/)
+    })
+  })
+
+  describe('reflect, refract and tone map', () => {
+    const vectorTo = (type: string, slot: string): string =>
+      generate(
+        withLink(withNode(createGraph(), 'step', type), port('step', 'out'), port('master', slot)),
+      )
+
+    it('prints reflect and refract with the world normal when none is plugged in', () => {
+      expect(vectorTo('vector/reflect', 'baseColor')).toMatch(
+        /reflect\(vec3\([^;]*\), normalWorld\)/,
+      )
+      expect(vectorTo('vector/refract', 'baseColor')).toMatch(
+        /refract\(vec3\([^;]*\), normalWorld, float\(/,
+      )
+    })
+
+    it('prints the tone map curve with its exposure, imported from three/tsl', () => {
+      const code = vectorTo('color/tone-map', 'baseColor')
+      expect(code).toContain('acesFilmicToneMapping(color(0xffffff), float(1))')
+      expect(code).toMatch(/import \{[^}]*\bacesFilmicToneMapping\b[^}]*\} from 'three\/tsl'/)
     })
   })
 
@@ -446,6 +533,15 @@ describe('generateModule', () => {
       expect(code).not.toContain('metalnessNode')
       expect(code).not.toContain('roughnessNode')
       expect(code).not.toContain('emissiveNode')
+    })
+
+    it('keeps an unlit material out of tone mapping, and says how the preview looks', () => {
+      const unlit = generate(withParam(createGraph(), 'master', 'lighting', 'unlit'))
+      const lit = generate(createGraph())
+
+      expect(unlit).toContain('  toneMapped: false,')
+      expect(lit).not.toContain('toneMapped')
+      expect(lit).toContain('// Look: the nudo preview defaults to renderer.toneMapping')
     })
 
     it('prints a physical material as MeshPhysicalNodeMaterial with the enabled features', () => {

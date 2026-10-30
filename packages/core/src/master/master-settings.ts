@@ -168,8 +168,10 @@ export type MasterMaterialProperty =
   | 'metalnessNode'
   | 'roughnessNode'
   | 'normalNode'
+  | 'aoNode'
   | 'opacityNode'
   | 'alphaTestNode'
+  | 'specularIntensityNode'
   | 'transmissionNode'
   | 'iorNode'
   | 'thicknessNode'
@@ -197,8 +199,10 @@ const SLOT_PROPERTIES: Readonly<Record<SurfaceSlot, MasterMaterialProperty>> = {
   metalness: 'metalnessNode',
   roughness: 'roughnessNode',
   normal: 'normalNode',
+  ambientOcclusion: 'aoNode',
   opacity: 'opacityNode',
   alphaClip: 'alphaTestNode',
+  specularIntensity: 'specularIntensityNode',
   transmission: 'transmissionNode',
   ior: 'iorNode',
   thickness: 'thicknessNode',
@@ -217,8 +221,18 @@ const SLOT_FEATURES: ReadonlyMap<SurfaceSlot, PhysicalFeature> = new Map(
   ),
 )
 
-/** A standard slot is always lit; a physical one only on a physical material with it switched on. */
+/**
+ * Slots only a physical material has, with no feature switch of their own: they apply whenever
+ * the lighting is physical.
+ */
+export const PHYSICAL_ONLY_SLOTS: readonly SurfaceSlot[] = ['specularIntensity']
+
+/**
+ * A standard slot is always lit; a physical-only one needs physical lighting, and a feature's
+ * slot a physical material with that feature switched on.
+ */
 function isLitSlotAssigned(slot: SurfaceSlot, settings: MasterSettings): boolean {
+  if (PHYSICAL_ONLY_SLOTS.includes(slot)) return settings.lighting === 'physical'
   const feature = SLOT_FEATURES.get(slot)
   if (feature === undefined) return true
   return settings.lighting === 'physical' && settings.physical[feature]

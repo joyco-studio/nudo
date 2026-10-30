@@ -1,0 +1,1057 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "contrast": {
+      "id": "contrast",
+      "type": "property/float",
+      "position": {
+        "x": -3624,
+        "y": 497
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "contrast"
+      }
+    },
+    "frame-directions": {
+      "id": "frame-directions",
+      "type": "utility/comment",
+      "position": {
+        "x": -2680,
+        "y": 669
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Random turns each patch center into a value of its own (Seed deals another hand); × 2π it becomes the angle that turns the strokes inside that patch.",
+        "height": 634,
+        "title": "A direction per patch",
+        "width": 2480
+      }
+    },
+    "frame-ink": {
+      "id": "frame-ink",
+      "type": "utility/comment",
+      "position": {
+        "x": -104,
+        "y": 40
+      },
+      "inputValues": {},
+      "params": {
+        "body": "AA Step inks the strokes where the wave rises above the patch tone: in the shadows they thicken until each patch fills in.",
+        "height": 474,
+        "title": "Ink",
+        "width": 608
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -4344,
+        "y": 114
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Main Light → Half Lambert, squared as Valve shades with it: 1 facing the light, 0.25 edge-on, 0 facing away. Contrast stretches it around 0.5, so the ink reaches the shadows sooner.",
+        "height": 458,
+        "title": "Light",
+        "width": 1568
+      }
+    },
+    "frame-paper": {
+      "id": "frame-paper",
+      "type": "utility/comment",
+      "position": {
+        "x": -1768,
+        "y": -909
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
+        "height": 1040,
+        "title": "Paper",
+        "width": 1568
+      }
+    },
+    "frame-patch-shade": {
+      "id": "frame-patch-shade",
+      "type": "utility/comment",
+      "position": {
+        "x": -1128,
+        "y": 163
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Voronoi's Random, from -½ to ½ × patch shading, nudges the tone per patch, so neighbouring patches ink a little lighter or darker.",
+        "height": 474,
+        "title": "Patch shading",
+        "width": 928
+      }
+    },
+    "frame-patches": {
+      "id": "frame-patches",
+      "type": "utility/comment",
+      "position": {
+        "x": -4024,
+        "y": 604
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View-space position × patch scale, split into Voronoi cells: Cell is the center of the patch a point falls in. Subtracting it gives the point relative to its patch.",
+        "height": 588,
+        "title": "Patches",
+        "width": 1248
+      }
+    },
+    "grain": {
+      "id": "grain",
+      "type": "math/remap",
+      "position": {
+        "x": -776,
+        "y": -584
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1.5
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1.5
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.72
+        }
+      },
+      "params": {}
+    },
+    "inPatch": {
+      "id": "inPatch",
+      "type": "math/subtract",
+      "position": {
+        "x": -3032,
+        "y": 768
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "inkColor": {
+      "id": "inkColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 439
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "inkColor"
+      }
+    },
+    "inkMask": {
+      "id": "inkMask",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -72,
+        "y": 136
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "inked": {
+      "id": "inked",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 146
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "multiply"
+      }
+    },
+    "lightSquared": {
+      "id": "lightSquared",
+      "type": "math/power",
+      "position": {
+        "x": -3992,
+        "y": 231
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "mainLight": {
+      "id": "mainLight",
+      "type": "input/main-light",
+      "position": {
+        "x": -4312,
+        "y": 198
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "paper": {
+      "id": "paper",
+      "type": "math/multiply",
+      "position": {
+        "x": -456,
+        "y": -467
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperColor": {
+      "id": "paperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -728,
+        "y": -197
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paperColor"
+      }
+    },
+    "paperNoise": {
+      "id": "paperNoise",
+      "type": "math/add",
+      "position": {
+        "x": -1096,
+        "y": -547
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperPosition": {
+      "id": "paperPosition",
+      "type": "input/position",
+      "position": {
+        "x": -1736,
+        "y": -454
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "patchAngle": {
+      "id": "patchAngle",
+      "type": "math/multiply",
+      "position": {
+        "x": -2056,
+        "y": 935
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 6.283185307179586
+        }
+      },
+      "params": {}
+    },
+    "patchJitter": {
+      "id": "patchJitter",
+      "type": "math/subtract",
+      "position": {
+        "x": -1096,
+        "y": 259
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "patchOffset": {
+      "id": "patchOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -776,
+        "y": 334
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "patchRandom": {
+      "id": "patchRandom",
+      "type": "math/hash",
+      "position": {
+        "x": -2376,
+        "y": 972
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "patchScale": {
+      "id": "patchScale",
+      "type": "property/float",
+      "position": {
+        "x": -3944,
+        "y": 1047
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "patchScale"
+      }
+    },
+    "patchShade": {
+      "id": "patchShade",
+      "type": "property/float",
+      "position": {
+        "x": -1048,
+        "y": 562
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "patchShade"
+      }
+    },
+    "patchSpace": {
+      "id": "patchSpace",
+      "type": "math/multiply",
+      "position": {
+        "x": -3672,
+        "y": 852
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "patchTone": {
+      "id": "patchTone",
+      "type": "math/add",
+      "position": {
+        "x": -456,
+        "y": 269
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "patches": {
+      "id": "patches",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -3352,
+        "y": 684
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {
+        "distance": "euclidean",
+        "tile": false
+      }
+    },
+    "pulp": {
+      "id": "pulp",
+      "type": "effects/noise",
+      "position": {
+        "x": -1416,
+        "y": -829
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 5
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 4,
+        "tile": false
+      }
+    },
+    "seed": {
+      "id": "seed",
+      "type": "property/float",
+      "position": {
+        "x": -2648,
+        "y": 1116
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "seed"
+      }
+    },
+    "strokeDensity": {
+      "id": "strokeDensity",
+      "type": "property/float",
+      "position": {
+        "x": -1368,
+        "y": 1108
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "strokeDensity"
+      }
+    },
+    "strokePhase": {
+      "id": "strokePhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -1096,
+        "y": 866
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokeWave": {
+      "id": "strokeWave",
+      "type": "math/sin",
+      "position": {
+        "x": -776,
+        "y": 829
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tone": {
+      "id": "tone",
+      "type": "math/add",
+      "position": {
+        "x": -3032,
+        "y": 232
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneCentered": {
+      "id": "toneCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -3672,
+        "y": 194
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneStretched": {
+      "id": "toneStretched",
+      "type": "math/multiply",
+      "position": {
+        "x": -3352,
+        "y": 269
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tooth": {
+      "id": "tooth",
+      "type": "effects/noise",
+      "position": {
+        "x": -1416,
+        "y": -349
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 140
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "turned": {
+      "id": "turned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -1736,
+        "y": 870
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "turnedAxes": {
+      "id": "turnedAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -1416,
+        "y": 749
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPosition": {
+      "id": "viewPosition",
+      "type": "input/position",
+      "position": {
+        "x": -3992,
+        "y": 786
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "wave": {
+      "id": "wave",
+      "type": "math/remap",
+      "position": {
+        "x": -456,
+        "y": 792
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    }
+  },
+  "edges": {
+    "contrast.out-toneStretched.b": {
+      "id": "contrast.out-toneStretched.b",
+      "from": {
+        "nodeId": "contrast",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "b"
+      }
+    },
+    "grain.out-paper.b": {
+      "id": "grain.out-paper.b",
+      "from": {
+        "nodeId": "grain",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "b"
+      }
+    },
+    "inPatch.out-turned.in": {
+      "id": "inPatch.out-turned.in",
+      "from": {
+        "nodeId": "inPatch",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turned",
+        "portId": "in"
+      }
+    },
+    "inkColor.out-inked.blend": {
+      "id": "inkColor.out-inked.blend",
+      "from": {
+        "nodeId": "inkColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "blend"
+      }
+    },
+    "inkMask.out-inked.opacity": {
+      "id": "inkMask.out-inked.opacity",
+      "from": {
+        "nodeId": "inkMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "opacity"
+      }
+    },
+    "inked.out-master.baseColor": {
+      "id": "inked.out-master.baseColor",
+      "from": {
+        "nodeId": "inked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "lightSquared.out-toneCentered.a": {
+      "id": "lightSquared.out-toneCentered.a",
+      "from": {
+        "nodeId": "lightSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneCentered",
+        "portId": "a"
+      }
+    },
+    "mainLight.halfLambert-lightSquared.a": {
+      "id": "mainLight.halfLambert-lightSquared.a",
+      "from": {
+        "nodeId": "mainLight",
+        "portId": "halfLambert"
+      },
+      "to": {
+        "nodeId": "lightSquared",
+        "portId": "a"
+      }
+    },
+    "paper.out-inked.base": {
+      "id": "paper.out-inked.base",
+      "from": {
+        "nodeId": "paper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "base"
+      }
+    },
+    "paperColor.out-paper.a": {
+      "id": "paperColor.out-paper.a",
+      "from": {
+        "nodeId": "paperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "a"
+      }
+    },
+    "paperNoise.out-grain.in": {
+      "id": "paperNoise.out-grain.in",
+      "from": {
+        "nodeId": "paperNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grain",
+        "portId": "in"
+      }
+    },
+    "paperPosition.out-pulp.p": {
+      "id": "paperPosition.out-pulp.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulp",
+        "portId": "p"
+      }
+    },
+    "paperPosition.out-tooth.p": {
+      "id": "paperPosition.out-tooth.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tooth",
+        "portId": "p"
+      }
+    },
+    "patchAngle.out-turned.angle": {
+      "id": "patchAngle.out-turned.angle",
+      "from": {
+        "nodeId": "patchAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turned",
+        "portId": "angle"
+      }
+    },
+    "patchJitter.out-patchOffset.a": {
+      "id": "patchJitter.out-patchOffset.a",
+      "from": {
+        "nodeId": "patchJitter",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchOffset",
+        "portId": "a"
+      }
+    },
+    "patchOffset.out-patchTone.b": {
+      "id": "patchOffset.out-patchTone.b",
+      "from": {
+        "nodeId": "patchOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchTone",
+        "portId": "b"
+      }
+    },
+    "patchRandom.out-patchAngle.a": {
+      "id": "patchRandom.out-patchAngle.a",
+      "from": {
+        "nodeId": "patchRandom",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchAngle",
+        "portId": "a"
+      }
+    },
+    "patchScale.out-patchSpace.b": {
+      "id": "patchScale.out-patchSpace.b",
+      "from": {
+        "nodeId": "patchScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchSpace",
+        "portId": "b"
+      }
+    },
+    "patchShade.out-patchOffset.b": {
+      "id": "patchShade.out-patchOffset.b",
+      "from": {
+        "nodeId": "patchShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchOffset",
+        "portId": "b"
+      }
+    },
+    "patchSpace.out-inPatch.a": {
+      "id": "patchSpace.out-inPatch.a",
+      "from": {
+        "nodeId": "patchSpace",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inPatch",
+        "portId": "a"
+      }
+    },
+    "patchSpace.out-patches.uv": {
+      "id": "patchSpace.out-patches.uv",
+      "from": {
+        "nodeId": "patchSpace",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patches",
+        "portId": "uv"
+      }
+    },
+    "patchTone.out-inkMask.edge": {
+      "id": "patchTone.out-inkMask.edge",
+      "from": {
+        "nodeId": "patchTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkMask",
+        "portId": "edge"
+      }
+    },
+    "patches.cell-inPatch.b": {
+      "id": "patches.cell-inPatch.b",
+      "from": {
+        "nodeId": "patches",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "inPatch",
+        "portId": "b"
+      }
+    },
+    "patches.cell-patchRandom.in": {
+      "id": "patches.cell-patchRandom.in",
+      "from": {
+        "nodeId": "patches",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "patchRandom",
+        "portId": "in"
+      }
+    },
+    "patches.random-patchJitter.a": {
+      "id": "patches.random-patchJitter.a",
+      "from": {
+        "nodeId": "patches",
+        "portId": "random"
+      },
+      "to": {
+        "nodeId": "patchJitter",
+        "portId": "a"
+      }
+    },
+    "pulp.out-paperNoise.a": {
+      "id": "pulp.out-paperNoise.a",
+      "from": {
+        "nodeId": "pulp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "a"
+      }
+    },
+    "seed.out-patchRandom.seed": {
+      "id": "seed.out-patchRandom.seed",
+      "from": {
+        "nodeId": "seed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchRandom",
+        "portId": "seed"
+      }
+    },
+    "strokeDensity.out-strokePhase.b": {
+      "id": "strokeDensity.out-strokePhase.b",
+      "from": {
+        "nodeId": "strokeDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokePhase",
+        "portId": "b"
+      }
+    },
+    "strokePhase.out-strokeWave.in": {
+      "id": "strokePhase.out-strokeWave.in",
+      "from": {
+        "nodeId": "strokePhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeWave",
+        "portId": "in"
+      }
+    },
+    "strokeWave.out-wave.in": {
+      "id": "strokeWave.out-wave.in",
+      "from": {
+        "nodeId": "strokeWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wave",
+        "portId": "in"
+      }
+    },
+    "tone.out-patchTone.a": {
+      "id": "tone.out-patchTone.a",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchTone",
+        "portId": "a"
+      }
+    },
+    "toneCentered.out-toneStretched.a": {
+      "id": "toneCentered.out-toneStretched.a",
+      "from": {
+        "nodeId": "toneCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "a"
+      }
+    },
+    "toneStretched.out-tone.a": {
+      "id": "toneStretched.out-tone.a",
+      "from": {
+        "nodeId": "toneStretched",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tone",
+        "portId": "a"
+      }
+    },
+    "tooth.out-paperNoise.b": {
+      "id": "tooth.out-paperNoise.b",
+      "from": {
+        "nodeId": "tooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "b"
+      }
+    },
+    "turned.out-turnedAxes.in": {
+      "id": "turned.out-turnedAxes.in",
+      "from": {
+        "nodeId": "turned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "turnedAxes",
+        "portId": "in"
+      }
+    },
+    "turnedAxes.y-strokePhase.a": {
+      "id": "turnedAxes.y-strokePhase.a",
+      "from": {
+        "nodeId": "turnedAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "strokePhase",
+        "portId": "a"
+      }
+    },
+    "viewPosition.out-patchSpace.a": {
+      "id": "viewPosition.out-patchSpace.a",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "patchSpace",
+        "portId": "a"
+      }
+    },
+    "wave.out-inkMask.in": {
+      "id": "wave.out-inkMask.in",
+      "from": {
+        "nodeId": "wave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkMask",
+        "portId": "in"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "patchScale",
+      "label": "Patch scale",
+      "name": "patchScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 9
+      }
+    },
+    {
+      "id": "strokeDensity",
+      "label": "Stroke density",
+      "name": "strokeDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 26
+      }
+    },
+    {
+      "id": "patchShade",
+      "label": "Patch shading",
+      "name": "patchShade",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.25
+      }
+    },
+    {
+      "id": "seed",
+      "label": "Seed",
+      "name": "seed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0
+      }
+    },
+    {
+      "id": "inkColor",
+      "label": "Ink color",
+      "name": "inkColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.01033,
+          0.023153,
+          0.332452
+        ]
+      }
+    },
+    {
+      "id": "paperColor",
+      "label": "Paper color",
+      "name": "paperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.693872,
+          0.462077,
+          0.300544
+        ]
+      }
+    },
+    {
+      "id": "contrast",
+      "label": "Contrast",
+      "name": "contrast",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.4
+      }
+    }
+  ]
+}

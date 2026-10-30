@@ -81,6 +81,11 @@ export const NODES_ES: NodeTranslations = {
         description:
           'Hacia dónde cree la iluminación que mira la superficie; Normal desde altura agrega relieve.',
       },
+      ambientOcclusion: {
+        label: 'Oclusión ambiental',
+        description:
+          'Cuánta de la luz del entorno llega a los rincones: 1 = toda, 0 = nada. Conectá un valor para usarla.',
+      },
       opacity: {
         label: 'Opacidad',
         description: 'Qué tan sólida es la superficie: 0 = invisible, 1 = totalmente sólida.',
@@ -88,6 +93,11 @@ export const NODES_ES: NodeTranslations = {
       alphaClip: {
         label: 'Umbral de recorte alfa',
         description: 'Los píxeles con opacidad menor que este valor se recortan por completo.',
+      },
+      specularIntensity: {
+        label: 'Intensidad especular',
+        description:
+          'Qué tan fuertes son los reflejos en un material físico: 1 = lo normal, 0 = ninguno. Conectá un valor para usarla.',
       },
       transmission: {
         label: 'Transmisión',
@@ -224,13 +234,17 @@ export const NODES_ES: NodeTranslations = {
   },
   'input/normal': {
     label: 'Normal',
-    description: 'La dirección hacia la que mira la superficie, en espacio de mundo.',
-    keywords: ['normal', 'superficie', 'dirección', 'mundo'],
+    description:
+      'La dirección hacia la que mira la superficie, en espacio de mundo, de objeto o de vista. Objeto es la normal propia de la malla: usala para mover vértices.',
+    keywords: ['normal', 'superficie', 'dirección', 'mundo', 'objeto', 'vista'],
     outputs: {
       out: {
         label: 'Salida',
-        description: 'La dirección de la superficie en espacio de mundo, con longitud 1.',
+        description: 'La dirección de la superficie en el espacio elegido, con longitud 1.',
       },
+    },
+    params: {
+      space: { label: 'Espacio', options: { world: 'Mundo', object: 'Objeto', view: 'Vista' } },
     },
   },
   'input/vector2': {
@@ -673,6 +687,72 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'math/derivatives': {
+    label: 'Derivadas',
+    description:
+      'Qué tan rápido cambia un valor de un píxel al siguiente en pantalla, para suavizar bordes y apagar detalle demasiado fino. Solo en la etapa de fragmentos.',
+    formula: 'dFdx, dFdy, fwidth',
+    keywords: [
+      'derivada',
+      'derivadas',
+      'ddx',
+      'ddy',
+      'fwidth',
+      'antialias',
+      'pendiente',
+      'pantalla',
+    ],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description: 'El valor a medir; tiene que variar sobre la superficie para cambiar algo.',
+      },
+    },
+    outputs: {
+      ddx: {
+        label: 'DDX',
+        description: 'Cuánto cambia la entrada de este píxel al siguiente hacia la derecha.',
+      },
+      ddy: {
+        label: 'DDY',
+        description: 'Cuánto cambia la entrada de este píxel al siguiente hacia arriba o abajo.',
+      },
+      fwidth: {
+        label: 'Fwidth',
+        description: 'Cuánto cambia la entrada en un píxel, en cualquier dirección: |DDX| + |DDY|.',
+      },
+    },
+  },
+  'color/blackbody': {
+    label: 'Cuerpo negro',
+    description:
+      'El color de algo que brilla por calor: brasas rojo oscuro a 1000 K, naranja de vela cerca de 1900 K, blanco cerca de 6500 K, azul por encima.',
+    formula: 'planck(Temperatura)',
+    keywords: [
+      'cuerpo negro',
+      'temperatura',
+      'kelvin',
+      'calor',
+      'brillo',
+      'fuego',
+      'lava',
+      'incandescente',
+    ],
+    inputs: {
+      temperature: {
+        label: 'Temperatura',
+        description:
+          'Qué tan caliente, en kelvin, como en la caja de una lamparita: de 1000 a 15000. La lava brilla entre 1000 y 1500.',
+      },
+    },
+    outputs: {
+      color: {
+        label: 'Color',
+        description:
+          'El color del brillo en luz lineal, con su canal más fuerte en 1: multiplicalo para que brille.',
+      },
+    },
+  },
   'math/hash': {
     label: 'Aleatorio',
     description:
@@ -896,6 +976,62 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'vector/reflect': {
+    label: 'Reflejar',
+    description:
+      'Hace rebotar una dirección en una superficie como en un espejo: con el rayo de la vista y la normal da la dirección de donde viene un reflejo.',
+    formula: 'Entrada − 2(N·Entrada)N',
+    keywords: ['reflejar', 'reflejo', 'reflexión', 'espejo', 'rebote', 'entorno', 'especular'],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description:
+          'La dirección que llega a la superficie, de longitud 1: de la cámara hacia el punto para un reflejo.',
+      },
+      normal: {
+        label: 'Normal',
+        description:
+          'Hacia dónde mira la superficie, de longitud 1; la normal de la malla si no hay nada conectado.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description: 'Entrada reflejada respecto de la normal: la dirección con la que sale.',
+      },
+    },
+  },
+  'vector/refract': {
+    label: 'Refractar',
+    description:
+      'Desvía una dirección al entrar en vidrio o agua: con el rayo de la vista y la normal da la dirección en la que viaja la luz adentro.',
+    formula: 'refract(Entrada, N, Razón)',
+    keywords: ['refractar', 'refracción', 'desviar', 'vidrio', 'agua', 'ior', 'snell'],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description:
+          'La dirección que llega a la superficie, de longitud 1: de la cámara hacia el punto para mirar a través.',
+      },
+      normal: {
+        label: 'Normal',
+        description:
+          'Hacia dónde mira la superficie, de longitud 1; la normal de la malla si no hay nada conectado.',
+      },
+      ratio: {
+        label: 'Razón',
+        description:
+          'El IOR de afuera ÷ el IOR de adentro: 0,75 del aire al agua, 0,67 al vidrio, 1 no desvía nada.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description:
+          'Entrada desviada a través de la superficie; cero donde roza tan bajo que no entra (reflexión total interna).',
+      },
+    },
+  },
   'vector/rotate-2d': {
     label: 'Rotar 2D',
     description: 'Rota un punto 2D alrededor de un centro, según un ángulo en radianes.',
@@ -1049,6 +1185,11 @@ export const NODES_ES: NodeTranslations = {
         label: 'Lacunaridad',
         description: 'Con más de una octava, cuánto más densa es cada capa que la anterior.',
       },
+      period: {
+        label: 'Período',
+        description:
+          'Cada cuánto se repite, en las unidades de la entrada, por eje; 0 deja ese eje sin fin.',
+      },
     },
     outputs: {
       out: {
@@ -1062,8 +1203,16 @@ export const NODES_ES: NodeTranslations = {
       },
     },
     params: {
-      kind: { label: 'Tipo', options: { perlin: 'Perlin', simplex: 'Simplex' } },
+      kind: {
+        label: 'Tipo',
+        options: { perlin: 'Perlin', simplex: 'Simplex', 'perlin-2d': 'Perlin 2D' },
+      },
       octaves: { label: 'Octavas' },
+      tile: {
+        label: 'Repetir',
+        description:
+          'Repite el patrón sin costuras cada Período, para UV que dan la vuelta a una malla o una textura que se repite.',
+      },
     },
   },
   'effects/voronoi': {
@@ -1083,6 +1232,11 @@ export const NODES_ES: NodeTranslations = {
         description: 'Qué tan irregulares son las celdas: 0 = grilla cuadrada, 1 = al azar.',
       },
       exponent: VORONOI_EXPONENT_ES,
+      period: {
+        label: 'Período',
+        description:
+          'Cada cuánto se repite, en las unidades de la entrada, por eje; 0 deja ese eje sin fin.',
+      },
     },
     outputs: {
       f1: {
@@ -1105,7 +1259,14 @@ export const NODES_ES: NodeTranslations = {
         description: 'Un valor al azar de 0 a 1 por celda, para darle a cada una su propio color.',
       },
     },
-    params: { distance: VORONOI_DISTANCE_ES },
+    params: {
+      distance: VORONOI_DISTANCE_ES,
+      tile: {
+        label: 'Repetir',
+        description:
+          'Repite el patrón sin costuras cada Período, para UV que dan la vuelta a una malla o una textura que se repite.',
+      },
+    },
   },
   'effects/voronoi-3d': {
     label: 'Voronoi 3D',
@@ -1256,6 +1417,52 @@ export const NODES_ES: NodeTranslations = {
       direction: {
         label: 'Dirección',
         options: { 'srgb-to-linear': 'sRGB a lineal', 'linear-to-srgb': 'Lineal a sRGB' },
+      },
+    },
+  },
+
+  'color/tone-map': {
+    label: 'Mapeo de tonos',
+    description:
+      'Suaviza la luz HDR brillante hasta el rango que la pantalla puede mostrar con una de las curvas del renderer de three.js, para materiales unlit que deben verse con tone mapping.',
+    formula: 'curva(Color × Exposición)',
+    keywords: [
+      'tone mapping',
+      'mapeo de tonos',
+      'tonos',
+      'aces',
+      'agx',
+      'fílmico',
+      'hdr',
+      'exposición',
+    ],
+    inputs: {
+      color: {
+        label: 'Color',
+        description: 'El color HDR lineal a llevar al rango; lo que pasa de 1 se suaviza.',
+      },
+      exposure: {
+        label: 'Exposición',
+        description: 'Aclara (más de 1) u oscurece (menos de 1) el color antes de la curva.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description: 'El color llevado de 0 a 1, todavía lineal, listo para la pantalla.',
+      },
+    },
+    params: {
+      kind: {
+        label: 'Curva',
+        options: {
+          'aces-filmic': 'ACES Filmic',
+          agx: 'AgX',
+          neutral: 'Neutral',
+          reinhard: 'Reinhard',
+          cineon: 'Cineon',
+          linear: 'Lineal',
+        },
       },
     },
   },

@@ -1,0 +1,1071 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "contrast": {
+      "id": "contrast",
+      "type": "property/float",
+      "position": {
+        "x": -3032,
+        "y": 1079
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "contrast"
+      }
+    },
+    "frame-ink": {
+      "id": "frame-ink",
+      "type": "utility/comment",
+      "position": {
+        "x": -104,
+        "y": 40
+      },
+      "inputValues": {},
+      "params": {
+        "body": "AA Step inks the wave where it rises above the pressed tone: in the shadows the strokes thicken until they run together.",
+        "height": 474,
+        "title": "Ink",
+        "width": 608
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -3752,
+        "y": 696
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Main Light → Half Lambert, squared as Valve shades with it: 1 facing the light, 0.25 edge-on, 0 facing away. Contrast stretches it around 0.5, so the ink reaches the shadows sooner.",
+        "height": 458,
+        "title": "Light",
+        "width": 1568
+      }
+    },
+    "frame-paper": {
+      "id": "frame-paper",
+      "type": "utility/comment",
+      "position": {
+        "x": -1768,
+        "y": -605
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
+        "height": 1040,
+        "title": "Paper",
+        "width": 1568
+      }
+    },
+    "frame-pressure": {
+      "id": "frame-pressure",
+      "type": "utility/comment",
+      "position": {
+        "x": -2088,
+        "y": 467
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Remap counts the strokes (one per turn of the sine, cut where it is lowest) and Floor numbers them. Random turns each number into its own value, so every stroke presses a little harder or softer.",
+        "height": 606,
+        "title": "Pen pressure",
+        "width": 1888
+      }
+    },
+    "frame-strokes": {
+      "id": "frame-strokes",
+      "type": "utility/comment",
+      "position": {
+        "x": -4072,
+        "y": 123
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The slanted Y plus the wobble, × density through a sine: wavy parallel strokes, remapped to 0…1.",
+        "height": 541,
+        "title": "Pen strokes",
+        "width": 1888
+      }
+    },
+    "frame-wobble": {
+      "id": "frame-wobble",
+      "type": "utility/comment",
+      "position": {
+        "x": -5096,
+        "y": 79
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A fractal noise over view space, scaled by Wobble: how far each stroke strays from a straight line. Wobble scale sets how tight its curves are.",
+        "height": 638,
+        "title": "Wobble",
+        "width": 928
+      }
+    },
+    "grain": {
+      "id": "grain",
+      "type": "math/remap",
+      "position": {
+        "x": -776,
+        "y": -280
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1.5
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1.5
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.72
+        }
+      },
+      "params": {}
+    },
+    "inkColor": {
+      "id": "inkColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 439
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "inkColor"
+      }
+    },
+    "inkMask": {
+      "id": "inkMask",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -72,
+        "y": 136
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "inked": {
+      "id": "inked",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 146
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "multiply"
+      }
+    },
+    "lightSquared": {
+      "id": "lightSquared",
+      "type": "math/power",
+      "position": {
+        "x": -3400,
+        "y": 813
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "mainLight": {
+      "id": "mainLight",
+      "type": "input/main-light",
+      "position": {
+        "x": -3720,
+        "y": 780
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "paper": {
+      "id": "paper",
+      "type": "math/multiply",
+      "position": {
+        "x": -456,
+        "y": -163
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperColor": {
+      "id": "paperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -728,
+        "y": 107
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paperColor"
+      }
+    },
+    "paperNoise": {
+      "id": "paperNoise",
+      "type": "math/add",
+      "position": {
+        "x": -1096,
+        "y": -243
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperPosition": {
+      "id": "paperPosition",
+      "type": "input/position",
+      "position": {
+        "x": -1736,
+        "y": -150
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "pressedTone": {
+      "id": "pressedTone",
+      "type": "math/add",
+      "position": {
+        "x": -456,
+        "y": 557
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pressure": {
+      "id": "pressure",
+      "type": "property/float",
+      "position": {
+        "x": -1048,
+        "y": 850
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "pressure"
+      }
+    },
+    "pulp": {
+      "id": "pulp",
+      "type": "effects/noise",
+      "position": {
+        "x": -1416,
+        "y": -525
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 5
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 4,
+        "tile": false
+      }
+    },
+    "slanted": {
+      "id": "slanted",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -4040,
+        "y": 333
+      },
+      "inputValues": {
+        "angle": {
+          "type": "float",
+          "value": 0.35
+        },
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "slantedAxes": {
+      "id": "slantedAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3720,
+        "y": 212
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokeCount": {
+      "id": "strokeCount",
+      "type": "math/remap",
+      "position": {
+        "x": -2056,
+        "y": 686
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 4.71238898038469
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1.5707963267948966
+        }
+      },
+      "params": {}
+    },
+    "strokeDensity": {
+      "id": "strokeDensity",
+      "type": "property/float",
+      "position": {
+        "x": -3352,
+        "y": 506
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "strokeDensity"
+      }
+    },
+    "strokeIndex": {
+      "id": "strokeIndex",
+      "type": "math/floor",
+      "position": {
+        "x": -1736,
+        "y": 649
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokeJitter": {
+      "id": "strokeJitter",
+      "type": "math/subtract",
+      "position": {
+        "x": -1096,
+        "y": 547
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "strokePhase": {
+      "id": "strokePhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -3080,
+        "y": 278
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokePressure": {
+      "id": "strokePressure",
+      "type": "math/multiply",
+      "position": {
+        "x": -776,
+        "y": 622
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokeRandom": {
+      "id": "strokeRandom",
+      "type": "math/hash",
+      "position": {
+        "x": -1416,
+        "y": 584
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokeWave": {
+      "id": "strokeWave",
+      "type": "math/sin",
+      "position": {
+        "x": -2760,
+        "y": 241
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tone": {
+      "id": "tone",
+      "type": "math/add",
+      "position": {
+        "x": -2440,
+        "y": 814
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneCentered": {
+      "id": "toneCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -3080,
+        "y": 776
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneStretched": {
+      "id": "toneStretched",
+      "type": "math/multiply",
+      "position": {
+        "x": -2760,
+        "y": 851
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tooth": {
+      "id": "tooth",
+      "type": "effects/noise",
+      "position": {
+        "x": -1416,
+        "y": -45
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 140
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "viewPosition": {
+      "id": "viewPosition",
+      "type": "input/position",
+      "position": {
+        "x": -5064,
+        "y": 231
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "wave": {
+      "id": "wave",
+      "type": "math/remap",
+      "position": {
+        "x": -2440,
+        "y": 204
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "property/float",
+      "position": {
+        "x": -4696,
+        "y": 655
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wobble"
+      }
+    },
+    "wobbleNoise": {
+      "id": "wobbleNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -4744,
+        "y": 175
+      },
+      "inputValues": {},
+      "params": {
+        "kind": "simplex",
+        "octaves": 3,
+        "tile": false
+      }
+    },
+    "wobbleOffset": {
+      "id": "wobbleOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -4424,
+        "y": 385
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wobbleScale": {
+      "id": "wobbleScale",
+      "type": "property/float",
+      "position": {
+        "x": -5016,
+        "y": 492
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wobbleScale"
+      }
+    },
+    "wobbled": {
+      "id": "wobbled",
+      "type": "math/add",
+      "position": {
+        "x": -3400,
+        "y": 203
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "contrast.out-toneStretched.b": {
+      "id": "contrast.out-toneStretched.b",
+      "from": {
+        "nodeId": "contrast",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "b"
+      }
+    },
+    "grain.out-paper.b": {
+      "id": "grain.out-paper.b",
+      "from": {
+        "nodeId": "grain",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "b"
+      }
+    },
+    "inkColor.out-inked.blend": {
+      "id": "inkColor.out-inked.blend",
+      "from": {
+        "nodeId": "inkColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "blend"
+      }
+    },
+    "inkMask.out-inked.opacity": {
+      "id": "inkMask.out-inked.opacity",
+      "from": {
+        "nodeId": "inkMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "opacity"
+      }
+    },
+    "inked.out-master.baseColor": {
+      "id": "inked.out-master.baseColor",
+      "from": {
+        "nodeId": "inked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "lightSquared.out-toneCentered.a": {
+      "id": "lightSquared.out-toneCentered.a",
+      "from": {
+        "nodeId": "lightSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneCentered",
+        "portId": "a"
+      }
+    },
+    "mainLight.halfLambert-lightSquared.a": {
+      "id": "mainLight.halfLambert-lightSquared.a",
+      "from": {
+        "nodeId": "mainLight",
+        "portId": "halfLambert"
+      },
+      "to": {
+        "nodeId": "lightSquared",
+        "portId": "a"
+      }
+    },
+    "paper.out-inked.base": {
+      "id": "paper.out-inked.base",
+      "from": {
+        "nodeId": "paper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "base"
+      }
+    },
+    "paperColor.out-paper.a": {
+      "id": "paperColor.out-paper.a",
+      "from": {
+        "nodeId": "paperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "a"
+      }
+    },
+    "paperNoise.out-grain.in": {
+      "id": "paperNoise.out-grain.in",
+      "from": {
+        "nodeId": "paperNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grain",
+        "portId": "in"
+      }
+    },
+    "paperPosition.out-pulp.p": {
+      "id": "paperPosition.out-pulp.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulp",
+        "portId": "p"
+      }
+    },
+    "paperPosition.out-tooth.p": {
+      "id": "paperPosition.out-tooth.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tooth",
+        "portId": "p"
+      }
+    },
+    "pressedTone.out-inkMask.edge": {
+      "id": "pressedTone.out-inkMask.edge",
+      "from": {
+        "nodeId": "pressedTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkMask",
+        "portId": "edge"
+      }
+    },
+    "pressure.out-strokePressure.b": {
+      "id": "pressure.out-strokePressure.b",
+      "from": {
+        "nodeId": "pressure",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokePressure",
+        "portId": "b"
+      }
+    },
+    "pulp.out-paperNoise.a": {
+      "id": "pulp.out-paperNoise.a",
+      "from": {
+        "nodeId": "pulp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "a"
+      }
+    },
+    "slanted.out-slantedAxes.in": {
+      "id": "slanted.out-slantedAxes.in",
+      "from": {
+        "nodeId": "slanted",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "slantedAxes",
+        "portId": "in"
+      }
+    },
+    "slantedAxes.y-wobbled.a": {
+      "id": "slantedAxes.y-wobbled.a",
+      "from": {
+        "nodeId": "slantedAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "wobbled",
+        "portId": "a"
+      }
+    },
+    "strokeCount.out-strokeIndex.in": {
+      "id": "strokeCount.out-strokeIndex.in",
+      "from": {
+        "nodeId": "strokeCount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeIndex",
+        "portId": "in"
+      }
+    },
+    "strokeDensity.out-strokePhase.b": {
+      "id": "strokeDensity.out-strokePhase.b",
+      "from": {
+        "nodeId": "strokeDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokePhase",
+        "portId": "b"
+      }
+    },
+    "strokeIndex.out-strokeRandom.in": {
+      "id": "strokeIndex.out-strokeRandom.in",
+      "from": {
+        "nodeId": "strokeIndex",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeRandom",
+        "portId": "in"
+      }
+    },
+    "strokeJitter.out-strokePressure.a": {
+      "id": "strokeJitter.out-strokePressure.a",
+      "from": {
+        "nodeId": "strokeJitter",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokePressure",
+        "portId": "a"
+      }
+    },
+    "strokePhase.out-strokeCount.in": {
+      "id": "strokePhase.out-strokeCount.in",
+      "from": {
+        "nodeId": "strokePhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeCount",
+        "portId": "in"
+      }
+    },
+    "strokePhase.out-strokeWave.in": {
+      "id": "strokePhase.out-strokeWave.in",
+      "from": {
+        "nodeId": "strokePhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeWave",
+        "portId": "in"
+      }
+    },
+    "strokePressure.out-pressedTone.b": {
+      "id": "strokePressure.out-pressedTone.b",
+      "from": {
+        "nodeId": "strokePressure",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pressedTone",
+        "portId": "b"
+      }
+    },
+    "strokeRandom.out-strokeJitter.a": {
+      "id": "strokeRandom.out-strokeJitter.a",
+      "from": {
+        "nodeId": "strokeRandom",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokeJitter",
+        "portId": "a"
+      }
+    },
+    "strokeWave.out-wave.in": {
+      "id": "strokeWave.out-wave.in",
+      "from": {
+        "nodeId": "strokeWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wave",
+        "portId": "in"
+      }
+    },
+    "tone.out-pressedTone.a": {
+      "id": "tone.out-pressedTone.a",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pressedTone",
+        "portId": "a"
+      }
+    },
+    "toneCentered.out-toneStretched.a": {
+      "id": "toneCentered.out-toneStretched.a",
+      "from": {
+        "nodeId": "toneCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "a"
+      }
+    },
+    "toneStretched.out-tone.a": {
+      "id": "toneStretched.out-tone.a",
+      "from": {
+        "nodeId": "toneStretched",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tone",
+        "portId": "a"
+      }
+    },
+    "tooth.out-paperNoise.b": {
+      "id": "tooth.out-paperNoise.b",
+      "from": {
+        "nodeId": "tooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "b"
+      }
+    },
+    "viewPosition.out-slanted.in": {
+      "id": "viewPosition.out-slanted.in",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "slanted",
+        "portId": "in"
+      }
+    },
+    "viewPosition.out-wobbleNoise.p": {
+      "id": "viewPosition.out-wobbleNoise.p",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleNoise",
+        "portId": "p"
+      }
+    },
+    "wave.out-inkMask.in": {
+      "id": "wave.out-inkMask.in",
+      "from": {
+        "nodeId": "wave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inkMask",
+        "portId": "in"
+      }
+    },
+    "wobble.out-wobbleOffset.b": {
+      "id": "wobble.out-wobbleOffset.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "b"
+      }
+    },
+    "wobbleNoise.out-wobbleOffset.a": {
+      "id": "wobbleNoise.out-wobbleOffset.a",
+      "from": {
+        "nodeId": "wobbleNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "a"
+      }
+    },
+    "wobbleOffset.out-wobbled.b": {
+      "id": "wobbleOffset.out-wobbled.b",
+      "from": {
+        "nodeId": "wobbleOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbled",
+        "portId": "b"
+      }
+    },
+    "wobbleScale.out-wobbleNoise.scale": {
+      "id": "wobbleScale.out-wobbleNoise.scale",
+      "from": {
+        "nodeId": "wobbleScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleNoise",
+        "portId": "scale"
+      }
+    },
+    "wobbled.out-strokePhase.a": {
+      "id": "wobbled.out-strokePhase.a",
+      "from": {
+        "nodeId": "wobbled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokePhase",
+        "portId": "a"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "strokeDensity",
+      "label": "Stroke density",
+      "name": "strokeDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 300
+      }
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "name": "wobble",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.04
+      }
+    },
+    {
+      "id": "wobbleScale",
+      "label": "Wobble scale",
+      "name": "wobbleScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 12
+      }
+    },
+    {
+      "id": "pressure",
+      "label": "Pen pressure",
+      "name": "pressure",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.2
+      }
+    },
+    {
+      "id": "inkColor",
+      "label": "Ink color",
+      "name": "inkColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.006995,
+          0.141263,
+          0.003035
+        ]
+      }
+    },
+    {
+      "id": "paperColor",
+      "label": "Paper color",
+      "name": "paperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.768151,
+          0.597202,
+          0.434154
+        ]
+      }
+    },
+    {
+      "id": "contrast",
+      "label": "Contrast",
+      "name": "contrast",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.8
+      }
+    }
+  ]
+}

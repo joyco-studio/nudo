@@ -6,7 +6,7 @@
       "type": "math/multiply",
       "position": {
         "x": -6664,
-        "y": 119
+        "y": 91
       },
       "inputValues": {},
       "params": {}
@@ -16,7 +16,7 @@
       "type": "vector/split",
       "position": {
         "x": -6984,
-        "y": 109
+        "y": 81
       },
       "inputValues": {},
       "params": {}
@@ -26,7 +26,7 @@
       "type": "math/min",
       "position": {
         "x": -6344,
-        "y": -23
+        "y": -51
       },
       "inputValues": {
         "b": {
@@ -41,7 +41,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10584,
-        "y": 1687
+        "y": 1705
       },
       "inputValues": {
         "b": {
@@ -56,7 +56,7 @@
       "type": "math/add",
       "position": {
         "x": -5384,
-        "y": -79
+        "y": -107
       },
       "inputValues": {},
       "params": {}
@@ -66,7 +66,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5064,
-        "y": -4
+        "y": -32
       },
       "inputValues": {},
       "params": {}
@@ -76,7 +76,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7304,
-        "y": 230
+        "y": 202
       },
       "inputValues": {
         "b": {
@@ -119,7 +119,7 @@
       "type": "vector/dot",
       "position": {
         "x": -9944,
-        "y": 2058
+        "y": 2076
       },
       "inputValues": {
         "b": {
@@ -137,7 +137,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 2016
+        "y": 2002
       },
       "inputValues": {
         "scale": {
@@ -146,7 +146,8 @@
         }
       },
       "params": {
-        "distance": "euclidean"
+        "distance": "euclidean",
+        "tile": false
       }
     },
     "cells": {
@@ -154,7 +155,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -9560,
-        "y": 1478
+        "y": 1464
       },
       "inputValues": {
         "scale": {
@@ -163,7 +164,8 @@
         }
       },
       "params": {
-        "distance": "euclidean"
+        "distance": "euclidean",
+        "tile": false
       }
     },
     "centered": {
@@ -171,7 +173,7 @@
       "type": "math/subtract",
       "position": {
         "x": -13208,
-        "y": 1305
+        "y": 1307
       },
       "inputValues": {
         "b": {
@@ -186,7 +188,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": -166
+        "y": -194
       },
       "inputValues": {},
       "params": {}
@@ -196,7 +198,7 @@
       "type": "math/subtract",
       "position": {
         "x": -6024,
-        "y": -143
+        "y": -171
       },
       "inputValues": {},
       "params": {}
@@ -206,7 +208,7 @@
       "type": "math/remap",
       "position": {
         "x": -8920,
-        "y": 1384
+        "y": 1398
       },
       "inputValues": {
         "outMax": {
@@ -260,7 +262,7 @@
       "type": "math/min",
       "position": {
         "x": -8600,
-        "y": 1527
+        "y": 1541
       },
       "inputValues": {},
       "params": {}
@@ -404,7 +406,7 @@
       "type": "utility/comment",
       "position": {
         "x": -13560,
-        "y": 1188
+        "y": 1190
       },
       "inputValues": {},
       "params": {
@@ -419,12 +421,12 @@
       "type": "utility/comment",
       "position": {
         "x": -12536,
-        "y": 1372
+        "y": 1390
       },
       "inputValues": {},
       "params": {
         "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water; the rosettes bend a little more. breath makes the lace breathe with them.",
-        "height": 1447,
+        "height": 1455,
         "title": "Refraction",
         "width": 2848
       }
@@ -434,7 +436,7 @@
       "type": "utility/comment",
       "position": {
         "x": -9592,
-        "y": 1288
+        "y": 1302
       },
       "inputValues": {},
       "params": {
@@ -449,12 +451,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6056,
-        "y": 804
+        "y": 776
       },
       "inputValues": {},
       "params": {
         "body": "Three more Voronoi reads, at other scales and two of them rotated, cut into round dabs with AA Step. A Dot counts the dabs a point is in; that count, only inside the rosettes, darkens the water.",
-        "height": 1557,
+        "height": 1641,
         "title": "Stamps",
         "width": 1888
       }
@@ -464,7 +466,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8248,
-        "y": -246
+        "y": -274
       },
       "inputValues": {},
       "params": {
@@ -509,7 +511,7 @@
       "type": "math/subtract",
       "position": {
         "x": -7944,
-        "y": 166
+        "y": 138
       },
       "inputValues": {
         "b": {
@@ -527,7 +529,7 @@
       "type": "math/exp",
       "position": {
         "x": -5704,
-        "y": 109
+        "y": 81
       },
       "inputValues": {},
       "params": {}
@@ -537,7 +539,7 @@
       "type": "math/add",
       "position": {
         "x": -6024,
-        "y": 160
+        "y": 132
       },
       "inputValues": {},
       "params": {}
@@ -547,7 +549,7 @@
       "type": "math/remap",
       "position": {
         "x": -6344,
-        "y": 280
+        "y": 252
       },
       "inputValues": {
         "outMax": {
@@ -566,7 +568,7 @@
       "type": "math/remap",
       "position": {
         "x": -5064,
-        "y": 299
+        "y": 271
       },
       "inputValues": {
         "inMax": {
@@ -599,7 +601,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -4744,
-        "y": 1537
+        "y": 1565
       },
       "inputValues": {
         "edge0": {
@@ -698,7 +700,7 @@
       "type": "property/float",
       "position": {
         "x": -8216,
-        "y": 557
+        "y": 529
       },
       "inputValues": {},
       "params": {
@@ -710,7 +712,7 @@
       "type": "property/float",
       "position": {
         "x": -5336,
-        "y": 224
+        "y": 196
       },
       "inputValues": {},
       "params": {
@@ -749,7 +751,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 1726
+        "y": 1702
       },
       "inputValues": {
         "scale": {
@@ -758,7 +760,8 @@
         }
       },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "tile": false
       }
     },
     "noiseAt": {
@@ -766,7 +769,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 1856
+        "y": 1860
       },
       "inputValues": {},
       "params": {}
@@ -776,7 +779,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 2178
+        "y": 2182
       },
       "inputValues": {
         "scale": {
@@ -785,7 +788,8 @@
         }
       },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "tile": false
       }
     },
     "noiseBt": {
@@ -793,7 +797,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 2308
+        "y": 2340
       },
       "inputValues": {},
       "params": {}
@@ -803,7 +807,7 @@
       "type": "vector/combine",
       "position": {
         "x": -10904,
-        "y": 1910
+        "y": 1928
       },
       "inputValues": {},
       "params": {}
@@ -813,7 +817,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1033
+        "y": 1061
       },
       "inputValues": {
         "edge": {
@@ -828,7 +832,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1336
+        "y": 1364
       },
       "inputValues": {
         "edge": {
@@ -843,7 +847,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -5384,
-        "y": 1639
+        "y": 1667
       },
       "inputValues": {
         "edge": {
@@ -858,7 +862,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12888,
-        "y": 1268
+        "y": 1270
       },
       "inputValues": {
         "b": {
@@ -876,7 +880,7 @@
       "type": "vector/split",
       "position": {
         "x": -5384,
-        "y": 336
+        "y": 308
       },
       "inputValues": {},
       "params": {}
@@ -886,7 +890,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1452
+        "y": 1470
       },
       "inputValues": {},
       "params": {}
@@ -896,7 +900,7 @@
       "type": "math/add",
       "position": {
         "x": -9944,
-        "y": 1755
+        "y": 1773
       },
       "inputValues": {},
       "params": {}
@@ -906,7 +910,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7944,
-        "y": 469
+        "y": 441
       },
       "inputValues": {
         "b": {
@@ -921,7 +925,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 2016
+        "y": 2030
       },
       "inputValues": {
         "outMax": {
@@ -940,7 +944,7 @@
       "type": "math/remap",
       "position": {
         "x": -9240,
-        "y": 1629
+        "y": 1643
       },
       "inputValues": {
         "outMax": {
@@ -959,7 +963,7 @@
       "type": "math/add",
       "position": {
         "x": -8920,
-        "y": 1771
+        "y": 1785
       },
       "inputValues": {},
       "params": {}
@@ -1015,7 +1019,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 1910
+        "y": 1925
       },
       "inputValues": {
         "b": {
@@ -1033,7 +1037,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2516
+        "y": 2542
       },
       "inputValues": {
         "b": {
@@ -1270,7 +1274,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 884
+        "y": 856
       },
       "inputValues": {
         "scale": {
@@ -1279,7 +1283,8 @@
         }
       },
       "params": {
-        "distance": "euclidean"
+        "distance": "euclidean",
+        "tile": false
       }
     },
     "stampCellsB": {
@@ -1296,7 +1301,8 @@
         }
       },
       "params": {
-        "distance": "euclidean"
+        "distance": "euclidean",
+        "tile": false
       }
     },
     "stampCellsC": {
@@ -1304,7 +1310,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -5704,
-        "y": 1844
+        "y": 1872
       },
       "inputValues": {
         "scale": {
@@ -1313,7 +1319,8 @@
         }
       },
       "params": {
-        "distance": "euclidean"
+        "distance": "euclidean",
+        "tile": false
       }
     },
     "stampCount": {
@@ -1321,7 +1328,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4424,
-        "y": 1335
+        "y": 1363
       },
       "inputValues": {},
       "params": {}
@@ -1331,7 +1338,7 @@
       "type": "vector/combine",
       "position": {
         "x": -5064,
-        "y": 1215
+        "y": 1243
       },
       "inputValues": {
         "w": {
@@ -1348,7 +1355,7 @@
       "type": "vector/dot",
       "position": {
         "x": -4744,
-        "y": 1234
+        "y": 1262
       },
       "inputValues": {
         "b": {
@@ -1368,7 +1375,7 @@
       "type": "math/clamp",
       "position": {
         "x": -4424,
-        "y": 59
+        "y": 31
       },
       "inputValues": {},
       "params": {}
@@ -1378,7 +1385,7 @@
       "type": "math/add",
       "position": {
         "x": -4744,
-        "y": 96
+        "y": 68
       },
       "inputValues": {},
       "params": {}
@@ -1403,7 +1410,7 @@
       "type": "input/time",
       "position": {
         "x": -12504,
-        "y": 2179
+        "y": 2200
       },
       "inputValues": {},
       "params": {}
@@ -1498,7 +1505,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 1550
+        "y": 1578
       },
       "inputValues": {
         "angle": {
@@ -1513,7 +1520,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6024,
-        "y": 2030
+        "y": 2086
       },
       "inputValues": {
         "angle": {
@@ -1528,7 +1535,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -7624,
-        "y": 267
+        "y": 239
       },
       "inputValues": {
         "center": {
@@ -1546,7 +1553,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2213
+        "y": 2239
       },
       "inputValues": {
         "b": {
@@ -1564,7 +1571,7 @@
       "type": "input/uv",
       "position": {
         "x": -13528,
-        "y": 1356
+        "y": 1358
       },
       "inputValues": {},
       "params": {}
@@ -1574,7 +1581,7 @@
       "type": "effects/noise",
       "position": {
         "x": -4040,
-        "y": 664
+        "y": 636
       },
       "inputValues": {
         "scale": {
@@ -1583,7 +1590,8 @@
         }
       },
       "params": {
-        "kind": "simplex"
+        "kind": "simplex",
+        "tile": false
       }
     },
     "waveSpeed": {
@@ -1591,7 +1599,7 @@
       "type": "property/float",
       "position": {
         "x": -12456,
-        "y": 2487
+        "y": 2508
       },
       "inputValues": {},
       "params": {
@@ -1603,7 +1611,7 @@
       "type": "math/multiply",
       "position": {
         "x": -12184,
-        "y": 2250
+        "y": 2270
       },
       "inputValues": {},
       "params": {}
@@ -1642,7 +1650,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10264,
-        "y": 1820
+        "y": 1838
       },
       "inputValues": {
         "b": {

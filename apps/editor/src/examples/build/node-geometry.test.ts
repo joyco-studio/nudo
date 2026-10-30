@@ -9,10 +9,11 @@ import { estimateGeometry } from './node-geometry'
 /** The figures `estimateGeometry` adds per row and per Master Stack heading. */
 const ROW_HEIGHT = 28
 const GROUP_HEADING_HEIGHT = 24
-const PHYSICAL_INPUT_COUNT = 9
+const PHYSICAL_INPUT_COUNT = 10
 const PHYSICAL_SWITCH_COUNT = 4
 
 const PHYSICAL_INPUT_IDS: readonly string[] = [
+  'specularIntensity',
   'transmission',
   'ior',
   'thickness',
@@ -46,7 +47,7 @@ describe('the master height estimate', () => {
     expect(masterGeometry('unlit').height).toBe(masterGeometry('standard').height)
   })
 
-  it('counts the nine physical inputs and the four switches of a physical master', () => {
+  it('counts the ten physical inputs and the four switches of a physical master', () => {
     const standard = masterGeometry('standard')
     const physical = masterGeometry('physical')
     expect(Object.keys(physical.inputY).filter((id) => PHYSICAL_INPUT_IDS.includes(id))).toEqual(
@@ -60,7 +61,7 @@ describe('the master height estimate', () => {
   it('places the Physical rows under their heading, after the last fragment row', () => {
     const { inputY } = masterGeometry('physical')
     const lastFragment = inputY.alphaClip
-    const firstPhysical = inputY.transmission
+    const firstPhysical = inputY.specularIntensity
     if (lastFragment === undefined || firstPhysical === undefined) throw new Error('Missing rows')
     expect(firstPhysical - lastFragment).toBe(ROW_HEIGHT + GROUP_HEADING_HEIGHT)
   })
