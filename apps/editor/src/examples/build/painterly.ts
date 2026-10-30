@@ -13,7 +13,7 @@ import { node, reader } from './example-spec'
  *
  * Shader to RGB has no realtime equivalent, so the light is the Main Light's Lambert on the bent
  * normal (plus a Blinn gloss for the shiny ones) and the material is unlit. The `.blend`'s images
- * are not bundled: their paint, stripes and strokes are patterns made from nodes, and its light
+ * are not bundled: their paint, stripes and scan lines are patterns made from nodes, and its light
  * mask is a thresholded noise.
  */
 
@@ -25,8 +25,8 @@ export interface RampStop {
   readonly color: Vec3
 }
 
-/** The paint the `.blend` overlays: Paint_texture's blotches, tile_texture_1's stripes, ... */
-export type PaintPattern = 'blotches' | 'stripes' | 'strokes' | 'scanlines'
+/** The paint the `.blend` overlays: Paint_texture's blotches, tile_texture_1's stripes, tile_texture_6's lines. */
+export type PaintPattern = 'blotches' | 'stripes' | 'scanlines'
 
 /** Blender's Gradient Texture types the spheres' base tone uses. */
 export type GradientShape = 'linear' | 'spherical' | 'radial'
@@ -388,26 +388,6 @@ function patternParts(pattern: PaintPattern, scale: number): PatternParts {
       out: 'pattern.out',
       en: 'wobbly stripes, a sine over X warped by a noise',
       es: 'rayas temblorosas, un seno sobre X deformado por un noise',
-    }
-  }
-  if (pattern === 'strokes') {
-    return {
-      nodes: [
-        node(
-          'strokeNoise',
-          'effects/noise',
-          { scale: float(scale) },
-          { kind: 'perlin', octaves: 2 },
-        ),
-        node('pattern', 'interpolation/smoothstep', { edge0: float(0.05), edge1: float(0.35) }),
-      ],
-      wires: [
-        ['paintPlaced.out', 'strokeNoise.p'],
-        ['strokeNoise.out', 'pattern.in'],
-      ],
-      out: 'pattern.out',
-      en: 'short strokes, a noise stretched by the Mapping and cut by a Smoothstep',
-      es: 'trazos cortos, un noise estirado por el Mapping y cortado con un Smoothstep',
     }
   }
   if (pattern === 'scanlines') {

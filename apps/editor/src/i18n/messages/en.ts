@@ -115,18 +115,6 @@ export const en = {
   'command.example-pastel-planet.label': 'Template: Pastel planet',
   'command.example-pastel-planet.keywords':
     'template example sample demo painterly blender pastel planet peach teal outline blotches',
-  'command.example-bubblegum.label': 'Template: Bubblegum',
-  'command.example-bubblegum.keywords':
-    'template example sample demo painterly blender bubblegum pink magenta coral streaks',
-  'command.example-frost-speckle.label': 'Template: Frost speckle',
-  'command.example-frost-speckle.keywords':
-    'template example sample demo painterly blender frost ice speckle snow outline',
-  'command.example-dusk-glaze.label': 'Template: Dusk glaze',
-  'command.example-dusk-glaze.keywords':
-    'template example sample demo painterly blender dusk sunset peach indigo glaze',
-  'command.example-charcoal-chrome.label': 'Template: Charcoal chrome',
-  'command.example-charcoal-chrome.keywords':
-    'template example sample demo painterly blender charcoal chrome sketch black white strokes metal',
   'command.example-pewter-haze.label': 'Template: Pewter haze',
   'command.example-pewter-haze.keywords':
     'template example sample demo painterly blender pewter haze mist grey pink scanlines',
@@ -136,9 +124,6 @@ export const en = {
   'command.example-ink-swirl.label': 'Template: Ink swirl',
   'command.example-ink-swirl.keywords':
     'template example sample demo painterly blender ink swirl pink metal',
-  'command.example-night-leaf.label': 'Template: Night leaf',
-  'command.example-night-leaf.keywords':
-    'template example sample demo painterly blender night leaf green navy pink rim',
 
   // Command palette
   'palette.button': 'Commands',
@@ -249,22 +234,6 @@ export const en = {
   'example.pastel-planet.description': 'Peach, teal and blue paint over a pastel wash, outlined',
   'example.pastel-planet.teaches':
     'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Flat Voronoi blotches stand in for the paint image, and the master draws the outline.',
-  'example.bubblegum.title': 'Bubblegum',
-  'example.bubblegum.description': 'Magenta, coral and blue paint bands with glowing streaks',
-  'example.bubblegum.teaches':
-    "Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Six ramp stops make the bands, and a noise's peaks add glowing streaks.",
-  'example.frost-speckle.title': 'Frost speckle',
-  'example.frost-speckle.description': 'Icy speckles in flat bands, outlined',
-  'example.frost-speckle.teaches':
-    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A coarse Voronoi grain makes the speckles, and wobbly stripes are overlaid.',
-  'example.dusk-glaze.title': 'Dusk glaze',
-  'example.dusk-glaze.description': 'A peach and indigo split under soft paint',
-  'example.dusk-glaze.teaches':
-    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A tilted linear gradient splits the light, and soft blotches are overlaid.',
-  'example.charcoal-chrome.title': 'Charcoal chrome',
-  'example.charcoal-chrome.description': 'Black chrome with white sketch strokes',
-  'example.charcoal-chrome.teaches':
-    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Bright/Contrast lifts a stretched noise into white sketch strokes over a glossy black.',
   'example.pewter-haze.title': 'Pewter haze',
   'example.pewter-haze.description': 'Misty pewter with pink light and scan lines',
   'example.pewter-haze.teaches':
@@ -277,10 +246,6 @@ export const en = {
   'example.ink-swirl.description': 'Pink metal with dark ink swirls',
   'example.ink-swirl.teaches':
     'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A sharp Minkowski brush (exponent 32, nearly square cells) breaks the light into ink swirls.',
-  'example.night-leaf.title': 'Night leaf',
-  'example.night-leaf.description': 'Night green and navy with a pink rim of light',
-  'example.night-leaf.teaches':
-    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. The ramp runs from black through navy and green to a pink highlight.',
   'templateTexture.paper-grain': 'Paper grain',
   'example.texture-fixture.title': 'Paper grain (test fixture)',
   'example.texture-fixture.description': 'A bundled texture, for the end-to-end tests',

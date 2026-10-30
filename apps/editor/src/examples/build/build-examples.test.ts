@@ -13,13 +13,8 @@ import { IRIDESCENT_BLOB } from './iridescent-blob'
 import { LAVA_FLOW } from './lava-flow'
 import { estimateGeometry } from './node-geometry'
 import {
-  BUBBLEGUM_SPEC,
-  CHARCOAL_CHROME_SPEC,
-  DUSK_GLAZE_SPEC,
-  FROST_SPECKLE_SPEC,
   INK_SWIRL_SPEC,
   MIDNIGHT_GLAZE_SPEC,
-  NIGHT_LEAF_SPEC,
   PASTEL_PLANET_SPEC,
   PEWTER_HAZE_SPEC,
   ROSE_MOON_SPEC,
@@ -40,14 +35,9 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['lava-flow', LAVA_FLOW],
   ['midnight-glaze', MIDNIGHT_GLAZE_SPEC],
   ['pastel-planet', PASTEL_PLANET_SPEC],
-  ['bubblegum', BUBBLEGUM_SPEC],
-  ['frost-speckle', FROST_SPECKLE_SPEC],
-  ['dusk-glaze', DUSK_GLAZE_SPEC],
-  ['charcoal-chrome', CHARCOAL_CHROME_SPEC],
   ['pewter-haze', PEWTER_HAZE_SPEC],
   ['rose-moon', ROSE_MOON_SPEC],
   ['ink-swirl', INK_SWIRL_SPEC],
-  ['night-leaf', NIGHT_LEAF_SPEC],
   ['texture-fixture', TEXTURE_FIXTURE],
 ]
 

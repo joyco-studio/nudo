@@ -2,12 +2,12 @@ import type { PainterlyConfig } from './painterly'
 import { painterlySpec } from './painterly'
 
 /**
- * The spheres of the user's `Shaders_style.blend`, one config each, numbers copied from its node
- * trees: bend Noise, brush Voronoi, base gradient Mapping, paint Mapping and Bright/Contrast,
- * Overlay factor and Color Ramp (positions, and colors as the linear values Blender stores). B-spline
- * ramps become smooth. `light` scales the .blend's measured light and `gloss` stands in for the
- * Principled BSDF's specular, tuned by eye against the .blend's renders. The glass sphere (mat_10) is left out:
- * the .blend renders it empty.
+ * Five spheres of the user's `Shaders_style.blend`, each teaching a different part of the recipe,
+ * one config each with numbers copied from its node trees: bend Noise, brush Voronoi, base
+ * gradient Mapping, paint Mapping and Bright/Contrast, Overlay factor and Color Ramp (positions,
+ * and colors as the linear values Blender stores). B-spline ramps become smooth. `light` scales the
+ * .blend's measured light and `gloss` stands in for the Principled BSDF's specular, tuned by eye
+ * against the .blend's renders. The other spheres repeat these with other palettes.
  */
 
 /** The base gradient Mapping most spheres share. */
@@ -78,136 +78,6 @@ export const PASTEL_PLANET: PainterlyConfig = {
   outline: { width: 0.02 },
 }
 
-/** mat_3: magenta, coral and blue bands, glowing streaks. */
-export const BUBBLEGUM: PainterlyConfig = {
-  bend: { scale: 4.7, detail: 2, amount: 0.742 },
-  brush: { scale: 8.9, exponent: 0.5 },
-  base: { shape: 'linear', ...TILTED_GRADIENT, grainScale: 607.6, gradient: 0.85 },
-  light: 1.25,
-  metallic: 0,
-  gloss: { strength: 0.8, shininess: 200 },
-  ramp: {
-    interpolation: 'smooth',
-    stops: [
-      { position: 0.0, color: [0.006, 0.002, 0.068] },
-      { position: 0.72, color: [0.758, 0.005, 0.306] },
-      { position: 0.764, color: [0.114, 0.118, 0.266] },
-      { position: 0.832, color: [1.0, 0.284, 0.256] },
-      { position: 0.886, color: [0.014, 0.464, 1.0] },
-      { position: 0.955, color: [0.982, 0.638, 0.628] },
-    ],
-  },
-  sparkle: { amount: 0.8, scale: 9 },
-}
-
-/** The ramp mat_4 and mat_12 share: navy into ice blue, cream and lilac. */
-const ICE_RAMP: PainterlyConfig['ramp'] = {
-  interpolation: 'constant',
-  stops: [
-    { position: 0.0, color: [0.003, 0.001, 0.024] },
-    { position: 0.141, color: [0.102, 0.093, 0.181] },
-    { position: 0.168, color: [0.711, 0.795, 1.0] },
-    { position: 0.318, color: [0.931, 0.905, 0.799] },
-    { position: 1.0, color: [0.874, 0.683, 0.899] },
-  ],
-}
-
-const ICE_PAINT: NonNullable<PainterlyConfig['paint']> = {
-  pattern: 'stripes',
-  coords: 'generated',
-  scale: 6,
-  location: [-2.3, 0, 0],
-  rotation: [1.248, 0, 0],
-  stretch: [12.2, 1, 1],
-  ...STRIPE_TONES,
-  brightness: 0.98,
-  contrast: 2.14,
-  overlay: 0.967,
-}
-
-/** mat_4: icy speckle from a coarse Voronoi grain, outlined. */
-export const FROST_SPECKLE: PainterlyConfig = {
-  bend: { scale: 4, detail: 2, amount: 1 },
-  brush: { scale: 18.87, exponent: 9.1 },
-  base: { shape: 'spherical', ...UNPLACED, scale: [1, 1, 1], grainScale: 100, gradient: 0 },
-  light: 1.4,
-  metallic: 0,
-  gloss: { strength: 0.5, shininess: 200 },
-  paint: ICE_PAINT,
-  ramp: ICE_RAMP,
-  outline: { width: 0.02 },
-}
-
-/** mat_5: a peach and indigo split under a soft Paint_texture, glowing streaks. */
-export const DUSK_GLAZE: PainterlyConfig = {
-  bend: { scale: 5, detail: 2, amount: 0.733 },
-  brush: { scale: 8.9, exponent: 0.5 },
-  base: { shape: 'linear', ...TILTED_GRADIENT, grainScale: 607.6, gradient: 0.85 },
-  light: 0.8,
-  metallic: 0,
-  gloss: { strength: 0.6, shininess: 40 },
-  paint: {
-    pattern: 'blotches',
-    coords: 'uv',
-    scale: 1,
-    ...UNPLACED,
-    stretch: [1, 1, 1],
-    ...PASTEL_TONES,
-    brightness: 0,
-    contrast: -0.61,
-    overlay: 0.242,
-  },
-  ramp: {
-    interpolation: 'smooth',
-    stops: [
-      { position: 0.0, color: [0.014, 0.003, 0.252] },
-      { position: 0.87, color: [0.02, 0.018, 0.882] },
-      { position: 0.945, color: [0.931, 0.905, 0.799] },
-      { position: 0.982, color: [1.0, 0.284, 0.256] },
-      { position: 1.0, color: [0.899, 0.706, 0.495] },
-    ],
-  },
-  sparkle: { amount: 0.4, scale: 9 },
-}
-
-/** The sketchy metal paint mat_6 and mat_7 share: Bright/Contrast lifts dark strokes to white. */
-const METAL_PAINT_PLACEMENT = {
-  location: [-2.3, 0, 0],
-  rotation: [1.466, 0.295, 0.653],
-  stretch: [1.3, 1, 1],
-} as const
-
-/** mat_6: black chrome with white sketch strokes. */
-export const CHARCOAL_CHROME: PainterlyConfig = {
-  bend: { scale: 12.3, detail: 2, amount: 0.517 },
-  brush: { scale: -6.2, exponent: 0.5 },
-  base: { shape: 'spherical', ...UNPLACED, scale: [1, 1, 1], grainScale: 500, gradient: 0.471 },
-  light: 1,
-  metallic: 0.923,
-  gloss: { strength: 0.3, shininess: 120 },
-  paint: {
-    pattern: 'strokes',
-    coords: 'generated',
-    scale: 9,
-    ...METAL_PAINT_PLACEMENT,
-    stretch: [5, 1, 1],
-    dark: [0.01, 0.008, 0.012],
-    light: [0.052, 0.049, 0.057],
-    brightness: 1.08,
-    contrast: 2.18,
-    overlay: 0.242,
-  },
-  ramp: {
-    interpolation: 'smooth',
-    stops: [
-      { position: 0.0, color: [0.003, 0.001, 0.024] },
-      { position: 0.241, color: [0.029, 0.024, 0.026] },
-      { position: 0.327, color: [1.0, 0.844, 0.995] },
-      { position: 0.427, color: [0.931, 0.905, 0.799] },
-    ],
-  },
-}
-
 /** mat_7: misty pewter with pink light and scan lines. */
 export const PEWTER_HAZE: PainterlyConfig = {
   bend: { scale: 4, detail: 2, amount: 0.192 },
@@ -220,7 +90,9 @@ export const PEWTER_HAZE: PainterlyConfig = {
     pattern: 'scanlines',
     coords: 'generated',
     scale: 40,
-    ...METAL_PAINT_PLACEMENT,
+    location: [-2.3, 0, 0],
+    rotation: [1.466, 0.295, 0.653],
+    stretch: [1.3, 1, 1],
     dark: [0.019, 0.016, 0.025],
     light: [0.022, 0.019, 0.029],
     brightness: 1.08,
@@ -307,44 +179,8 @@ export const INK_SWIRL: PainterlyConfig = {
   },
 }
 
-/** leafs: night green and navy with a pink rim of light. */
-export const NIGHT_LEAF: PainterlyConfig = {
-  bend: { scale: 4.7, detail: 2, amount: 0.742 },
-  brush: { scale: 8.9, exponent: 0.5 },
-  base: { shape: 'linear', ...TILTED_GRADIENT, grainScale: 607.6, gradient: 0.85 },
-  light: 0.95,
-  metallic: 0,
-  gloss: { strength: 0.5, shininess: 200 },
-  paint: {
-    pattern: 'stripes',
-    coords: 'uv',
-    scale: 6,
-    ...UNPLACED,
-    stretch: [1, 1, 1],
-    ...STRIPE_TONES,
-    brightness: 1.08,
-    contrast: 2.18,
-    overlay: 0.532,
-  },
-  ramp: {
-    interpolation: 'smooth',
-    stops: [
-      { position: 0.0, color: [0, 0, 0] },
-      { position: 0.585, color: [0.006, 0.002, 0.068] },
-      { position: 0.659, color: [0.114, 0.118, 0.266] },
-      { position: 0.889, color: [0, 0.368, 0.004] },
-      { position: 1.0, color: [0.982, 0.638, 0.628] },
-    ],
-  },
-}
-
 export const MIDNIGHT_GLAZE_SPEC = painterlySpec(MIDNIGHT_GLAZE)
 export const PASTEL_PLANET_SPEC = painterlySpec(PASTEL_PLANET)
-export const BUBBLEGUM_SPEC = painterlySpec(BUBBLEGUM)
-export const FROST_SPECKLE_SPEC = painterlySpec(FROST_SPECKLE)
-export const DUSK_GLAZE_SPEC = painterlySpec(DUSK_GLAZE)
-export const CHARCOAL_CHROME_SPEC = painterlySpec(CHARCOAL_CHROME)
 export const PEWTER_HAZE_SPEC = painterlySpec(PEWTER_HAZE)
 export const ROSE_MOON_SPEC = painterlySpec(ROSE_MOON)
 export const INK_SWIRL_SPEC = painterlySpec(INK_SWIRL)
-export const NIGHT_LEAF_SPEC = painterlySpec(NIGHT_LEAF)
