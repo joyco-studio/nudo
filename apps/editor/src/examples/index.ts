@@ -10,6 +10,19 @@ import { IRIDESCENT_BLOB } from './build/iridescent-blob'
 import { LAVA_FLOW } from './build/lava-flow'
 import { POND } from './build/pond'
 import { POSTER } from './build/poster'
+import {
+  BANDED_GIANT_SPEC,
+  BUBBLEGUM_SPEC,
+  CHARCOAL_CHROME_SPEC,
+  DUSK_GLAZE_SPEC,
+  FROST_SPECKLE_SPEC,
+  INK_SWIRL_SPEC,
+  MIDNIGHT_GLAZE_SPEC,
+  NIGHT_LEAF_SPEC,
+  PASTEL_PLANET_SPEC,
+  PEWTER_HAZE_SPEC,
+  ROSE_MOON_SPEC,
+} from './build/painterly-spheres'
 import iridescentBlobGraph from './iridescent-blob.graph.json'
 import { fromSpec } from './example-from-spec'
 import { fixtureExamples } from './fixtures'
@@ -18,10 +31,37 @@ import type { CommentTexts } from './localize-comments'
 import lavaFlowGraph from './lava-flow.graph.json'
 import pondGraph from './pond.graph.json'
 import posterGraph from './poster.graph.json'
+import midnightGlazeGraph from './midnight-glaze.graph.json'
+import pastelPlanetGraph from './pastel-planet.graph.json'
+import bubblegumGraph from './bubblegum.graph.json'
+import frostSpeckleGraph from './frost-speckle.graph.json'
+import bandedGiantGraph from './banded-giant.graph.json'
+import duskGlazeGraph from './dusk-glaze.graph.json'
+import charcoalChromeGraph from './charcoal-chrome.graph.json'
+import pewterHazeGraph from './pewter-haze.graph.json'
+import roseMoonGraph from './rose-moon.graph.json'
+import inkSwirlGraph from './ink-swirl.graph.json'
+import nightLeafGraph from './night-leaf.graph.json'
 import type { TemplateTexture } from './template-texture'
 
 /** The templates people see, in the browser and as ⌘K commands. */
-export const EXAMPLE_IDS = ['pond', 'iridescent-blob', 'poster', 'lava-flow'] as const
+export const EXAMPLE_IDS = [
+  'pond',
+  'iridescent-blob',
+  'poster',
+  'lava-flow',
+  'midnight-glaze',
+  'pastel-planet',
+  'bubblegum',
+  'frost-speckle',
+  'banded-giant',
+  'dusk-glaze',
+  'charcoal-chrome',
+  'pewter-haze',
+  'rose-moon',
+  'ink-swirl',
+  'night-leaf',
+] as const
 export type PublishedExampleId = (typeof EXAMPLE_IDS)[number]
 /** Templates for the end-to-end tests only: never in a production build, never in ⌘K. */
 export const FIXTURE_EXAMPLE_IDS = ['texture-fixture'] as const
@@ -29,7 +69,14 @@ export type FixtureExampleId = (typeof FIXTURE_EXAMPLE_IDS)[number]
 export type ExampleId = PublishedExampleId | FixtureExampleId
 
 /** What a template is about, as the templates browser lists it under the title. */
-export const TEMPLATE_TAGS = ['unlit', 'vertex', 'noise', 'voronoi', 'fresnel'] as const
+export const TEMPLATE_TAGS = [
+  'unlit',
+  'vertex',
+  'noise',
+  'voronoi',
+  'fresnel',
+  'painterly',
+] as const
 export type TemplateTag = (typeof TEMPLATE_TAGS)[number]
 
 export interface Example {
@@ -80,6 +127,94 @@ export const EXAMPLES: readonly Example[] = [
     previewShape: 'torus',
     tags: ['unlit', 'noise'],
     ...fromSpec(LAVA_FLOW),
+  },
+  {
+    id: 'midnight-glaze',
+    title: 'example.midnight-glaze.title',
+    graph: midnightGlazeGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(MIDNIGHT_GLAZE_SPEC),
+  },
+  {
+    id: 'pastel-planet',
+    title: 'example.pastel-planet.title',
+    graph: pastelPlanetGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(PASTEL_PLANET_SPEC),
+  },
+  {
+    id: 'bubblegum',
+    title: 'example.bubblegum.title',
+    graph: bubblegumGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(BUBBLEGUM_SPEC),
+  },
+  {
+    id: 'frost-speckle',
+    title: 'example.frost-speckle.title',
+    graph: frostSpeckleGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(FROST_SPECKLE_SPEC),
+  },
+  {
+    id: 'banded-giant',
+    title: 'example.banded-giant.title',
+    graph: bandedGiantGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(BANDED_GIANT_SPEC),
+  },
+  {
+    id: 'dusk-glaze',
+    title: 'example.dusk-glaze.title',
+    graph: duskGlazeGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(DUSK_GLAZE_SPEC),
+  },
+  {
+    id: 'charcoal-chrome',
+    title: 'example.charcoal-chrome.title',
+    graph: charcoalChromeGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(CHARCOAL_CHROME_SPEC),
+  },
+  {
+    id: 'pewter-haze',
+    title: 'example.pewter-haze.title',
+    graph: pewterHazeGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(PEWTER_HAZE_SPEC),
+  },
+  {
+    id: 'rose-moon',
+    title: 'example.rose-moon.title',
+    graph: roseMoonGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(ROSE_MOON_SPEC),
+  },
+  {
+    id: 'ink-swirl',
+    title: 'example.ink-swirl.title',
+    graph: inkSwirlGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(INK_SWIRL_SPEC),
+  },
+  {
+    id: 'night-leaf',
+    title: 'example.night-leaf.title',
+    graph: nightLeafGraph,
+    previewShape: 'sphere',
+    tags: ['painterly', 'voronoi', 'noise', 'unlit'],
+    ...fromSpec(NIGHT_LEAF_SPEC),
   },
 ]
 

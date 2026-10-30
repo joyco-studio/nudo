@@ -23,18 +23,29 @@ export async function templateTitles(page: Page): Promise<readonly string[]> {
 }
 
 /**
- * Moves the browser's selection to the template titled `title` with the arrow keys (Home, then
- * Down), each step waiting for focus to land on the option it selects.
+ * Moves the browser's selection to the template titled `title` with the arrow keys, from whichever
+ * end of the list is closer (Home then Down, or End then Up), each step waiting for focus to land
+ * on the option it selects. Every selection compiles a preview, so the walk stays short.
  */
 export async function selectTemplateByKeyboard(page: Page, title: string): Promise<void> {
   const options = templatesBrowser(page).getByRole('option')
-  const index = (await templateTitles(page)).indexOf(title)
+  const titles = await templateTitles(page)
+  const index = titles.indexOf(title)
   if (index < 0) throw new Error(`No template titled ${title}`)
-  await page.keyboard.press('Home')
-  await expect(options.first()).toBeFocused()
-  for (let step = 1; step <= index; step += 1) {
-    await page.keyboard.press('ArrowDown')
-    await expect(options.nth(step)).toBeFocused()
+  const last = titles.length - 1
+  const fromEnd = last - index < index
+  await page.keyboard.press(fromEnd ? 'End' : 'Home')
+  await expect(options.nth(fromEnd ? last : 0)).toBeFocused()
+  if (fromEnd) {
+    for (let step = last - 1; step >= index; step -= 1) {
+      await page.keyboard.press('ArrowUp')
+      await expect(options.nth(step)).toBeFocused()
+    }
+  } else {
+    for (let step = 1; step <= index; step += 1) {
+      await page.keyboard.press('ArrowDown')
+      await expect(options.nth(step)).toBeFocused()
+    }
   }
   await expect(options.nth(index)).toHaveAttribute('aria-selected', 'true')
 }

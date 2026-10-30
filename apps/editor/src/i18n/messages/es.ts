@@ -113,6 +113,39 @@ export const es = {
     'plantilla ejemplo muestra demo póster esténcil toon serigrafía',
   'command.example-lava-flow.label': 'Plantilla: Río de lava',
   'command.example-lava-flow.keywords': 'plantilla ejemplo muestra demo lava fuego volcán voronoi',
+  'command.example-midnight-glaze.label': 'Plantilla: Esmalte nocturno',
+  'command.example-midnight-glaze.keywords':
+    'plantilla ejemplo muestra demo pictórico blender medianoche azul esmalte brillo vetas',
+  'command.example-pastel-planet.label': 'Plantilla: Planeta pastel',
+  'command.example-pastel-planet.keywords':
+    'plantilla ejemplo muestra demo pictórico blender pastel planeta durazno contorno manchas',
+  'command.example-bubblegum.label': 'Plantilla: Chicle',
+  'command.example-bubblegum.keywords':
+    'plantilla ejemplo muestra demo pictórico blender chicle rosa magenta coral vetas',
+  'command.example-frost-speckle.label': 'Plantilla: Escarcha',
+  'command.example-frost-speckle.keywords':
+    'plantilla ejemplo muestra demo pictórico blender escarcha hielo motas nieve contorno',
+  'command.example-banded-giant.label': 'Plantilla: Gigante a rayas',
+  'command.example-banded-giant.keywords':
+    'plantilla ejemplo muestra demo pictórico blender gigante gaseoso júpiter planeta bandas rayas contorno',
+  'command.example-dusk-glaze.label': 'Plantilla: Esmalte de atardecer',
+  'command.example-dusk-glaze.keywords':
+    'plantilla ejemplo muestra demo pictórico blender atardecer durazno índigo esmalte',
+  'command.example-charcoal-chrome.label': 'Plantilla: Cromo carbonilla',
+  'command.example-charcoal-chrome.keywords':
+    'plantilla ejemplo muestra demo pictórico blender carbonilla cromo boceto negro blanco trazos metal',
+  'command.example-pewter-haze.label': 'Plantilla: Neblina de peltre',
+  'command.example-pewter-haze.keywords':
+    'plantilla ejemplo muestra demo pictórico blender peltre neblina gris rosa líneas',
+  'command.example-rose-moon.label': 'Plantilla: Luna rosa',
+  'command.example-rose-moon.keywords':
+    'plantilla ejemplo muestra demo pictórico blender luna rosa radial gradiente atan2 mate',
+  'command.example-ink-swirl.label': 'Plantilla: Remolino de tinta',
+  'command.example-ink-swirl.keywords':
+    'plantilla ejemplo muestra demo pictórico blender tinta remolino rosa metal oscuro',
+  'command.example-night-leaf.label': 'Plantilla: Hoja nocturna',
+  'command.example-night-leaf.keywords':
+    'plantilla ejemplo muestra demo pictórico blender noche hoja verde azul rosa borde',
 
   // Command palette
   'palette.button': 'Comandos',
@@ -200,6 +233,7 @@ export const es = {
   'templateTag.noise': 'ruido',
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
+  'templateTag.painterly': 'pictórico',
   'example.pond.title': 'Estanque',
   'example.pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
   'example.pond.teaches':
@@ -216,6 +250,53 @@ export const es = {
   'example.lava-flow.description': 'Lava que se arremolina, con venas al rojo blanco',
   'example.lava-flow.teaches':
     'Deforma la posición con ruido lento, dibuja venas finas con el valor absoluto de otro ruido y deja que el calor que pasa de 1 se derrame sobre los demás canales, así las venas más calientes viran al blanco.',
+  'example.midnight-glaze.title': 'Esmalte nocturno',
+  'example.midnight-glaze.description':
+    'Facetas de pincel azul marino con luz azul y vetas que brillan',
+  'example.midnight-glaze.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Los picos de un noise suman vetas que brillan encima.',
+  'example.pastel-planet.title': 'Planeta pastel',
+  'example.pastel-planet.description':
+    'Pintura durazno, verde agua y azul sobre una aguada pastel, con contorno',
+  'example.pastel-planet.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Manchas planas de Voronoi reemplazan la imagen de pintura, y el master dibuja el contorno.',
+  'example.bubblegum.title': 'Chicle',
+  'example.bubblegum.description': 'Bandas de pintura magenta, coral y azul con vetas que brillan',
+  'example.bubblegum.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Seis paradas de rampa arman las bandas, y los picos de un noise suman vetas que brillan.',
+  'example.frost-speckle.title': 'Escarcha',
+  'example.frost-speckle.description': 'Motas heladas en bandas planas, con contorno',
+  'example.frost-speckle.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un grano grueso de Voronoi arma las motas, y encima van rayas temblorosas.',
+  'example.banded-giant.title': 'Gigante a rayas',
+  'example.banded-giant.description':
+    'Bandas de gigante gaseoso con un Voronoi aplastado, con contorno',
+  'example.banded-giant.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un Mapping aplasta Y y Z a 0, así el grano de Voronoi solo varía en X y dibuja bandas.',
+  'example.dusk-glaze.title': 'Esmalte de atardecer',
+  'example.dusk-glaze.description': 'Un corte durazno e índigo bajo una pintura suave',
+  'example.dusk-glaze.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un gradiente lineal inclinado parte la luz, y encima van manchas suaves.',
+  'example.charcoal-chrome.title': 'Cromo carbonilla',
+  'example.charcoal-chrome.description': 'Cromo negro con trazos blancos de boceto',
+  'example.charcoal-chrome.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Brillo/Contraste levanta un noise estirado hasta trazos blancos sobre un negro brillante.',
+  'example.pewter-haze.title': 'Neblina de peltre',
+  'example.pewter-haze.description': 'Peltre neblinoso con luz rosa y líneas de escaneo',
+  'example.pewter-haze.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un gradiente esférico empaña el tono base, y encima van líneas finas de escaneo.',
+  'example.rose-moon.title': 'Luna rosa',
+  'example.rose-moon.description': 'Una luna rosa polvorienta sombreada desde un gradiente radial',
+  'example.rose-moon.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Arcotangente 2 vuelve la base un gradiente radial, como el Gradient Texture radial de Blender.',
+  'example.ink-swirl.title': 'Remolino de tinta',
+  'example.ink-swirl.description': 'Metal rosa con remolinos de tinta oscura',
+  'example.ink-swirl.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un pincel Minkowski filoso (exponente 32, celdas casi cuadradas) parte la luz en remolinos de tinta.',
+  'example.night-leaf.title': 'Hoja nocturna',
+  'example.night-leaf.description': 'Verde noche y azul marino con un borde de luz rosa',
+  'example.night-leaf.teaches':
+    'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. La rampa va de negro, por azul marino y verde, a un brillo rosa.',
   'templateTexture.paper-grain': 'Grano de papel',
   'example.texture-fixture.title': 'Grano de papel (fixture de prueba)',
   'example.texture-fixture.description': 'Una textura incluida, para las pruebas end-to-end',

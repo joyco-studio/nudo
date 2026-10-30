@@ -12,6 +12,19 @@ import type { ExampleSpec } from './example-spec'
 import { IRIDESCENT_BLOB } from './iridescent-blob'
 import { LAVA_FLOW } from './lava-flow'
 import { estimateGeometry } from './node-geometry'
+import {
+  BANDED_GIANT_SPEC,
+  BUBBLEGUM_SPEC,
+  CHARCOAL_CHROME_SPEC,
+  DUSK_GLAZE_SPEC,
+  FROST_SPECKLE_SPEC,
+  INK_SWIRL_SPEC,
+  MIDNIGHT_GLAZE_SPEC,
+  NIGHT_LEAF_SPEC,
+  PASTEL_PLANET_SPEC,
+  PEWTER_HAZE_SPEC,
+  ROSE_MOON_SPEC,
+} from './painterly-spheres'
 import { POND } from './pond'
 import { POSTER } from './poster'
 import { TEXTURE_FIXTURE } from './texture-fixture'
@@ -26,6 +39,17 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['iridescent-blob', IRIDESCENT_BLOB],
   ['poster', POSTER],
   ['lava-flow', LAVA_FLOW],
+  ['midnight-glaze', MIDNIGHT_GLAZE_SPEC],
+  ['pastel-planet', PASTEL_PLANET_SPEC],
+  ['bubblegum', BUBBLEGUM_SPEC],
+  ['frost-speckle', FROST_SPECKLE_SPEC],
+  ['banded-giant', BANDED_GIANT_SPEC],
+  ['dusk-glaze', DUSK_GLAZE_SPEC],
+  ['charcoal-chrome', CHARCOAL_CHROME_SPEC],
+  ['pewter-haze', PEWTER_HAZE_SPEC],
+  ['rose-moon', ROSE_MOON_SPEC],
+  ['ink-swirl', INK_SWIRL_SPEC],
+  ['night-leaf', NIGHT_LEAF_SPEC],
   ['texture-fixture', TEXTURE_FIXTURE],
 ]
 

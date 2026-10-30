@@ -109,6 +109,39 @@ export const en = {
     'template example sample demo poster stencil toon screen-print',
   'command.example-lava-flow.label': 'Template: Lava flow',
   'command.example-lava-flow.keywords': 'template example sample demo lava fire volcano voronoi',
+  'command.example-midnight-glaze.label': 'Template: Midnight glaze',
+  'command.example-midnight-glaze.keywords':
+    'template example sample demo painterly blender midnight navy glaze gloss streaks',
+  'command.example-pastel-planet.label': 'Template: Pastel planet',
+  'command.example-pastel-planet.keywords':
+    'template example sample demo painterly blender pastel planet peach teal outline blotches',
+  'command.example-bubblegum.label': 'Template: Bubblegum',
+  'command.example-bubblegum.keywords':
+    'template example sample demo painterly blender bubblegum pink magenta coral streaks',
+  'command.example-frost-speckle.label': 'Template: Frost speckle',
+  'command.example-frost-speckle.keywords':
+    'template example sample demo painterly blender frost ice speckle snow outline',
+  'command.example-banded-giant.label': 'Template: Banded giant',
+  'command.example-banded-giant.keywords':
+    'template example sample demo painterly blender gas giant jupiter planet bands stripes outline',
+  'command.example-dusk-glaze.label': 'Template: Dusk glaze',
+  'command.example-dusk-glaze.keywords':
+    'template example sample demo painterly blender dusk sunset peach indigo glaze',
+  'command.example-charcoal-chrome.label': 'Template: Charcoal chrome',
+  'command.example-charcoal-chrome.keywords':
+    'template example sample demo painterly blender charcoal chrome sketch black white strokes metal',
+  'command.example-pewter-haze.label': 'Template: Pewter haze',
+  'command.example-pewter-haze.keywords':
+    'template example sample demo painterly blender pewter haze mist grey pink scanlines',
+  'command.example-rose-moon.label': 'Template: Rose moon',
+  'command.example-rose-moon.keywords':
+    'template example sample demo painterly blender rose moon dusty radial gradient atan2 matte',
+  'command.example-ink-swirl.label': 'Template: Ink swirl',
+  'command.example-ink-swirl.keywords':
+    'template example sample demo painterly blender ink swirl pink metal',
+  'command.example-night-leaf.label': 'Template: Night leaf',
+  'command.example-night-leaf.keywords':
+    'template example sample demo painterly blender night leaf green navy pink rim',
 
   // Command palette
   'palette.button': 'Commands',
@@ -194,6 +227,7 @@ export const en = {
   'templateTag.noise': 'noise',
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
+  'templateTag.painterly': 'painterly',
   'example.pond.title': 'Pond',
   'example.pond.description': 'Illustrated water: rosettes, lace and a sun band',
   'example.pond.teaches':
@@ -210,6 +244,50 @@ export const en = {
   'example.lava-flow.description': 'Swirling lava with veins that burn white-hot',
   'example.lava-flow.teaches':
     'Bends the position with slow noise, draws thin veins from the absolute value of more noise, and lets heat past 1 spill into the other channels so the hottest veins turn white.',
+  'example.midnight-glaze.title': 'Midnight glaze',
+  'example.midnight-glaze.description': 'Navy brush facets with blue light and glowing streaks',
+  'example.midnight-glaze.teaches':
+    "Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A noise's peaks add glowing streaks on top.",
+  'example.pastel-planet.title': 'Pastel planet',
+  'example.pastel-planet.description': 'Peach, teal and blue paint over a pastel wash, outlined',
+  'example.pastel-planet.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Flat Voronoi blotches stand in for the paint image, and the master draws the outline.',
+  'example.bubblegum.title': 'Bubblegum',
+  'example.bubblegum.description': 'Magenta, coral and blue paint bands with glowing streaks',
+  'example.bubblegum.teaches':
+    "Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Six ramp stops make the bands, and a noise's peaks add glowing streaks.",
+  'example.frost-speckle.title': 'Frost speckle',
+  'example.frost-speckle.description': 'Icy speckles in flat bands, outlined',
+  'example.frost-speckle.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A coarse Voronoi grain makes the speckles, and wobbly stripes are overlaid.',
+  'example.banded-giant.title': 'Banded giant',
+  'example.banded-giant.description': 'Gas-giant bands from a squashed Voronoi, outlined',
+  'example.banded-giant.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A Mapping squashes Y and Z to 0, so the Voronoi grain only varies along X and draws bands.',
+  'example.dusk-glaze.title': 'Dusk glaze',
+  'example.dusk-glaze.description': 'A peach and indigo split under soft paint',
+  'example.dusk-glaze.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A tilted linear gradient splits the light, and soft blotches are overlaid.',
+  'example.charcoal-chrome.title': 'Charcoal chrome',
+  'example.charcoal-chrome.description': 'Black chrome with white sketch strokes',
+  'example.charcoal-chrome.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Bright/Contrast lifts a stretched noise into white sketch strokes over a glossy black.',
+  'example.pewter-haze.title': 'Pewter haze',
+  'example.pewter-haze.description': 'Misty pewter with pink light and scan lines',
+  'example.pewter-haze.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A spherical gradient fogs the base tone, and thin scan lines are overlaid.',
+  'example.rose-moon.title': 'Rose moon',
+  'example.rose-moon.description': 'A dusty rose moon shaded from a radial gradient',
+  'example.rose-moon.teaches':
+    "Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. Arctangent 2 turns the base into a radial gradient, like Blender's radial Gradient Texture.",
+  'example.ink-swirl.title': 'Ink swirl',
+  'example.ink-swirl.description': 'Pink metal with dark ink swirls',
+  'example.ink-swirl.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A sharp Minkowski brush (exponent 32, nearly square cells) breaks the light into ink swirls.',
+  'example.night-leaf.title': 'Night leaf',
+  'example.night-leaf.description': 'Night green and navy with a pink rim of light',
+  'example.night-leaf.teaches':
+    'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. The ramp runs from black through navy and green to a pink highlight.',
   'templateTexture.paper-grain': 'Paper grain',
   'example.texture-fixture.title': 'Paper grain (test fixture)',
   'example.texture-fixture.description': 'A bundled texture, for the end-to-end tests',

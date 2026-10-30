@@ -1,0 +1,1561 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "bands": {
+      "id": "bands",
+      "type": "color/color-ramp",
+      "position": {
+        "x": -408,
+        "y": 183
+      },
+      "inputValues": {
+        "stop0Color": {
+          "type": "vec3",
+          "value": [
+            0.003,
+            0.001,
+            0.024
+          ]
+        },
+        "stop0Position": {
+          "type": "float",
+          "value": 0
+        },
+        "stop1Color": {
+          "type": "vec3",
+          "value": [
+            0.26,
+            0.285,
+            0.394
+          ]
+        },
+        "stop1Position": {
+          "type": "float",
+          "value": 0.332
+        },
+        "stop2Color": {
+          "type": "vec3",
+          "value": [
+            1,
+            0.844,
+            0.995
+          ]
+        },
+        "stop2Position": {
+          "type": "float",
+          "value": 0.368
+        },
+        "stop3Color": {
+          "type": "vec3",
+          "value": [
+            0.931,
+            0.905,
+            0.799
+          ]
+        },
+        "stop3Position": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {
+        "count": 4,
+        "interpolation": "smooth"
+      }
+    },
+    "baseTone": {
+      "id": "baseTone",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -2712,
+        "y": -656
+      },
+      "inputValues": {
+        "t": {
+          "type": "float",
+          "value": 0.288
+        }
+      },
+      "params": {}
+    },
+    "bendAmount": {
+      "id": "bendAmount",
+      "type": "property/float",
+      "position": {
+        "x": -6568,
+        "y": 836
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "bendAmount"
+      }
+    },
+    "bendNoise": {
+      "id": "bendNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -6616,
+        "y": 160
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 4
+        }
+      },
+      "params": {
+        "kind": "perlin",
+        "octaves": 3
+      }
+    },
+    "bent": {
+      "id": "bent",
+      "type": "color/blend",
+      "position": {
+        "x": -6296,
+        "y": 443
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "linear-light"
+      }
+    },
+    "brush": {
+      "id": "brush",
+      "type": "effects/voronoi-3d",
+      "position": {
+        "x": -5976,
+        "y": 420
+      },
+      "inputValues": {
+        "exponent": {
+          "type": "float",
+          "value": 9.1
+        }
+      },
+      "params": {
+        "distance": "minkowski"
+      }
+    },
+    "brushNormal": {
+      "id": "brushNormal",
+      "type": "vector/normalize",
+      "position": {
+        "x": -5656,
+        "y": 504
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "brushScale": {
+      "id": "brushScale",
+      "type": "property/float",
+      "position": {
+        "x": -6248,
+        "y": 811
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "brushScale"
+      }
+    },
+    "camera": {
+      "id": "camera",
+      "type": "input/camera-position",
+      "position": {
+        "x": -5272,
+        "y": 918
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "daylight": {
+      "id": "daylight",
+      "type": "math/add",
+      "position": {
+        "x": -2712,
+        "y": 91
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3
+        }
+      },
+      "params": {}
+    },
+    "diffuse": {
+      "id": "diffuse",
+      "type": "math/multiply",
+      "position": {
+        "x": -1688,
+        "y": 230
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.4
+        }
+      },
+      "params": {}
+    },
+    "facingHalfway": {
+      "id": "facingHalfway",
+      "type": "vector/dot",
+      "position": {
+        "x": -3672,
+        "y": 505
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "flipZ": {
+      "id": "flipZ",
+      "type": "math/multiply",
+      "position": {
+        "x": -7960,
+        "y": 669
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "frame-bands": {
+      "id": "frame-bands",
+      "type": "utility/comment",
+      "position": {
+        "x": -2360,
+        "y": 76
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Blender's Shader to RGB: base tone × light (a metal mostly reflects the world instead), with the paint added the way the .blend feeds it into Emission. Its luma picks a color on the Color Ramp: flat bands, like strokes of paint.",
+        "height": 686,
+        "title": "Paint bands",
+        "width": 2208
+      }
+    },
+    "frame-base-tone": {
+      "id": "frame-base-tone",
+      "type": "utility/comment",
+      "position": {
+        "x": -4024,
+        "y": -958
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The Principled BSDF's base color: a spherical gradient, placed by a Mapping, mixed with a fine Voronoi grain (Minkowski 2 is the true Euclidean distance Blender measures).",
+        "height": 937,
+        "title": "Base tone",
+        "width": 1568
+      }
+    },
+    "frame-brush-normals": {
+      "id": "frame-brush-normals",
+      "type": "utility/comment",
+      "position": {
+        "x": -6648,
+        "y": 64
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The normal, bent by Noise Color in Linear Light, snaps to the cells of a Minkowski Voronoi: its exponent below 1 pinches each cell into a star. The normalized cell is the new normal, so the light breaks into brush-stroke facets.",
+        "height": 864,
+        "title": "Brush normals",
+        "width": 1248
+      }
+    },
+    "frame-coords": {
+      "id": "frame-coords",
+      "type": "utility/comment",
+      "position": {
+        "x": -8632,
+        "y": 422
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Blender's Generated coordinates run from 0 to 1 over the object's bounds, with Z up. Position turned to Z up (X, −Z, Y), × 0.5 + 0.5, gives the same on a unit sphere, so the scales and rotations copied from the .blend still fit.",
+        "height": 590,
+        "title": "Generated coordinates",
+        "width": 1888
+      }
+    },
+    "frame-finish": {
+      "id": "frame-finish",
+      "type": "utility/comment",
+      "position": {
+        "x": -56,
+        "y": 66
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The paint, overlaid on the bands as in the .blend.",
+        "height": 448,
+        "title": "Overlay",
+        "width": 560
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -5304,
+        "y": 11
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The .blend's light on the brush normal: its sky lights every side by about 0.3, and its sun adds about half the Main Light's Lambert. A Blinn highlight (the normal against the halfway between light and view) adds the gloss.",
+        "height": 1131,
+        "title": "Light",
+        "width": 2848
+      }
+    },
+    "frame-paint": {
+      "id": "frame-paint",
+      "type": "utility/comment",
+      "position": {
+        "x": -4664,
+        "y": 1174
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The .blend overlays a paint image; here it is thin scan lines, the fraction of Y × Scale cut by a Step. It runs from the dark to the light paint color, then through Bright/Contrast with the .blend's settings.",
+        "height": 801,
+        "title": "Paint",
+        "width": 2208
+      }
+    },
+    "frontOnly": {
+      "id": "frontOnly",
+      "type": "math/max",
+      "position": {
+        "x": -3352,
+        "y": 468
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "generated": {
+      "id": "generated",
+      "type": "math/add",
+      "position": {
+        "x": -7000,
+        "y": 502
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "generatedHalf": {
+      "id": "generatedHalf",
+      "type": "math/multiply",
+      "position": {
+        "x": -7320,
+        "y": 539
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "gloss": {
+      "id": "gloss",
+      "type": "math/multiply",
+      "position": {
+        "x": -2712,
+        "y": 394
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "glossy": {
+      "id": "glossy",
+      "type": "math/add",
+      "position": {
+        "x": -1048,
+        "y": 156
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "gradient": {
+      "id": "gradient",
+      "type": "math/max",
+      "position": {
+        "x": -3032,
+        "y": -370
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "gradientFalloff": {
+      "id": "gradientFalloff",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3352,
+        "y": -333
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "gradientReach": {
+      "id": "gradientReach",
+      "type": "vector/length",
+      "position": {
+        "x": -3672,
+        "y": -296
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "grain": {
+      "id": "grain",
+      "type": "effects/voronoi-3d",
+      "position": {
+        "x": -3032,
+        "y": -878
+      },
+      "inputValues": {
+        "exponent": {
+          "type": "float",
+          "value": 2
+        },
+        "scale": {
+          "type": "float",
+          "value": 500
+        }
+      },
+      "params": {
+        "distance": "minkowski"
+      }
+    },
+    "halfway": {
+      "id": "halfway",
+      "type": "math/add",
+      "position": {
+        "x": -4312,
+        "y": 607
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "halfwayNormalized": {
+      "id": "halfwayNormalized",
+      "type": "vector/normalize",
+      "position": {
+        "x": -3992,
+        "y": 570
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "light": {
+      "id": "light",
+      "type": "input/main-light",
+      "position": {
+        "x": -4632,
+        "y": 359
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lightStrength": {
+      "id": "lightStrength",
+      "type": "property/float",
+      "position": {
+        "x": -2280,
+        "y": 495
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lightStrength"
+      }
+    },
+    "lit": {
+      "id": "lit",
+      "type": "math/multiply",
+      "position": {
+        "x": -2328,
+        "y": 192
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "litStrength": {
+      "id": "litStrength",
+      "type": "math/multiply",
+      "position": {
+        "x": -2008,
+        "y": 267
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "normal": {
+      "id": "normal",
+      "type": "input/normal",
+      "position": {
+        "x": -6616,
+        "y": 612
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "overlaid": {
+      "id": "overlaid",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 146
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "overlay"
+      }
+    },
+    "paint": {
+      "id": "paint",
+      "type": "color/bright-contrast",
+      "position": {
+        "x": -2712,
+        "y": 1254
+      },
+      "inputValues": {
+        "brightness": {
+          "type": "float",
+          "value": 1.08
+        },
+        "contrast": {
+          "type": "float",
+          "value": 2.18
+        }
+      },
+      "params": {}
+    },
+    "paintLuma": {
+      "id": "paintLuma",
+      "type": "vector/dot",
+      "position": {
+        "x": -1048,
+        "y": 459
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.2126,
+            0.7152,
+            0.0722
+          ]
+        }
+      },
+      "params": {}
+    },
+    "paintOverlay": {
+      "id": "paintOverlay",
+      "type": "property/float",
+      "position": {
+        "x": -24,
+        "y": 327
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paintOverlay"
+      }
+    },
+    "paintPlaced": {
+      "id": "paintPlaced",
+      "type": "vector/mapping",
+      "position": {
+        "x": -4632,
+        "y": 1579
+      },
+      "inputValues": {
+        "location": {
+          "type": "vec3",
+          "value": [
+            -2.3,
+            0,
+            0
+          ]
+        },
+        "rotation": {
+          "type": "vec3",
+          "value": [
+            1.466,
+            0.295,
+            0.653
+          ]
+        },
+        "scale": {
+          "type": "vec3",
+          "value": [
+            1.3,
+            1,
+            1
+          ]
+        }
+      },
+      "params": {
+        "type": "point"
+      }
+    },
+    "paintTone": {
+      "id": "paintTone",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -3032,
+        "y": 1291
+      },
+      "inputValues": {
+        "a": {
+          "type": "vec3",
+          "value": [
+            0.019,
+            0.016,
+            0.025
+          ]
+        },
+        "b": {
+          "type": "vec3",
+          "value": [
+            0.022,
+            0.019,
+            0.029
+          ]
+        }
+      },
+      "params": {}
+    },
+    "pattern": {
+      "id": "pattern",
+      "type": "interpolation/step",
+      "position": {
+        "x": -3352,
+        "y": 1384
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "placed": {
+      "id": "placed",
+      "type": "vector/mapping",
+      "position": {
+        "x": -3992,
+        "y": -512
+      },
+      "inputValues": {
+        "location": {
+          "type": "vec3",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        },
+        "rotation": {
+          "type": "vec3",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scale": {
+          "type": "vec3",
+          "value": [
+            3,
+            6,
+            3
+          ]
+        }
+      },
+      "params": {
+        "type": "point"
+      }
+    },
+    "position": {
+      "id": "position",
+      "type": "input/position",
+      "position": {
+        "x": -8600,
+        "y": 751
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "positionAxes": {
+      "id": "positionAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -8280,
+        "y": 653
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "reflected": {
+      "id": "reflected",
+      "type": "math/add",
+      "position": {
+        "x": -1368,
+        "y": 193
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.12
+        }
+      },
+      "params": {}
+    },
+    "scanAxes": {
+      "id": "scanAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -4312,
+        "y": 1495
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "scanRow": {
+      "id": "scanRow",
+      "type": "math/fract",
+      "position": {
+        "x": -3672,
+        "y": 1449
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "scanTurns": {
+      "id": "scanTurns",
+      "type": "math/multiply",
+      "position": {
+        "x": -3992,
+        "y": 1486
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 40
+        }
+      },
+      "params": {}
+    },
+    "shade": {
+      "id": "shade",
+      "type": "math/add",
+      "position": {
+        "x": -728,
+        "y": 257
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shine": {
+      "id": "shine",
+      "type": "math/power",
+      "position": {
+        "x": -3032,
+        "y": 431
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 120
+        }
+      },
+      "params": {}
+    },
+    "sunlight": {
+      "id": "sunlight",
+      "type": "math/multiply",
+      "position": {
+        "x": -3032,
+        "y": 128
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.55
+        }
+      },
+      "params": {}
+    },
+    "surface": {
+      "id": "surface",
+      "type": "input/position",
+      "position": {
+        "x": -5272,
+        "y": 657
+      },
+      "inputValues": {},
+      "params": {
+        "space": "world"
+      }
+    },
+    "toCamera": {
+      "id": "toCamera",
+      "type": "math/subtract",
+      "position": {
+        "x": -4952,
+        "y": 741
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "view": {
+      "id": "view",
+      "type": "vector/normalize",
+      "position": {
+        "x": -4632,
+        "y": 704
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "zUp": {
+      "id": "zUp",
+      "type": "vector/combine",
+      "position": {
+        "x": -7640,
+        "y": 548
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "bands.out-overlaid.base": {
+      "id": "bands.out-overlaid.base",
+      "from": {
+        "nodeId": "bands",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "overlaid",
+        "portId": "base"
+      }
+    },
+    "baseTone.out-lit.a": {
+      "id": "baseTone.out-lit.a",
+      "from": {
+        "nodeId": "baseTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lit",
+        "portId": "a"
+      }
+    },
+    "bendAmount.out-bent.opacity": {
+      "id": "bendAmount.out-bent.opacity",
+      "from": {
+        "nodeId": "bendAmount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bent",
+        "portId": "opacity"
+      }
+    },
+    "bendNoise.color-bent.blend": {
+      "id": "bendNoise.color-bent.blend",
+      "from": {
+        "nodeId": "bendNoise",
+        "portId": "color"
+      },
+      "to": {
+        "nodeId": "bent",
+        "portId": "blend"
+      }
+    },
+    "bent.out-brush.position": {
+      "id": "bent.out-brush.position",
+      "from": {
+        "nodeId": "bent",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brush",
+        "portId": "position"
+      }
+    },
+    "brush.cell-brushNormal.in": {
+      "id": "brush.cell-brushNormal.in",
+      "from": {
+        "nodeId": "brush",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "brushNormal",
+        "portId": "in"
+      }
+    },
+    "brushNormal.out-facingHalfway.a": {
+      "id": "brushNormal.out-facingHalfway.a",
+      "from": {
+        "nodeId": "brushNormal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facingHalfway",
+        "portId": "a"
+      }
+    },
+    "brushNormal.out-light.normal": {
+      "id": "brushNormal.out-light.normal",
+      "from": {
+        "nodeId": "brushNormal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "light",
+        "portId": "normal"
+      }
+    },
+    "brushScale.out-brush.scale": {
+      "id": "brushScale.out-brush.scale",
+      "from": {
+        "nodeId": "brushScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "brush",
+        "portId": "scale"
+      }
+    },
+    "camera.out-toCamera.a": {
+      "id": "camera.out-toCamera.a",
+      "from": {
+        "nodeId": "camera",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toCamera",
+        "portId": "a"
+      }
+    },
+    "daylight.out-lit.b": {
+      "id": "daylight.out-lit.b",
+      "from": {
+        "nodeId": "daylight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lit",
+        "portId": "b"
+      }
+    },
+    "diffuse.out-reflected.a": {
+      "id": "diffuse.out-reflected.a",
+      "from": {
+        "nodeId": "diffuse",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "reflected",
+        "portId": "a"
+      }
+    },
+    "facingHalfway.out-frontOnly.a": {
+      "id": "facingHalfway.out-frontOnly.a",
+      "from": {
+        "nodeId": "facingHalfway",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "frontOnly",
+        "portId": "a"
+      }
+    },
+    "flipZ.out-zUp.y": {
+      "id": "flipZ.out-zUp.y",
+      "from": {
+        "nodeId": "flipZ",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "zUp",
+        "portId": "y"
+      }
+    },
+    "frontOnly.out-shine.a": {
+      "id": "frontOnly.out-shine.a",
+      "from": {
+        "nodeId": "frontOnly",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shine",
+        "portId": "a"
+      }
+    },
+    "generated.out-bendNoise.p": {
+      "id": "generated.out-bendNoise.p",
+      "from": {
+        "nodeId": "generated",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bendNoise",
+        "portId": "p"
+      }
+    },
+    "generated.out-paintPlaced.vector": {
+      "id": "generated.out-paintPlaced.vector",
+      "from": {
+        "nodeId": "generated",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paintPlaced",
+        "portId": "vector"
+      }
+    },
+    "generated.out-placed.vector": {
+      "id": "generated.out-placed.vector",
+      "from": {
+        "nodeId": "generated",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "placed",
+        "portId": "vector"
+      }
+    },
+    "generatedHalf.out-generated.a": {
+      "id": "generatedHalf.out-generated.a",
+      "from": {
+        "nodeId": "generatedHalf",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "generated",
+        "portId": "a"
+      }
+    },
+    "gloss.out-glossy.b": {
+      "id": "gloss.out-glossy.b",
+      "from": {
+        "nodeId": "gloss",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glossy",
+        "portId": "b"
+      }
+    },
+    "glossy.out-shade.a": {
+      "id": "glossy.out-shade.a",
+      "from": {
+        "nodeId": "glossy",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shade",
+        "portId": "a"
+      }
+    },
+    "gradient.out-baseTone.b": {
+      "id": "gradient.out-baseTone.b",
+      "from": {
+        "nodeId": "gradient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "baseTone",
+        "portId": "b"
+      }
+    },
+    "gradientFalloff.out-gradient.a": {
+      "id": "gradientFalloff.out-gradient.a",
+      "from": {
+        "nodeId": "gradientFalloff",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "gradient",
+        "portId": "a"
+      }
+    },
+    "gradientReach.out-gradientFalloff.in": {
+      "id": "gradientReach.out-gradientFalloff.in",
+      "from": {
+        "nodeId": "gradientReach",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "gradientFalloff",
+        "portId": "in"
+      }
+    },
+    "grain.f1-baseTone.a": {
+      "id": "grain.f1-baseTone.a",
+      "from": {
+        "nodeId": "grain",
+        "portId": "f1"
+      },
+      "to": {
+        "nodeId": "baseTone",
+        "portId": "a"
+      }
+    },
+    "halfway.out-halfwayNormalized.in": {
+      "id": "halfway.out-halfwayNormalized.in",
+      "from": {
+        "nodeId": "halfway",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "halfwayNormalized",
+        "portId": "in"
+      }
+    },
+    "halfwayNormalized.out-facingHalfway.b": {
+      "id": "halfwayNormalized.out-facingHalfway.b",
+      "from": {
+        "nodeId": "halfwayNormalized",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "facingHalfway",
+        "portId": "b"
+      }
+    },
+    "light.direction-halfway.a": {
+      "id": "light.direction-halfway.a",
+      "from": {
+        "nodeId": "light",
+        "portId": "direction"
+      },
+      "to": {
+        "nodeId": "halfway",
+        "portId": "a"
+      }
+    },
+    "light.lambert-sunlight.a": {
+      "id": "light.lambert-sunlight.a",
+      "from": {
+        "nodeId": "light",
+        "portId": "lambert"
+      },
+      "to": {
+        "nodeId": "sunlight",
+        "portId": "a"
+      }
+    },
+    "lightStrength.out-litStrength.b": {
+      "id": "lightStrength.out-litStrength.b",
+      "from": {
+        "nodeId": "lightStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "litStrength",
+        "portId": "b"
+      }
+    },
+    "lit.out-litStrength.a": {
+      "id": "lit.out-litStrength.a",
+      "from": {
+        "nodeId": "lit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "litStrength",
+        "portId": "a"
+      }
+    },
+    "litStrength.out-diffuse.a": {
+      "id": "litStrength.out-diffuse.a",
+      "from": {
+        "nodeId": "litStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "diffuse",
+        "portId": "a"
+      }
+    },
+    "normal.out-bent.base": {
+      "id": "normal.out-bent.base",
+      "from": {
+        "nodeId": "normal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bent",
+        "portId": "base"
+      }
+    },
+    "overlaid.out-master.baseColor": {
+      "id": "overlaid.out-master.baseColor",
+      "from": {
+        "nodeId": "overlaid",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "paint.out-overlaid.blend": {
+      "id": "paint.out-overlaid.blend",
+      "from": {
+        "nodeId": "paint",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "overlaid",
+        "portId": "blend"
+      }
+    },
+    "paint.out-paintLuma.a": {
+      "id": "paint.out-paintLuma.a",
+      "from": {
+        "nodeId": "paint",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paintLuma",
+        "portId": "a"
+      }
+    },
+    "paintLuma.out-shade.b": {
+      "id": "paintLuma.out-shade.b",
+      "from": {
+        "nodeId": "paintLuma",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shade",
+        "portId": "b"
+      }
+    },
+    "paintOverlay.out-overlaid.opacity": {
+      "id": "paintOverlay.out-overlaid.opacity",
+      "from": {
+        "nodeId": "paintOverlay",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "overlaid",
+        "portId": "opacity"
+      }
+    },
+    "paintPlaced.out-scanAxes.in": {
+      "id": "paintPlaced.out-scanAxes.in",
+      "from": {
+        "nodeId": "paintPlaced",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scanAxes",
+        "portId": "in"
+      }
+    },
+    "paintTone.out-paint.in": {
+      "id": "paintTone.out-paint.in",
+      "from": {
+        "nodeId": "paintTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paint",
+        "portId": "in"
+      }
+    },
+    "pattern.out-paintTone.t": {
+      "id": "pattern.out-paintTone.t",
+      "from": {
+        "nodeId": "pattern",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paintTone",
+        "portId": "t"
+      }
+    },
+    "placed.out-gradientReach.in": {
+      "id": "placed.out-gradientReach.in",
+      "from": {
+        "nodeId": "placed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "gradientReach",
+        "portId": "in"
+      }
+    },
+    "placed.out-grain.position": {
+      "id": "placed.out-grain.position",
+      "from": {
+        "nodeId": "placed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grain",
+        "portId": "position"
+      }
+    },
+    "position.out-positionAxes.in": {
+      "id": "position.out-positionAxes.in",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "positionAxes",
+        "portId": "in"
+      }
+    },
+    "positionAxes.x-zUp.x": {
+      "id": "positionAxes.x-zUp.x",
+      "from": {
+        "nodeId": "positionAxes",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "zUp",
+        "portId": "x"
+      }
+    },
+    "positionAxes.y-zUp.z": {
+      "id": "positionAxes.y-zUp.z",
+      "from": {
+        "nodeId": "positionAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "zUp",
+        "portId": "z"
+      }
+    },
+    "positionAxes.z-flipZ.a": {
+      "id": "positionAxes.z-flipZ.a",
+      "from": {
+        "nodeId": "positionAxes",
+        "portId": "z"
+      },
+      "to": {
+        "nodeId": "flipZ",
+        "portId": "a"
+      }
+    },
+    "reflected.out-glossy.a": {
+      "id": "reflected.out-glossy.a",
+      "from": {
+        "nodeId": "reflected",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "glossy",
+        "portId": "a"
+      }
+    },
+    "scanAxes.y-scanTurns.a": {
+      "id": "scanAxes.y-scanTurns.a",
+      "from": {
+        "nodeId": "scanAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "scanTurns",
+        "portId": "a"
+      }
+    },
+    "scanRow.out-pattern.in": {
+      "id": "scanRow.out-pattern.in",
+      "from": {
+        "nodeId": "scanRow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pattern",
+        "portId": "in"
+      }
+    },
+    "scanTurns.out-scanRow.in": {
+      "id": "scanTurns.out-scanRow.in",
+      "from": {
+        "nodeId": "scanTurns",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scanRow",
+        "portId": "in"
+      }
+    },
+    "shade.out-bands.in": {
+      "id": "shade.out-bands.in",
+      "from": {
+        "nodeId": "shade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "bands",
+        "portId": "in"
+      }
+    },
+    "shine.out-gloss.a": {
+      "id": "shine.out-gloss.a",
+      "from": {
+        "nodeId": "shine",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "gloss",
+        "portId": "a"
+      }
+    },
+    "sunlight.out-daylight.a": {
+      "id": "sunlight.out-daylight.a",
+      "from": {
+        "nodeId": "sunlight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "daylight",
+        "portId": "a"
+      }
+    },
+    "surface.out-toCamera.b": {
+      "id": "surface.out-toCamera.b",
+      "from": {
+        "nodeId": "surface",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toCamera",
+        "portId": "b"
+      }
+    },
+    "toCamera.out-view.in": {
+      "id": "toCamera.out-view.in",
+      "from": {
+        "nodeId": "toCamera",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "view",
+        "portId": "in"
+      }
+    },
+    "view.out-halfway.b": {
+      "id": "view.out-halfway.b",
+      "from": {
+        "nodeId": "view",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "halfway",
+        "portId": "b"
+      }
+    },
+    "zUp.vec3-generatedHalf.a": {
+      "id": "zUp.vec3-generatedHalf.a",
+      "from": {
+        "nodeId": "zUp",
+        "portId": "vec3"
+      },
+      "to": {
+        "nodeId": "generatedHalf",
+        "portId": "a"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "bendAmount",
+      "label": "Bend amount",
+      "name": "bendAmount",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.30720000000000003
+      }
+    },
+    {
+      "id": "brushScale",
+      "label": "Brush scale",
+      "name": "brushScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 26.47
+      }
+    },
+    {
+      "id": "lightStrength",
+      "label": "Light strength",
+      "name": "lightStrength",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1
+      }
+    },
+    {
+      "id": "paintOverlay",
+      "label": "Paint overlay",
+      "name": "paintOverlay",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.242
+      }
+    }
+  ]
+}
