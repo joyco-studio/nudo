@@ -3,15 +3,7 @@ import { Buffer } from 'node:buffer'
 import console from 'node:console'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import {
-  copyFileSync,
-  existsSync,
-  lstatSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-} from 'node:fs'
+import { copyFileSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -42,6 +34,9 @@ if (
   throw new Error(
     'Use a completed Visual snapshots run for this exact local HEAD in joyco-studio/nudo. Fetch and check out its commit first; stale or unrelated runs cannot be accepted.',
   )
+}
+function isSymlink(path) {
+  return lstatSync(path, { throwIfNoEntry: false })?.isSymbolicLink() ?? false
 }
 const baselineDirectory = 'apps/editor/visual/__screenshots__'
 if (git('status', '--porcelain', '--', baselineDirectory)) {
@@ -86,19 +81,15 @@ try {
     return { name, source }
   })
   for (const path of ['apps', 'apps/editor', 'apps/editor/visual', baselineDirectory]) {
-    if (existsSync(path) && lstatSync(path).isSymbolicLink())
-      throw new Error('Baseline path must not contain symlinks.')
+    if (isSymlink(path)) throw new Error('Baseline path must not contain symlinks.')
   }
   const target = resolve(baselineDirectory)
-  if (existsSync(target) && lstatSync(target).isSymbolicLink())
-    throw new Error('Baseline directory must not be a symlink.')
-  mkdirSync(target, { recursive: true })
-  for (const { name, source } of files) {
-    const destination = join(target, `${name}.png`)
-    if (existsSync(destination) && lstatSync(destination).isSymbolicLink())
-      throw new Error('Baseline must not be a symlink.')
-    copyFileSync(source, destination)
+  // Preflight all destinations before writing any selected baseline, including dangling links.
+  for (const { name } of files) {
+    if (isSymlink(join(target, `${name}.png`))) throw new Error('Baseline must not be a symlink.')
   }
+  mkdirSync(target, { recursive: true })
+  for (const { name, source } of files) copyFileSync(source, join(target, `${name}.png`))
   console.log(
     `Accepted ${files.map(({ name }) => name).join(', ')} from run ${runId}.\nReview git diff, then commit the selected PNGs on your PR branch. No commit or push was performed.`,
   )
