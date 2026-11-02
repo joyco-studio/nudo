@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   BRUSH_STROKE_FILE,
@@ -18,6 +18,13 @@ const MAX_SIDE = 1024
 const MAX_LEVEL = 255
 /** A seam may differ from its neighbours no more than this many times an ordinary pixel step. */
 const MAX_SEAM_RATIO = 2
+/**
+ * Painting a full-size texture takes a few seconds on a two-core CI runner, and some tests paint it
+ * twice; the default 5 s timed out there.
+ */
+const PAINT_TIMEOUT_MS = 20_000
+
+vi.setConfig({ testTimeout: PAINT_TIMEOUT_MS })
 
 interface PaintedTexture {
   readonly name: string
