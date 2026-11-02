@@ -13,6 +13,13 @@ const isCi = Boolean(process.env.CI)
 const WORKERS = isCi ? 2 : 6
 
 /**
+ * Per-test and per-assertion budgets. On a two-core runner software WebGL keeps the main thread
+ * busy, so a spec that tabs through dozens of controls needs more than Playwright's 30 s and 5 s.
+ */
+const TEST_TIMEOUT_MS = isCi ? 90_000 : 30_000
+const EXPECT_TIMEOUT_MS = isCi ? 15_000 : 5_000
+
+/**
  * Specs that render many node previews at once. They run one at a time in their own project, so
  * two of them never fight over the CPU.
  */
@@ -44,6 +51,8 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   workers: WORKERS,
+  timeout: TEST_TIMEOUT_MS,
+  expect: { timeout: EXPECT_TIMEOUT_MS },
   forbidOnly: isCi,
   // One retry absorbs a slow software-WebGL frame; more only multiplies the cost of a real failure.
   retries: isCi ? 1 : 0,
