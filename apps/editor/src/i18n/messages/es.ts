@@ -120,6 +120,9 @@ export const es = {
   'command.example-scribble.label': 'Plantilla: Garabato',
   'command.example-scribble.keywords':
     'plantilla ejemplo muestra demo garabato lapicera caligrafía dibujo tinta boceto aleatorio spite ilustración',
+  'command.example-pencil.label': 'Plantilla: Lápiz',
+  'command.example-pencil.keywords':
+    'plantilla ejemplo muestra demo lápiz grafito rayado trama cruzada diente papel grano dibujo boceto ilustración',
   'command.example-patch.label': 'Plantilla: Parches',
   'command.example-patch.keywords':
     'plantilla ejemplo muestra demo parches trazos tramado voronoi aleatorio tinta boceto spite ilustración',
@@ -256,6 +259,10 @@ export const es = {
   'example.scribble.description': 'Trazos de lapicera temblorosos que se amontonan en las sombras',
   'example.scribble.teaches':
     'Dobla trazos paralelos con un noise fractal para que tiemblen como escritura a mano, después numera cada trazo y deja que el nodo Random le dé su propia presión.',
+  'example.pencil.title': 'Lápiz',
+  'example.pencil.description': 'Rayado de grafito que se agarra al diente del papel',
+  'example.pencil.teaches':
+    'Convierte celdas del espacio de la vista en un diente de papel de dos tamaños con Random, después dibuja rayado y rayado cruzado según la luz y se queda solo con el grano donde caen, así los trazos cruzados lo llenan más, como una segunda pasada de lápiz.',
   'example.patch.title': 'Parches',
   'example.patch.description': 'Parches de trazos cortos, cada uno en su dirección',
   'example.patch.teaches':

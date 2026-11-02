@@ -1,0 +1,1777 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "coarseCells": {
+      "id": "coarseCells",
+      "type": "math/floor",
+      "position": {
+        "x": -6936,
+        "y": 1163
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "coarseGrip": {
+      "id": "coarseGrip",
+      "type": "math/remap",
+      "position": {
+        "x": -6296,
+        "y": 1033
+      },
+      "inputValues": {
+        "outMin": {
+          "type": "float",
+          "value": 0.4
+        }
+      },
+      "params": {}
+    },
+    "coarseScaled": {
+      "id": "coarseScaled",
+      "type": "math/multiply",
+      "position": {
+        "x": -7256,
+        "y": 1200
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.3333333333333333
+        }
+      },
+      "params": {}
+    },
+    "coarseTooth": {
+      "id": "coarseTooth",
+      "type": "math/hash",
+      "position": {
+        "x": -6616,
+        "y": 1098
+      },
+      "inputValues": {
+        "seed": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "contrast": {
+      "id": "contrast",
+      "type": "property/float",
+      "position": {
+        "x": -4904,
+        "y": 872
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "contrast"
+      }
+    },
+    "coverage": {
+      "id": "coverage",
+      "type": "math/clamp",
+      "position": {
+        "x": -72,
+        "y": 122
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 1
+        },
+        "min": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "crossAngle": {
+      "id": "crossAngle",
+      "type": "property/float",
+      "position": {
+        "x": -3928,
+        "y": 922
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crossAngle"
+      }
+    },
+    "crossAxes": {
+      "id": "crossAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3336,
+        "y": 685
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossDelay": {
+      "id": "crossDelay",
+      "type": "property/float",
+      "position": {
+        "x": -2328,
+        "y": 490
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crossDelay"
+      }
+    },
+    "crossDensity": {
+      "id": "crossDensity",
+      "type": "property/float",
+      "position": {
+        "x": -2968,
+        "y": 979
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "hatchDensity"
+      }
+    },
+    "crossEdge": {
+      "id": "crossEdge",
+      "type": "math/add",
+      "position": {
+        "x": -2056,
+        "y": 374
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossPhase": {
+      "id": "crossPhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -2696,
+        "y": 751
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossRemapped": {
+      "id": "crossRemapped",
+      "type": "math/remap",
+      "position": {
+        "x": -2056,
+        "y": 677
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "crossStrokes": {
+      "id": "crossStrokes",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -1736,
+        "y": 475
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossTurned": {
+      "id": "crossTurned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -3656,
+        "y": 806
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "crossWave": {
+      "id": "crossWave",
+      "type": "math/sin",
+      "position": {
+        "x": -2376,
+        "y": 714
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossWobbled": {
+      "id": "crossWobbled",
+      "type": "math/add",
+      "position": {
+        "x": -3016,
+        "y": 676
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "drawn": {
+      "id": "drawn",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 146
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "multiply"
+      }
+    },
+    "fineCells": {
+      "id": "fineCells",
+      "type": "math/floor",
+      "position": {
+        "x": -6936,
+        "y": 832
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fineGrip": {
+      "id": "fineGrip",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6296,
+        "y": 702
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.05
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.7
+        }
+      },
+      "params": {}
+    },
+    "fineScaled": {
+      "id": "fineScaled",
+      "type": "math/multiply",
+      "position": {
+        "x": -7576,
+        "y": 1053
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fineTooth": {
+      "id": "fineTooth",
+      "type": "math/hash",
+      "position": {
+        "x": -6616,
+        "y": 767
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "frame-cross": {
+      "id": "frame-cross",
+      "type": "utility/comment",
+      "position": {
+        "x": -3960,
+        "y": 294
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The same strokes at Cross-hatch angle, held back by Cross-hatch delay: they only start once the tone is that much darker, so they cross the hatching in the shadows alone.",
+        "height": 843,
+        "title": "Cross-hatching",
+        "width": 2480
+      }
+    },
+    "frame-graphite": {
+      "id": "frame-graphite",
+      "type": "utility/comment",
+      "position": {
+        "x": -1384,
+        "y": 41
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Hatching, cross-hatching and outline add up, × Pressure, and the tooth keeps only the grain they land on: harder pressure, or strokes crossing, fill more of it, as a second pass of a pencil does. Clamp holds it to 0…1 and Blend multiplies the graphite over the paper by it.",
+        "height": 474,
+        "title": "Graphite",
+        "width": 1888
+      }
+    },
+    "frame-hatch": {
+      "id": "frame-hatch",
+      "type": "utility/comment",
+      "position": {
+        "x": -3960,
+        "y": 1169
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View space turned by Hatch angle; its Y plus the wobble, × density through a sine, gives parallel strokes. AA Step draws them where the wave rises above the tone: none in full light, wider as the light falls.",
+        "height": 605,
+        "title": "Hatching",
+        "width": 2480
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -5624,
+        "y": 489
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Main Light → Half Lambert, squared as Valve shades with it: 1 facing the light, 0.25 edge-on, 0 facing away. Contrast stretches it around 0.5, so the ink reaches the shadows sooner.",
+        "height": 458,
+        "title": "Light",
+        "width": 1568
+      }
+    },
+    "frame-outline": {
+      "id": "frame-outline",
+      "type": "utility/comment",
+      "position": {
+        "x": -2088,
+        "y": -227
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Fresnel grows toward the edges that turn away from you; AA Step cuts it into a contour line. Raise Outline to thin it.",
+        "height": 489,
+        "title": "Outline",
+        "width": 608
+      }
+    },
+    "frame-paper": {
+      "id": "frame-paper",
+      "type": "utility/comment",
+      "position": {
+        "x": -3048,
+        "y": -1299
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
+        "height": 1040,
+        "title": "Paper",
+        "width": 1568
+      }
+    },
+    "frame-tooth": {
+      "id": "frame-tooth",
+      "type": "utility/comment",
+      "position": {
+        "x": -8568,
+        "y": 622
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View-space X and Y cut into cells by Floor, and Random gives each cell a height: the fine tooth, and a coarse one three cells wide. Smoothstep keeps the high fine cells and the coarse one varies them, so graphite only catches on part of the sheet.",
+        "height": 881,
+        "title": "Paper tooth",
+        "width": 2848
+      }
+    },
+    "frame-wobble": {
+      "id": "frame-wobble",
+      "type": "utility/comment",
+      "position": {
+        "x": -4664,
+        "y": 979
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A soft noise over view space, scaled by Wobble: how far a stroke strays from a ruler line. Both hatchings share it, so their lines bend together like one hand drew them.",
+        "height": 654,
+        "title": "Hand",
+        "width": 608
+      }
+    },
+    "fresnel": {
+      "id": "fresnel",
+      "type": "effects/fresnel",
+      "position": {
+        "x": -2056,
+        "y": -131
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "grain": {
+      "id": "grain",
+      "type": "math/remap",
+      "position": {
+        "x": -2056,
+        "y": -974
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1.5
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1.5
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.72
+        }
+      },
+      "params": {}
+    },
+    "graphiteColor": {
+      "id": "graphiteColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 453
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "graphiteColor"
+      }
+    },
+    "hatchAngle": {
+      "id": "hatchAngle",
+      "type": "property/float",
+      "position": {
+        "x": -3928,
+        "y": 1559
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "hatchAngle"
+      }
+    },
+    "hatchAxes": {
+      "id": "hatchAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3336,
+        "y": 1322
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchDensity": {
+      "id": "hatchDensity",
+      "type": "property/float",
+      "position": {
+        "x": -2968,
+        "y": 1616
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "hatchDensity"
+      }
+    },
+    "hatchPhase": {
+      "id": "hatchPhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -2696,
+        "y": 1388
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchRemapped": {
+      "id": "hatchRemapped",
+      "type": "math/remap",
+      "position": {
+        "x": -2056,
+        "y": 1314
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "hatchStrokes": {
+      "id": "hatchStrokes",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -1736,
+        "y": 1249
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchTurned": {
+      "id": "hatchTurned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -3656,
+        "y": 1443
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "hatchWave": {
+      "id": "hatchWave",
+      "type": "math/sin",
+      "position": {
+        "x": -2376,
+        "y": 1351
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchWobbled": {
+      "id": "hatchWobbled",
+      "type": "math/add",
+      "position": {
+        "x": -3016,
+        "y": 1313
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchings": {
+      "id": "hatchings",
+      "type": "math/add",
+      "position": {
+        "x": -1352,
+        "y": 158
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lightSquared": {
+      "id": "lightSquared",
+      "type": "math/power",
+      "position": {
+        "x": -5272,
+        "y": 606
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "mainLight": {
+      "id": "mainLight",
+      "type": "input/main-light",
+      "position": {
+        "x": -5592,
+        "y": 573
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "onTooth": {
+      "id": "onTooth",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 159
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outline": {
+      "id": "outline",
+      "type": "property/float",
+      "position": {
+        "x": -2008,
+        "y": 200
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "outline"
+      }
+    },
+    "outlineStroke": {
+      "id": "outlineStroke",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -1736,
+        "y": -42
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paper": {
+      "id": "paper",
+      "type": "math/multiply",
+      "position": {
+        "x": -1736,
+        "y": -857
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperColor": {
+      "id": "paperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -2008,
+        "y": -587
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paperColor"
+      }
+    },
+    "paperNoise": {
+      "id": "paperNoise",
+      "type": "math/add",
+      "position": {
+        "x": -2376,
+        "y": -937
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperPosition": {
+      "id": "paperPosition",
+      "type": "input/position",
+      "position": {
+        "x": -3016,
+        "y": -844
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "pressed": {
+      "id": "pressed",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": 196
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pressure": {
+      "id": "pressure",
+      "type": "property/float",
+      "position": {
+        "x": -984,
+        "y": 424
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "pressure"
+      }
+    },
+    "pulp": {
+      "id": "pulp",
+      "type": "effects/noise",
+      "position": {
+        "x": -2696,
+        "y": -1219
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 5
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 4,
+        "tile": false
+      }
+    },
+    "strokes": {
+      "id": "strokes",
+      "type": "math/add",
+      "position": {
+        "x": -1032,
+        "y": 121
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tone": {
+      "id": "tone",
+      "type": "math/add",
+      "position": {
+        "x": -4312,
+        "y": 607
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneCentered": {
+      "id": "toneCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -4952,
+        "y": 569
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneStretched": {
+      "id": "toneStretched",
+      "type": "math/multiply",
+      "position": {
+        "x": -4632,
+        "y": 644
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tooth": {
+      "id": "tooth",
+      "type": "effects/noise",
+      "position": {
+        "x": -2696,
+        "y": -739
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 140
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "toothHeight": {
+      "id": "toothHeight",
+      "type": "math/multiply",
+      "position": {
+        "x": -5976,
+        "y": 817
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "toothScale": {
+      "id": "toothScale",
+      "type": "property/float",
+      "position": {
+        "x": -7848,
+        "y": 1337
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "toothScale"
+      }
+    },
+    "viewAxes": {
+      "id": "viewAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -8216,
+        "y": 1015
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPlane": {
+      "id": "viewPlane",
+      "type": "vector/combine",
+      "position": {
+        "x": -7896,
+        "y": 922
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPosition": {
+      "id": "viewPosition",
+      "type": "input/position",
+      "position": {
+        "x": -8536,
+        "y": 1113
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "property/float",
+      "position": {
+        "x": -4584,
+        "y": 1571
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wobble"
+      }
+    },
+    "wobbleNoise": {
+      "id": "wobbleNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -4632,
+        "y": 1091
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 6
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "wobbleOffset": {
+      "id": "wobbleOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -4312,
+        "y": 1301
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "coarseCells.out-coarseTooth.in": {
+      "id": "coarseCells.out-coarseTooth.in",
+      "from": {
+        "nodeId": "coarseCells",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coarseTooth",
+        "portId": "in"
+      }
+    },
+    "coarseGrip.out-toothHeight.b": {
+      "id": "coarseGrip.out-toothHeight.b",
+      "from": {
+        "nodeId": "coarseGrip",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothHeight",
+        "portId": "b"
+      }
+    },
+    "coarseScaled.out-coarseCells.in": {
+      "id": "coarseScaled.out-coarseCells.in",
+      "from": {
+        "nodeId": "coarseScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coarseCells",
+        "portId": "in"
+      }
+    },
+    "coarseTooth.out-coarseGrip.in": {
+      "id": "coarseTooth.out-coarseGrip.in",
+      "from": {
+        "nodeId": "coarseTooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coarseGrip",
+        "portId": "in"
+      }
+    },
+    "contrast.out-toneStretched.b": {
+      "id": "contrast.out-toneStretched.b",
+      "from": {
+        "nodeId": "contrast",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "b"
+      }
+    },
+    "coverage.out-drawn.opacity": {
+      "id": "coverage.out-drawn.opacity",
+      "from": {
+        "nodeId": "coverage",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drawn",
+        "portId": "opacity"
+      }
+    },
+    "crossAngle.out-crossTurned.angle": {
+      "id": "crossAngle.out-crossTurned.angle",
+      "from": {
+        "nodeId": "crossAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossTurned",
+        "portId": "angle"
+      }
+    },
+    "crossAxes.y-crossWobbled.a": {
+      "id": "crossAxes.y-crossWobbled.a",
+      "from": {
+        "nodeId": "crossAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "crossWobbled",
+        "portId": "a"
+      }
+    },
+    "crossDelay.out-crossEdge.b": {
+      "id": "crossDelay.out-crossEdge.b",
+      "from": {
+        "nodeId": "crossDelay",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossEdge",
+        "portId": "b"
+      }
+    },
+    "crossDensity.out-crossPhase.b": {
+      "id": "crossDensity.out-crossPhase.b",
+      "from": {
+        "nodeId": "crossDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossPhase",
+        "portId": "b"
+      }
+    },
+    "crossEdge.out-crossStrokes.edge": {
+      "id": "crossEdge.out-crossStrokes.edge",
+      "from": {
+        "nodeId": "crossEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossStrokes",
+        "portId": "edge"
+      }
+    },
+    "crossPhase.out-crossWave.in": {
+      "id": "crossPhase.out-crossWave.in",
+      "from": {
+        "nodeId": "crossPhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossWave",
+        "portId": "in"
+      }
+    },
+    "crossRemapped.out-crossStrokes.in": {
+      "id": "crossRemapped.out-crossStrokes.in",
+      "from": {
+        "nodeId": "crossRemapped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossStrokes",
+        "portId": "in"
+      }
+    },
+    "crossStrokes.out-hatchings.b": {
+      "id": "crossStrokes.out-hatchings.b",
+      "from": {
+        "nodeId": "crossStrokes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchings",
+        "portId": "b"
+      }
+    },
+    "crossTurned.out-crossAxes.in": {
+      "id": "crossTurned.out-crossAxes.in",
+      "from": {
+        "nodeId": "crossTurned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossAxes",
+        "portId": "in"
+      }
+    },
+    "crossWave.out-crossRemapped.in": {
+      "id": "crossWave.out-crossRemapped.in",
+      "from": {
+        "nodeId": "crossWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossRemapped",
+        "portId": "in"
+      }
+    },
+    "crossWobbled.out-crossPhase.a": {
+      "id": "crossWobbled.out-crossPhase.a",
+      "from": {
+        "nodeId": "crossWobbled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossPhase",
+        "portId": "a"
+      }
+    },
+    "drawn.out-master.baseColor": {
+      "id": "drawn.out-master.baseColor",
+      "from": {
+        "nodeId": "drawn",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "fineCells.out-fineTooth.in": {
+      "id": "fineCells.out-fineTooth.in",
+      "from": {
+        "nodeId": "fineCells",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fineTooth",
+        "portId": "in"
+      }
+    },
+    "fineGrip.out-toothHeight.a": {
+      "id": "fineGrip.out-toothHeight.a",
+      "from": {
+        "nodeId": "fineGrip",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothHeight",
+        "portId": "a"
+      }
+    },
+    "fineScaled.out-coarseScaled.a": {
+      "id": "fineScaled.out-coarseScaled.a",
+      "from": {
+        "nodeId": "fineScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coarseScaled",
+        "portId": "a"
+      }
+    },
+    "fineScaled.out-fineCells.in": {
+      "id": "fineScaled.out-fineCells.in",
+      "from": {
+        "nodeId": "fineScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fineCells",
+        "portId": "in"
+      }
+    },
+    "fineTooth.out-fineGrip.in": {
+      "id": "fineTooth.out-fineGrip.in",
+      "from": {
+        "nodeId": "fineTooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fineGrip",
+        "portId": "in"
+      }
+    },
+    "fresnel.out-outlineStroke.in": {
+      "id": "fresnel.out-outlineStroke.in",
+      "from": {
+        "nodeId": "fresnel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineStroke",
+        "portId": "in"
+      }
+    },
+    "grain.out-paper.b": {
+      "id": "grain.out-paper.b",
+      "from": {
+        "nodeId": "grain",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "b"
+      }
+    },
+    "graphiteColor.out-drawn.blend": {
+      "id": "graphiteColor.out-drawn.blend",
+      "from": {
+        "nodeId": "graphiteColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drawn",
+        "portId": "blend"
+      }
+    },
+    "hatchAngle.out-hatchTurned.angle": {
+      "id": "hatchAngle.out-hatchTurned.angle",
+      "from": {
+        "nodeId": "hatchAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchTurned",
+        "portId": "angle"
+      }
+    },
+    "hatchAxes.y-hatchWobbled.a": {
+      "id": "hatchAxes.y-hatchWobbled.a",
+      "from": {
+        "nodeId": "hatchAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "hatchWobbled",
+        "portId": "a"
+      }
+    },
+    "hatchDensity.out-hatchPhase.b": {
+      "id": "hatchDensity.out-hatchPhase.b",
+      "from": {
+        "nodeId": "hatchDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchPhase",
+        "portId": "b"
+      }
+    },
+    "hatchPhase.out-hatchWave.in": {
+      "id": "hatchPhase.out-hatchWave.in",
+      "from": {
+        "nodeId": "hatchPhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchWave",
+        "portId": "in"
+      }
+    },
+    "hatchRemapped.out-hatchStrokes.in": {
+      "id": "hatchRemapped.out-hatchStrokes.in",
+      "from": {
+        "nodeId": "hatchRemapped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchStrokes",
+        "portId": "in"
+      }
+    },
+    "hatchStrokes.out-hatchings.a": {
+      "id": "hatchStrokes.out-hatchings.a",
+      "from": {
+        "nodeId": "hatchStrokes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchings",
+        "portId": "a"
+      }
+    },
+    "hatchTurned.out-hatchAxes.in": {
+      "id": "hatchTurned.out-hatchAxes.in",
+      "from": {
+        "nodeId": "hatchTurned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchAxes",
+        "portId": "in"
+      }
+    },
+    "hatchWave.out-hatchRemapped.in": {
+      "id": "hatchWave.out-hatchRemapped.in",
+      "from": {
+        "nodeId": "hatchWave",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchRemapped",
+        "portId": "in"
+      }
+    },
+    "hatchWobbled.out-hatchPhase.a": {
+      "id": "hatchWobbled.out-hatchPhase.a",
+      "from": {
+        "nodeId": "hatchWobbled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchPhase",
+        "portId": "a"
+      }
+    },
+    "hatchings.out-strokes.a": {
+      "id": "hatchings.out-strokes.a",
+      "from": {
+        "nodeId": "hatchings",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokes",
+        "portId": "a"
+      }
+    },
+    "lightSquared.out-toneCentered.a": {
+      "id": "lightSquared.out-toneCentered.a",
+      "from": {
+        "nodeId": "lightSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneCentered",
+        "portId": "a"
+      }
+    },
+    "mainLight.halfLambert-lightSquared.a": {
+      "id": "mainLight.halfLambert-lightSquared.a",
+      "from": {
+        "nodeId": "mainLight",
+        "portId": "halfLambert"
+      },
+      "to": {
+        "nodeId": "lightSquared",
+        "portId": "a"
+      }
+    },
+    "onTooth.out-coverage.in": {
+      "id": "onTooth.out-coverage.in",
+      "from": {
+        "nodeId": "onTooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coverage",
+        "portId": "in"
+      }
+    },
+    "outline.out-outlineStroke.edge": {
+      "id": "outline.out-outlineStroke.edge",
+      "from": {
+        "nodeId": "outline",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineStroke",
+        "portId": "edge"
+      }
+    },
+    "outlineStroke.out-strokes.b": {
+      "id": "outlineStroke.out-strokes.b",
+      "from": {
+        "nodeId": "outlineStroke",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokes",
+        "portId": "b"
+      }
+    },
+    "paper.out-drawn.base": {
+      "id": "paper.out-drawn.base",
+      "from": {
+        "nodeId": "paper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drawn",
+        "portId": "base"
+      }
+    },
+    "paperColor.out-paper.a": {
+      "id": "paperColor.out-paper.a",
+      "from": {
+        "nodeId": "paperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "a"
+      }
+    },
+    "paperNoise.out-grain.in": {
+      "id": "paperNoise.out-grain.in",
+      "from": {
+        "nodeId": "paperNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grain",
+        "portId": "in"
+      }
+    },
+    "paperPosition.out-pulp.p": {
+      "id": "paperPosition.out-pulp.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulp",
+        "portId": "p"
+      }
+    },
+    "paperPosition.out-tooth.p": {
+      "id": "paperPosition.out-tooth.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tooth",
+        "portId": "p"
+      }
+    },
+    "pressed.out-onTooth.a": {
+      "id": "pressed.out-onTooth.a",
+      "from": {
+        "nodeId": "pressed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "onTooth",
+        "portId": "a"
+      }
+    },
+    "pressure.out-pressed.b": {
+      "id": "pressure.out-pressed.b",
+      "from": {
+        "nodeId": "pressure",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pressed",
+        "portId": "b"
+      }
+    },
+    "pulp.out-paperNoise.a": {
+      "id": "pulp.out-paperNoise.a",
+      "from": {
+        "nodeId": "pulp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "a"
+      }
+    },
+    "strokes.out-pressed.a": {
+      "id": "strokes.out-pressed.a",
+      "from": {
+        "nodeId": "strokes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pressed",
+        "portId": "a"
+      }
+    },
+    "tone.out-crossEdge.a": {
+      "id": "tone.out-crossEdge.a",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossEdge",
+        "portId": "a"
+      }
+    },
+    "tone.out-hatchStrokes.edge": {
+      "id": "tone.out-hatchStrokes.edge",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchStrokes",
+        "portId": "edge"
+      }
+    },
+    "toneCentered.out-toneStretched.a": {
+      "id": "toneCentered.out-toneStretched.a",
+      "from": {
+        "nodeId": "toneCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "a"
+      }
+    },
+    "toneStretched.out-tone.a": {
+      "id": "toneStretched.out-tone.a",
+      "from": {
+        "nodeId": "toneStretched",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tone",
+        "portId": "a"
+      }
+    },
+    "tooth.out-paperNoise.b": {
+      "id": "tooth.out-paperNoise.b",
+      "from": {
+        "nodeId": "tooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "b"
+      }
+    },
+    "toothHeight.out-onTooth.b": {
+      "id": "toothHeight.out-onTooth.b",
+      "from": {
+        "nodeId": "toothHeight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "onTooth",
+        "portId": "b"
+      }
+    },
+    "toothScale.out-fineScaled.b": {
+      "id": "toothScale.out-fineScaled.b",
+      "from": {
+        "nodeId": "toothScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fineScaled",
+        "portId": "b"
+      }
+    },
+    "viewAxes.x-viewPlane.x": {
+      "id": "viewAxes.x-viewPlane.x",
+      "from": {
+        "nodeId": "viewAxes",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "viewPlane",
+        "portId": "x"
+      }
+    },
+    "viewAxes.y-viewPlane.y": {
+      "id": "viewAxes.y-viewPlane.y",
+      "from": {
+        "nodeId": "viewAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "viewPlane",
+        "portId": "y"
+      }
+    },
+    "viewPlane.vec2-crossTurned.in": {
+      "id": "viewPlane.vec2-crossTurned.in",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "crossTurned",
+        "portId": "in"
+      }
+    },
+    "viewPlane.vec2-fineScaled.a": {
+      "id": "viewPlane.vec2-fineScaled.a",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "fineScaled",
+        "portId": "a"
+      }
+    },
+    "viewPlane.vec2-hatchTurned.in": {
+      "id": "viewPlane.vec2-hatchTurned.in",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "hatchTurned",
+        "portId": "in"
+      }
+    },
+    "viewPosition.out-viewAxes.in": {
+      "id": "viewPosition.out-viewAxes.in",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "viewAxes",
+        "portId": "in"
+      }
+    },
+    "viewPosition.out-wobbleNoise.p": {
+      "id": "viewPosition.out-wobbleNoise.p",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleNoise",
+        "portId": "p"
+      }
+    },
+    "wobble.out-wobbleOffset.b": {
+      "id": "wobble.out-wobbleOffset.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "b"
+      }
+    },
+    "wobbleNoise.out-wobbleOffset.a": {
+      "id": "wobbleNoise.out-wobbleOffset.a",
+      "from": {
+        "nodeId": "wobbleNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "a"
+      }
+    },
+    "wobbleOffset.out-crossWobbled.b": {
+      "id": "wobbleOffset.out-crossWobbled.b",
+      "from": {
+        "nodeId": "wobbleOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossWobbled",
+        "portId": "b"
+      }
+    },
+    "wobbleOffset.out-hatchWobbled.b": {
+      "id": "wobbleOffset.out-hatchWobbled.b",
+      "from": {
+        "nodeId": "wobbleOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchWobbled",
+        "portId": "b"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "hatchDensity",
+      "label": "Hatch density",
+      "name": "hatchDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 200
+      }
+    },
+    {
+      "id": "hatchAngle",
+      "label": "Hatch angle",
+      "name": "hatchAngle",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": -0.75
+      }
+    },
+    {
+      "id": "crossAngle",
+      "label": "Cross-hatch angle",
+      "name": "crossAngle",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.95
+      }
+    },
+    {
+      "id": "crossDelay",
+      "label": "Cross-hatch delay",
+      "name": "crossDelay",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.4
+      }
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "name": "wobble",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.004
+      }
+    },
+    {
+      "id": "toothScale",
+      "label": "Tooth scale",
+      "name": "toothScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 220
+      }
+    },
+    {
+      "id": "pressure",
+      "label": "Pressure",
+      "name": "pressure",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.2
+      }
+    },
+    {
+      "id": "outline",
+      "label": "Outline",
+      "name": "outline",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.7
+      }
+    },
+    {
+      "id": "graphiteColor",
+      "label": "Graphite color",
+      "name": "graphiteColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.038204,
+          0.03434,
+          0.027321
+        ]
+      }
+    },
+    {
+      "id": "paperColor",
+      "label": "Paper color",
+      "name": "paperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.930111,
+          0.904661,
+          0.838799
+        ]
+      }
+    },
+    {
+      "id": "contrast",
+      "label": "Contrast",
+      "name": "contrast",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.8
+      }
+    }
+  ]
+}

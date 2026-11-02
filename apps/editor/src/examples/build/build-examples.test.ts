@@ -22,6 +22,7 @@ import {
   ROSE_MOON_SPEC,
 } from './painterly-spheres'
 import { PATCH } from './patch'
+import { PENCIL } from './pencil'
 import { POND } from './pond'
 import { POSTER } from './poster'
 import { SCRIBBLE } from './scribble'
@@ -39,6 +40,7 @@ const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['lava-flow', LAVA_FLOW],
   ['lines', LINES],
   ['scribble', SCRIBBLE],
+  ['pencil', PENCIL],
   ['patch', PATCH],
   ['brush-toon', BRUSH_TOON],
   ['midnight-glaze', MIDNIGHT_GLAZE_SPEC],

@@ -117,6 +117,9 @@ export const en = {
   'command.example-scribble.label': 'Template: Scribble',
   'command.example-scribble.keywords':
     'template example sample demo scribble pen handwriting doodle ink sketch random spite illustration',
+  'command.example-pencil.label': 'Template: Pencil',
+  'command.example-pencil.keywords':
+    'template example sample demo pencil graphite hatching cross-hatching paper tooth grain drawing sketch illustration',
   'command.example-patch.label': 'Template: Patch',
   'command.example-patch.keywords':
     'template example sample demo patch strokes hatching voronoi random ink sketch spite illustration',
@@ -249,6 +252,10 @@ export const en = {
   'example.scribble.description': 'Wobbly pen strokes that crowd into the shadows',
   'example.scribble.teaches':
     'Bends parallel strokes with fractal noise so they wobble like handwriting, then numbers each stroke and lets the Random node give it its own pen pressure.',
+  'example.pencil.title': 'Pencil',
+  'example.pencil.description': 'Graphite hatching that catches on the paper tooth',
+  'example.pencil.teaches':
+    'Hashes view-space cells into a paper tooth at two sizes, then draws hatching and cross-hatching from the light and keeps only the grain they land on, so crossing strokes fill more of it like a second pencil pass.',
   'example.patch.title': 'Patch',
   'example.patch.description': 'Patches of short strokes, each running its own way',
   'example.patch.teaches':
