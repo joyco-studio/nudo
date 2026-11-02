@@ -41,6 +41,14 @@ const TEMPLATES: readonly IllustrationTemplate[] = [
     textureNodes: [],
   },
   {
+    id: 'pencil',
+    title: 'Pencil',
+    spanishTitle: 'Lápiz',
+    frame: { group: 'tooth', title: 'Paper tooth' },
+    shape: 'Sphere',
+    textureNodes: [],
+  },
+  {
     id: 'patch',
     title: 'Patch',
     spanishTitle: 'Parches',
