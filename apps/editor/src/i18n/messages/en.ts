@@ -120,6 +120,9 @@ export const en = {
   'command.example-pencil.label': 'Template: Pencil',
   'command.example-pencil.keywords':
     'template example sample demo pencil graphite hatching cross-hatching paper tooth grain drawing sketch illustration',
+  'command.example-pen.label': 'Template: Pen',
+  'command.example-pen.keywords':
+    'template example sample demo pen ballpoint ink hatching cross-hatching paper tooth drawing sketch illustration',
   'command.example-patch.label': 'Template: Patch',
   'command.example-patch.keywords':
     'template example sample demo patch strokes hatching voronoi random ink sketch spite illustration',
@@ -256,6 +259,10 @@ export const en = {
   'example.pencil.description': 'Graphite hatching that catches on the paper tooth',
   'example.pencil.teaches':
     'Hashes view-space cells into a paper tooth at two sizes, then draws hatching and cross-hatching from the light and keeps only the grain they land on, so crossing strokes fill more of it like a second pencil pass.',
+  'example.pen.title': 'Pen',
+  'example.pen.description': 'Ballpoint hatching whose ink runs wet and dry',
+  'example.pen.teaches':
+    'Measures how far each point is from its line with Fract, widens the lines as the light falls, and gives them a soft-edged ballpoint core whose width and ink follow a Perlin flow, specked by a paper tooth of Random cells.',
   'example.patch.title': 'Patch',
   'example.patch.description': 'Patches of short strokes, each running its own way',
   'example.patch.teaches':

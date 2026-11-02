@@ -123,6 +123,9 @@ export const es = {
   'command.example-pencil.label': 'Plantilla: Lápiz',
   'command.example-pencil.keywords':
     'plantilla ejemplo muestra demo lápiz grafito rayado trama cruzada diente papel grano dibujo boceto ilustración',
+  'command.example-pen.label': 'Plantilla: Lapicera',
+  'command.example-pen.keywords':
+    'plantilla ejemplo muestra demo lapicera birome bolígrafo tinta rayado trama cruzada diente papel dibujo boceto ilustración',
   'command.example-patch.label': 'Plantilla: Parches',
   'command.example-patch.keywords':
     'plantilla ejemplo muestra demo parches trazos tramado voronoi aleatorio tinta boceto spite ilustración',
@@ -263,6 +266,10 @@ export const es = {
   'example.pencil.description': 'Rayado de grafito que se agarra al diente del papel',
   'example.pencil.teaches':
     'Convierte celdas del espacio de la vista en un diente de papel de dos tamaños con Random, después dibuja rayado y rayado cruzado según la luz y se queda solo con el grano donde caen, así los trazos cruzados lo llenan más, como una segunda pasada de lápiz.',
+  'example.pen.title': 'Lapicera',
+  'example.pen.description': 'Rayado de birome cuya tinta corre húmeda y seca',
+  'example.pen.teaches':
+    'Mide con Fract qué tan lejos está cada punto de su línea, ensancha las líneas a medida que cae la luz y les da un núcleo de birome de borde suave cuyo ancho y tinta siguen un flujo Perlin, salpicado por un diente de papel de celdas Random.',
   'example.patch.title': 'Parches',
   'example.patch.description': 'Parches de trazos cortos, cada uno en su dirección',
   'example.patch.teaches':

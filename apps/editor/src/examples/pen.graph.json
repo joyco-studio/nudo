@@ -1,0 +1,2169 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "contrast": {
+      "id": "contrast",
+      "type": "property/float",
+      "position": {
+        "x": -5544,
+        "y": 1436
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "contrast"
+      }
+    },
+    "coverage": {
+      "id": "coverage",
+      "type": "math/clamp",
+      "position": {
+        "x": -72,
+        "y": 122
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 1
+        },
+        "min": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "crossAngle": {
+      "id": "crossAngle",
+      "type": "property/float",
+      "position": {
+        "x": -4568,
+        "y": 2079
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crossAngle"
+      }
+    },
+    "crossAxes": {
+      "id": "crossAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3976,
+        "y": 1842
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossCell": {
+      "id": "crossCell",
+      "type": "math/fract",
+      "position": {
+        "x": -3016,
+        "y": 1820
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossCentered": {
+      "id": "crossCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -2696,
+        "y": 1783
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "crossCore": {
+      "id": "crossCore",
+      "type": "math/multiply",
+      "position": {
+        "x": -2376,
+        "y": 1414
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.45
+        }
+      },
+      "params": {}
+    },
+    "crossDelay": {
+      "id": "crossDelay",
+      "type": "property/float",
+      "position": {
+        "x": -3928,
+        "y": 1646
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "crossDelay"
+      }
+    },
+    "crossDensity": {
+      "id": "crossDensity",
+      "type": "property/float",
+      "position": {
+        "x": -3608,
+        "y": 2136
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lineDensity"
+      }
+    },
+    "crossDistance": {
+      "id": "crossDistance",
+      "type": "math/abs",
+      "position": {
+        "x": -2376,
+        "y": 1717
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossEdge": {
+      "id": "crossEdge",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -2056,
+        "y": 1501
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossFlowed": {
+      "id": "crossFlowed",
+      "type": "math/multiply",
+      "position": {
+        "x": -3016,
+        "y": 1517
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossLines": {
+      "id": "crossLines",
+      "type": "math/one-minus",
+      "position": {
+        "x": -1736,
+        "y": 1464
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossPhase": {
+      "id": "crossPhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -3336,
+        "y": 1899
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossShade": {
+      "id": "crossShade",
+      "type": "math/remap",
+      "position": {
+        "x": -3336,
+        "y": 1512
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "crossTone": {
+      "id": "crossTone",
+      "type": "math/add",
+      "position": {
+        "x": -3656,
+        "y": 1530
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "crossTurned": {
+      "id": "crossTurned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -4296,
+        "y": 1963
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "crossWidth": {
+      "id": "crossWidth",
+      "type": "math/max",
+      "position": {
+        "x": -2696,
+        "y": 1480
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "crossWobbled": {
+      "id": "crossWobbled",
+      "type": "math/add",
+      "position": {
+        "x": -3656,
+        "y": 1833
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "flow": {
+      "id": "flow",
+      "type": "math/clamp",
+      "position": {
+        "x": -7576,
+        "y": 1040
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 1
+        },
+        "min": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "flowInk": {
+      "id": "flowInk",
+      "type": "math/remap",
+      "position": {
+        "x": -7256,
+        "y": 1196
+      },
+      "inputValues": {
+        "outMin": {
+          "type": "float",
+          "value": 0.7
+        }
+      },
+      "params": {}
+    },
+    "flowNoise": {
+      "id": "flowNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -8216,
+        "y": 1021
+      },
+      "inputValues": {},
+      "params": {
+        "kind": "perlin-2d",
+        "octaves": 1,
+        "tile": false
+      }
+    },
+    "flowRemapped": {
+      "id": "flowRemapped",
+      "type": "math/remap",
+      "position": {
+        "x": -7896,
+        "y": 1077
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        },
+        "outMax": {
+          "type": "float",
+          "value": 1.25
+        },
+        "outMin": {
+          "type": "float",
+          "value": -0.25
+        }
+      },
+      "params": {}
+    },
+    "flowScale": {
+      "id": "flowScale",
+      "type": "property/float",
+      "position": {
+        "x": -8488,
+        "y": 1337
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "flowScale"
+      }
+    },
+    "flowWidth": {
+      "id": "flowWidth",
+      "type": "math/remap",
+      "position": {
+        "x": -7256,
+        "y": 809
+      },
+      "inputValues": {
+        "outMin": {
+          "type": "float",
+          "value": 0.68
+        }
+      },
+      "params": {}
+    },
+    "flowed": {
+      "id": "flowed",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": 196
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "frame-cross": {
+      "id": "frame-cross",
+      "type": "utility/comment",
+      "position": {
+        "x": -4600,
+        "y": 1334
+      },
+      "inputValues": {},
+      "params": {
+        "body": "The same lines at Cross-hatch angle, held back by Cross-hatch delay: they only start once the tone is that much darker, so they cross the hatching in the shadows alone.",
+        "height": 960,
+        "title": "Cross-hatching",
+        "width": 3120
+      }
+    },
+    "frame-flow": {
+      "id": "frame-flow",
+      "type": "utility/comment",
+      "position": {
+        "x": -8568,
+        "y": 729
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A 2D Perlin over view space: where the ballpoint runs wet or dry. Remap and Clamp take it to 0…1; a dry line narrows to 0.68 of its width and pales to 0.7 of its ink.",
+        "height": 854,
+        "title": "Ink flow",
+        "width": 1568
+      }
+    },
+    "frame-hatch": {
+      "id": "frame-hatch",
+      "type": "utility/comment",
+      "position": {
+        "x": -4600,
+        "y": 351
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View space turned by Hatch angle; its Y plus the wobble, × density, through Fract: how far each point is from the middle of its line. The width grows from 0 in full light to the whole gap in shadow, × the flow width, and a soft-edged core inks it.",
+        "height": 951,
+        "title": "Hatching",
+        "width": 3120
+      }
+    },
+    "frame-ink": {
+      "id": "frame-ink",
+      "type": "utility/comment",
+      "position": {
+        "x": -1384,
+        "y": 42
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Hatching, cross-hatching and outline add up, × the flow ink and the tooth specks. Clamp holds it to 0…1 and Blend multiplies the ink over the paper by it.",
+        "height": 531,
+        "title": "Ink",
+        "width": 1888
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -6264,
+        "y": 1053
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Main Light → Half Lambert, squared as Valve shades with it: 1 facing the light, 0.25 edge-on, 0 facing away. Contrast stretches it around 0.5, so the ink reaches the shadows sooner.",
+        "height": 458,
+        "title": "Light",
+        "width": 1568
+      }
+    },
+    "frame-outline": {
+      "id": "frame-outline",
+      "type": "utility/comment",
+      "position": {
+        "x": -2088,
+        "y": -170
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Fresnel grows toward the edges that turn away from you; AA Step cuts it into a contour line. Raise Outline to thin it.",
+        "height": 489,
+        "title": "Outline",
+        "width": 608
+      }
+    },
+    "frame-paper": {
+      "id": "frame-paper",
+      "type": "utility/comment",
+      "position": {
+        "x": -3048,
+        "y": -1242
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
+        "height": 1040,
+        "title": "Paper",
+        "width": 1568
+      }
+    },
+    "frame-tooth": {
+      "id": "frame-tooth",
+      "type": "utility/comment",
+      "position": {
+        "x": -6904,
+        "y": 363
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View-space X and Y cut into cells by Floor, and Random gives each cell a height. Smoothstep and Remap turn the low cells into pale specks: the ink never drops below 0.65, so the line stays whole.",
+        "height": 658,
+        "title": "Paper tooth",
+        "width": 2208
+      }
+    },
+    "frame-wobble": {
+      "id": "frame-wobble",
+      "type": "utility/comment",
+      "position": {
+        "x": -5304,
+        "y": 1543
+      },
+      "inputValues": {},
+      "params": {
+        "body": "A soft noise over view space, scaled by Wobble: how far a line strays from a ruler. Both hatchings share it, so their lines bend together like one hand drew them.",
+        "height": 654,
+        "title": "Hand",
+        "width": 608
+      }
+    },
+    "fresnel": {
+      "id": "fresnel",
+      "type": "effects/fresnel",
+      "position": {
+        "x": -2056,
+        "y": -74
+      },
+      "inputValues": {
+        "power": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "grain": {
+      "id": "grain",
+      "type": "math/remap",
+      "position": {
+        "x": -2056,
+        "y": -917
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1.5
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1.5
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.72
+        }
+      },
+      "params": {}
+    },
+    "hatchAngle": {
+      "id": "hatchAngle",
+      "type": "property/float",
+      "position": {
+        "x": -4568,
+        "y": 1087
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "hatchAngle"
+      }
+    },
+    "hatchAxes": {
+      "id": "hatchAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -3976,
+        "y": 850
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchCell": {
+      "id": "hatchCell",
+      "type": "math/fract",
+      "position": {
+        "x": -3016,
+        "y": 837
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchCentered": {
+      "id": "hatchCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -2696,
+        "y": 800
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "hatchCore": {
+      "id": "hatchCore",
+      "type": "math/multiply",
+      "position": {
+        "x": -2376,
+        "y": 431
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.45
+        }
+      },
+      "params": {}
+    },
+    "hatchDensity": {
+      "id": "hatchDensity",
+      "type": "property/float",
+      "position": {
+        "x": -3608,
+        "y": 1144
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lineDensity"
+      }
+    },
+    "hatchDistance": {
+      "id": "hatchDistance",
+      "type": "math/abs",
+      "position": {
+        "x": -2376,
+        "y": 734
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchEdge": {
+      "id": "hatchEdge",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -2056,
+        "y": 518
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchFlowed": {
+      "id": "hatchFlowed",
+      "type": "math/multiply",
+      "position": {
+        "x": -3016,
+        "y": 534
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchLines": {
+      "id": "hatchLines",
+      "type": "math/one-minus",
+      "position": {
+        "x": -1736,
+        "y": 481
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchPhase": {
+      "id": "hatchPhase",
+      "type": "math/multiply",
+      "position": {
+        "x": -3336,
+        "y": 916
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchShade": {
+      "id": "hatchShade",
+      "type": "math/remap",
+      "position": {
+        "x": -3336,
+        "y": 529
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "hatchTurned": {
+      "id": "hatchTurned",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -4296,
+        "y": 971
+      },
+      "inputValues": {
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "hatchWidth": {
+      "id": "hatchWidth",
+      "type": "math/max",
+      "position": {
+        "x": -2696,
+        "y": 497
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "hatchWobbled": {
+      "id": "hatchWobbled",
+      "type": "math/add",
+      "position": {
+        "x": -3656,
+        "y": 841
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hatchings": {
+      "id": "hatchings",
+      "type": "math/add",
+      "position": {
+        "x": -1352,
+        "y": 270
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "inkColor": {
+      "id": "inkColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -24,
+        "y": 453
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "inkColor"
+      }
+    },
+    "inked": {
+      "id": "inked",
+      "type": "color/blend",
+      "position": {
+        "x": 248,
+        "y": 146
+      },
+      "inputValues": {},
+      "params": {
+        "mode": "multiply"
+      }
+    },
+    "lightSquared": {
+      "id": "lightSquared",
+      "type": "math/power",
+      "position": {
+        "x": -5912,
+        "y": 1170
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "mainLight": {
+      "id": "mainLight",
+      "type": "input/main-light",
+      "position": {
+        "x": -6232,
+        "y": 1137
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit"
+      }
+    },
+    "outline": {
+      "id": "outline",
+      "type": "property/float",
+      "position": {
+        "x": -2008,
+        "y": 257
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "outline"
+      }
+    },
+    "outlineStroke": {
+      "id": "outlineStroke",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -1736,
+        "y": 15
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paper": {
+      "id": "paper",
+      "type": "math/multiply",
+      "position": {
+        "x": -1736,
+        "y": -800
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperColor": {
+      "id": "paperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -2008,
+        "y": -530
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paperColor"
+      }
+    },
+    "paperNoise": {
+      "id": "paperNoise",
+      "type": "math/add",
+      "position": {
+        "x": -2376,
+        "y": -880
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperPosition": {
+      "id": "paperPosition",
+      "type": "input/position",
+      "position": {
+        "x": -3016,
+        "y": -787
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "pulp": {
+      "id": "pulp",
+      "type": "effects/noise",
+      "position": {
+        "x": -2696,
+        "y": -1162
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 5
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 4,
+        "tile": false
+      }
+    },
+    "specked": {
+      "id": "specked",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 159
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "strokes": {
+      "id": "strokes",
+      "type": "math/add",
+      "position": {
+        "x": -1032,
+        "y": 233
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tone": {
+      "id": "tone",
+      "type": "math/add",
+      "position": {
+        "x": -4952,
+        "y": 1171
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneCentered": {
+      "id": "toneCentered",
+      "type": "math/subtract",
+      "position": {
+        "x": -5592,
+        "y": 1133
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "toneStretched": {
+      "id": "toneStretched",
+      "type": "math/multiply",
+      "position": {
+        "x": -5272,
+        "y": 1208
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tooth": {
+      "id": "tooth",
+      "type": "effects/noise",
+      "position": {
+        "x": -2696,
+        "y": -682
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 140
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "toothCells": {
+      "id": "toothCells",
+      "type": "math/floor",
+      "position": {
+        "x": -5912,
+        "y": 638
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "toothGrip": {
+      "id": "toothGrip",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -5272,
+        "y": 480
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.1
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "toothHeight": {
+      "id": "toothHeight",
+      "type": "math/hash",
+      "position": {
+        "x": -5592,
+        "y": 573
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "toothScale": {
+      "id": "toothScale",
+      "type": "property/float",
+      "position": {
+        "x": -6504,
+        "y": 959
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "toothScale"
+      }
+    },
+    "toothScaled": {
+      "id": "toothScaled",
+      "type": "math/multiply",
+      "position": {
+        "x": -6232,
+        "y": 675
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "toothSpecks": {
+      "id": "toothSpecks",
+      "type": "math/remap",
+      "position": {
+        "x": -4952,
+        "y": 443
+      },
+      "inputValues": {
+        "outMin": {
+          "type": "float",
+          "value": 0.65
+        }
+      },
+      "params": {}
+    },
+    "viewAxes": {
+      "id": "viewAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -6872,
+        "y": 637
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPlane": {
+      "id": "viewPlane",
+      "type": "vector/combine",
+      "position": {
+        "x": -6552,
+        "y": 544
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPosition": {
+      "id": "viewPosition",
+      "type": "input/position",
+      "position": {
+        "x": -8536,
+        "y": 1076
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    },
+    "wobble": {
+      "id": "wobble",
+      "type": "property/float",
+      "position": {
+        "x": -5224,
+        "y": 2135
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wobble"
+      }
+    },
+    "wobbleNoise": {
+      "id": "wobbleNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -5272,
+        "y": 1655
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 6
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "wobbleOffset": {
+      "id": "wobbleOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -4952,
+        "y": 1865
+      },
+      "inputValues": {},
+      "params": {}
+    }
+  },
+  "edges": {
+    "contrast.out-toneStretched.b": {
+      "id": "contrast.out-toneStretched.b",
+      "from": {
+        "nodeId": "contrast",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "b"
+      }
+    },
+    "coverage.out-inked.opacity": {
+      "id": "coverage.out-inked.opacity",
+      "from": {
+        "nodeId": "coverage",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "opacity"
+      }
+    },
+    "crossAngle.out-crossTurned.angle": {
+      "id": "crossAngle.out-crossTurned.angle",
+      "from": {
+        "nodeId": "crossAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossTurned",
+        "portId": "angle"
+      }
+    },
+    "crossAxes.y-crossWobbled.a": {
+      "id": "crossAxes.y-crossWobbled.a",
+      "from": {
+        "nodeId": "crossAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "crossWobbled",
+        "portId": "a"
+      }
+    },
+    "crossCell.out-crossCentered.a": {
+      "id": "crossCell.out-crossCentered.a",
+      "from": {
+        "nodeId": "crossCell",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossCentered",
+        "portId": "a"
+      }
+    },
+    "crossCentered.out-crossDistance.in": {
+      "id": "crossCentered.out-crossDistance.in",
+      "from": {
+        "nodeId": "crossCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossDistance",
+        "portId": "in"
+      }
+    },
+    "crossCore.out-crossEdge.edge0": {
+      "id": "crossCore.out-crossEdge.edge0",
+      "from": {
+        "nodeId": "crossCore",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossEdge",
+        "portId": "edge0"
+      }
+    },
+    "crossDelay.out-crossTone.b": {
+      "id": "crossDelay.out-crossTone.b",
+      "from": {
+        "nodeId": "crossDelay",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossTone",
+        "portId": "b"
+      }
+    },
+    "crossDensity.out-crossPhase.b": {
+      "id": "crossDensity.out-crossPhase.b",
+      "from": {
+        "nodeId": "crossDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossPhase",
+        "portId": "b"
+      }
+    },
+    "crossDistance.out-crossEdge.in": {
+      "id": "crossDistance.out-crossEdge.in",
+      "from": {
+        "nodeId": "crossDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossEdge",
+        "portId": "in"
+      }
+    },
+    "crossEdge.out-crossLines.in": {
+      "id": "crossEdge.out-crossLines.in",
+      "from": {
+        "nodeId": "crossEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossLines",
+        "portId": "in"
+      }
+    },
+    "crossFlowed.out-crossWidth.a": {
+      "id": "crossFlowed.out-crossWidth.a",
+      "from": {
+        "nodeId": "crossFlowed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossWidth",
+        "portId": "a"
+      }
+    },
+    "crossLines.out-hatchings.b": {
+      "id": "crossLines.out-hatchings.b",
+      "from": {
+        "nodeId": "crossLines",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchings",
+        "portId": "b"
+      }
+    },
+    "crossPhase.out-crossCell.in": {
+      "id": "crossPhase.out-crossCell.in",
+      "from": {
+        "nodeId": "crossPhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossCell",
+        "portId": "in"
+      }
+    },
+    "crossShade.out-crossFlowed.a": {
+      "id": "crossShade.out-crossFlowed.a",
+      "from": {
+        "nodeId": "crossShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossFlowed",
+        "portId": "a"
+      }
+    },
+    "crossTone.out-crossShade.in": {
+      "id": "crossTone.out-crossShade.in",
+      "from": {
+        "nodeId": "crossTone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossShade",
+        "portId": "in"
+      }
+    },
+    "crossTurned.out-crossAxes.in": {
+      "id": "crossTurned.out-crossAxes.in",
+      "from": {
+        "nodeId": "crossTurned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossAxes",
+        "portId": "in"
+      }
+    },
+    "crossWidth.out-crossCore.a": {
+      "id": "crossWidth.out-crossCore.a",
+      "from": {
+        "nodeId": "crossWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossCore",
+        "portId": "a"
+      }
+    },
+    "crossWidth.out-crossEdge.edge1": {
+      "id": "crossWidth.out-crossEdge.edge1",
+      "from": {
+        "nodeId": "crossWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossEdge",
+        "portId": "edge1"
+      }
+    },
+    "crossWobbled.out-crossPhase.a": {
+      "id": "crossWobbled.out-crossPhase.a",
+      "from": {
+        "nodeId": "crossWobbled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossPhase",
+        "portId": "a"
+      }
+    },
+    "flow.out-flowInk.in": {
+      "id": "flow.out-flowInk.in",
+      "from": {
+        "nodeId": "flow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowInk",
+        "portId": "in"
+      }
+    },
+    "flow.out-flowWidth.in": {
+      "id": "flow.out-flowWidth.in",
+      "from": {
+        "nodeId": "flow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowWidth",
+        "portId": "in"
+      }
+    },
+    "flowInk.out-flowed.b": {
+      "id": "flowInk.out-flowed.b",
+      "from": {
+        "nodeId": "flowInk",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowed",
+        "portId": "b"
+      }
+    },
+    "flowNoise.out-flowRemapped.in": {
+      "id": "flowNoise.out-flowRemapped.in",
+      "from": {
+        "nodeId": "flowNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowRemapped",
+        "portId": "in"
+      }
+    },
+    "flowRemapped.out-flow.in": {
+      "id": "flowRemapped.out-flow.in",
+      "from": {
+        "nodeId": "flowRemapped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flow",
+        "portId": "in"
+      }
+    },
+    "flowScale.out-flowNoise.scale": {
+      "id": "flowScale.out-flowNoise.scale",
+      "from": {
+        "nodeId": "flowScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowNoise",
+        "portId": "scale"
+      }
+    },
+    "flowWidth.out-crossFlowed.b": {
+      "id": "flowWidth.out-crossFlowed.b",
+      "from": {
+        "nodeId": "flowWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossFlowed",
+        "portId": "b"
+      }
+    },
+    "flowWidth.out-hatchFlowed.b": {
+      "id": "flowWidth.out-hatchFlowed.b",
+      "from": {
+        "nodeId": "flowWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchFlowed",
+        "portId": "b"
+      }
+    },
+    "flowed.out-specked.a": {
+      "id": "flowed.out-specked.a",
+      "from": {
+        "nodeId": "flowed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "specked",
+        "portId": "a"
+      }
+    },
+    "fresnel.out-outlineStroke.in": {
+      "id": "fresnel.out-outlineStroke.in",
+      "from": {
+        "nodeId": "fresnel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineStroke",
+        "portId": "in"
+      }
+    },
+    "grain.out-paper.b": {
+      "id": "grain.out-paper.b",
+      "from": {
+        "nodeId": "grain",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "b"
+      }
+    },
+    "hatchAngle.out-hatchTurned.angle": {
+      "id": "hatchAngle.out-hatchTurned.angle",
+      "from": {
+        "nodeId": "hatchAngle",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchTurned",
+        "portId": "angle"
+      }
+    },
+    "hatchAxes.y-hatchWobbled.a": {
+      "id": "hatchAxes.y-hatchWobbled.a",
+      "from": {
+        "nodeId": "hatchAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "hatchWobbled",
+        "portId": "a"
+      }
+    },
+    "hatchCell.out-hatchCentered.a": {
+      "id": "hatchCell.out-hatchCentered.a",
+      "from": {
+        "nodeId": "hatchCell",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchCentered",
+        "portId": "a"
+      }
+    },
+    "hatchCentered.out-hatchDistance.in": {
+      "id": "hatchCentered.out-hatchDistance.in",
+      "from": {
+        "nodeId": "hatchCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchDistance",
+        "portId": "in"
+      }
+    },
+    "hatchCore.out-hatchEdge.edge0": {
+      "id": "hatchCore.out-hatchEdge.edge0",
+      "from": {
+        "nodeId": "hatchCore",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchEdge",
+        "portId": "edge0"
+      }
+    },
+    "hatchDensity.out-hatchPhase.b": {
+      "id": "hatchDensity.out-hatchPhase.b",
+      "from": {
+        "nodeId": "hatchDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchPhase",
+        "portId": "b"
+      }
+    },
+    "hatchDistance.out-hatchEdge.in": {
+      "id": "hatchDistance.out-hatchEdge.in",
+      "from": {
+        "nodeId": "hatchDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchEdge",
+        "portId": "in"
+      }
+    },
+    "hatchEdge.out-hatchLines.in": {
+      "id": "hatchEdge.out-hatchLines.in",
+      "from": {
+        "nodeId": "hatchEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchLines",
+        "portId": "in"
+      }
+    },
+    "hatchFlowed.out-hatchWidth.a": {
+      "id": "hatchFlowed.out-hatchWidth.a",
+      "from": {
+        "nodeId": "hatchFlowed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchWidth",
+        "portId": "a"
+      }
+    },
+    "hatchLines.out-hatchings.a": {
+      "id": "hatchLines.out-hatchings.a",
+      "from": {
+        "nodeId": "hatchLines",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchings",
+        "portId": "a"
+      }
+    },
+    "hatchPhase.out-hatchCell.in": {
+      "id": "hatchPhase.out-hatchCell.in",
+      "from": {
+        "nodeId": "hatchPhase",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchCell",
+        "portId": "in"
+      }
+    },
+    "hatchShade.out-hatchFlowed.a": {
+      "id": "hatchShade.out-hatchFlowed.a",
+      "from": {
+        "nodeId": "hatchShade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchFlowed",
+        "portId": "a"
+      }
+    },
+    "hatchTurned.out-hatchAxes.in": {
+      "id": "hatchTurned.out-hatchAxes.in",
+      "from": {
+        "nodeId": "hatchTurned",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchAxes",
+        "portId": "in"
+      }
+    },
+    "hatchWidth.out-hatchCore.a": {
+      "id": "hatchWidth.out-hatchCore.a",
+      "from": {
+        "nodeId": "hatchWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchCore",
+        "portId": "a"
+      }
+    },
+    "hatchWidth.out-hatchEdge.edge1": {
+      "id": "hatchWidth.out-hatchEdge.edge1",
+      "from": {
+        "nodeId": "hatchWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchEdge",
+        "portId": "edge1"
+      }
+    },
+    "hatchWobbled.out-hatchPhase.a": {
+      "id": "hatchWobbled.out-hatchPhase.a",
+      "from": {
+        "nodeId": "hatchWobbled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchPhase",
+        "portId": "a"
+      }
+    },
+    "hatchings.out-strokes.a": {
+      "id": "hatchings.out-strokes.a",
+      "from": {
+        "nodeId": "hatchings",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokes",
+        "portId": "a"
+      }
+    },
+    "inkColor.out-inked.blend": {
+      "id": "inkColor.out-inked.blend",
+      "from": {
+        "nodeId": "inkColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "blend"
+      }
+    },
+    "inked.out-master.baseColor": {
+      "id": "inked.out-master.baseColor",
+      "from": {
+        "nodeId": "inked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "lightSquared.out-toneCentered.a": {
+      "id": "lightSquared.out-toneCentered.a",
+      "from": {
+        "nodeId": "lightSquared",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneCentered",
+        "portId": "a"
+      }
+    },
+    "mainLight.halfLambert-lightSquared.a": {
+      "id": "mainLight.halfLambert-lightSquared.a",
+      "from": {
+        "nodeId": "mainLight",
+        "portId": "halfLambert"
+      },
+      "to": {
+        "nodeId": "lightSquared",
+        "portId": "a"
+      }
+    },
+    "outline.out-outlineStroke.edge": {
+      "id": "outline.out-outlineStroke.edge",
+      "from": {
+        "nodeId": "outline",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outlineStroke",
+        "portId": "edge"
+      }
+    },
+    "outlineStroke.out-strokes.b": {
+      "id": "outlineStroke.out-strokes.b",
+      "from": {
+        "nodeId": "outlineStroke",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "strokes",
+        "portId": "b"
+      }
+    },
+    "paper.out-inked.base": {
+      "id": "paper.out-inked.base",
+      "from": {
+        "nodeId": "paper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inked",
+        "portId": "base"
+      }
+    },
+    "paperColor.out-paper.a": {
+      "id": "paperColor.out-paper.a",
+      "from": {
+        "nodeId": "paperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paper",
+        "portId": "a"
+      }
+    },
+    "paperNoise.out-grain.in": {
+      "id": "paperNoise.out-grain.in",
+      "from": {
+        "nodeId": "paperNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "grain",
+        "portId": "in"
+      }
+    },
+    "paperPosition.out-pulp.p": {
+      "id": "paperPosition.out-pulp.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulp",
+        "portId": "p"
+      }
+    },
+    "paperPosition.out-tooth.p": {
+      "id": "paperPosition.out-tooth.p",
+      "from": {
+        "nodeId": "paperPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tooth",
+        "portId": "p"
+      }
+    },
+    "pulp.out-paperNoise.a": {
+      "id": "pulp.out-paperNoise.a",
+      "from": {
+        "nodeId": "pulp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "a"
+      }
+    },
+    "specked.out-coverage.in": {
+      "id": "specked.out-coverage.in",
+      "from": {
+        "nodeId": "specked",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "coverage",
+        "portId": "in"
+      }
+    },
+    "strokes.out-flowed.a": {
+      "id": "strokes.out-flowed.a",
+      "from": {
+        "nodeId": "strokes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowed",
+        "portId": "a"
+      }
+    },
+    "tone.out-crossTone.a": {
+      "id": "tone.out-crossTone.a",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossTone",
+        "portId": "a"
+      }
+    },
+    "tone.out-hatchShade.in": {
+      "id": "tone.out-hatchShade.in",
+      "from": {
+        "nodeId": "tone",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchShade",
+        "portId": "in"
+      }
+    },
+    "toneCentered.out-toneStretched.a": {
+      "id": "toneCentered.out-toneStretched.a",
+      "from": {
+        "nodeId": "toneCentered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toneStretched",
+        "portId": "a"
+      }
+    },
+    "toneStretched.out-tone.a": {
+      "id": "toneStretched.out-tone.a",
+      "from": {
+        "nodeId": "toneStretched",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tone",
+        "portId": "a"
+      }
+    },
+    "tooth.out-paperNoise.b": {
+      "id": "tooth.out-paperNoise.b",
+      "from": {
+        "nodeId": "tooth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "paperNoise",
+        "portId": "b"
+      }
+    },
+    "toothCells.out-toothHeight.in": {
+      "id": "toothCells.out-toothHeight.in",
+      "from": {
+        "nodeId": "toothCells",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothHeight",
+        "portId": "in"
+      }
+    },
+    "toothGrip.out-toothSpecks.in": {
+      "id": "toothGrip.out-toothSpecks.in",
+      "from": {
+        "nodeId": "toothGrip",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothSpecks",
+        "portId": "in"
+      }
+    },
+    "toothHeight.out-toothGrip.in": {
+      "id": "toothHeight.out-toothGrip.in",
+      "from": {
+        "nodeId": "toothHeight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothGrip",
+        "portId": "in"
+      }
+    },
+    "toothScale.out-toothScaled.b": {
+      "id": "toothScale.out-toothScaled.b",
+      "from": {
+        "nodeId": "toothScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothScaled",
+        "portId": "b"
+      }
+    },
+    "toothScaled.out-toothCells.in": {
+      "id": "toothScaled.out-toothCells.in",
+      "from": {
+        "nodeId": "toothScaled",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "toothCells",
+        "portId": "in"
+      }
+    },
+    "toothSpecks.out-specked.b": {
+      "id": "toothSpecks.out-specked.b",
+      "from": {
+        "nodeId": "toothSpecks",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "specked",
+        "portId": "b"
+      }
+    },
+    "viewAxes.x-viewPlane.x": {
+      "id": "viewAxes.x-viewPlane.x",
+      "from": {
+        "nodeId": "viewAxes",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "viewPlane",
+        "portId": "x"
+      }
+    },
+    "viewAxes.y-viewPlane.y": {
+      "id": "viewAxes.y-viewPlane.y",
+      "from": {
+        "nodeId": "viewAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "viewPlane",
+        "portId": "y"
+      }
+    },
+    "viewPlane.vec2-crossTurned.in": {
+      "id": "viewPlane.vec2-crossTurned.in",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "crossTurned",
+        "portId": "in"
+      }
+    },
+    "viewPlane.vec2-hatchTurned.in": {
+      "id": "viewPlane.vec2-hatchTurned.in",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "hatchTurned",
+        "portId": "in"
+      }
+    },
+    "viewPlane.vec2-toothScaled.a": {
+      "id": "viewPlane.vec2-toothScaled.a",
+      "from": {
+        "nodeId": "viewPlane",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "toothScaled",
+        "portId": "a"
+      }
+    },
+    "viewPosition.out-flowNoise.p": {
+      "id": "viewPosition.out-flowNoise.p",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flowNoise",
+        "portId": "p"
+      }
+    },
+    "viewPosition.out-viewAxes.in": {
+      "id": "viewPosition.out-viewAxes.in",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "viewAxes",
+        "portId": "in"
+      }
+    },
+    "viewPosition.out-wobbleNoise.p": {
+      "id": "viewPosition.out-wobbleNoise.p",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleNoise",
+        "portId": "p"
+      }
+    },
+    "wobble.out-wobbleOffset.b": {
+      "id": "wobble.out-wobbleOffset.b",
+      "from": {
+        "nodeId": "wobble",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "b"
+      }
+    },
+    "wobbleNoise.out-wobbleOffset.a": {
+      "id": "wobbleNoise.out-wobbleOffset.a",
+      "from": {
+        "nodeId": "wobbleNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wobbleOffset",
+        "portId": "a"
+      }
+    },
+    "wobbleOffset.out-crossWobbled.b": {
+      "id": "wobbleOffset.out-crossWobbled.b",
+      "from": {
+        "nodeId": "wobbleOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "crossWobbled",
+        "portId": "b"
+      }
+    },
+    "wobbleOffset.out-hatchWobbled.b": {
+      "id": "wobbleOffset.out-hatchWobbled.b",
+      "from": {
+        "nodeId": "wobbleOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hatchWobbled",
+        "portId": "b"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "lineDensity",
+      "label": "Line density",
+      "name": "lineDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 32
+      }
+    },
+    {
+      "id": "hatchAngle",
+      "label": "Hatch angle",
+      "name": "hatchAngle",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": -0.75
+      }
+    },
+    {
+      "id": "crossAngle",
+      "label": "Cross-hatch angle",
+      "name": "crossAngle",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.95
+      }
+    },
+    {
+      "id": "crossDelay",
+      "label": "Cross-hatch delay",
+      "name": "crossDelay",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.4
+      }
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "name": "wobble",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.004
+      }
+    },
+    {
+      "id": "flowScale",
+      "label": "Ink flow scale",
+      "name": "flowScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 12
+      }
+    },
+    {
+      "id": "toothScale",
+      "label": "Tooth scale",
+      "name": "toothScale",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 220
+      }
+    },
+    {
+      "id": "outline",
+      "label": "Outline",
+      "name": "outline",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.7
+      }
+    },
+    {
+      "id": "inkColor",
+      "label": "Ink color",
+      "name": "inkColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.008023,
+          0.093059,
+          0.47932
+        ]
+      }
+    },
+    {
+      "id": "paperColor",
+      "label": "Paper color",
+      "name": "paperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.930111,
+          0.904661,
+          0.838799
+        ]
+      }
+    },
+    {
+      "id": "contrast",
+      "label": "Contrast",
+      "name": "contrast",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.8
+      }
+    }
+  ]
+}

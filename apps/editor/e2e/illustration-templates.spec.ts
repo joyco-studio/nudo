@@ -49,6 +49,14 @@ const TEMPLATES: readonly IllustrationTemplate[] = [
     textureNodes: [],
   },
   {
+    id: 'pen',
+    title: 'Pen',
+    spanishTitle: 'Lapicera',
+    frame: { group: 'flow', title: 'Ink flow' },
+    shape: 'Suzanne',
+    textureNodes: [],
+  },
+  {
     id: 'patch',
     title: 'Patch',
     spanishTitle: 'Parches',
@@ -216,7 +224,9 @@ test.describe('illustration templates', () => {
     const palette = page.getByRole('dialog').filter({ has: page.getByRole('combobox') })
     await page.keyboard.type('template')
     for (const { title } of TEMPLATES) {
-      await expect(palette.getByRole('option', { name: `Template: ${title}` })).toBeVisible()
+      await expect(
+        palette.getByRole('option', { name: `Template: ${title}`, exact: true }),
+      ).toBeVisible()
     }
     await page.keyboard.press('Escape')
     await expect(palette).toBeHidden()
@@ -235,7 +245,7 @@ test.describe('illustration templates', () => {
     await page.keyboard.type('plantilla')
     for (const { spanishTitle } of TEMPLATES) {
       await expect(
-        palette.getByRole('option', { name: `Plantilla: ${spanishTitle}` }),
+        palette.getByRole('option', { name: `Plantilla: ${spanishTitle}`, exact: true }),
       ).toBeVisible()
     }
   })
