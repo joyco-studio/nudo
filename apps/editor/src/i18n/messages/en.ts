@@ -100,6 +100,9 @@ export const en = {
   'command.open-command-palette.keywords': 'search commands',
   'command.browse-templates.label': 'Browse templates',
   'command.browse-templates.keywords': 'templates examples samples demo gallery preview',
+  'command.example-god-rays.label': 'Template: God rays',
+  'command.example-god-rays.keywords':
+    'template example sample demo god rays sun beams light shafts dust',
   'command.example-pond.label': 'Template: Pond',
   'command.example-pond.keywords': 'template example sample demo pond water',
   'command.example-poster.label': 'Template: Poster',
@@ -221,6 +224,10 @@ export const en = {
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
   'templateTag.painterly': 'painterly',
+  'example.god-rays.title': 'God rays',
+  'example.god-rays.description': 'Warm sun shafts with soft edges and fading dust',
+  'example.god-rays.teaches':
+    'After Cyanilux: stretch a plane toward the light, shape stripes from noise, multiply edge and depth fades, and fade stationary Voronoi dust. A hand-placed light sheet without automatic billboarding or shadow masking.',
   'example.pond.title': 'Pond',
   'example.pond.description': 'Illustrated water: rosettes, lace and a sun band',
   'example.pond.teaches':

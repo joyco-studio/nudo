@@ -1,0 +1,2570 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "absolutePixelArea": {
+      "id": "absolutePixelArea",
+      "type": "math/abs",
+      "position": {
+        "x": -6600,
+        "y": -729
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "alpha": {
+      "id": "alpha",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 624
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "cameraDepth": {
+      "id": "cameraDepth",
+      "type": "math/abs",
+      "position": {
+        "x": -1352,
+        "y": 759
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cameraFade": {
+      "id": "cameraFade",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -1032,
+        "y": 666
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.25
+        },
+        "edge1": {
+          "type": "float",
+          "value": 1.25
+        }
+      },
+      "params": {}
+    },
+    "cameraMask": {
+      "id": "cameraMask",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": 516
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cellOffsetA": {
+      "id": "cellOffsetA",
+      "type": "math/subtract",
+      "position": {
+        "x": -5256,
+        "y": -674
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cellOffsetB": {
+      "id": "cellOffsetB",
+      "type": "math/subtract",
+      "position": {
+        "x": -5256,
+        "y": -68
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cellUvA": {
+      "id": "cellUvA",
+      "type": "math/divide",
+      "position": {
+        "x": -5576,
+        "y": -609
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 60.622
+        }
+      },
+      "params": {}
+    },
+    "cellUvB": {
+      "id": "cellUvB",
+      "type": "math/divide",
+      "position": {
+        "x": -5576,
+        "y": -3
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 100
+        }
+      },
+      "params": {}
+    },
+    "centered": {
+      "id": "centered",
+      "type": "math/subtract",
+      "position": {
+        "x": -3976,
+        "y": 1070
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "params": {}
+    },
+    "clampedAlpha": {
+      "id": "clampedAlpha",
+      "type": "math/clamp",
+      "position": {
+        "x": 248,
+        "y": 587
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "cycleA": {
+      "id": "cycleA",
+      "type": "math/add",
+      "position": {
+        "x": -3976,
+        "y": -478
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "cycleB": {
+      "id": "cycleB",
+      "type": "math/add",
+      "position": {
+        "x": -3976,
+        "y": 128
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "drift": {
+      "id": "drift",
+      "type": "math/multiply",
+      "position": {
+        "x": -7560,
+        "y": 695
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "driftSpeed": {
+      "id": "driftSpeed",
+      "type": "property/float",
+      "position": {
+        "x": -7832,
+        "y": 932
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "driftSpeed"
+      }
+    },
+    "dustA": {
+      "id": "dustA",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -5896,
+        "y": -706
+      },
+      "inputValues": {
+        "jitter": {
+          "type": "float",
+          "value": 1
+        },
+        "scale": {
+          "type": "float",
+          "value": 60.622
+        }
+      },
+      "params": {
+        "distance": "euclidean",
+        "tile": false
+      }
+    },
+    "dustB": {
+      "id": "dustB",
+      "type": "effects/voronoi",
+      "position": {
+        "x": -5896,
+        "y": 37
+      },
+      "inputValues": {
+        "jitter": {
+          "type": "float",
+          "value": 10.45793
+        },
+        "scale": {
+          "type": "float",
+          "value": 100
+        }
+      },
+      "params": {
+        "distance": "euclidean",
+        "tile": false
+      }
+    },
+    "dustBrightness": {
+      "id": "dustBrightness",
+      "type": "property/float",
+      "position": {
+        "x": -2648,
+        "y": -255
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "dustBrightness"
+      }
+    },
+    "dustFadeSpeed": {
+      "id": "dustFadeSpeed",
+      "type": "property/float",
+      "position": {
+        "x": -4568,
+        "y": 174
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "dustFadeSpeed"
+      }
+    },
+    "dustLight": {
+      "id": "dustLight",
+      "type": "math/multiply",
+      "position": {
+        "x": -2376,
+        "y": -483
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "dustRampA": {
+      "id": "dustRampA",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -3656,
+        "y": -860
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "dustRampB": {
+      "id": "dustRampB",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -3656,
+        "y": -254
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "dustTime": {
+      "id": "dustTime",
+      "type": "math/multiply",
+      "position": {
+        "x": -4296,
+        "y": 27
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeAxes": {
+      "id": "edgeAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -2696,
+        "y": 782
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeDistance": {
+      "id": "edgeDistance",
+      "type": "math/abs",
+      "position": {
+        "x": -3656,
+        "y": 1033
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeFade": {
+      "id": "edgeFade",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3016,
+        "y": 903
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeRamp": {
+      "id": "edgeRamp",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -3336,
+        "y": 940
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0.25
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "edges": {
+      "id": "edges",
+      "type": "math/multiply",
+      "position": {
+        "x": -2376,
+        "y": 745
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fadeA": {
+      "id": "fadeA",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -3336,
+        "y": -622
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": -0.6
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "fadeB": {
+      "id": "fadeB",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -3336,
+        "y": -16
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": -0.6
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.8
+        }
+      },
+      "params": {}
+    },
+    "fadingMotesA": {
+      "id": "fadingMotesA",
+      "type": "math/multiply",
+      "position": {
+        "x": -3016,
+        "y": -659
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fadingMotesB": {
+      "id": "fadingMotesB",
+      "type": "math/multiply",
+      "position": {
+        "x": -3016,
+        "y": -356
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "flattened": {
+      "id": "flattened",
+      "type": "math/multiply",
+      "position": {
+        "x": -8904,
+        "y": -370
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            1,
+            0,
+            1
+          ]
+        }
+      },
+      "params": {}
+    },
+    "foot": {
+      "id": "foot",
+      "type": "math/add",
+      "position": {
+        "x": -8584,
+        "y": -287
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            0,
+            -1.2,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "frame-depth": {
+      "id": "frame-depth",
+      "type": "utility/comment",
+      "position": {
+        "x": -2024,
+        "y": 283
+      },
+      "inputValues": {},
+      "params": {
+        "body": "View-space depth fades the sheet as the camera approaches (0.25–1.25 units). Depth Fade softens intersections with opaque scene geometry. These masks multiply the stripes and edges before Opacity clamps the final alpha to 0…1. Inspect the scene-depth branch in the main preview; its thumbnails are off.",
+        "height": 816,
+        "title": "Camera and intersection fades",
+        "width": 2528
+      }
+    },
+    "frame-dust": {
+      "id": "frame-dust",
+      "type": "utility/comment",
+      "position": {
+        "x": -5928,
+        "y": -977
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Two Voronoi fields keep the motes fixed in UV space. Each cell supplies a random phase to a sine wave, so particles fade in and out at different times. Dust fade speed controls the cycle in radians per second (1.5 is about four seconds); 0 freezes the brightness. The ray alpha keeps the motes inside the shafts.",
+        "height": 1610,
+        "title": "Fading dust",
+        "width": 3808
+      }
+    },
+    "frame-edges": {
+      "id": "frame-edges",
+      "type": "utility/comment",
+      "position": {
+        "x": -4008,
+        "y": 665
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Distance from the UV center fades both sides and both ends. Multiply the two axes so the rectangular sheet disappears softly. The bottom fade also works when there is no floor behind the ray.",
+        "height": 708,
+        "title": "Feather the sheet",
+        "width": 1888
+      }
+    },
+    "frame-light": {
+      "id": "frame-light",
+      "type": "utility/comment",
+      "position": {
+        "x": -424,
+        "y": -298
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Add dust to the light, tint in linear space, and send it to an unlit, two-sided transparent material. Intensity changes brightness; Opacity changes visibility. Values above 1 preserve HDR highlights for bloom when the host scene provides it.",
+        "height": 549,
+        "title": "Warm transparent light",
+        "width": 928
+      }
+    },
+    "frame-pixels": {
+      "id": "frame-pixels",
+      "type": "utility/comment",
+      "position": {
+        "x": -7592,
+        "y": -1193
+      },
+      "inputValues": {},
+      "params": {
+        "body": "UV derivatives measure one render pixel on the plane. Two perpendicular vectors and their determinant convert the offset from a fixed particle center into screen pixels, including the sheet’s shear. Particle size is the diameter in render pixels, with a one-pixel soft edge. Centers and density stay attached to the plane; only size compensates for zoom and scale.",
+        "height": 1336,
+        "title": "Particle size in pixels",
+        "width": 1568
+      }
+    },
+    "frame-stretch": {
+      "id": "frame-stretch",
+      "type": "utility/comment",
+      "position": {
+        "x": -9256,
+        "y": -466
+      },
+      "inputValues": {},
+      "params": {
+        "body": "After Cyanilux: cyanilux.com/tutorials/god-rays-shader-breakdown/. Use a plane. Flatten its Y to the foot of the sheet, then UV.y stretches its top toward the light in object space. Rotate the mesh to place it; this graph does not billboard or sample shadows.",
+        "height": 1061,
+        "title": "Stretch toward the light",
+        "width": 1248
+      }
+    },
+    "frame-stripes": {
+      "id": "frame-stripes",
+      "type": "utility/comment",
+      "position": {
+        "x": -7912,
+        "y": 175
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Sample noise across U only: keeping Y at zero stretches it into long stripes. Time moves through Z to slowly change their brightness. Density sets the number of shafts; Smoothstep and Power separate bright beams from the gaps.",
+        "height": 823,
+        "title": "Slowly shifting stripes",
+        "width": 1888
+      }
+    },
+    "intensity": {
+      "id": "intensity",
+      "type": "property/float",
+      "position": {
+        "x": -24,
+        "y": 176
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "intensity"
+      }
+    },
+    "intersectionFade": {
+      "id": "intersectionFade",
+      "type": "property/float",
+      "position": {
+        "x": -984,
+        "y": 997
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "intersectionFade"
+      }
+    },
+    "lightAndDust": {
+      "id": "lightAndDust",
+      "type": "math/add",
+      "position": {
+        "x": -392,
+        "y": -202
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.4375
+        }
+      },
+      "params": {}
+    },
+    "lightDirection": {
+      "id": "lightDirection",
+      "type": "property/vec3",
+      "position": {
+        "x": -9176,
+        "y": 363
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "lightDirection"
+      }
+    },
+    "lightVector": {
+      "id": "lightVector",
+      "type": "math/multiply",
+      "position": {
+        "x": -8904,
+        "y": 292
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit",
+        "surface": "transparent",
+        "twoSided": true
+      }
+    },
+    "motes": {
+      "id": "motes",
+      "type": "math/add",
+      "position": {
+        "x": -2696,
+        "y": -558
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "motesA": {
+      "id": "motesA",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3336,
+        "y": -897
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "motesB": {
+      "id": "motesB",
+      "type": "math/one-minus",
+      "position": {
+        "x": -3336,
+        "y": -291
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "opacity": {
+      "id": "opacity",
+      "type": "property/float",
+      "position": {
+        "x": -344,
+        "y": 792
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "opacity"
+      }
+    },
+    "particleInner": {
+      "id": "particleInner",
+      "type": "math/subtract",
+      "position": {
+        "x": -6280,
+        "y": -463
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "particleOuter": {
+      "id": "particleOuter",
+      "type": "math/add",
+      "position": {
+        "x": -6280,
+        "y": -160
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "particleRadius": {
+      "id": "particleRadius",
+      "type": "math/multiply",
+      "position": {
+        "x": -6920,
+        "y": -237
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "particleSize": {
+      "id": "particleSize",
+      "type": "property/float",
+      "position": {
+        "x": -7192,
+        "y": -149
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "particleSize"
+      }
+    },
+    "phaseA": {
+      "id": "phaseA",
+      "type": "math/multiply",
+      "position": {
+        "x": -4296,
+        "y": -551
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 6.283185307179586
+        }
+      },
+      "params": {}
+    },
+    "phaseB": {
+      "id": "phaseB",
+      "type": "math/multiply",
+      "position": {
+        "x": -4296,
+        "y": 330
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 6.283185307179586
+        }
+      },
+      "params": {}
+    },
+    "pixelArea": {
+      "id": "pixelArea",
+      "type": "vector/dot",
+      "position": {
+        "x": -6920,
+        "y": -692
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelBasisX": {
+      "id": "pixelBasisX",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -6280,
+        "y": -1097
+      },
+      "inputValues": {
+        "angle": {
+          "type": "float",
+          "value": 1.5707963267948966
+        },
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "pixelBasisY": {
+      "id": "pixelBasisY",
+      "type": "vector/rotate-2d",
+      "position": {
+        "x": -7240,
+        "y": -627
+      },
+      "inputValues": {
+        "angle": {
+          "type": "float",
+          "value": 1.5707963267948966
+        },
+        "center": {
+          "type": "vec2",
+          "value": [
+            0,
+            0
+          ]
+        }
+      },
+      "params": {}
+    },
+    "pixelDistanceA": {
+      "id": "pixelDistanceA",
+      "type": "math/divide",
+      "position": {
+        "x": -3976,
+        "y": -781
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelDistanceB": {
+      "id": "pixelDistanceB",
+      "type": "math/divide",
+      "position": {
+        "x": -3976,
+        "y": -175
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelLengthA": {
+      "id": "pixelLengthA",
+      "type": "vector/length",
+      "position": {
+        "x": -4296,
+        "y": -826
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelLengthB": {
+      "id": "pixelLengthB",
+      "type": "vector/length",
+      "position": {
+        "x": -4296,
+        "y": -248
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelVectorA": {
+      "id": "pixelVectorA",
+      "type": "vector/combine",
+      "position": {
+        "x": -4616,
+        "y": -789
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelVectorB": {
+      "id": "pixelVectorB",
+      "type": "vector/combine",
+      "position": {
+        "x": -4616,
+        "y": -241
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelXA": {
+      "id": "pixelXA",
+      "type": "vector/dot",
+      "position": {
+        "x": -4936,
+        "y": -863
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelXB": {
+      "id": "pixelXB",
+      "type": "vector/dot",
+      "position": {
+        "x": -4936,
+        "y": -257
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelYA": {
+      "id": "pixelYA",
+      "type": "vector/dot",
+      "position": {
+        "x": -4936,
+        "y": -560
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pixelYB": {
+      "id": "pixelYB",
+      "type": "vector/dot",
+      "position": {
+        "x": -4936,
+        "y": 46
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "position": {
+      "id": "position",
+      "type": "input/position",
+      "position": {
+        "x": -9224,
+        "y": -356
+      },
+      "inputValues": {},
+      "params": {
+        "space": "object"
+      }
+    },
+    "pulseA": {
+      "id": "pulseA",
+      "type": "math/sin",
+      "position": {
+        "x": -3656,
+        "y": -529
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "pulseB": {
+      "id": "pulseB",
+      "type": "math/sin",
+      "position": {
+        "x": -3656,
+        "y": 77
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "radiance": {
+      "id": "radiance",
+      "type": "math/multiply",
+      "position": {
+        "x": 248,
+        "y": -52
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "rayColor": {
+      "id": "rayColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -344,
+        "y": 101
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rayColor"
+      }
+    },
+    "rayDensity": {
+      "id": "rayDensity",
+      "type": "property/float",
+      "position": {
+        "x": -7832,
+        "y": 508
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rayDensity"
+      }
+    },
+    "rayLength": {
+      "id": "rayLength",
+      "type": "property/float",
+      "position": {
+        "x": -9176,
+        "y": 425
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "rayLength"
+      }
+    },
+    "rayPosition": {
+      "id": "rayPosition",
+      "type": "math/add",
+      "position": {
+        "x": -8264,
+        "y": -187
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "safeParticleRadius": {
+      "id": "safeParticleRadius",
+      "type": "math/max",
+      "position": {
+        "x": -6600,
+        "y": -274
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "safePixelArea": {
+      "id": "safePixelArea",
+      "type": "math/max",
+      "position": {
+        "x": -6280,
+        "y": -766
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1e-12
+        }
+      },
+      "params": {}
+    },
+    "sceneFade": {
+      "id": "sceneFade",
+      "type": "scene/depth-fade",
+      "position": {
+        "x": -712,
+        "y": 819
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "sceneMask": {
+      "id": "sceneMask",
+      "type": "math/multiply",
+      "position": {
+        "x": -392,
+        "y": 609
+      },
+      "inputValues": {},
+      "params": {
+        "showPreview": false
+      }
+    },
+    "softStripes": {
+      "id": "softStripes",
+      "type": "math/multiply",
+      "position": {
+        "x": -1032,
+        "y": 363
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stretch": {
+      "id": "stretch",
+      "type": "math/multiply",
+      "position": {
+        "x": -8584,
+        "y": 16
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stripeNoise": {
+      "id": "stripeNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -6920,
+        "y": 292
+      },
+      "inputValues": {},
+      "params": {
+        "kind": "simplex",
+        "tile": false
+      }
+    },
+    "stripePoint": {
+      "id": "stripePoint",
+      "type": "vector/combine",
+      "position": {
+        "x": -7240,
+        "y": 422
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stripeRamp": {
+      "id": "stripeRamp",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -6600,
+        "y": 292
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": -0.45
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.65
+        }
+      },
+      "params": {}
+    },
+    "stripeX": {
+      "id": "stripeX",
+      "type": "math/multiply",
+      "position": {
+        "x": -7560,
+        "y": 392
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "stripes": {
+      "id": "stripes",
+      "type": "math/power",
+      "position": {
+        "x": -6280,
+        "y": 255
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "time": {
+      "id": "time",
+      "type": "input/time",
+      "position": {
+        "x": -7880,
+        "y": 624
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tintedLight": {
+      "id": "tintedLight",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": -127
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uv": {
+      "id": "uv",
+      "type": "input/uv",
+      "position": {
+        "x": -9224,
+        "y": 68
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uvAxes": {
+      "id": "uvAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -8904,
+        "y": -67
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uvPixel": {
+      "id": "uvPixel",
+      "type": "math/derivatives",
+      "position": {
+        "x": -7560,
+        "y": -778
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewAxes": {
+      "id": "viewAxes",
+      "type": "vector/split",
+      "position": {
+        "x": -1672,
+        "y": 740
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "viewPosition": {
+      "id": "viewPosition",
+      "type": "input/position",
+      "position": {
+        "x": -1992,
+        "y": 838
+      },
+      "inputValues": {},
+      "params": {
+        "space": "view"
+      }
+    }
+  },
+  "edges": {
+    "absolutePixelArea.out-safePixelArea.a": {
+      "id": "absolutePixelArea.out-safePixelArea.a",
+      "from": {
+        "nodeId": "absolutePixelArea",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safePixelArea",
+        "portId": "a"
+      }
+    },
+    "alpha.out-clampedAlpha.in": {
+      "id": "alpha.out-clampedAlpha.in",
+      "from": {
+        "nodeId": "alpha",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "clampedAlpha",
+        "portId": "in"
+      }
+    },
+    "cameraDepth.out-cameraFade.in": {
+      "id": "cameraDepth.out-cameraFade.in",
+      "from": {
+        "nodeId": "cameraDepth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cameraFade",
+        "portId": "in"
+      }
+    },
+    "cameraFade.out-cameraMask.b": {
+      "id": "cameraFade.out-cameraMask.b",
+      "from": {
+        "nodeId": "cameraFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cameraMask",
+        "portId": "b"
+      }
+    },
+    "cameraMask.out-sceneMask.a": {
+      "id": "cameraMask.out-sceneMask.a",
+      "from": {
+        "nodeId": "cameraMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sceneMask",
+        "portId": "a"
+      }
+    },
+    "cellOffsetA.out-pixelXA.a": {
+      "id": "cellOffsetA.out-pixelXA.a",
+      "from": {
+        "nodeId": "cellOffsetA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelXA",
+        "portId": "a"
+      }
+    },
+    "cellOffsetA.out-pixelYA.a": {
+      "id": "cellOffsetA.out-pixelYA.a",
+      "from": {
+        "nodeId": "cellOffsetA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelYA",
+        "portId": "a"
+      }
+    },
+    "cellOffsetB.out-pixelXB.a": {
+      "id": "cellOffsetB.out-pixelXB.a",
+      "from": {
+        "nodeId": "cellOffsetB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelXB",
+        "portId": "a"
+      }
+    },
+    "cellOffsetB.out-pixelYB.a": {
+      "id": "cellOffsetB.out-pixelYB.a",
+      "from": {
+        "nodeId": "cellOffsetB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelYB",
+        "portId": "a"
+      }
+    },
+    "cellUvA.out-cellOffsetA.b": {
+      "id": "cellUvA.out-cellOffsetA.b",
+      "from": {
+        "nodeId": "cellUvA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cellOffsetA",
+        "portId": "b"
+      }
+    },
+    "cellUvB.out-cellOffsetB.b": {
+      "id": "cellUvB.out-cellOffsetB.b",
+      "from": {
+        "nodeId": "cellUvB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cellOffsetB",
+        "portId": "b"
+      }
+    },
+    "centered.out-edgeDistance.in": {
+      "id": "centered.out-edgeDistance.in",
+      "from": {
+        "nodeId": "centered",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeDistance",
+        "portId": "in"
+      }
+    },
+    "clampedAlpha.out-master.opacity": {
+      "id": "clampedAlpha.out-master.opacity",
+      "from": {
+        "nodeId": "clampedAlpha",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "opacity"
+      }
+    },
+    "cycleA.out-pulseA.in": {
+      "id": "cycleA.out-pulseA.in",
+      "from": {
+        "nodeId": "cycleA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseA",
+        "portId": "in"
+      }
+    },
+    "cycleB.out-pulseB.in": {
+      "id": "cycleB.out-pulseB.in",
+      "from": {
+        "nodeId": "cycleB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pulseB",
+        "portId": "in"
+      }
+    },
+    "drift.out-stripePoint.z": {
+      "id": "drift.out-stripePoint.z",
+      "from": {
+        "nodeId": "drift",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripePoint",
+        "portId": "z"
+      }
+    },
+    "driftSpeed.out-drift.b": {
+      "id": "driftSpeed.out-drift.b",
+      "from": {
+        "nodeId": "driftSpeed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drift",
+        "portId": "b"
+      }
+    },
+    "dustA.cell-cellUvA.a": {
+      "id": "dustA.cell-cellUvA.a",
+      "from": {
+        "nodeId": "dustA",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "cellUvA",
+        "portId": "a"
+      }
+    },
+    "dustA.random-phaseA.a": {
+      "id": "dustA.random-phaseA.a",
+      "from": {
+        "nodeId": "dustA",
+        "portId": "random"
+      },
+      "to": {
+        "nodeId": "phaseA",
+        "portId": "a"
+      }
+    },
+    "dustB.cell-cellUvB.a": {
+      "id": "dustB.cell-cellUvB.a",
+      "from": {
+        "nodeId": "dustB",
+        "portId": "cell"
+      },
+      "to": {
+        "nodeId": "cellUvB",
+        "portId": "a"
+      }
+    },
+    "dustB.random-phaseB.a": {
+      "id": "dustB.random-phaseB.a",
+      "from": {
+        "nodeId": "dustB",
+        "portId": "random"
+      },
+      "to": {
+        "nodeId": "phaseB",
+        "portId": "a"
+      }
+    },
+    "dustBrightness.out-dustLight.b": {
+      "id": "dustBrightness.out-dustLight.b",
+      "from": {
+        "nodeId": "dustBrightness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustLight",
+        "portId": "b"
+      }
+    },
+    "dustFadeSpeed.out-dustTime.b": {
+      "id": "dustFadeSpeed.out-dustTime.b",
+      "from": {
+        "nodeId": "dustFadeSpeed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustTime",
+        "portId": "b"
+      }
+    },
+    "dustLight.out-lightAndDust.a": {
+      "id": "dustLight.out-lightAndDust.a",
+      "from": {
+        "nodeId": "dustLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightAndDust",
+        "portId": "a"
+      }
+    },
+    "dustRampA.out-motesA.in": {
+      "id": "dustRampA.out-motesA.in",
+      "from": {
+        "nodeId": "dustRampA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "motesA",
+        "portId": "in"
+      }
+    },
+    "dustRampB.out-motesB.in": {
+      "id": "dustRampB.out-motesB.in",
+      "from": {
+        "nodeId": "dustRampB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "motesB",
+        "portId": "in"
+      }
+    },
+    "dustTime.out-cycleA.b": {
+      "id": "dustTime.out-cycleA.b",
+      "from": {
+        "nodeId": "dustTime",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cycleA",
+        "portId": "b"
+      }
+    },
+    "dustTime.out-cycleB.b": {
+      "id": "dustTime.out-cycleB.b",
+      "from": {
+        "nodeId": "dustTime",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cycleB",
+        "portId": "b"
+      }
+    },
+    "edgeAxes.x-edges.a": {
+      "id": "edgeAxes.x-edges.a",
+      "from": {
+        "nodeId": "edgeAxes",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "edges",
+        "portId": "a"
+      }
+    },
+    "edgeAxes.y-edges.b": {
+      "id": "edgeAxes.y-edges.b",
+      "from": {
+        "nodeId": "edgeAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "edges",
+        "portId": "b"
+      }
+    },
+    "edgeDistance.out-edgeRamp.in": {
+      "id": "edgeDistance.out-edgeRamp.in",
+      "from": {
+        "nodeId": "edgeDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeRamp",
+        "portId": "in"
+      }
+    },
+    "edgeFade.out-edgeAxes.in": {
+      "id": "edgeFade.out-edgeAxes.in",
+      "from": {
+        "nodeId": "edgeFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeAxes",
+        "portId": "in"
+      }
+    },
+    "edgeRamp.out-edgeFade.in": {
+      "id": "edgeRamp.out-edgeFade.in",
+      "from": {
+        "nodeId": "edgeRamp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeFade",
+        "portId": "in"
+      }
+    },
+    "edges.out-softStripes.b": {
+      "id": "edges.out-softStripes.b",
+      "from": {
+        "nodeId": "edges",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "softStripes",
+        "portId": "b"
+      }
+    },
+    "fadeA.out-fadingMotesA.b": {
+      "id": "fadeA.out-fadingMotesA.b",
+      "from": {
+        "nodeId": "fadeA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadingMotesA",
+        "portId": "b"
+      }
+    },
+    "fadeB.out-fadingMotesB.b": {
+      "id": "fadeB.out-fadingMotesB.b",
+      "from": {
+        "nodeId": "fadeB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadingMotesB",
+        "portId": "b"
+      }
+    },
+    "fadingMotesA.out-motes.a": {
+      "id": "fadingMotesA.out-motes.a",
+      "from": {
+        "nodeId": "fadingMotesA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "motes",
+        "portId": "a"
+      }
+    },
+    "fadingMotesB.out-motes.b": {
+      "id": "fadingMotesB.out-motes.b",
+      "from": {
+        "nodeId": "fadingMotesB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "motes",
+        "portId": "b"
+      }
+    },
+    "flattened.out-foot.a": {
+      "id": "flattened.out-foot.a",
+      "from": {
+        "nodeId": "flattened",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "foot",
+        "portId": "a"
+      }
+    },
+    "foot.out-rayPosition.a": {
+      "id": "foot.out-rayPosition.a",
+      "from": {
+        "nodeId": "foot",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rayPosition",
+        "portId": "a"
+      }
+    },
+    "intensity.out-radiance.b": {
+      "id": "intensity.out-radiance.b",
+      "from": {
+        "nodeId": "intensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "radiance",
+        "portId": "b"
+      }
+    },
+    "intersectionFade.out-sceneFade.distance": {
+      "id": "intersectionFade.out-sceneFade.distance",
+      "from": {
+        "nodeId": "intersectionFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sceneFade",
+        "portId": "distance"
+      }
+    },
+    "lightAndDust.out-tintedLight.a": {
+      "id": "lightAndDust.out-tintedLight.a",
+      "from": {
+        "nodeId": "lightAndDust",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tintedLight",
+        "portId": "a"
+      }
+    },
+    "lightDirection.out-lightVector.a": {
+      "id": "lightDirection.out-lightVector.a",
+      "from": {
+        "nodeId": "lightDirection",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightVector",
+        "portId": "a"
+      }
+    },
+    "lightVector.out-stretch.a": {
+      "id": "lightVector.out-stretch.a",
+      "from": {
+        "nodeId": "lightVector",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stretch",
+        "portId": "a"
+      }
+    },
+    "motes.out-dustLight.a": {
+      "id": "motes.out-dustLight.a",
+      "from": {
+        "nodeId": "motes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustLight",
+        "portId": "a"
+      }
+    },
+    "motesA.out-fadingMotesA.a": {
+      "id": "motesA.out-fadingMotesA.a",
+      "from": {
+        "nodeId": "motesA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadingMotesA",
+        "portId": "a"
+      }
+    },
+    "motesB.out-fadingMotesB.a": {
+      "id": "motesB.out-fadingMotesB.a",
+      "from": {
+        "nodeId": "motesB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadingMotesB",
+        "portId": "a"
+      }
+    },
+    "opacity.out-alpha.b": {
+      "id": "opacity.out-alpha.b",
+      "from": {
+        "nodeId": "opacity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "alpha",
+        "portId": "b"
+      }
+    },
+    "particleInner.out-dustRampA.edge0": {
+      "id": "particleInner.out-dustRampA.edge0",
+      "from": {
+        "nodeId": "particleInner",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampA",
+        "portId": "edge0"
+      }
+    },
+    "particleInner.out-dustRampB.edge0": {
+      "id": "particleInner.out-dustRampB.edge0",
+      "from": {
+        "nodeId": "particleInner",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampB",
+        "portId": "edge0"
+      }
+    },
+    "particleOuter.out-dustRampA.edge1": {
+      "id": "particleOuter.out-dustRampA.edge1",
+      "from": {
+        "nodeId": "particleOuter",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampA",
+        "portId": "edge1"
+      }
+    },
+    "particleOuter.out-dustRampB.edge1": {
+      "id": "particleOuter.out-dustRampB.edge1",
+      "from": {
+        "nodeId": "particleOuter",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampB",
+        "portId": "edge1"
+      }
+    },
+    "particleRadius.out-safeParticleRadius.a": {
+      "id": "particleRadius.out-safeParticleRadius.a",
+      "from": {
+        "nodeId": "particleRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeParticleRadius",
+        "portId": "a"
+      }
+    },
+    "particleSize.out-particleRadius.a": {
+      "id": "particleSize.out-particleRadius.a",
+      "from": {
+        "nodeId": "particleSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "particleRadius",
+        "portId": "a"
+      }
+    },
+    "phaseA.out-cycleA.a": {
+      "id": "phaseA.out-cycleA.a",
+      "from": {
+        "nodeId": "phaseA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cycleA",
+        "portId": "a"
+      }
+    },
+    "phaseB.out-cycleB.a": {
+      "id": "phaseB.out-cycleB.a",
+      "from": {
+        "nodeId": "phaseB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cycleB",
+        "portId": "a"
+      }
+    },
+    "pixelArea.out-absolutePixelArea.in": {
+      "id": "pixelArea.out-absolutePixelArea.in",
+      "from": {
+        "nodeId": "pixelArea",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "absolutePixelArea",
+        "portId": "in"
+      }
+    },
+    "pixelBasisX.out-pixelYA.b": {
+      "id": "pixelBasisX.out-pixelYA.b",
+      "from": {
+        "nodeId": "pixelBasisX",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelYA",
+        "portId": "b"
+      }
+    },
+    "pixelBasisX.out-pixelYB.b": {
+      "id": "pixelBasisX.out-pixelYB.b",
+      "from": {
+        "nodeId": "pixelBasisX",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelYB",
+        "portId": "b"
+      }
+    },
+    "pixelBasisY.out-pixelArea.b": {
+      "id": "pixelBasisY.out-pixelArea.b",
+      "from": {
+        "nodeId": "pixelBasisY",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelArea",
+        "portId": "b"
+      }
+    },
+    "pixelBasisY.out-pixelXA.b": {
+      "id": "pixelBasisY.out-pixelXA.b",
+      "from": {
+        "nodeId": "pixelBasisY",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelXA",
+        "portId": "b"
+      }
+    },
+    "pixelBasisY.out-pixelXB.b": {
+      "id": "pixelBasisY.out-pixelXB.b",
+      "from": {
+        "nodeId": "pixelBasisY",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelXB",
+        "portId": "b"
+      }
+    },
+    "pixelDistanceA.out-dustRampA.in": {
+      "id": "pixelDistanceA.out-dustRampA.in",
+      "from": {
+        "nodeId": "pixelDistanceA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampA",
+        "portId": "in"
+      }
+    },
+    "pixelDistanceB.out-dustRampB.in": {
+      "id": "pixelDistanceB.out-dustRampB.in",
+      "from": {
+        "nodeId": "pixelDistanceB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustRampB",
+        "portId": "in"
+      }
+    },
+    "pixelLengthA.out-pixelDistanceA.a": {
+      "id": "pixelLengthA.out-pixelDistanceA.a",
+      "from": {
+        "nodeId": "pixelLengthA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelDistanceA",
+        "portId": "a"
+      }
+    },
+    "pixelLengthB.out-pixelDistanceB.a": {
+      "id": "pixelLengthB.out-pixelDistanceB.a",
+      "from": {
+        "nodeId": "pixelLengthB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelDistanceB",
+        "portId": "a"
+      }
+    },
+    "pixelVectorA.vec2-pixelLengthA.in": {
+      "id": "pixelVectorA.vec2-pixelLengthA.in",
+      "from": {
+        "nodeId": "pixelVectorA",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "pixelLengthA",
+        "portId": "in"
+      }
+    },
+    "pixelVectorB.vec2-pixelLengthB.in": {
+      "id": "pixelVectorB.vec2-pixelLengthB.in",
+      "from": {
+        "nodeId": "pixelVectorB",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "pixelLengthB",
+        "portId": "in"
+      }
+    },
+    "pixelXA.out-pixelVectorA.x": {
+      "id": "pixelXA.out-pixelVectorA.x",
+      "from": {
+        "nodeId": "pixelXA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelVectorA",
+        "portId": "x"
+      }
+    },
+    "pixelXB.out-pixelVectorB.x": {
+      "id": "pixelXB.out-pixelVectorB.x",
+      "from": {
+        "nodeId": "pixelXB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelVectorB",
+        "portId": "x"
+      }
+    },
+    "pixelYA.out-pixelVectorA.y": {
+      "id": "pixelYA.out-pixelVectorA.y",
+      "from": {
+        "nodeId": "pixelYA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelVectorA",
+        "portId": "y"
+      }
+    },
+    "pixelYB.out-pixelVectorB.y": {
+      "id": "pixelYB.out-pixelVectorB.y",
+      "from": {
+        "nodeId": "pixelYB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelVectorB",
+        "portId": "y"
+      }
+    },
+    "position.out-flattened.a": {
+      "id": "position.out-flattened.a",
+      "from": {
+        "nodeId": "position",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "flattened",
+        "portId": "a"
+      }
+    },
+    "pulseA.out-fadeA.in": {
+      "id": "pulseA.out-fadeA.in",
+      "from": {
+        "nodeId": "pulseA",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadeA",
+        "portId": "in"
+      }
+    },
+    "pulseB.out-fadeB.in": {
+      "id": "pulseB.out-fadeB.in",
+      "from": {
+        "nodeId": "pulseB",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fadeB",
+        "portId": "in"
+      }
+    },
+    "radiance.out-master.baseColor": {
+      "id": "radiance.out-master.baseColor",
+      "from": {
+        "nodeId": "radiance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "rayColor.out-tintedLight.b": {
+      "id": "rayColor.out-tintedLight.b",
+      "from": {
+        "nodeId": "rayColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tintedLight",
+        "portId": "b"
+      }
+    },
+    "rayDensity.out-stripeX.b": {
+      "id": "rayDensity.out-stripeX.b",
+      "from": {
+        "nodeId": "rayDensity",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripeX",
+        "portId": "b"
+      }
+    },
+    "rayLength.out-lightVector.b": {
+      "id": "rayLength.out-lightVector.b",
+      "from": {
+        "nodeId": "rayLength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lightVector",
+        "portId": "b"
+      }
+    },
+    "rayPosition.out-master.position": {
+      "id": "rayPosition.out-master.position",
+      "from": {
+        "nodeId": "rayPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "position"
+      }
+    },
+    "safeParticleRadius.out-particleInner.a": {
+      "id": "safeParticleRadius.out-particleInner.a",
+      "from": {
+        "nodeId": "safeParticleRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "particleInner",
+        "portId": "a"
+      }
+    },
+    "safeParticleRadius.out-particleOuter.a": {
+      "id": "safeParticleRadius.out-particleOuter.a",
+      "from": {
+        "nodeId": "safeParticleRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "particleOuter",
+        "portId": "a"
+      }
+    },
+    "safePixelArea.out-pixelDistanceA.b": {
+      "id": "safePixelArea.out-pixelDistanceA.b",
+      "from": {
+        "nodeId": "safePixelArea",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelDistanceA",
+        "portId": "b"
+      }
+    },
+    "safePixelArea.out-pixelDistanceB.b": {
+      "id": "safePixelArea.out-pixelDistanceB.b",
+      "from": {
+        "nodeId": "safePixelArea",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "pixelDistanceB",
+        "portId": "b"
+      }
+    },
+    "sceneFade.out-sceneMask.b": {
+      "id": "sceneFade.out-sceneMask.b",
+      "from": {
+        "nodeId": "sceneFade",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sceneMask",
+        "portId": "b"
+      }
+    },
+    "sceneMask.out-alpha.a": {
+      "id": "sceneMask.out-alpha.a",
+      "from": {
+        "nodeId": "sceneMask",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "alpha",
+        "portId": "a"
+      }
+    },
+    "softStripes.out-cameraMask.a": {
+      "id": "softStripes.out-cameraMask.a",
+      "from": {
+        "nodeId": "softStripes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cameraMask",
+        "portId": "a"
+      }
+    },
+    "stretch.out-rayPosition.b": {
+      "id": "stretch.out-rayPosition.b",
+      "from": {
+        "nodeId": "stretch",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rayPosition",
+        "portId": "b"
+      }
+    },
+    "stripeNoise.out-stripeRamp.in": {
+      "id": "stripeNoise.out-stripeRamp.in",
+      "from": {
+        "nodeId": "stripeNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripeRamp",
+        "portId": "in"
+      }
+    },
+    "stripePoint.vec3-stripeNoise.p": {
+      "id": "stripePoint.vec3-stripeNoise.p",
+      "from": {
+        "nodeId": "stripePoint",
+        "portId": "vec3"
+      },
+      "to": {
+        "nodeId": "stripeNoise",
+        "portId": "p"
+      }
+    },
+    "stripeRamp.out-stripes.a": {
+      "id": "stripeRamp.out-stripes.a",
+      "from": {
+        "nodeId": "stripeRamp",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripes",
+        "portId": "a"
+      }
+    },
+    "stripeX.out-stripePoint.x": {
+      "id": "stripeX.out-stripePoint.x",
+      "from": {
+        "nodeId": "stripeX",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "stripePoint",
+        "portId": "x"
+      }
+    },
+    "stripes.out-softStripes.a": {
+      "id": "stripes.out-softStripes.a",
+      "from": {
+        "nodeId": "stripes",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "softStripes",
+        "portId": "a"
+      }
+    },
+    "time.out-drift.a": {
+      "id": "time.out-drift.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "drift",
+        "portId": "a"
+      }
+    },
+    "time.out-dustTime.a": {
+      "id": "time.out-dustTime.a",
+      "from": {
+        "nodeId": "time",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustTime",
+        "portId": "a"
+      }
+    },
+    "tintedLight.out-radiance.a": {
+      "id": "tintedLight.out-radiance.a",
+      "from": {
+        "nodeId": "tintedLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "radiance",
+        "portId": "a"
+      }
+    },
+    "uv.out-cellOffsetA.a": {
+      "id": "uv.out-cellOffsetA.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cellOffsetA",
+        "portId": "a"
+      }
+    },
+    "uv.out-cellOffsetB.a": {
+      "id": "uv.out-cellOffsetB.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "cellOffsetB",
+        "portId": "a"
+      }
+    },
+    "uv.out-centered.a": {
+      "id": "uv.out-centered.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "centered",
+        "portId": "a"
+      }
+    },
+    "uv.out-dustA.uv": {
+      "id": "uv.out-dustA.uv",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustA",
+        "portId": "uv"
+      }
+    },
+    "uv.out-dustB.uv": {
+      "id": "uv.out-dustB.uv",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "dustB",
+        "portId": "uv"
+      }
+    },
+    "uv.out-uvAxes.in": {
+      "id": "uv.out-uvAxes.in",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "uvAxes",
+        "portId": "in"
+      }
+    },
+    "uv.out-uvPixel.in": {
+      "id": "uv.out-uvPixel.in",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "uvPixel",
+        "portId": "in"
+      }
+    },
+    "uvAxes.x-stripeX.a": {
+      "id": "uvAxes.x-stripeX.a",
+      "from": {
+        "nodeId": "uvAxes",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "stripeX",
+        "portId": "a"
+      }
+    },
+    "uvAxes.y-stretch.b": {
+      "id": "uvAxes.y-stretch.b",
+      "from": {
+        "nodeId": "uvAxes",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "stretch",
+        "portId": "b"
+      }
+    },
+    "uvPixel.ddx-pixelArea.a": {
+      "id": "uvPixel.ddx-pixelArea.a",
+      "from": {
+        "nodeId": "uvPixel",
+        "portId": "ddx"
+      },
+      "to": {
+        "nodeId": "pixelArea",
+        "portId": "a"
+      }
+    },
+    "uvPixel.ddx-pixelBasisX.in": {
+      "id": "uvPixel.ddx-pixelBasisX.in",
+      "from": {
+        "nodeId": "uvPixel",
+        "portId": "ddx"
+      },
+      "to": {
+        "nodeId": "pixelBasisX",
+        "portId": "in"
+      }
+    },
+    "uvPixel.ddy-pixelBasisY.in": {
+      "id": "uvPixel.ddy-pixelBasisY.in",
+      "from": {
+        "nodeId": "uvPixel",
+        "portId": "ddy"
+      },
+      "to": {
+        "nodeId": "pixelBasisY",
+        "portId": "in"
+      }
+    },
+    "viewAxes.z-cameraDepth.in": {
+      "id": "viewAxes.z-cameraDepth.in",
+      "from": {
+        "nodeId": "viewAxes",
+        "portId": "z"
+      },
+      "to": {
+        "nodeId": "cameraDepth",
+        "portId": "in"
+      }
+    },
+    "viewPosition.out-viewAxes.in": {
+      "id": "viewPosition.out-viewAxes.in",
+      "from": {
+        "nodeId": "viewPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "viewAxes",
+        "portId": "in"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "lightDirection",
+      "label": "Light direction (object space)",
+      "name": "lightDirection",
+      "exposed": true,
+      "type": "vec3",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "id": "rayLength",
+      "label": "Ray length",
+      "name": "rayLength",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 2.4
+      }
+    },
+    {
+      "id": "rayDensity",
+      "label": "Ray density",
+      "name": "rayDensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 12
+      }
+    },
+    {
+      "id": "driftSpeed",
+      "label": "Drift speed",
+      "name": "driftSpeed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.12
+      }
+    },
+    {
+      "id": "rayColor",
+      "label": "Ray color",
+      "name": "rayColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          1,
+          0.760525,
+          0.366253
+        ]
+      }
+    },
+    {
+      "id": "intensity",
+      "label": "Light intensity",
+      "name": "intensity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.8
+      }
+    },
+    {
+      "id": "opacity",
+      "label": "Opacity",
+      "name": "opacity",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.4
+      }
+    },
+    {
+      "id": "particleSize",
+      "label": "Particle size (px)",
+      "name": "particleSize",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 2
+      }
+    },
+    {
+      "id": "dustFadeSpeed",
+      "label": "Dust fade speed",
+      "name": "dustFadeSpeed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.5
+      }
+    },
+    {
+      "id": "dustBrightness",
+      "label": "Dust brightness",
+      "name": "dustBrightness",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1.142
+      }
+    },
+    {
+      "id": "intersectionFade",
+      "label": "Intersection fade distance",
+      "name": "intersectionFade",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.3
+      }
+    }
+  ]
+}

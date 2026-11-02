@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { luminanceSpread } from './support/luminance-spread'
+import { changedShare, luminanceSpread } from './support/luminance-spread'
 import { pickExampleByKeyboard, templatesBrowser, templatesButton } from './support/open-example'
 import { readStoredNodes } from './support/read-autosave'
 
@@ -16,6 +16,14 @@ interface IllustrationTemplate {
 }
 
 const TEMPLATES: readonly IllustrationTemplate[] = [
+  {
+    id: 'god-rays',
+    title: 'God rays',
+    spanishTitle: 'Rayos de luz',
+    frame: { group: 'stretch', title: 'Stretch toward the light' },
+    shape: 'Plane',
+    textureNodes: [],
+  },
   {
     id: 'lines',
     title: 'Lines',
@@ -133,6 +141,46 @@ test.describe('illustration templates', () => {
       expect(pageErrors).toEqual([])
     })
   }
+
+  test('God rays dust fades independently of the beams and can be paused', async ({ page }) => {
+    await page.goto('/')
+    await pickExampleByKeyboard(page, 'God rays')
+    const properties = page.getByRole('region', { name: 'Properties', exact: true })
+    const beamSpeed = properties
+      .getByRole('group', { name: 'Drift speed', exact: true })
+      .getByRole('textbox', { name: 'Value' })
+    await beamSpeed.fill('0')
+    await beamSpeed.press('Enter')
+    const dustSpeed = properties
+      .getByRole('group', { name: 'Dust fade speed', exact: true })
+      .getByRole('textbox', { name: 'Value' })
+    await expect(dustSpeed).toHaveValue('1.5')
+    const canvas = mainPreview(page).locator('canvas')
+    await expect
+      .poll(async () => luminanceSpread(page, await canvas.screenshot()), {
+        timeout: PREVIEW_TIMEOUT_MS,
+      })
+      .toBeGreaterThan(MIN_PICTURE_SPREAD)
+
+    // Freeze the beams so only particle brightness can change the picture.
+    await expect
+      .poll(async () => {
+        const before = await canvas.screenshot()
+        await page.waitForTimeout(750)
+        return changedShare(page, before, await canvas.screenshot())
+      })
+      .toBeGreaterThan(0.001)
+
+    await dustSpeed.fill('0')
+    await dustSpeed.press('Enter')
+    await expect
+      .poll(async () => {
+        const before = await canvas.screenshot()
+        await page.waitForTimeout(750)
+        return changedShare(page, before, await canvas.screenshot())
+      })
+      .toBe(0)
+  })
 
   test('the templates browser previews each of them live', async ({ page }) => {
     test.setTimeout(PREVIEW_TIMEOUT_MS * TEMPLATES.length)

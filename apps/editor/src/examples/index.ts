@@ -7,6 +7,7 @@ import type { MessageKey } from '@/i18n/translate'
 import { registry } from '@/store/registry'
 
 import { BRUSH_TOON } from './build/brush-toon'
+import { GOD_RAYS } from './build/god-rays'
 import { LAVA_FLOW } from './build/lava-flow'
 import { LINES } from './build/lines'
 import { PATCH } from './build/patch'
@@ -25,6 +26,7 @@ import { fixtureExamples } from './fixtures'
 import { localizeComments } from './localize-comments'
 import type { CommentTexts } from './localize-comments'
 import brushToonGraph from './brush-toon.graph.json'
+import godRaysGraph from './god-rays.graph.json'
 import lavaFlowGraph from './lava-flow.graph.json'
 import linesGraph from './lines.graph.json'
 import patchGraph from './patch.graph.json'
@@ -41,6 +43,7 @@ import type { TemplateTexture } from './template-texture'
 /** The templates people see, in the browser and as ⌘K commands. */
 export const EXAMPLE_IDS = [
   'pond',
+  'god-rays',
   'poster',
   'lava-flow',
   'lines',
@@ -94,6 +97,14 @@ export const EXAMPLES: readonly Example[] = [
     previewShape: 'plane',
     tags: ['unlit', 'voronoi', 'noise'],
     ...fromSpec(POND),
+  },
+  {
+    id: 'god-rays',
+    title: 'example.god-rays.title',
+    graph: godRaysGraph,
+    previewShape: 'plane',
+    tags: ['unlit', 'vertex', 'noise', 'voronoi'],
+    ...fromSpec(GOD_RAYS),
   },
   {
     id: 'poster',
