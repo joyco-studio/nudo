@@ -55,7 +55,6 @@ const CATALOG_C_TYPES = [
   'vector/reflect',
   'vector/refract',
   'color/tone-map',
-  'effects/pen-ink',
 ]
 
 const buildWith = (
