@@ -4,7 +4,6 @@ import { checkerboardNode } from './effects/checkerboard-node'
 import { fresnelNode } from './effects/fresnel-node'
 import { gradientNode } from './effects/gradient-node'
 import { noiseNode } from './effects/noise-node'
-import { penInkNode } from './effects/pen-ink-node'
 import { voronoi3dNode } from './effects/voronoi-3d-node'
 import { voronoiNode } from './effects/voronoi-node'
 import { blendNode } from './color/blend-node'
@@ -163,7 +162,6 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   reflectNode,
   refractNode,
   toneMapNode,
-  penInkNode,
 ]
 
 export function createDefaultRegistry(): NodeRegistry {
