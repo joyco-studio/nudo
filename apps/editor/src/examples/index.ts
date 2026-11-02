@@ -11,6 +11,7 @@ import { GOD_RAYS } from './build/god-rays'
 import { LAVA_FLOW } from './build/lava-flow'
 import { LINES } from './build/lines'
 import { PATCH } from './build/patch'
+import { PEN } from './build/pen'
 import { PENCIL } from './build/pencil'
 import { POND } from './build/pond'
 import { POSTER } from './build/poster'
@@ -31,6 +32,7 @@ import godRaysGraph from './god-rays.graph.json'
 import lavaFlowGraph from './lava-flow.graph.json'
 import linesGraph from './lines.graph.json'
 import patchGraph from './patch.graph.json'
+import penGraph from './pen.graph.json'
 import pencilGraph from './pencil.graph.json'
 import pondGraph from './pond.graph.json'
 import posterGraph from './poster.graph.json'
@@ -51,6 +53,7 @@ export const EXAMPLE_IDS = [
   'lines',
   'scribble',
   'pencil',
+  'pen',
   'patch',
   'brush-toon',
   'midnight-glaze',
@@ -148,6 +151,14 @@ export const EXAMPLES: readonly Example[] = [
     previewShape: 'sphere',
     tags: ['unlit', 'noise', 'fresnel'],
     ...fromSpec(PENCIL),
+  },
+  {
+    id: 'pen',
+    title: 'example.pen.title',
+    graph: penGraph,
+    previewShape: 'sphere',
+    tags: ['unlit', 'noise', 'fresnel'],
+    ...fromSpec(PEN),
   },
   {
     id: 'patch',
