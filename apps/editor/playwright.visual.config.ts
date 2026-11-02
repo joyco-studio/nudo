@@ -27,7 +27,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     launchOptions: {
-      executablePath: process.env.VISUAL_CHROMIUM_PATH,
+      ...(process.env.VISUAL_CHROMIUM_PATH
+        ? { executablePath: process.env.VISUAL_CHROMIUM_PATH }
+        : {}),
       args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
     },
   },
