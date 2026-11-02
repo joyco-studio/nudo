@@ -13,10 +13,17 @@ const isCi = Boolean(process.env.CI)
 const WORKERS = isCi ? 2 : 6
 
 /**
- * Specs that open the 120-node pond or render many node previews. They run one at a time in
- * their own project, so two of them never fight over the CPU.
+ * Per-test and per-assertion budgets. On a two-core runner software WebGL keeps the main thread
+ * busy, so a spec that tabs through dozens of controls needs more than Playwright's 30 s and 5 s.
  */
-const HEAVY_SPECS = /(pond|pond-performance|phase-2-golden-path|node-previews)\.spec\.ts/
+const TEST_TIMEOUT_MS = isCi ? 90_000 : 30_000
+const EXPECT_TIMEOUT_MS = isCi ? 15_000 : 5_000
+
+/**
+ * Specs that render many node previews at once. They run one at a time in their own project, so
+ * two of them never fight over the CPU.
+ */
+const HEAVY_SPECS = /phase-2-golden-path\.spec\.ts/
 
 /**
  * `E2E_GPU=1` (exactly) adds a GPU-backed run (WebGPU on, Metal ANGLE on macOS) of the preview
@@ -28,7 +35,7 @@ const gpuProjects =
     ? [
         {
           name: 'chromium-gpu',
-          testMatch: /(node-previews|preview)\.spec\.ts/,
+          testMatch: /preview\.spec\.ts/,
           use: {
             ...devices['Desktop Chrome'],
             channel: 'chromium',
@@ -44,8 +51,11 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   workers: WORKERS,
+  timeout: TEST_TIMEOUT_MS,
+  expect: { timeout: EXPECT_TIMEOUT_MS },
   forbidOnly: isCi,
-  retries: isCi ? 2 : 0,
+  // One retry absorbs a slow software-WebGL frame; more only multiplies the cost of a real failure.
+  retries: isCi ? 1 : 0,
   // On CI the HTML report is written to playwright-report/ and uploaded when the job fails.
   reporter: isCi ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
