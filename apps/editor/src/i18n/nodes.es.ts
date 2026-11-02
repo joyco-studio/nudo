@@ -753,6 +753,57 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'effects/pen-ink': {
+    label: 'Tinta de lapicera',
+    description:
+      'Tinta de birome a lo largo de un trazo: una línea cuyo ancho y oscuridad varían con el flujo de tinta, salpicada por el diente del papel, que se esparce en una mancha suave con poca presión.',
+    formula: 'birome(Distancia, Presión)',
+    keywords: [
+      'lapicera',
+      'birome',
+      'bolígrafo',
+      'tinta',
+      'trazo',
+      'línea',
+      'dibujo',
+      'boceto',
+      'papel',
+      'pen',
+    ],
+    inputs: {
+      distance: {
+        label: 'Distancia',
+        description:
+          'Qué tan lejos está el punto de la línea central del trazo: 0 sobre ella, 1 en su borde. Length de una UV centrada × 2 dibuja un punto.',
+      },
+      pressure: {
+        label: 'Presión',
+        description:
+          'Cuánta tinta cae, de 0 a 1: cerca de 0 una mancha tenue esparcida, desde 0.2 más o menos la línea de birome completa.',
+      },
+      paper: {
+        label: 'Papel',
+        description:
+          'Dónde cae el punto en la hoja: el flujo de tinta y el diente del papel quedan fijos ahí. La UV de la malla si no hay nada conectado.',
+      },
+      flowScale: {
+        label: 'Escala del flujo',
+        description:
+          'Qué tan rápido cambia el flujo de tinta sobre el papel: más alto = tramos húmedos y secos más cortos.',
+      },
+      toothScale: {
+        label: 'Escala del diente',
+        description: 'Qué tan fino es el diente del papel: celdas por unidad de Papel.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description:
+          'Cuánta tinta cubre el punto, de 0 a 1: conectalo a la opacidad de un Blend para poner la tinta sobre el papel.',
+      },
+    },
+  },
   'math/hash': {
     label: 'Aleatorio',
     description:
