@@ -104,6 +104,8 @@ export const es = {
   'command.open-command-palette.keywords': 'buscar comandos',
   'command.browse-templates.label': 'Explorar plantillas',
   'command.browse-templates.keywords': 'plantillas ejemplos muestras demo galería vista previa',
+  'command.example-god-rays.label': 'Plantilla: Rayos de luz',
+  'command.example-god-rays.keywords': 'plantilla ejemplo muestra demo rayos luz sol haces polvo',
   'command.example-pond.label': 'Plantilla: Estanque',
   'command.example-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
   'command.example-poster.label': 'Plantilla: Afiche',
@@ -227,6 +229,11 @@ export const es = {
   'templateTag.voronoi': 'voronoi',
   'templateTag.fresnel': 'fresnel',
   'templateTag.painterly': 'pictórico',
+  'example.god-rays.title': 'Rayos de luz',
+  'example.god-rays.description':
+    'Haces de sol cálidos con bordes suaves y polvo que aparece y desaparece',
+  'example.god-rays.teaches':
+    'Basado en Cyanilux: estirá un plano hacia la luz, creá franjas con ruido, multiplicá desvanecidos de borde y profundidad y animá el brillo de motas Voronoi fijas. Un plano de luz ubicado a mano, sin orientación automática a cámara ni máscara de sombras.',
   'example.pond.title': 'Estanque',
   'example.pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
   'example.pond.teaches':

@@ -10,6 +10,7 @@ import { BRUSH_TOON } from './brush-toon'
 import { buildExampleGraph } from './build-example-graph'
 import { frameIdOf } from './example-spec'
 import type { ExampleSpec } from './example-spec'
+import { GOD_RAYS } from './god-rays'
 import { LAVA_FLOW } from './lava-flow'
 import { LINES } from './lines'
 import { estimateGeometry } from './node-geometry'
@@ -33,6 +34,7 @@ import { TEXTURE_FIXTURE } from './texture-fixture'
  */
 const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['pond', POND],
+  ['god-rays', GOD_RAYS],
   ['poster', POSTER],
   ['lava-flow', LAVA_FLOW],
   ['lines', LINES],
