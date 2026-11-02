@@ -33,7 +33,9 @@ writeFileSync(
     {
       version: 1,
       repository: 'joyco-studio/nudo',
-      commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+      commit: execFileSync('git', ['-c', `safe.directory=${process.cwd()}`, 'rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+      }).trim(),
       runId: process.env.GITHUB_RUN_ID ?? null,
       images,
     },
