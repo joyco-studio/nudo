@@ -4,7 +4,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { exports } from 'cloudflare:workers'
 import { afterEach, describe, expect, it } from 'vitest'
 import { callTool, type Room } from './mcp-endpoint'
-import { connectTab } from './testing/bridge-socket'
+import { connectTab, roomFor } from './testing/bridge-socket'
 
 const MCP_URL = 'https://nudo-mcp.test/mcp'
 const CLIENT_NAME = 'test-client'
@@ -105,6 +105,22 @@ describe('MCP endpoint', () => {
     tab.close()
   })
 
+  it('DELETE ends the session: the room forgets its client name', async () => {
+    const key = uniqueKey()
+    const initialized = await postInitialize({ Authorization: `Bearer ${key}` })
+    const sessionId = initialized.headers.get('Mcp-Session-Id') ?? ''
+    const room = await roomFor(key)
+    await expect(room.touchSession(sessionId)).resolves.toBe(CLIENT_NAME)
+
+    const response = await workerFetch(MCP_URL, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${key}`, 'Mcp-Session-Id': sessionId },
+    })
+
+    expect(response.status).toBe(200)
+    await expect(room.touchSession(sessionId)).resolves.toBeNull()
+  })
+
   it('lists every catalog tool', async () => {
     const client = await connectClient(uniqueKey())
     const { tools } = await client.listTools()
@@ -191,7 +207,8 @@ describe('callTool', () => {
   const brokenRoom = (failure: Error): Room => ({
     dispatch: () => Promise.reject(failure),
     registerSession: () => Promise.resolve(),
-    clientName: () => Promise.resolve('test-client'),
+    touchSession: () => Promise.resolve('test-client'),
+    forgetSession: () => Promise.resolve(),
   })
 
   it('maps a thrown room RPC (a reset Durable Object) to not_connected instead of failing', async () => {
@@ -213,7 +230,7 @@ describe('callTool', () => {
     if (getGraph === undefined) throw new Error('get_graph is missing from the catalog')
     const room: Room = {
       ...brokenRoom(new Error('unused')),
-      clientName: () => Promise.reject(new Error('Network connection lost.')),
+      touchSession: () => Promise.reject(new Error('Network connection lost.')),
     }
 
     const result = await callTool(room, 'session-1', getGraph, {})

@@ -35,7 +35,8 @@ const BAD_IMAGE_MESSAGE = 'The nudo tab returned a preview image in an unexpecte
 export interface Room {
   dispatch: (request: DispatchRequest) => Promise<DispatchResult>
   registerSession: (sessionId: string, clientName: string) => Promise<void>
-  clientName: (sessionId: string) => Promise<string | null>
+  touchSession: (sessionId: string) => Promise<string | null>
+  forgetSession: (sessionId: string) => Promise<void>
 }
 
 const initializeMessageSchema = z.object({
@@ -94,7 +95,7 @@ const toToolResult = (tool: ToolSpec['name'], result: DispatchResult): CallToolR
 
 /** Resolves who is calling: the client name stored for the session at initialize time. */
 const resolveAgent = async (room: Room, sessionId: string): Promise<AgentIdentity> => {
-  const name = await room.clientName(sessionId)
+  const name = await room.touchSession(sessionId)
   return { sessionId, name: name === null || name === '' ? FALLBACK_AGENT_NAME : name }
 }
 
@@ -178,6 +179,18 @@ const handleMcpPost = async (request: Request, room: Room): Promise<Response> =>
   return serve(request, createServer(room, sessionId), statelessTransport())
 }
 
+/** The client ended its session: the room forgets it. Ending is best effort, so it always succeeds. */
+const handleMcpDelete = async (request: Request, room: Room): Promise<Response> => {
+  const sessionId = request.headers.get(SESSION_HEADER)
+  if (sessionId === null) return jsonRpcError(400, JSON_RPC_SERVER_ERROR, MISSING_SESSION_MESSAGE)
+  try {
+    await room.forgetSession(sessionId)
+  } catch {
+    // The room is unreachable; its alarm forgets the session later.
+  }
+  return new Response(null, { status: 200 })
+}
+
 /**
  * Serves the nudo tools over MCP Streamable HTTP. The bearer key is the only protection (CLIs
  * call this route, so there is no Origin check); it picks the room and is never logged.
@@ -189,7 +202,7 @@ export const handleMcp = async (request: Request, env: Cloudflare.Env): Promise<
   if (request.method === 'GET') {
     return new Response(NO_SERVER_STREAM_MESSAGE, { status: 405, headers: { Allow: 'POST' } })
   }
-  if (request.method === 'DELETE') return new Response(null, { status: 200 })
+  if (request.method === 'DELETE') return handleMcpDelete(request, await roomForKey(env, key))
   if (request.method !== 'POST') {
     return new Response(null, { status: 405, headers: { Allow: 'POST, DELETE' } })
   }

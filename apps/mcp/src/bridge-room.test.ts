@@ -1,7 +1,8 @@
 import { hashKey, MAX_MESSAGE_BYTES, PROTOCOL_VERSION } from '@nudo-tsl/agent-protocol'
-import { runInDurableObject } from 'cloudflare:test'
+import { runDurableObjectAlarm, runInDurableObject } from 'cloudflare:test'
 import { describe, expect, it } from 'vitest'
-import { BridgeRoom } from './bridge-room'
+import { z } from 'zod'
+import { BridgeRoom, SESSION_TTL_MS } from './bridge-room'
 import { connectTab, helloMessage, openBridgeSocket, roomFor } from './testing/bridge-socket'
 
 const AGENT = { sessionId: 'session-1', name: 'Test Agent' }
@@ -212,10 +213,87 @@ describe('BridgeRoom sessions', () => {
     const room = await roomFor(uniqueKey())
     await room.registerSession('session-1', 'Cursor')
 
-    await expect(room.clientName('session-1')).resolves.toBe('Cursor')
-    await expect(room.clientName('unknown')).resolves.toBeNull()
+    await expect(room.touchSession('session-1')).resolves.toBe('Cursor')
+    await expect(room.touchSession('unknown')).resolves.toBeNull()
     await runInDurableObject(room, async (instance: BridgeRoom) => {
-      await expect(instance.clientName('session-1')).resolves.toBe('Cursor')
+      await expect(instance.touchSession('session-1')).resolves.toBe('Cursor')
+    })
+  })
+
+  it('forgets a session, and empties its storage when nothing else is left', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('session-1', 'Cursor')
+
+    await room.forgetSession('session-1')
+
+    await expect(room.touchSession('session-1')).resolves.toBeNull()
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      expect((await state.storage.list()).size).toBe(0)
+      await expect(state.storage.getAlarm()).resolves.toBeNull()
+    })
+  })
+
+  it('schedules a cleanup alarm when a session is registered', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('session-1', 'Cursor')
+
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      const alarm = await state.storage.getAlarm()
+      expect(alarm).not.toBeNull()
+      expect(alarm ?? 0).toBeGreaterThan(Date.now())
+    })
+  })
+
+  it('the alarm drops sessions unused for the TTL and keeps recent ones', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('stale', 'Old agent')
+    await room.registerSession('fresh', 'Cursor')
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      await state.storage.put('session:stale', {
+        clientName: 'Old agent',
+        lastUsedAt: Date.now() - SESSION_TTL_MS - 1,
+      })
+    })
+
+    expect(await runDurableObjectAlarm(room)).toBe(true)
+
+    await expect(room.touchSession('stale')).resolves.toBeNull()
+    await expect(room.touchSession('fresh')).resolves.toBe('Cursor')
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      await expect(state.storage.getAlarm()).resolves.not.toBeNull()
+    })
+  })
+
+  it('the alarm empties the room once every session expired and no tab is connected', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('stale', 'Old agent')
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      await state.storage.put('session:stale', { clientName: 'Old agent', lastUsedAt: 0 })
+    })
+
+    expect(await runDurableObjectAlarm(room)).toBe(true)
+
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      expect((await state.storage.list()).size).toBe(0)
+      await expect(state.storage.getAlarm()).resolves.toBeNull()
+    })
+  })
+
+  it('a lookup marks the session as used, so the alarm keeps it', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('session-1', 'Cursor')
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      await state.storage.put('session:session-1', {
+        clientName: 'Cursor',
+        lastUsedAt: Date.now() - SESSION_TTL_MS + 60_000,
+      })
+    })
+
+    await room.touchSession('session-1')
+    await runInDurableObject(room, async (_instance: BridgeRoom, state) => {
+      const stored: unknown = await state.storage.get('session:session-1')
+      const { lastUsedAt } = z.object({ lastUsedAt: z.number() }).parse(stored)
+      expect(lastUsedAt).toBeGreaterThan(Date.now() - 60_000)
     })
   })
 })

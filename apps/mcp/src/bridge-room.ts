@@ -28,6 +28,13 @@ const CLOSE_CODE_BAD_KEY = 4001
 const CLOSE_CODE_PROTOCOL_MISMATCH = 4002
 const SESSION_KEY_PREFIX = 'session:'
 
+/** A session no tool call used for this long is forgotten by the next cleanup alarm. */
+export const SESSION_TTL_MS = 24 * 60 * 60 * 1_000
+
+const storedSessionSchema = z.object({ clientName: z.string(), lastUsedAt: z.number() })
+
+type StoredSession = z.infer<typeof storedSessionSchema>
+
 /** Per-socket state kept with the Hibernation API, so it survives the object being evicted. */
 const socketAttachmentSchema = z.object({
   roomHash: z.string(),
@@ -149,12 +156,42 @@ export class BridgeRoom extends DurableObject {
   }
 
   async registerSession(sessionId: string, clientName: string): Promise<void> {
-    await this.ctx.storage.put(sessionKey(sessionId), clientName)
+    await this.writeSession(sessionId, clientName)
+    if ((await this.ctx.storage.getAlarm()) === null) {
+      await this.ctx.storage.setAlarm(Date.now() + SESSION_TTL_MS)
+    }
   }
 
-  async clientName(sessionId: string): Promise<string | null> {
-    const stored = await this.ctx.storage.get(sessionKey(sessionId))
-    return typeof stored === 'string' ? stored : null
+  /** Marks the session as used now and returns its client name; null for an unknown session. */
+  async touchSession(sessionId: string): Promise<string | null> {
+    const parsed = storedSessionSchema.safeParse(await this.ctx.storage.get(sessionKey(sessionId)))
+    if (!parsed.success) return null
+    await this.writeSession(sessionId, parsed.data.clientName)
+    return parsed.data.clientName
+  }
+
+  /** Drops a session its client ended (MCP `DELETE`). */
+  async forgetSession(sessionId: string): Promise<void> {
+    await this.ctx.storage.delete(sessionKey(sessionId))
+    await this.clearIfEmpty()
+  }
+
+  /** Forgets the sessions unused for `SESSION_TTL_MS`, and checks again later for the rest. */
+  override async alarm(): Promise<void> {
+    const expiredBefore = Date.now() - SESSION_TTL_MS
+    const sessions = await this.ctx.storage.list({ prefix: SESSION_KEY_PREFIX })
+    const expired = [...sessions]
+      .filter(([, value]) => {
+        const parsed = storedSessionSchema.safeParse(value)
+        return !parsed.success || parsed.data.lastUsedAt <= expiredBefore
+      })
+      .map(([name]) => name)
+    if (expired.length > 0) await this.ctx.storage.delete(expired)
+    if (expired.length < sessions.size) {
+      await this.ctx.storage.setAlarm(Date.now() + SESSION_TTL_MS)
+      return
+    }
+    await this.clearIfEmpty()
   }
 
   override async webSocketMessage(socket: WebSocket, frame: string | ArrayBuffer): Promise<void> {
@@ -173,12 +210,32 @@ export class BridgeRoom extends DurableObject {
     await this.handleMessage(socket, attachment, parsed.value)
   }
 
-  override webSocketClose(socket: WebSocket): void {
+  override async webSocketClose(socket: WebSocket): Promise<void> {
     this.dropSocket(socket)
+    await this.clearIfEmpty(socket)
   }
 
-  override webSocketError(socket: WebSocket): void {
+  override async webSocketError(socket: WebSocket): Promise<void> {
     this.dropSocket(socket)
+    await this.clearIfEmpty(socket)
+  }
+
+  private async writeSession(sessionId: string, clientName: string): Promise<void> {
+    const session: StoredSession = { clientName, lastUsedAt: Date.now() }
+    await this.ctx.storage.put(sessionKey(sessionId), session)
+  }
+
+  /**
+   * With no session and no tab left the room has nothing to keep: its storage (and alarm) go, so
+   * an abandoned key leaves nothing behind. `closing` is a socket on its way out.
+   */
+  private async clearIfEmpty(closing?: WebSocket): Promise<void> {
+    const hasSockets = this.ctx.getWebSockets().some((socket) => socket !== closing)
+    if (hasSockets) return
+    const sessions = await this.ctx.storage.list({ prefix: SESSION_KEY_PREFIX, limit: 1 })
+    if (sessions.size > 0) return
+    await this.ctx.storage.deleteAlarm()
+    await this.ctx.storage.deleteAll()
   }
 
   private async handleMessage(
