@@ -5,6 +5,7 @@ import { asNodeId } from '@nudo-tsl/core'
 import { ReactFlowProvider } from '@xyflow/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 import type { AgentPresence, AgentTask } from '@/store/store-types'
 
@@ -100,6 +101,30 @@ describe('AgentPresenceLayer', () => {
       button.click()
     })
     expect(centerOn).toHaveBeenCalledExactlyOnceWith(OFFSCREEN_POINT)
+  })
+
+  it('moves focus to the canvas when the focused edge indicator goes away on its own', () => {
+    const canvas = document.createElement('main')
+    canvas.id = CANVAS_ID
+    canvas.tabIndex = -1
+    document.body.append(canvas)
+    try {
+      renderLayer()
+      const button = container.querySelector('button')
+      if (button === null) throw new Error('No edge indicator')
+      button.focus()
+
+      // The agent moves into view (the unmeasured canvas shows only its origin).
+      act(() => {
+        useEditorStore.setState({
+          agentPresence: { ...presence, target: { kind: 'point', position: { x: 0, y: 0 } } },
+        })
+      })
+      expect(container.querySelector('button')).toBeNull()
+      expect(document.activeElement).toBe(canvas)
+    } finally {
+      canvas.remove()
+    }
   })
 
   it('announces the current step in a polite status region', () => {

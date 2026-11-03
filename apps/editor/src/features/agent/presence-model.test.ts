@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest'
 
 import type { AgentPresence, AgentTask } from '@/store/store-types'
 
-import { creatorNameOf, currentStepOf, cursorTransitionFor, editorNameOf } from './presence-model'
+import {
+  creatorNameOf,
+  currentStepOf,
+  cursorTransitionFor,
+  editorNameOf,
+  nextCursorMove,
+  restingCursorMove,
+} from './presence-model'
 
 const CREATED = asNodeId('created')
 const OTHER = asNodeId('other')
@@ -49,7 +56,27 @@ describe('presence model', () => {
   })
 
   it('jumps the cursor with reduced motion', () => {
-    expect(cursorTransitionFor(true).duration).toBe(0)
-    expect(cursorTransitionFor(false).duration).toBeGreaterThan(0)
+    expect(cursorTransitionFor(true, true).duration).toBe(0)
+    expect(cursorTransitionFor(false, true).duration).toBeGreaterThan(0)
+  })
+
+  it('travels only to a new target: a zoom or a dragged target node moves the cursor at once', () => {
+    const nodeTarget = { kind: 'node', nodeId: OTHER } as const
+    const resting = restingCursorMove(nodeTarget, { x: 100, y: 50 })
+    expect(cursorTransitionFor(false, resting.travels).duration).toBe(0)
+
+    const zoomed = nextCursorMove(resting, nodeTarget, { x: 200, y: 100 })
+    expect(zoomed.travels).toBe(false)
+    expect(cursorTransitionFor(false, zoomed.travels).duration).toBe(0)
+
+    const dragged = nextCursorMove(zoomed, nodeTarget, { x: 260, y: 140 })
+    expect(cursorTransitionFor(false, dragged.travels).duration).toBe(0)
+
+    const newTarget = { kind: 'port', ref: { nodeId: OTHER, portId: 'a' } } as const
+    const travel = nextCursorMove(dragged, newTarget, { x: 400, y: 160 })
+    expect(travel.travels).toBe(true)
+    expect(cursorTransitionFor(false, travel.travels).duration).toBeGreaterThan(0)
+
+    expect(nextCursorMove(travel, newTarget, { x: 400, y: 160 })).toBe(travel)
   })
 })

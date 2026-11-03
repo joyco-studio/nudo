@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import type { NodeId, XY } from '@nudo-tsl/core'
 import { useStore } from '@xyflow/react'
 import type { InternalNode, ReactFlowState } from '@xyflow/react'
@@ -24,8 +24,18 @@ import {
   sameXY,
   wirePath,
 } from './presence-geometry'
-import type { PresenceNode, ViewTransform } from './presence-geometry'
-import { currentStepOf, cursorTransitionFor, targetNodeId } from './presence-model'
+import type {
+  EdgeIndicator as EdgeIndicatorPlacement,
+  PresenceNode,
+  ViewTransform,
+} from './presence-geometry'
+import {
+  currentStepOf,
+  cursorTransitionFor,
+  nextCursorMove,
+  restingCursorMove,
+  targetNodeId,
+} from './presence-model'
 
 /** How far in from the canvas border the off-screen pointer sits, in pixels. */
 const EDGE_INDICATOR_INSET_PX = 28
@@ -87,20 +97,33 @@ function useViewTransform(): ViewTransform {
 }
 
 /**
- * The arrow and name pill. The pan applies at once and only the move within the graph animates,
- * so panning the canvas never makes the cursor trail behind.
+ * The arrow and name pill. The pan applies at once on the outer layer; inside it the cursor only
+ * travels (animates) when the agent moves to a new target. A zoom or a dragged target node moves
+ * it at once, so it never trails behind what it points at.
  */
-function AgentCursor({ point, name }: { point: XY; name: string }) {
+function AgentCursor({
+  point,
+  target,
+  name,
+}: {
+  point: XY
+  target: AgentPresence['target']
+  name: string
+}) {
   const transform = useViewTransform()
-  const transition = cursorTransitionFor(useReducedMotion() === true)
+  const prefersReducedMotion = useReducedMotion() === true
+  const offset = { x: point.x * transform.zoom, y: point.y * transform.zoom }
+  const [move, setMove] = useState(() => restingCursorMove(target, offset))
+  const next = nextCursorMove(move, target, offset)
+  if (next !== move) setMove(next)
   return (
     <div className="absolute top-0 left-0" style={{ transform: cssPlacement(transform) }}>
       <motion.div
         data-agent-cursor
         className="absolute top-0 left-0 flex items-start gap-0.5"
         initial={false}
-        animate={{ x: point.x * transform.zoom, y: point.y * transform.zoom }}
-        transition={transition}
+        animate={{ x: next.offset.x, y: next.offset.y }}
+        transition={cursorTransitionFor(prefersReducedMotion, next.travels)}
       >
         <svg width="14" height="16" viewBox="0 0 14 16" className="fill-agent stroke-background">
           <path d="M1 1 L1 14 L4.5 10.5 L7 15 L9 14 L6.6 9.6 L12 9.6 Z" strokeWidth="1" />
@@ -155,6 +178,26 @@ function PendingWire({ from, to }: { from: XY; to: XY }) {
   )
 }
 
+function focusCanvas(): void {
+  document.getElementById(CANVAS_ID)?.focus({ preventScroll: true })
+}
+
+/**
+ * When the pointer goes away while focused (the agent came into view, or left), focus moves to the
+ * canvas instead of falling to the page. Runs in the unmount cleanup, while the button is still in
+ * the document and still focused.
+ */
+function useFocusCanvasOnUnmount<Element extends HTMLElement>() {
+  const ref = useRef<Element>(null)
+  useLayoutEffect(() => {
+    const element = ref.current
+    return () => {
+      if (element !== null && document.activeElement === element) focusCanvas()
+    }
+  }, [])
+  return ref
+}
+
 /** After the pan, focus lands on what the agent is working on, not on the vanished pointer. */
 function focusTarget(target: AgentPresence['target']): void {
   const nodeId: NodeId | null = targetNodeId(target)
@@ -162,7 +205,7 @@ function focusTarget(target: AgentPresence['target']): void {
     focusFlowNode(nodeId)
     return
   }
-  document.getElementById(CANVAS_ID)?.focus({ preventScroll: true })
+  focusCanvas()
 }
 
 /**
@@ -193,13 +236,33 @@ function EdgeIndicator({
   )
   if (indicator === null) return null
   return (
-    <button
-      type="button"
-      aria-label={t('agent.offscreen', { name })}
-      onClick={() => {
+    <EdgeIndicatorButton
+      indicator={indicator}
+      label={t('agent.offscreen', { name })}
+      name={name}
+      onActivate={() => {
         centerOn(point)
         focusTarget(presence.target)
       }}
+    />
+  )
+}
+
+interface EdgeIndicatorButtonProps {
+  indicator: EdgeIndicatorPlacement
+  label: string
+  name: string
+  onActivate: () => void
+}
+
+function EdgeIndicatorButton({ indicator, label, name, onActivate }: EdgeIndicatorButtonProps) {
+  const ref = useFocusCanvasOnUnmount<HTMLButtonElement>()
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-label={label}
+      onClick={onActivate}
       className="pointer-events-auto absolute top-0 left-0 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 bg-agent px-1.5 py-0.5 text-micro font-medium whitespace-nowrap text-agent-foreground outline-none focus-visible:ring-2 focus-visible:ring-agent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       style={{ left: indicator.x, top: indicator.y }}
     >
@@ -224,7 +287,9 @@ function PresenceScene({ presence, task }: { presence: AgentPresence; task: Agen
         {points.wireFrom !== null && wireTo !== undefined && (
           <PendingWire from={points.wireFrom} to={wireTo} />
         )}
-        {points.cursor !== null && <AgentCursor point={points.cursor} name={name} />}
+        {points.cursor !== null && (
+          <AgentCursor point={points.cursor} target={presence.target} name={name} />
+        )}
       </div>
       {points.cursor !== null && (
         <EdgeIndicator point={points.cursor} presence={presence} name={name} />

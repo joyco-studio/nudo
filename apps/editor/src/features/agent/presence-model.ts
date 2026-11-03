@@ -1,4 +1,4 @@
-import type { NodeId } from '@nudo-tsl/core'
+import type { NodeId, XY } from '@nudo-tsl/core'
 
 import { DURATION_MS, EASE, toSeconds } from '@/shared/motion/tokens'
 import type { AgentPresence, AgentTask } from '@/store/store-types'
@@ -52,11 +52,44 @@ export interface CursorTransition {
 }
 
 /**
- * How the cursor travels to its next target: over the choreography's travel time (`DURATION_MS.slow`,
- * the same wait the tools await), or a jump with reduced motion. The keyboard modality does not
- * apply: the agent moves the cursor, not the person.
+ * Where the cursor sits inside the panned layer (`point * zoom`), and whether reaching it is a
+ * trip to a new target. A zoom, or the person dragging the target node, moves the offset but not
+ * the target, so the cursor follows at once instead of trailing.
  */
-export function cursorTransitionFor(prefersReducedMotion: boolean): CursorTransition {
-  const duration = prefersReducedMotion ? 0 : toSeconds(DURATION_MS.slow)
+export interface CursorMove {
+  readonly target: AgentPresence['target']
+  readonly offset: XY
+  readonly travels: boolean
+}
+
+/** Starts a cursor that is already where it points: nothing travels on first render. */
+export function restingCursorMove(target: AgentPresence['target'], offset: XY): CursorMove {
+  return { target, offset, travels: false }
+}
+
+/**
+ * The cursor's next move: a travel only when `agentPresence.target` changed (the choreography
+ * publishes a new target object on each arrival). The same move back when nothing changed.
+ */
+export function nextCursorMove(
+  previous: CursorMove,
+  target: AgentPresence['target'],
+  offset: XY,
+): CursorMove {
+  if (target !== previous.target) return { target, offset, travels: true }
+  if (offset.x === previous.offset.x && offset.y === previous.offset.y) return previous
+  return { target, offset, travels: false }
+}
+
+/**
+ * How the cursor reaches its offset: over the choreography's travel time (`DURATION_MS.slow`, the
+ * same wait the tools await) when it travels to a new target, else at once. Reduced motion always
+ * jumps. The keyboard modality does not apply: the agent moves the cursor, not the person.
+ */
+export function cursorTransitionFor(
+  prefersReducedMotion: boolean,
+  travels: boolean,
+): CursorTransition {
+  const duration = travels && !prefersReducedMotion ? toSeconds(DURATION_MS.slow) : 0
   return { duration, ease: EASE.smoothOut }
 }
