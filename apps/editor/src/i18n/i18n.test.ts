@@ -9,7 +9,14 @@ import { localeFromLanguage, readInitialLocale, LOCALE_STORAGE_KEY } from './loc
 import { en } from './messages/en'
 import { es } from './messages/es'
 import { NODES_ES, UNIVERSAL_PARAMS_ES } from './nodes.es'
-import { createTranslator, interpolate, isMessageKey, placeholdersOf, plural } from './translate'
+import {
+  createTranslator,
+  interpolate,
+  isMessageKey,
+  messageParts,
+  placeholdersOf,
+  plural,
+} from './translate'
 import type { Messages } from './translate'
 
 const sourceRegistry = createDefaultRegistry()
@@ -67,6 +74,15 @@ describe('t', () => {
     expect(interpolate('Connect {title}', { title: 'Sine › In' })).toBe('Connect Sine › In')
     expect(interpolate('{count} of {count}', { count: 2 })).toBe('2 of 2')
     expect(interpolate('Keeps {unknown}', {})).toBe('Keeps {unknown}')
+  })
+
+  it('splits a message at its placeholders, keeping the word order', () => {
+    expect(messageParts('{name} · working {elapsed}')).toEqual([
+      { kind: 'placeholder', name: 'name' },
+      { kind: 'text', text: ' · working ' },
+      { kind: 'placeholder', name: 'elapsed' },
+    ])
+    expect(messageParts('No placeholders')).toEqual([{ kind: 'text', text: 'No placeholders' }])
   })
 
   it('looks a message up in its language and fills it in', () => {

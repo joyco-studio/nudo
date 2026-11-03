@@ -1,4 +1,4 @@
-import { Bot, Plug } from 'lucide-react'
+import { Bot, Pause, Plug } from 'lucide-react'
 
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
@@ -56,15 +56,17 @@ function ChipContent({ view }: { view: ChipView }) {
     const label = view.step ?? t(isWorking ? 'agent.chip.working' : 'agent.chip.stopped')
     return (
       <>
-        {isWorking ? <WorkingDots /> : null}
+        {/* The stopped chip keeps a mark on a phone, where its words are hidden. */}
+        {isWorking ? <WorkingDots /> : <Pause aria-hidden="true" className="sm:hidden" />}
         {/* The step alone does not say whose it is; the panel header shows the name. */}
         <span className="sr-only">{t('agent.chip.agentName', { name: view.agentName })}</span>{' '}
-        <span className="max-w-48 truncate max-sm:max-w-24">
+        {/* On a phone the header has room for the dots alone; the panel shows the step. */}
+        <span className="max-w-48 truncate max-sm:sr-only">
           {isWorking || view.step === null ? label : t('agent.chip.stoppedStep', { step: label })}
         </span>
         {/* The time is in the panel header too; here it would change the name every second. */}
         {isWorking ? (
-          <span aria-hidden="true" className="font-mono text-micro tabular-nums opacity-80">
+          <span aria-hidden="true" className="font-mono text-micro tabular-nums max-sm:hidden">
             {elapsed}
           </span>
         ) : null}

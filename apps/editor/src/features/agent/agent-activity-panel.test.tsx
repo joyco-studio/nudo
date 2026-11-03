@@ -119,6 +119,8 @@ describe('AgentActivityPanel', () => {
     })
     expect(useEditorStore.getState().agentTask?.status).toBe('stopped')
     expect(panel()?.querySelector('h2')?.textContent).toBe('Claude Code · stopped')
+    // The name stands out from the status around it, which stays in one translatable message.
+    expect(panel()?.querySelector('h2 > span')?.textContent).toBe('Claude Code')
 
     act(() => {
       buttonNamed('Let it continue').click()

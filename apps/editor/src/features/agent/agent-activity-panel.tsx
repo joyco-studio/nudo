@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'motion/react'
 
 import { CANVAS_OVERLAY_PROPS } from '@/features/canvas/measure-canvas-insets'
 import type { MessageKey } from '@/i18n/translate'
+import { RichMessage } from '@/i18n/rich-message'
 import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
 import { useOverlayMotion } from '@/shared/motion/use-motion-preset'
@@ -38,42 +39,60 @@ function StepRow({ step }: { step: AgentStep }) {
     <li
       aria-current={isCurrent ? 'step' : undefined}
       className={cn(
-        'flex min-h-7 items-center gap-2 px-2 text-xs',
+        'flex min-h-7 items-center gap-2 px-2 py-1 text-xs',
         isCurrent ? 'bg-agent-soft font-medium text-agent' : 'text-foreground',
         step.state === 'pending' && 'text-muted-foreground',
       )}
     >
-      <Icon
-        aria-hidden="true"
-        className={cn(
-          'size-3.5 shrink-0',
-          step.state === 'done' && 'text-muted-foreground',
-          // A constant spin stands for time passing; reduced motion holds it still.
-          isCurrent && 'animate-spin motion-reduce:animate-none',
-          step.state === 'pending' && 'size-2.5',
-        )}
-      />
+      {/* One slot size for every state, so the labels line up whatever the icon's size. */}
+      <span aria-hidden="true" className="flex size-3.5 shrink-0 items-center justify-center">
+        <Icon
+          className={cn(
+            'size-3.5',
+            step.state === 'done' && 'text-muted-foreground',
+            // A constant spin stands for time passing; reduced motion holds it still.
+            isCurrent && 'animate-spin motion-reduce:animate-none',
+            step.state === 'pending' && 'size-2.5',
+          )}
+        />
+      </span>
       <span className="sr-only">{`${t(STEP_STATE_LABELS[step.state])}: `}</span>
-      <span className="min-w-0 flex-1 truncate">{step.label}</span>
+      {/* The chip truncates the step; here it wraps, so the whole label can be read. */}
+      <span className="min-w-0 flex-1 break-words">{step.label}</span>
       {step.detail === null ? null : (
-        <span className="shrink-0 font-mono text-micro tabular-nums opacity-80">{step.detail}</span>
+        // Dimmed only off the agent color, which would drop below 4.5:1 on its soft fill.
+        <span
+          className={cn(
+            'shrink-0 font-mono text-micro tabular-nums',
+            !isCurrent && 'text-muted-foreground',
+          )}
+        >
+          {step.detail}
+        </span>
       )}
     </li>
   )
 }
 
-/** "{name} · working 0:14", "{name} · stopped", "{name} · done": one message, so word order translates. */
+/**
+ * "{name} · working 0:14", "{name} · stopped", "{name} · done": one message, so word order
+ * translates. The name leads in the foreground; the status around it is muted.
+ */
 function HeadingText({ task }: { task: AgentTask }) {
-  const t = useT()
   const elapsed = useTaskTimer(task.startedAt, task.status === 'active')
-  const name = task.agent.name
+  const name = <span className="font-semibold text-foreground">{task.agent.name}</span>
   switch (task.status) {
     case 'active':
-      return t('agent.panel.working', { name, elapsed })
+      return (
+        <RichMessage
+          messageKey="agent.panel.working"
+          values={{ name, elapsed: <span className="font-mono tabular-nums">{elapsed}</span> }}
+        />
+      )
     case 'stopped':
-      return t('agent.panel.stopped', { name })
+      return <RichMessage messageKey="agent.panel.stopped" values={{ name }} />
     case 'finished':
-      return t('agent.panel.done', { name })
+      return <RichMessage messageKey="agent.panel.done" values={{ name }} />
   }
 }
 
@@ -81,16 +100,17 @@ function TaskBody({ task }: { task: AgentTask }) {
   const t = useT()
   const name = task.agent.name
   return (
-    <div className="grid gap-2 p-2">
+    // One column that may shrink below its content, so long labels wrap inside the panel.
+    <div className="grid grid-cols-1 gap-2 p-2">
       {task.implicit || task.prompt === null ? null : (
-        <p className="px-2 text-xs text-muted-foreground">
+        <p className="px-2 text-xs break-words text-muted-foreground">
           {t('agent.panel.prompt', { prompt: task.prompt })}
         </p>
       )}
       {task.steps.length === 0 ? (
         <p className="px-2 text-xs text-muted-foreground">{t('agent.panel.noSteps', { name })}</p>
       ) : (
-        <ol className="grid gap-px">
+        <ol className="grid grid-cols-1 gap-px">
           {task.steps.map((step, index) => (
             // Labels can repeat; a step keeps its place in the list.
             <StepRow key={index} step={step} />
@@ -167,8 +187,9 @@ export function AgentActivityPanel() {
           onKeyDown={onKeyDown}
           className="pointer-events-auto w-72 max-w-full border bg-background/85 backdrop-blur-md"
         >
-          <div className="flex h-9 items-center gap-2 bg-muted/50 pr-1 pl-3">
-            <h2 className="min-w-0 flex-1 truncate text-xs font-medium">
+          {/* pl-4 puts the heading on the same left edge as the prompt and the steps below. */}
+          <div className="flex h-9 items-center gap-2 bg-muted/50 pr-1 pl-4">
+            <h2 className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
               <HeadingText task={task} />
             </h2>
             {task.status === 'active' ? (

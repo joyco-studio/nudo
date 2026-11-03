@@ -7,9 +7,8 @@ export type MessageKey = keyof typeof en
 export type Messages = { readonly [K in MessageKey]: string }
 
 /** The `{name}` placeholders of a message, as a union of their names. */
-type PlaceholderNames<Text extends string> = Text extends `${string}{${infer Name}}${infer Rest}`
-  ? Name | PlaceholderNames<Rest>
-  : never
+export type PlaceholderNames<Text extends string> =
+  Text extends `${string}{${infer Name}}${infer Rest}` ? Name | PlaceholderNames<Rest> : never
 
 export type MessageParamValues<K extends MessageKey> = Readonly<
   Record<PlaceholderNames<(typeof en)[K]>, string | number>
@@ -39,6 +38,28 @@ export function interpolate(
     const value = values[name]
     return value === undefined ? placeholder : String(value)
   })
+}
+
+/** A run of a message: literal text, or the name of the placeholder that goes there. */
+export type MessagePart =
+  | { readonly kind: 'text'; readonly text: string }
+  | { readonly kind: 'placeholder'; readonly name: string }
+
+/**
+ * Splits a message at its `{name}` placeholders, so each value can be rendered on its own (in
+ * bold, say) while translators keep the whole sentence and its word order.
+ */
+export function messageParts(template: string): readonly MessagePart[] {
+  const parts: MessagePart[] = []
+  let cursor = 0
+  for (const match of template.matchAll(PLACEHOLDER)) {
+    if (match.index > cursor)
+      parts.push({ kind: 'text', text: template.slice(cursor, match.index) })
+    parts.push({ kind: 'placeholder', name: match[1] ?? '' })
+    cursor = match.index + match[0].length
+  }
+  if (cursor < template.length) parts.push({ kind: 'text', text: template.slice(cursor) })
+  return parts
 }
 
 export function createTranslator(messages: Messages): Translate {

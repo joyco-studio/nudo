@@ -5,14 +5,13 @@ import { I18nContext } from './i18n-context'
 import type { I18nContextValue } from './i18n-context'
 import { persistLocale, readInitialLocale } from './locale'
 import type { Locale } from './locale'
-import { en } from './messages/en'
-import { es } from './messages/es'
+import { LOCALE_MESSAGES } from './locale-messages'
 import { createTranslator } from './translate'
 import type { Translate } from './translate'
 
 const TRANSLATORS: Readonly<Record<Locale, Translate>> = {
-  en: createTranslator(en),
-  es: createTranslator(es),
+  en: createTranslator(LOCALE_MESSAGES.en),
+  es: createTranslator(LOCALE_MESSAGES.es),
 }
 
 /** `window.localStorage` itself throws where storage is blocked. */

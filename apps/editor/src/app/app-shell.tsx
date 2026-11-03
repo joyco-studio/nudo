@@ -207,11 +207,14 @@ export function AppShell({
         </ResizablePanel>
         {/*
          * Over the canvas, pinned to its bottom edge, after the column in the tab order. The agent's
-         * activity island stacks above the code drawer, so neither covers the other.
+         * activity island stacks above the code drawer, so neither covers the other. In full, where
+         * the preview's own controls fill the bottom, it moves to the top left of the 3D view,
+         * just under the preview header.
          */}
         <div
           className={cn(
-            'pointer-events-none absolute right-4 bottom-4 left-16 z-20 flex flex-col items-start gap-2',
+            'pointer-events-none absolute right-4 left-16 z-20 flex flex-col items-start gap-2',
+            layout === 'full' ? 'top-28 left-8' : 'bottom-4',
             layout === 'docked' && 'md:right-[22rem]',
           )}
           style={codePanelStyle(layout, splitPercent)}
