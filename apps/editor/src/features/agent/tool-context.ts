@@ -25,7 +25,8 @@ export interface ToolContext {
   lastTouched(): NodeId | null
   /** Implementations must commit the layout through `commit` (it runs inside `markAgentWrite`). */
   tidyUp(commit: CommitWrite): Promise<void>
-  confirm(kind: ConfirmKind): Promise<boolean>
+  /** Asks the person; an aborted `signal` (the request timed out) declines and closes the question. */
+  confirm(kind: ConfirmKind, signal?: AbortSignal): Promise<boolean>
 }
 
 export type ToolHandler = (

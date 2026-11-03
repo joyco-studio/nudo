@@ -148,6 +148,7 @@ export class BridgeRoom extends DurableObject {
           tool: request.tool,
           args: request.args,
           agent: request.agent,
+          timeoutMs: request.timeoutMs,
         })
       } catch {
         this.settle(id, err(TAB_CLOSED))

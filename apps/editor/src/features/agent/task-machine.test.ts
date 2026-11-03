@@ -57,6 +57,8 @@ const writeRequest = (tool: ToolName, args: unknown): BridgeRequest => ({
   tool,
   args,
   agent: FIRST,
+  // Longer than any wait below: these tests are about idle time, not the request's timeout.
+  timeoutMs: 3_600_000,
 })
 
 /** A graph with a node in it, so replacing it asks the person first. */
@@ -100,6 +102,7 @@ describe('task machine', () => {
       tool: 'add_node',
       args: { type: 'math/add', position: { x: 0, y: 0 } },
       agent: FIRST,
+      timeoutMs: 15_000,
     }
 
     const response = await queue(request)

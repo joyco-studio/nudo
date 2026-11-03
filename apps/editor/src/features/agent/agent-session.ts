@@ -99,7 +99,7 @@ export function createAgentSession(options: AgentSessionOptions): AgentSession {
         services.tidyUp(commit)
         return Promise.resolve()
       },
-      confirm: (kind) => confirmBroker.request(kind),
+      confirm: (kind, signal) => confirmBroker.request(kind, signal),
     },
     toolGate,
   )

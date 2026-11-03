@@ -107,7 +107,12 @@ describe('BridgeRoom dispatch', () => {
 
     const pending = dispatchGetGraph(key)
     const request = await tab.next('request')
-    expect(request).toMatchObject({ tool: 'get_graph', args: {}, agent: AGENT })
+    expect(request).toMatchObject({
+      tool: 'get_graph',
+      args: {},
+      agent: AGENT,
+      timeoutMs: LONG_TIMEOUT_MS,
+    })
     tab.send({ kind: 'response', id: request.id, ok: true, result: { n: 1 } })
 
     await expect(pending).resolves.toEqual({ ok: true, value: { n: 1 } })

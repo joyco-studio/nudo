@@ -4,8 +4,11 @@ import type { ConfirmKind } from './tool-context'
 export type AgentConfirmKind = ConfirmKind | 'undo_all'
 
 export interface ConfirmBroker {
-  /** Asks the person; resolves their answer. A question while another is open is declined. */
-  readonly request: (kind: AgentConfirmKind) => Promise<boolean>
+  /**
+   * Asks the person; resolves their answer. A question while another is open is declined, and so
+   * is one whose `signal` aborts before the person answers (the question closes).
+   */
+  readonly request: (kind: AgentConfirmKind, signal?: AbortSignal) => Promise<boolean>
   /** The person's answer to the open question; nothing when none is open. */
   readonly answer: (isConfirmed: boolean) => void
   readonly pending: () => AgentConfirmKind | null
@@ -27,21 +30,32 @@ export function createConfirmBroker(): ConfirmBroker {
   const notify = (): void => {
     for (const listener of listeners) listener()
   }
+  /** Answers `question`, only while it is still the open one. */
+  const settle = (question: OpenQuestion, isConfirmed: boolean): void => {
+    if (open !== question) return
+    open = null
+    notify()
+    question.resolve(isConfirmed)
+  }
 
   return {
-    request(kind) {
-      if (open !== null) return Promise.resolve(false)
+    request(kind, signal) {
+      if (open !== null || signal?.aborted === true) return Promise.resolve(false)
       return new Promise<boolean>((resolve) => {
-        open = { kind, resolve }
+        const question: OpenQuestion = { kind, resolve }
+        open = question
+        signal?.addEventListener(
+          'abort',
+          () => {
+            settle(question, false)
+          },
+          { once: true },
+        )
         notify()
       })
     },
     answer(isConfirmed) {
-      if (open === null) return
-      const { resolve } = open
-      open = null
-      notify()
-      resolve(isConfirmed)
+      if (open !== null) settle(open, isConfirmed)
     },
     pending: () => open?.kind ?? null,
     subscribe(listener) {

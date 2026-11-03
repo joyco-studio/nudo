@@ -41,6 +41,7 @@ const REQUEST: BridgeRequest = {
   tool: 'get_graph',
   args: {},
   agent: { sessionId: 's1', name: 'Claude' },
+  timeoutMs: 15_000,
 }
 
 interface Harness {

@@ -45,8 +45,21 @@ describe('parseRoomMessage', () => {
       tool: 'get_graph',
       args: {},
       agent: { sessionId: 's', name: 'n' },
+      timeoutMs: 15_000,
     })
     expect(parseRoomMessage(raw).ok).toBe(true)
+  })
+
+  it('requires a request to carry its positive timeout', () => {
+    const base = {
+      kind: 'request',
+      id: '1',
+      tool: 'get_graph',
+      args: {},
+      agent: { sessionId: 's', name: 'n' },
+    }
+    expect(parseRoomMessage(JSON.stringify(base)).ok).toBe(false)
+    expect(parseRoomMessage(JSON.stringify({ ...base, timeoutMs: 0 })).ok).toBe(false)
   })
 
   it('rejects an unknown tool', () => {
@@ -56,6 +69,7 @@ describe('parseRoomMessage', () => {
       tool: 'nope',
       args: {},
       agent: { sessionId: 's', name: 'n' },
+      timeoutMs: 15_000,
     })
     expect(parseRoomMessage(raw).ok).toBe(false)
   })

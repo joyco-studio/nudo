@@ -63,6 +63,11 @@ const requestSchema = z.object({
   tool: z.enum(TOOL_NAMES),
   args: z.unknown(),
   agent: agentIdentitySchema,
+  /**
+   * How long the room waits for the answer. The tab drops the request (with `timeout`) once that
+   * much time passed since it arrived, so it never applies a call the agent was told timed out.
+   */
+  timeoutMs: z.number().positive(),
 })
 
 const activeTabSchema = z.object({ kind: z.literal('active-tab'), activeTabId: z.string() })

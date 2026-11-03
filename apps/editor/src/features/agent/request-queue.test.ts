@@ -1,10 +1,11 @@
 import type { BridgeRequest } from '@nudo-tsl/agent-protocol'
 import { err, ok } from '@nudo-tsl/core'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { immediateChoreograph } from './choreography'
+import { createConfirmBroker } from './confirm-broker'
 import { createRequestQueue } from './request-queue'
 import type { ToolGate } from './task-machine'
-import type { ToolHandler } from './tool-context'
+import type { ToolContext, ToolHandler } from './tool-context'
 
 const AGENT = { sessionId: 's1', name: 'agent' }
 const context = {
@@ -18,12 +19,24 @@ const context = {
 
 const admitAll: ToolGate = { admit: () => ok(undefined), settle: () => undefined }
 
-const request = (id: string, tool: BridgeRequest['tool'], args: unknown = {}): BridgeRequest => ({
+const TIMEOUT_MS = 15_000
+
+const request = (
+  id: string,
+  tool: BridgeRequest['tool'],
+  args: unknown = {},
+  timeoutMs: number = TIMEOUT_MS,
+): BridgeRequest => ({
   kind: 'request',
   id,
   tool,
   args,
   agent: AGENT,
+  timeoutMs,
+})
+
+afterEach(() => {
+  vi.useRealTimers()
 })
 
 describe('request queue', () => {
@@ -118,6 +131,72 @@ describe('request queue', () => {
     await queue(request('a', 'get_graph'))
 
     expect(settle).toHaveBeenCalledWith(AGENT)
+  })
+
+  it('drops a request whose timeout passed while it waited in line, without running it', async () => {
+    vi.useFakeTimers()
+    let releaseFirst: () => void = () => undefined
+    const slow: ToolHandler = () =>
+      new Promise((resolve) => {
+        releaseFirst = () => {
+          resolve(ok('slow'))
+        }
+      })
+    const late = vi.fn<ToolHandler>(() => Promise.resolve(ok('late')))
+    const admit = vi.fn<ToolGate['admit']>(() => ok(undefined))
+    const queue = createRequestQueue({ new_graph: slow, add_node: late }, context, {
+      admit,
+      settle: () => undefined,
+    })
+
+    const first = queue(request('a', 'new_graph', {}, 120_000))
+    const second = queue(request('b', 'add_node', { type: 'math/add' }))
+    await vi.advanceTimersByTimeAsync(TIMEOUT_MS)
+    releaseFirst()
+
+    await expect(first).resolves.toMatchObject({ id: 'a', ok: true })
+    await expect(second).resolves.toMatchObject({ id: 'b', ok: false, error: { code: 'timeout' } })
+    expect(late).not.toHaveBeenCalled()
+    expect(admit).toHaveBeenCalledTimes(1)
+  })
+
+  it('declines the open confirmation when its request times out', async () => {
+    vi.useFakeTimers()
+    const broker = createConfirmBroker()
+    const asks: ToolHandler = async (_args, toolContext) =>
+      ok(await toolContext.confirm('new_graph'))
+    const queue = createRequestQueue(
+      { new_graph: asks },
+      { ...context, confirm: (kind, signal) => broker.request(kind, signal) },
+      admitAll,
+    )
+
+    const response = queue(request('a', 'new_graph', {}, 120_000))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(broker.pending()).toBe('new_graph')
+    await vi.advanceTimersByTimeAsync(120_000)
+
+    expect(broker.pending()).toBeNull()
+    await expect(response).resolves.toMatchObject({ id: 'a', ok: true, result: false })
+  })
+
+  it('refuses writes a handler tries after its request timed out', async () => {
+    vi.useFakeTimers()
+    let canWriteLater: ReturnType<ToolContext['canWrite']> | null = null
+    const waits: ToolHandler = async (_args, toolContext) => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, TIMEOUT_MS)
+      })
+      canWriteLater = toolContext.canWrite(AGENT)
+      return ok(null)
+    }
+    const queue = createRequestQueue({ add_node: waits }, context, admitAll)
+
+    const response = queue(request('a', 'add_node', { type: 'math/add' }))
+    await vi.advanceTimersByTimeAsync(TIMEOUT_MS)
+    await response
+
+    expect(canWriteLater).toMatchObject({ ok: false, error: { code: 'timeout' } })
   })
 
   it('a validation that throws does not poison the queue', async () => {
