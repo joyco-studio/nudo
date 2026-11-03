@@ -9,8 +9,13 @@ export type ChipView =
   | { readonly kind: 'connecting' }
   | { readonly kind: 'other-tab' }
   | { readonly kind: 'connected'; readonly hasLastTask: boolean }
-  | { readonly kind: 'working'; readonly step: string | null; readonly startedAt: number }
-  | { readonly kind: 'stopped'; readonly step: string | null }
+  | {
+      readonly kind: 'working'
+      readonly agentName: string
+      readonly step: string | null
+      readonly startedAt: number
+    }
+  | { readonly kind: 'stopped'; readonly agentName: string; readonly step: string | null }
 
 const currentStepLabel = (task: AgentTask): string | null =>
   task.steps.find((step) => step.state === 'current')?.label ?? null
@@ -18,9 +23,16 @@ const currentStepLabel = (task: AgentTask): string | null =>
 /** A task in progress wins over the connection; finished, it only lets "connected" reopen it. */
 export function chipViewOf(status: ConnectionStatus, task: AgentTask | null): ChipView {
   if (task?.status === 'active') {
-    return { kind: 'working', step: currentStepLabel(task), startedAt: task.startedAt }
+    return {
+      kind: 'working',
+      agentName: task.agent.name,
+      step: currentStepLabel(task),
+      startedAt: task.startedAt,
+    }
   }
-  if (task?.status === 'stopped') return { kind: 'stopped', step: currentStepLabel(task) }
+  if (task?.status === 'stopped') {
+    return { kind: 'stopped', agentName: task.agent.name, step: currentStepLabel(task) }
+  }
   switch (status) {
     case 'connected':
       return { kind: 'connected', hasLastTask: task !== null }

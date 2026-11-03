@@ -84,13 +84,19 @@ describe('AgentWorkChip', () => {
     expect(chip().getAttribute('aria-expanded')).not.toBeNull()
   })
 
+  it("says whose work it is to screen readers, since the step alone doesn't", () => {
+    useEditorStore.setState({ agentConnection: 'connected', agentTask: workingTask })
+    mount()
+    expect(chip().querySelector('.sr-only')?.textContent).toBe('Claude Code:')
+  })
+
   it('names the step a stopped agent was on, in one translatable message', () => {
     useEditorStore.setState({
       agentConnection: 'connected',
       agentTask: { ...workingTask, status: 'stopped' },
     })
     mount()
-    expect(chip().textContent).toBe('Stopped · Adding Voronoi')
+    expect(chip().textContent).toBe('Claude Code: Stopped · Adding Voronoi')
   })
 
   it('offers to connect an agent while disconnected and opens the connect dialog', () => {

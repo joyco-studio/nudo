@@ -26,6 +26,7 @@ describe('chipViewOf', () => {
   it('shows the work while a task is active or stopped, whatever the connection', () => {
     expect(chipViewOf('unreachable', task('active'))).toEqual({
       kind: 'working',
+      agentName: 'Claude',
       step: 'Adding Voronoi',
       startedAt: 5,
     })

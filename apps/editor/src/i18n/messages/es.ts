@@ -638,6 +638,7 @@ export const es = {
   'agent.chip.connecting': 'Conectando…',
   'agent.chip.otherTab': 'Agent en otra pestaña',
   'agent.chip.connected': 'Agent conectado',
+  'agent.chip.agentName': '{name}:',
   'agent.chip.working': 'Trabajando',
   'agent.chip.stopped': 'Detenido',
   'agent.chip.stoppedStep': 'Detenido · {step}',

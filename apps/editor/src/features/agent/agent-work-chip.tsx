@@ -57,6 +57,8 @@ function ChipContent({ view }: { view: ChipView }) {
     return (
       <>
         {isWorking ? <WorkingDots /> : null}
+        {/* The step alone does not say whose it is; the panel header shows the name. */}
+        <span className="sr-only">{t('agent.chip.agentName', { name: view.agentName })}</span>{' '}
         <span className="max-w-48 truncate max-sm:max-w-24">
           {isWorking || view.step === null ? label : t('agent.chip.stoppedStep', { step: label })}
         </span>

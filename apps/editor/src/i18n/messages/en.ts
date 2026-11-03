@@ -624,6 +624,7 @@ export const en = {
   'agent.chip.connecting': 'Connecting…',
   'agent.chip.otherTab': 'Agent in another tab',
   'agent.chip.connected': 'Agent connected',
+  'agent.chip.agentName': '{name}:',
   'agent.chip.working': 'Working',
   'agent.chip.stopped': 'Stopped',
   'agent.chip.stoppedStep': 'Stopped · {step}',
