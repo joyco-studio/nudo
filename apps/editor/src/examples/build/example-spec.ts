@@ -69,6 +69,8 @@ export interface ExampleSpec {
   readonly properties: readonly PropertySpec[]
   readonly groups: readonly GroupSpec[]
   readonly wires: readonly WireSpec[]
+  /** Layout-only links keep unplugged alternatives beside the active branch; never saved as wires. */
+  readonly layoutWires?: readonly WireSpec[]
   readonly master: { readonly inputs?: Values; readonly params?: Params }
 }
 

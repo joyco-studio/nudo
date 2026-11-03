@@ -1,14 +1,17 @@
 import { float, texture } from '@nudo-tsl/core'
+import type { Ref } from 'react'
 import type { BlackboardProperty, PortValue } from '@nudo-tsl/core'
 
 import { ColorField } from '@/features/canvas/color-field'
 import { NumberField } from '@/features/canvas/number-field'
 import { TextureField } from '@/features/canvas/texture-field'
+import type { TextureFieldHandle } from '@/features/canvas/texture-field'
 import { VectorField } from '@/features/canvas/vector-field'
 import { useT } from '@/i18n/use-t'
 
 export interface PropertyValueFieldProps {
   property: BlackboardProperty
+  textureFieldRef?: Ref<TextureFieldHandle>
   /** One history entry per committed edit. */
   onCommit: (value: PortValue) => void
   /** A value shown live while a scrub or a color pick is in progress. */
@@ -22,6 +25,7 @@ export interface PropertyValueFieldProps {
  */
 export function PropertyValueField({
   property,
+  textureFieldRef,
   onCommit,
   onPreview,
   onPreviewEnd,
@@ -31,6 +35,7 @@ export function PropertyValueField({
   if (value.type === 'texture') {
     return (
       <TextureField
+        ref={textureFieldRef}
         label={property.label}
         visibleLabel={t('property.image')}
         assetId={value.assetId}

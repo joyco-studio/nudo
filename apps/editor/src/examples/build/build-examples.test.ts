@@ -28,6 +28,7 @@ import { POND } from './pond'
 import { POSTER } from './poster'
 import { SCRIBBLE } from './scribble'
 import { TEXTURE_FIXTURE } from './texture-fixture'
+import { TORN_WALLPAPER } from './torn-wallpaper'
 
 /**
  * Builds every example from its spec and keeps the committed `.graph.json` in step: run
@@ -36,6 +37,7 @@ import { TEXTURE_FIXTURE } from './texture-fixture'
  */
 const SPECS: readonly (readonly [id: string, spec: ExampleSpec])[] = [
   ['pond', POND],
+  ['torn-wallpaper', TORN_WALLPAPER],
   ['god-rays', GOD_RAYS],
   ['poster', POSTER],
   ['lava-flow', LAVA_FLOW],

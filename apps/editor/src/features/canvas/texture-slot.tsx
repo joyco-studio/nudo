@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import type { DragEvent, Ref } from 'react'
+import type { Ref } from 'react'
 import { ImagePlus, TriangleAlert } from 'lucide-react'
 
 import { formatImageSize } from '@/features/assets/texture-thumbnail-source'
 import type { ImageSize } from '@/features/assets/texture-thumbnail-source'
 import type { TextureSnapshot } from '@/features/assets/texture-cache'
+import { useImageDrop } from '@/features/assets/use-image-drop'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -23,11 +23,6 @@ export interface TextureSlotProps {
   size: ImageSize | null
   onChoose: () => void
   onDropFile: (file: File) => void
-}
-
-/** Whether a drag carries files (not text or a link dragged from elsewhere on the page). */
-function carriesFiles(event: DragEvent): boolean {
-  return event.dataTransfer.types.includes('Files')
 }
 
 function slotAction(state: TextureSlotState): MessageKey {
@@ -71,26 +66,11 @@ export function TextureSlot({
   onChoose,
   onDropFile,
 }: TextureSlotProps) {
-  const [isDropTarget, setIsDropTarget] = useState(false)
+  const drop = useImageDrop(onDropFile)
   const t = useT()
   const action = t(slotAction(state))
   const hint = slotHint(state, size, t)
   const showsImage = state === 'ready' || state === 'loading'
-
-  const onDragOver = (event: DragEvent<HTMLButtonElement>): void => {
-    if (!carriesFiles(event)) return
-    event.preventDefault()
-    event.dataTransfer.dropEffect = 'copy'
-    setIsDropTarget(true)
-  }
-
-  const onDrop = (event: DragEvent<HTMLButtonElement>): void => {
-    if (!carriesFiles(event)) return
-    event.preventDefault()
-    setIsDropTarget(false)
-    const [file] = event.dataTransfer.files
-    if (file !== undefined) onDropFile(file)
-  }
 
   return (
     <Tooltip>
@@ -102,7 +82,7 @@ export function TextureSlot({
           variant="ghost"
           aria-label={t('texture.slot', { action, port: label })}
           data-texture-state={state}
-          data-drop-target={isDropTarget || undefined}
+          data-drop-target={drop.isDropTarget || undefined}
           className={cn(
             'relative size-7 shrink-0 overflow-hidden p-0 text-muted-foreground hover:text-foreground has-[>svg]:p-0',
             showsImage
@@ -112,12 +92,10 @@ export function TextureSlot({
             'data-drop-target:outline-1 data-drop-target:-outline-offset-1 data-drop-target:outline-foreground data-drop-target:outline-solid',
           )}
           onClick={onChoose}
-          onDragEnter={onDragOver}
-          onDragOver={onDragOver}
-          onDragLeave={() => {
-            setIsDropTarget(false)
-          }}
-          onDrop={onDrop}
+          onDragEnter={drop.onDragEnter}
+          onDragOver={drop.onDragOver}
+          onDragLeave={drop.onDragLeave}
+          onDrop={drop.onDrop}
         >
           <SlotContent state={state} source={source} />
         </Button>

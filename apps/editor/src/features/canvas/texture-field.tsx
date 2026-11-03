@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import type { ChangeEvent } from 'react'
+import { useEffect, useImperativeHandle, useRef, useState } from 'react'
+import type { ChangeEvent, Ref } from 'react'
 import { X } from 'lucide-react'
 
 import { IMAGE_ACCEPT, isAcceptedImage } from '@/features/assets/accepted-images'
@@ -20,6 +20,7 @@ import { PortLabel } from './port-label'
 import { TextureSlot } from './texture-slot'
 
 export interface TextureFieldProps {
+  ref?: Ref<TextureFieldHandle> | undefined
   /** Names the input in the slot's and remove button's accessible names. */
   label: string
   /** The text shown beside the slot, when it differs from `label`. */
@@ -32,12 +33,18 @@ export interface TextureFieldProps {
   onChange: (assetId: string | null) => void
 }
 
+/** A surrounding property can forward drops through the same validation and upload path. */
+export interface TextureFieldHandle {
+  takeFile: (file: File) => void
+}
+
 /**
  * Picks the image of an unconnected texture input, on the same row as its label: a thumbnail slot
  * that opens the file chooser or takes a dropped file, and a remove button once an image is set.
  * The file is stored in IndexedDB under the hash of its bytes, so the graph only carries that id.
  */
 export function TextureField({
+  ref,
   label,
   visibleLabel = label,
   explanation,
@@ -86,6 +93,8 @@ export function TextureField({
     setProblem(null)
     void saveImage(file)
   }
+
+  useImperativeHandle(ref, () => ({ takeFile }))
 
   const onFileChosen = (event: ChangeEvent<HTMLInputElement>): void => {
     const input = event.currentTarget

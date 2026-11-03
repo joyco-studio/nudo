@@ -23,6 +23,7 @@ import {
   ROSE_MOON_SPEC,
 } from './build/painterly-spheres'
 import { SCRIBBLE } from './build/scribble'
+import { TORN_WALLPAPER } from './build/torn-wallpaper'
 import { fromSpec } from './example-from-spec'
 import { fixtureExamples } from './fixtures'
 import { localizeComments } from './localize-comments'
@@ -42,11 +43,13 @@ import pewterHazeGraph from './pewter-haze.graph.json'
 import roseMoonGraph from './rose-moon.graph.json'
 import inkSwirlGraph from './ink-swirl.graph.json'
 import scribbleGraph from './scribble.graph.json'
+import tornWallpaperGraph from './torn-wallpaper.graph.json'
 import type { TemplateTexture } from './template-texture'
 
 /** The templates people see, in the browser and as ⌘K commands. */
 export const EXAMPLE_IDS = [
   'pond',
+  'torn-wallpaper',
   'god-rays',
   'poster',
   'lava-flow',
@@ -103,6 +106,14 @@ export const EXAMPLES: readonly Example[] = [
     previewShape: 'plane',
     tags: ['unlit', 'voronoi', 'noise'],
     ...fromSpec(POND),
+  },
+  {
+    id: 'torn-wallpaper',
+    title: 'example.torn-wallpaper.title',
+    graph: tornWallpaperGraph,
+    previewShape: 'plane',
+    tags: ['unlit', 'noise'],
+    ...fromSpec(TORN_WALLPAPER),
   },
   {
     id: 'god-rays',

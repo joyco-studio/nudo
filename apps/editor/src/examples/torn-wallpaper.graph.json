@@ -1,0 +1,4153 @@
+{
+  "schemaVersion": 2,
+  "nodes": {
+    "absLocal": {
+      "id": "absLocal",
+      "type": "math/abs",
+      "position": {
+        "x": -15000,
+        "y": 270
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "across": {
+      "id": "across",
+      "type": "math/divide",
+      "position": {
+        "x": -5848,
+        "y": 626
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "acrossClamped": {
+      "id": "acrossClamped",
+      "type": "math/clamp",
+      "position": {
+        "x": -5528,
+        "y": 589
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "amount": {
+      "id": "amount",
+      "type": "property/float",
+      "position": {
+        "x": -17576,
+        "y": 876
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "tearAmount"
+      }
+    },
+    "backing": {
+      "id": "backing",
+      "type": "math/multiply",
+      "position": {
+        "x": -4568,
+        "y": 781
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "backingBand": {
+      "id": "backingBand",
+      "type": "math/subtract",
+      "position": {
+        "x": -4888,
+        "y": 818
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boundedDistance": {
+      "id": "boundedDistance",
+      "type": "math/max",
+      "position": {
+        "x": -13720,
+        "y": -435
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxAbsPosition": {
+      "id": "boxAbsPosition",
+      "type": "math/abs",
+      "position": {
+        "x": -15640,
+        "y": 2027
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxCombinedDistance": {
+      "id": "boxCombinedDistance",
+      "type": "math/add",
+      "position": {
+        "x": -13720,
+        "y": 1731
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxDistance": {
+      "id": "boxDistance",
+      "type": "math/subtract",
+      "position": {
+        "x": -14040,
+        "y": -233
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "boxDistanceUV": {
+      "id": "boxDistanceUV",
+      "type": "math/subtract",
+      "position": {
+        "x": -13400,
+        "y": 1694
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxExtents": {
+      "id": "boxExtents",
+      "type": "math/subtract",
+      "position": {
+        "x": -15320,
+        "y": 2063
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxHalfSize": {
+      "id": "boxHalfSize",
+      "type": "math/multiply",
+      "position": {
+        "x": -15640,
+        "y": 2302
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "boxInside": {
+      "id": "boxInside",
+      "type": "math/min",
+      "position": {
+        "x": -14040,
+        "y": 1920
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "boxMaxAxis": {
+      "id": "boxMaxAxis",
+      "type": "math/max",
+      "position": {
+        "x": -14360,
+        "y": 1971
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxOutput": {
+      "id": "boxOutput",
+      "type": "vector/combine",
+      "position": {
+        "x": -13080,
+        "y": 1601
+      },
+      "inputValues": {
+        "y": {
+          "type": "float",
+          "value": 1
+        },
+        "z": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "boxOutside": {
+      "id": "boxOutside",
+      "type": "vector/length",
+      "position": {
+        "x": -14040,
+        "y": 1645
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxPositiveQ": {
+      "id": "boxPositiveQ",
+      "type": "math/max",
+      "position": {
+        "x": -14360,
+        "y": 1668
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "boxQ": {
+      "id": "boxQ",
+      "type": "math/add",
+      "position": {
+        "x": -15000,
+        "y": 1917
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxQParts": {
+      "id": "boxQParts",
+      "type": "vector/split",
+      "position": {
+        "x": -14680,
+        "y": 2008
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxRadius": {
+      "id": "boxRadius",
+      "type": "math/multiply",
+      "position": {
+        "x": -15320,
+        "y": 1760
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "boxRoundness": {
+      "id": "boxRoundness",
+      "type": "property/float",
+      "position": {
+        "x": -15912,
+        "y": 1784
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "boxRoundness"
+      }
+    },
+    "boxRoundnessLimit": {
+      "id": "boxRoundnessLimit",
+      "type": "math/clamp",
+      "position": {
+        "x": -15640,
+        "y": 1696
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "broadEdge": {
+      "id": "broadEdge",
+      "type": "math/add",
+      "position": {
+        "x": -10072,
+        "y": 389
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "center": {
+      "id": "center",
+      "type": "vector/combine",
+      "position": {
+        "x": -16984,
+        "y": 640
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "clampedUV": {
+      "id": "clampedUV",
+      "type": "math/clamp",
+      "position": {
+        "x": -15640,
+        "y": -506
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 0.999
+        },
+        "min": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "curlNormal": {
+      "id": "curlNormal",
+      "type": "normal/normal-from-height",
+      "position": {
+        "x": -1032,
+        "y": 639
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "distance": {
+      "id": "distance",
+      "type": "math/multiply",
+      "position": {
+        "x": -13400,
+        "y": -472
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "distanceScale": {
+      "id": "distanceScale",
+      "type": "math/multiply",
+      "position": {
+        "x": -16344,
+        "y": 1025
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeDetail": {
+      "id": "edgeDetail",
+      "type": "effects/noise",
+      "position": {
+        "x": -10712,
+        "y": 929
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 48
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "edgeDistance": {
+      "id": "edgeDistance",
+      "type": "math/abs",
+      "position": {
+        "x": -2632,
+        "y": 95
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "edgeNoise": {
+      "id": "edgeNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -10712,
+        "y": 146
+      },
+      "inputValues": {
+        "roughness": {
+          "type": "float",
+          "value": 0.65
+        },
+        "scale": {
+          "type": "float",
+          "value": 2.2
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 4,
+        "tile": false
+      }
+    },
+    "ellipseDistance": {
+      "id": "ellipseDistance",
+      "type": "math/divide",
+      "position": {
+        "x": -13400,
+        "y": 758
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ellipseField": {
+      "id": "ellipseField",
+      "type": "math/subtract",
+      "position": {
+        "x": -13720,
+        "y": 657
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "ellipseGradient": {
+      "id": "ellipseGradient",
+      "type": "math/divide",
+      "position": {
+        "x": -14040,
+        "y": 997
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ellipseGradientLength": {
+      "id": "ellipseGradientLength",
+      "type": "vector/length",
+      "position": {
+        "x": -14360,
+        "y": 911
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ellipseGradientVector": {
+      "id": "ellipseGradientVector",
+      "type": "math/divide",
+      "position": {
+        "x": -14680,
+        "y": 801
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ellipseOutput": {
+      "id": "ellipseOutput",
+      "type": "vector/combine",
+      "position": {
+        "x": -13080,
+        "y": 665
+      },
+      "inputValues": {
+        "y": {
+          "type": "float",
+          "value": 1
+        },
+        "z": {
+          "type": "float",
+          "value": 1
+        }
+      },
+      "params": {}
+    },
+    "ellipseRadius": {
+      "id": "ellipseRadius",
+      "type": "vector/length",
+      "position": {
+        "x": -14680,
+        "y": 1104
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ellipseSafeGradient": {
+      "id": "ellipseSafeGradient",
+      "type": "math/max",
+      "position": {
+        "x": -13720,
+        "y": 960
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.0001
+        }
+      },
+      "params": {}
+    },
+    "ellipseSafeRadius": {
+      "id": "ellipseSafeRadius",
+      "type": "math/max",
+      "position": {
+        "x": -14360,
+        "y": 1186
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.0001
+        }
+      },
+      "params": {}
+    },
+    "fieldMargin": {
+      "id": "fieldMargin",
+      "type": "math/min",
+      "position": {
+        "x": -12376,
+        "y": 354
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "fineBites": {
+      "id": "fineBites",
+      "type": "math/multiply",
+      "position": {
+        "x": -10392,
+        "y": 743
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.05454545454545455
+        }
+      },
+      "params": {}
+    },
+    "finish": {
+      "id": "finish",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": 248,
+        "y": 183
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "frame-edge": {
+      "id": "frame-edge",
+      "type": "utility/comment",
+      "position": {
+        "x": -11704,
+        "y": 66
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Four octaves of low-frequency noise break the region into broad, uneven tears. Finer noise adds small bites. Noise stays anchored to the wall UV plus the seed: moving the region reveals new tears and backing patches, and returning to a position restores its pattern. Resizing the region keeps the noise scale fixed. The noise field has no polar seams.",
+        "height": 1343,
+        "title": "05 · Noise-torn boundary",
+        "width": 3168
+      }
+    },
+    "frame-peel": {
+      "id": "frame-peel",
+      "type": "utility/comment",
+      "position": {
+        "x": -8440,
+        "y": 398
+      },
+      "inputValues": {},
+      "params": {
+        "body": "An independent noise field controls how much backing is exposed: mostly thin frayed edges with occasional wider peeled patches. The backing sits between two irregular boundaries. Width stays in UV units as the region changes size. The height profile lifts the inner lip and settles back onto the wallpaper.",
+        "height": 1015,
+        "title": "06 · Exposed paper backing",
+        "width": 4448
+      }
+    },
+    "frame-region": {
+      "id": "frame-region",
+      "type": "utility/comment",
+      "position": {
+        "x": -18568,
+        "y": 311
+      },
+      "inputValues": {},
+      "params": {
+        "body": "All three shapes use these coordinates. Tear region sets XY center / ZW full size; Tear amount scales the opening. Shape selection happens only in group 04.",
+        "height": 1406,
+        "title": "00 · Shared placement",
+        "width": 2480
+      }
+    },
+    "frame-relief": {
+      "id": "frame-relief",
+      "type": "utility/comment",
+      "position": {
+        "x": -3896,
+        "y": -47
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Height-derived normals shade the lifted inner lip. A short exponential shadow falls into the opening, strongest under the wider lifted patches. It fades with edge lift and disappears when the tear closes. No repeated flap shapes or painted shadow atlas; the relief is a flat-material illusion.",
+        "height": 1040,
+        "title": "08 · Lift and contact shadow",
+        "width": 4400
+      }
+    },
+    "frame-shape-box": {
+      "id": "frame-shape-box",
+      "type": "utility/comment",
+      "position": {
+        "x": -15944,
+        "y": 1521
+      },
+      "inputValues": {},
+      "params": {
+        "body": "OUTPUT: the rightmost Combine → Vec3. Connect it to Split → In in group 04, replacing the current wire. Exact rounded-box distance in wall UV units. Tear region controls size and position; Box corner radius is a fraction of the smaller side, clamped to 0–0.5. Zero gives square corners.",
+        "height": 1084,
+        "title": "03 · ROUNDED BOX SDF — ready to connect",
+        "width": 3120
+      }
+    },
+    "frame-shape-ellipse": {
+      "id": "frame-shape-ellipse",
+      "type": "utility/comment",
+      "position": {
+        "x": -14712,
+        "y": 577
+      },
+      "inputValues": {},
+      "params": {
+        "body": "OUTPUT: the rightmost Combine → Vec3. Connect it to Split → In in group 04, replacing the texture wire. Uses Tear region width/height for the ellipse and Tear amount for its size. The gradient gives an approximate distance near the edge. No image or SDF texture settings are needed.",
+        "height": 912,
+        "title": "02 · ELLIPSE SDF — ready to connect",
+        "width": 1888
+      }
+    },
+    "frame-shape-input": {
+      "id": "frame-shape-input",
+      "type": "utility/comment",
+      "position": {
+        "x": -12728,
+        "y": 205
+      },
+      "inputValues": {},
+      "params": {
+        "body": "SWAP HERE: connect any shape group’s final Combine → Vec3 to this Split → In. One wire replaces the active shape AND its distance limits. X = distance (negative inside, zero edge, positive outside), Y = outside range, Z = inside range; all in wall UV units. The texture is connected by default. The remaining material always reads this group.",
+        "height": 1021,
+        "title": "04 · CONNECT ONE SHAPE HERE",
+        "width": 928
+      }
+    },
+    "frame-shape-texture": {
+      "id": "frame-shape-texture",
+      "type": "utility/comment",
+      "position": {
+        "x": -15992,
+        "y": -694
+      },
+      "inputValues": {},
+      "params": {
+        "body": "OUTPUT: the rightmost Combine → Vec3. Connect it to Split → In in group 04. X carries signed distance; Y/Z carry the outside/inside distance limits. Red channel: white inside, black outside, boundary 0.5. SDF range = pxrange / width for square maps. Clamped sampling prevents repeats. This is the default source; the other two outputs are unplugged.",
+        "height": 1239,
+        "title": "01 · TEXTURE SDF — default connection",
+        "width": 3168
+      }
+    },
+    "frame-surface": {
+      "id": "frame-surface",
+      "type": "utility/comment",
+      "position": {
+        "x": -5192,
+        "y": -816
+      },
+      "inputValues": {},
+      "params": {
+        "body": "Wallpaper image covers the intact surface; Inner wall image fills the opening. Both follow the mesh UV, with all surface detail supplied by the images. Transparent pixels reveal Wallpaper color or Exposed wall color. Empty image slots use the editor’s neutral gray. The paper backing uses Paper underside color with edge lift and contact shading.",
+        "height": 1182,
+        "title": "07 · Wallpaper and inner wall textures",
+        "width": 1200
+      }
+    },
+    "growingBites": {
+      "id": "growingBites",
+      "type": "math/multiply",
+      "position": {
+        "x": -10072,
+        "y": 692
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "growingRoughness": {
+      "id": "growingRoughness",
+      "type": "math/multiply",
+      "position": {
+        "x": -10712,
+        "y": 626
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "growingWidth": {
+      "id": "growingWidth",
+      "type": "math/multiply",
+      "position": {
+        "x": -7128,
+        "y": 1045
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "height": {
+      "id": "height",
+      "type": "property/float",
+      "position": {
+        "x": -3864,
+        "y": 615
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "curlHeight"
+      }
+    },
+    "heightLimit": {
+      "id": "heightLimit",
+      "type": "math/clamp",
+      "position": {
+        "x": -3592,
+        "y": 527
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "hole": {
+      "id": "hole",
+      "type": "math/multiply",
+      "position": {
+        "x": -8792,
+        "y": 350
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "illustrationLight": {
+      "id": "illustrationLight",
+      "type": "vector/dot",
+      "position": {
+        "x": -712,
+        "y": 487
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec3",
+          "value": [
+            -0.36,
+            0.48,
+            0.8
+          ]
+        }
+      },
+      "params": {}
+    },
+    "innerWall": {
+      "id": "innerWall",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4568,
+        "y": -148
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "innerWallSample": {
+      "id": "innerWallSample",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": -4888,
+        "y": -232
+      },
+      "inputValues": {},
+      "params": {
+        "mip": "auto"
+      }
+    },
+    "innerWallTexture": {
+      "id": "innerWallTexture",
+      "type": "property/texture",
+      "position": {
+        "x": -5160,
+        "y": -65
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "innerWallTexture"
+      }
+    },
+    "inside": {
+      "id": "inside",
+      "type": "math/one-minus",
+      "position": {
+        "x": -9112,
+        "y": 387
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "insideRange": {
+      "id": "insideRange",
+      "type": "math/multiply",
+      "position": {
+        "x": -13400,
+        "y": 134
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "insideSpan": {
+      "id": "insideSpan",
+      "type": "math/one-minus",
+      "position": {
+        "x": -13720,
+        "y": 260
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "intact": {
+      "id": "intact",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -5208,
+        "y": 883
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "limitedRoughness": {
+      "id": "limitedRoughness",
+      "type": "math/min",
+      "position": {
+        "x": -11032,
+        "y": 528
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "limitedShadowWidth": {
+      "id": "limitedShadowWidth",
+      "type": "math/min",
+      "position": {
+        "x": -2952,
+        "y": 407
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lip": {
+      "id": "lip",
+      "type": "math/one-minus",
+      "position": {
+        "x": -5208,
+        "y": 552
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "lipCurve": {
+      "id": "lipCurve",
+      "type": "math/power",
+      "position": {
+        "x": -4888,
+        "y": 515
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 1.5
+        }
+      },
+      "params": {}
+    },
+    "lipHeight": {
+      "id": "lipHeight",
+      "type": "math/multiply",
+      "position": {
+        "x": -4568,
+        "y": 478
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "local": {
+      "id": "local",
+      "type": "math/divide",
+      "position": {
+        "x": -16344,
+        "y": 722
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "localParts": {
+      "id": "localParts",
+      "type": "vector/split",
+      "position": {
+        "x": -14680,
+        "y": 149
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "master": {
+      "id": "master",
+      "type": "master/stack",
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "inputValues": {},
+      "params": {
+        "lighting": "unlit",
+        "surface": "opaque",
+        "twoSided": true
+      }
+    },
+    "maxAxis": {
+      "id": "maxAxis",
+      "type": "math/max",
+      "position": {
+        "x": -14360,
+        "y": -8
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "minSize": {
+      "id": "minSize",
+      "type": "math/min",
+      "position": {
+        "x": -16664,
+        "y": 1172
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "noiseBudget": {
+      "id": "noiseBudget",
+      "type": "math/multiply",
+      "position": {
+        "x": -12056,
+        "y": 317
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.4
+        }
+      },
+      "params": {}
+    },
+    "noiseOrigin": {
+      "id": "noiseOrigin",
+      "type": "math/subtract",
+      "position": {
+        "x": -11672,
+        "y": 822
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "params": {}
+    },
+    "noisePosition": {
+      "id": "noisePosition",
+      "type": "math/add",
+      "position": {
+        "x": -11032,
+        "y": 831
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "open": {
+      "id": "open",
+      "type": "math/clamp",
+      "position": {
+        "x": -17304,
+        "y": 788
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "opening": {
+      "id": "opening",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -16344,
+        "y": 391
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": 0
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.04
+        }
+      },
+      "params": {}
+    },
+    "outerEdge": {
+      "id": "outerEdge",
+      "type": "math/subtract",
+      "position": {
+        "x": -5528,
+        "y": 948
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "outside": {
+      "id": "outside",
+      "type": "interpolation/aa-step",
+      "position": {
+        "x": -9432,
+        "y": 424
+      },
+      "inputValues": {
+        "edge": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {}
+    },
+    "outsideRange": {
+      "id": "outsideRange",
+      "type": "math/multiply",
+      "position": {
+        "x": -13400,
+        "y": -169
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "paperColor": {
+      "id": "paperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -5160,
+        "y": 304
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "paperColor"
+      }
+    },
+    "peelBudget": {
+      "id": "peelBudget",
+      "type": "math/multiply",
+      "position": {
+        "x": -12056,
+        "y": 620
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.45
+        }
+      },
+      "params": {}
+    },
+    "peelNoise": {
+      "id": "peelNoise",
+      "type": "effects/noise",
+      "position": {
+        "x": -8088,
+        "y": 732
+      },
+      "inputValues": {
+        "scale": {
+          "type": "float",
+          "value": 3.7
+        }
+      },
+      "params": {
+        "kind": "simplex",
+        "octaves": 2,
+        "tile": false
+      }
+    },
+    "peelPatch": {
+      "id": "peelPatch",
+      "type": "interpolation/smoothstep",
+      "position": {
+        "x": -7768,
+        "y": 732
+      },
+      "inputValues": {
+        "edge0": {
+          "type": "float",
+          "value": -0.5
+        },
+        "edge1": {
+          "type": "float",
+          "value": 0.6
+        }
+      },
+      "params": {}
+    },
+    "peelPosition": {
+      "id": "peelPosition",
+      "type": "math/add",
+      "position": {
+        "x": -8408,
+        "y": 890
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            7.3,
+            12.8
+          ]
+        }
+      },
+      "params": {}
+    },
+    "peelVariation": {
+      "id": "peelVariation",
+      "type": "math/remap",
+      "position": {
+        "x": -7128,
+        "y": 658
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 1
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.07
+        }
+      },
+      "params": {}
+    },
+    "peelWidth": {
+      "id": "peelWidth",
+      "type": "math/min",
+      "position": {
+        "x": -6488,
+        "y": 871
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "positiveSize": {
+      "id": "positiveSize",
+      "type": "math/abs",
+      "position": {
+        "x": -17624,
+        "y": 1230
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "printedPaper": {
+      "id": "printedPaper",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4568,
+        "y": -479
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "ragged": {
+      "id": "ragged",
+      "type": "math/multiply",
+      "position": {
+        "x": -10392,
+        "y": 440
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "raisedPaper": {
+      "id": "raisedPaper",
+      "type": "math/multiply",
+      "position": {
+        "x": -4248,
+        "y": 579
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "range": {
+      "id": "range",
+      "type": "property/float",
+      "position": {
+        "x": -14632,
+        "y": -244
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "sdfRange"
+      }
+    },
+    "rangeScale": {
+      "id": "rangeScale",
+      "type": "math/multiply",
+      "position": {
+        "x": -13720,
+        "y": -43
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "region": {
+      "id": "region",
+      "type": "property/vec4",
+      "position": {
+        "x": -18536,
+        "y": 1191
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "tearRegion"
+      }
+    },
+    "regionParts": {
+      "id": "regionParts",
+      "type": "vector/split",
+      "position": {
+        "x": -18264,
+        "y": 1019
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "relative": {
+      "id": "relative",
+      "type": "math/subtract",
+      "position": {
+        "x": -16664,
+        "y": 566
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "reliefLight": {
+      "id": "reliefLight",
+      "type": "math/remap",
+      "position": {
+        "x": -392,
+        "y": 450
+      },
+      "inputValues": {
+        "inMax": {
+          "type": "float",
+          "value": 1
+        },
+        "inMin": {
+          "type": "float",
+          "value": -1
+        },
+        "outMax": {
+          "type": "float",
+          "value": 1.04
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.78
+        }
+      },
+      "params": {}
+    },
+    "reliefStrength": {
+      "id": "reliefStrength",
+      "type": "math/multiply",
+      "position": {
+        "x": -1352,
+        "y": 690
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.006
+        }
+      },
+      "params": {}
+    },
+    "roughness": {
+      "id": "roughness",
+      "type": "property/float",
+      "position": {
+        "x": -11624,
+        "y": 542
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "edgeRoughness"
+      }
+    },
+    "roughnessLimit": {
+      "id": "roughnessLimit",
+      "type": "math/clamp",
+      "position": {
+        "x": -11352,
+        "y": 454
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 0.15
+        }
+      },
+      "params": {}
+    },
+    "safeOpen": {
+      "id": "safeOpen",
+      "type": "math/max",
+      "position": {
+        "x": -16984,
+        "y": 1055
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "safeRange": {
+      "id": "safeRange",
+      "type": "math/max",
+      "position": {
+        "x": -14360,
+        "y": -311
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.0001
+        }
+      },
+      "params": {}
+    },
+    "safeShadowWidth": {
+      "id": "safeShadowWidth",
+      "type": "math/max",
+      "position": {
+        "x": -2632,
+        "y": 370
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.000001
+        }
+      },
+      "params": {}
+    },
+    "safeSize": {
+      "id": "safeSize",
+      "type": "math/max",
+      "position": {
+        "x": -17304,
+        "y": 1193
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "safeWidth": {
+      "id": "safeWidth",
+      "type": "math/max",
+      "position": {
+        "x": -6168,
+        "y": 691
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.0001
+        }
+      },
+      "params": {}
+    },
+    "scaledSize": {
+      "id": "scaledSize",
+      "type": "math/multiply",
+      "position": {
+        "x": -16664,
+        "y": 869
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "seed": {
+      "id": "seed",
+      "type": "property/float",
+      "position": {
+        "x": -11624,
+        "y": 1176
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "seed"
+      }
+    },
+    "seedOffset": {
+      "id": "seedOffset",
+      "type": "math/multiply",
+      "position": {
+        "x": -11352,
+        "y": 1088
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            1.73,
+            2.91
+          ]
+        }
+      },
+      "params": {}
+    },
+    "shadedPaper": {
+      "id": "shadedPaper",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 385
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadow": {
+      "id": "shadow",
+      "type": "math/multiply",
+      "position": {
+        "x": -712,
+        "y": 184
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowBlur": {
+      "id": "shadowBlur",
+      "type": "math/exp",
+      "position": {
+        "x": -1672,
+        "y": 107
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowBudget": {
+      "id": "shadowBudget",
+      "type": "math/multiply",
+      "position": {
+        "x": -12056,
+        "y": 923
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.1
+        }
+      },
+      "params": {}
+    },
+    "shadowDistance": {
+      "id": "shadowDistance",
+      "type": "math/divide",
+      "position": {
+        "x": -2312,
+        "y": 181
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowFalloff": {
+      "id": "shadowFalloff",
+      "type": "math/multiply",
+      "position": {
+        "x": -1992,
+        "y": 144
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": -1
+        }
+      },
+      "params": {}
+    },
+    "shadowInHole": {
+      "id": "shadowInHole",
+      "type": "math/multiply",
+      "position": {
+        "x": -1352,
+        "y": 70
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowLight": {
+      "id": "shadowLight",
+      "type": "math/one-minus",
+      "position": {
+        "x": -392,
+        "y": 147
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowStrength": {
+      "id": "shadowStrength",
+      "type": "math/multiply",
+      "position": {
+        "x": -1032,
+        "y": 336
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 0.5
+        }
+      },
+      "params": {}
+    },
+    "shadowUnderPeel": {
+      "id": "shadowUnderPeel",
+      "type": "math/multiply",
+      "position": {
+        "x": -1032,
+        "y": 33
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shadowWidth": {
+      "id": "shadowWidth",
+      "type": "math/remap",
+      "position": {
+        "x": -3272,
+        "y": 444
+      },
+      "inputValues": {
+        "outMax": {
+          "type": "float",
+          "value": 0.006
+        },
+        "outMin": {
+          "type": "float",
+          "value": 0.001
+        }
+      },
+      "params": {}
+    },
+    "shadowedWall": {
+      "id": "shadowedWall",
+      "type": "math/multiply",
+      "position": {
+        "x": -72,
+        "y": 82
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shape": {
+      "id": "shape",
+      "type": "property/texture",
+      "position": {
+        "x": -15592,
+        "y": -175
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "tearShape"
+      }
+    },
+    "shapeChannels": {
+      "id": "shapeChannels",
+      "type": "vector/split",
+      "position": {
+        "x": -14680,
+        "y": -603
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "shapeData": {
+      "id": "shapeData",
+      "type": "color/color-space",
+      "position": {
+        "x": -15000,
+        "y": -505
+      },
+      "inputValues": {},
+      "params": {
+        "direction": "linear-to-srgb"
+      }
+    },
+    "shapeInput": {
+      "id": "shapeInput",
+      "type": "vector/split",
+      "position": {
+        "x": -12696,
+        "y": 565
+      },
+      "inputValues": {
+        "in": {
+          "type": "vec3",
+          "value": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "params": {}
+    },
+    "shapeSample": {
+      "id": "shapeSample",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": -15320,
+        "y": -496
+      },
+      "inputValues": {
+        "level": {
+          "type": "float",
+          "value": 0
+        }
+      },
+      "params": {
+        "mip": "level"
+      }
+    },
+    "shapeUV": {
+      "id": "shapeUV",
+      "type": "math/add",
+      "position": {
+        "x": -15960,
+        "y": -469
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "params": {}
+    },
+    "signedField": {
+      "id": "signedField",
+      "type": "math/subtract",
+      "position": {
+        "x": -14360,
+        "y": -614
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "size": {
+      "id": "size",
+      "type": "vector/combine",
+      "position": {
+        "x": -17944,
+        "y": 1267
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "sizeParts": {
+      "id": "sizeParts",
+      "type": "vector/split",
+      "position": {
+        "x": -16984,
+        "y": 1358
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "sparsePeel": {
+      "id": "sparsePeel",
+      "type": "math/power",
+      "position": {
+        "x": -7448,
+        "y": 695
+      },
+      "inputValues": {
+        "b": {
+          "type": "float",
+          "value": 2
+        }
+      },
+      "params": {}
+    },
+    "textureDistance": {
+      "id": "textureDistance",
+      "type": "math/multiply",
+      "position": {
+        "x": -14040,
+        "y": -536
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "textureOutput": {
+      "id": "textureOutput",
+      "type": "vector/combine",
+      "position": {
+        "x": -13080,
+        "y": -290
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "threshold": {
+      "id": "threshold",
+      "type": "property/float",
+      "position": {
+        "x": -14952,
+        "y": -94
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "sdfThreshold"
+      }
+    },
+    "thresholdLimit": {
+      "id": "thresholdLimit",
+      "type": "math/clamp",
+      "position": {
+        "x": -14680,
+        "y": -182
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "tornDistance": {
+      "id": "tornDistance",
+      "type": "math/add",
+      "position": {
+        "x": -9752,
+        "y": 489
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "uv": {
+      "id": "uv",
+      "type": "input/uv",
+      "position": {
+        "x": -16984,
+        "y": 416
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "variedPeelWidth": {
+      "id": "variedPeelWidth",
+      "type": "math/multiply",
+      "position": {
+        "x": -6808,
+        "y": 908
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wall": {
+      "id": "wall",
+      "type": "interpolation/lerp",
+      "position": {
+        "x": -4248,
+        "y": -365
+      },
+      "inputValues": {},
+      "params": {}
+    },
+    "wallColor": {
+      "id": "wallColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -4840,
+        "y": 178
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wallColor"
+      }
+    },
+    "wallNoisePosition": {
+      "id": "wallNoisePosition",
+      "type": "math/multiply",
+      "position": {
+        "x": -11352,
+        "y": 785
+      },
+      "inputValues": {
+        "b": {
+          "type": "vec2",
+          "value": [
+            3.125,
+            3.6363636363636362
+          ]
+        }
+      },
+      "params": {}
+    },
+    "wallpaperColor": {
+      "id": "wallpaperColor",
+      "type": "property/vec3",
+      "position": {
+        "x": -4840,
+        "y": -294
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wallpaperColor"
+      }
+    },
+    "wallpaperSample": {
+      "id": "wallpaperSample",
+      "type": "texture/sample-texture-2d",
+      "position": {
+        "x": -4888,
+        "y": -704
+      },
+      "inputValues": {},
+      "params": {
+        "mip": "auto"
+      }
+    },
+    "wallpaperTexture": {
+      "id": "wallpaperTexture",
+      "type": "property/texture",
+      "position": {
+        "x": -5160,
+        "y": -537
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "wallpaperTexture"
+      }
+    },
+    "width": {
+      "id": "width",
+      "type": "property/float",
+      "position": {
+        "x": -7720,
+        "y": 1170
+      },
+      "inputValues": {},
+      "params": {
+        "propertyId": "curlWidth"
+      }
+    },
+    "widthLimit": {
+      "id": "widthLimit",
+      "type": "math/clamp",
+      "position": {
+        "x": -7448,
+        "y": 1082
+      },
+      "inputValues": {
+        "max": {
+          "type": "float",
+          "value": 0.15
+        }
+      },
+      "params": {}
+    }
+  },
+  "edges": {
+    "absLocal.out-localParts.in": {
+      "id": "absLocal.out-localParts.in",
+      "from": {
+        "nodeId": "absLocal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "localParts",
+        "portId": "in"
+      }
+    },
+    "across.out-acrossClamped.in": {
+      "id": "across.out-acrossClamped.in",
+      "from": {
+        "nodeId": "across",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "acrossClamped",
+        "portId": "in"
+      }
+    },
+    "acrossClamped.out-lip.in": {
+      "id": "acrossClamped.out-lip.in",
+      "from": {
+        "nodeId": "acrossClamped",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lip",
+        "portId": "in"
+      }
+    },
+    "amount.out-open.in": {
+      "id": "amount.out-open.in",
+      "from": {
+        "nodeId": "amount",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "open",
+        "portId": "in"
+      }
+    },
+    "backing.out-finish.t": {
+      "id": "backing.out-finish.t",
+      "from": {
+        "nodeId": "backing",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "finish",
+        "portId": "t"
+      }
+    },
+    "backing.out-raisedPaper.b": {
+      "id": "backing.out-raisedPaper.b",
+      "from": {
+        "nodeId": "backing",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "raisedPaper",
+        "portId": "b"
+      }
+    },
+    "backingBand.out-backing.a": {
+      "id": "backingBand.out-backing.a",
+      "from": {
+        "nodeId": "backingBand",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "backing",
+        "portId": "a"
+      }
+    },
+    "boundedDistance.out-distance.a": {
+      "id": "boundedDistance.out-distance.a",
+      "from": {
+        "nodeId": "boundedDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "distance",
+        "portId": "a"
+      }
+    },
+    "boxAbsPosition.out-boxExtents.a": {
+      "id": "boxAbsPosition.out-boxExtents.a",
+      "from": {
+        "nodeId": "boxAbsPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxExtents",
+        "portId": "a"
+      }
+    },
+    "boxCombinedDistance.out-boxDistanceUV.a": {
+      "id": "boxCombinedDistance.out-boxDistanceUV.a",
+      "from": {
+        "nodeId": "boxCombinedDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxDistanceUV",
+        "portId": "a"
+      }
+    },
+    "boxDistance.out-boundedDistance.b": {
+      "id": "boxDistance.out-boundedDistance.b",
+      "from": {
+        "nodeId": "boxDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boundedDistance",
+        "portId": "b"
+      }
+    },
+    "boxDistanceUV.out-boxOutput.x": {
+      "id": "boxDistanceUV.out-boxOutput.x",
+      "from": {
+        "nodeId": "boxDistanceUV",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxOutput",
+        "portId": "x"
+      }
+    },
+    "boxExtents.out-boxQ.a": {
+      "id": "boxExtents.out-boxQ.a",
+      "from": {
+        "nodeId": "boxExtents",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxQ",
+        "portId": "a"
+      }
+    },
+    "boxHalfSize.out-boxExtents.b": {
+      "id": "boxHalfSize.out-boxExtents.b",
+      "from": {
+        "nodeId": "boxHalfSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxExtents",
+        "portId": "b"
+      }
+    },
+    "boxInside.out-boxCombinedDistance.b": {
+      "id": "boxInside.out-boxCombinedDistance.b",
+      "from": {
+        "nodeId": "boxInside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxCombinedDistance",
+        "portId": "b"
+      }
+    },
+    "boxMaxAxis.out-boxInside.a": {
+      "id": "boxMaxAxis.out-boxInside.a",
+      "from": {
+        "nodeId": "boxMaxAxis",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxInside",
+        "portId": "a"
+      }
+    },
+    "boxOutside.out-boxCombinedDistance.a": {
+      "id": "boxOutside.out-boxCombinedDistance.a",
+      "from": {
+        "nodeId": "boxOutside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxCombinedDistance",
+        "portId": "a"
+      }
+    },
+    "boxPositiveQ.out-boxOutside.in": {
+      "id": "boxPositiveQ.out-boxOutside.in",
+      "from": {
+        "nodeId": "boxPositiveQ",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxOutside",
+        "portId": "in"
+      }
+    },
+    "boxQ.out-boxPositiveQ.a": {
+      "id": "boxQ.out-boxPositiveQ.a",
+      "from": {
+        "nodeId": "boxQ",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxPositiveQ",
+        "portId": "a"
+      }
+    },
+    "boxQ.out-boxQParts.in": {
+      "id": "boxQ.out-boxQParts.in",
+      "from": {
+        "nodeId": "boxQ",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxQParts",
+        "portId": "in"
+      }
+    },
+    "boxQParts.x-boxMaxAxis.a": {
+      "id": "boxQParts.x-boxMaxAxis.a",
+      "from": {
+        "nodeId": "boxQParts",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "boxMaxAxis",
+        "portId": "a"
+      }
+    },
+    "boxQParts.y-boxMaxAxis.b": {
+      "id": "boxQParts.y-boxMaxAxis.b",
+      "from": {
+        "nodeId": "boxQParts",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "boxMaxAxis",
+        "portId": "b"
+      }
+    },
+    "boxRadius.out-boxDistanceUV.b": {
+      "id": "boxRadius.out-boxDistanceUV.b",
+      "from": {
+        "nodeId": "boxRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxDistanceUV",
+        "portId": "b"
+      }
+    },
+    "boxRadius.out-boxQ.b": {
+      "id": "boxRadius.out-boxQ.b",
+      "from": {
+        "nodeId": "boxRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxQ",
+        "portId": "b"
+      }
+    },
+    "boxRoundness.out-boxRoundnessLimit.in": {
+      "id": "boxRoundness.out-boxRoundnessLimit.in",
+      "from": {
+        "nodeId": "boxRoundness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxRoundnessLimit",
+        "portId": "in"
+      }
+    },
+    "boxRoundnessLimit.out-boxRadius.a": {
+      "id": "boxRoundnessLimit.out-boxRadius.a",
+      "from": {
+        "nodeId": "boxRoundnessLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxRadius",
+        "portId": "a"
+      }
+    },
+    "broadEdge.out-tornDistance.a": {
+      "id": "broadEdge.out-tornDistance.a",
+      "from": {
+        "nodeId": "broadEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tornDistance",
+        "portId": "a"
+      }
+    },
+    "center.vec2-relative.b": {
+      "id": "center.vec2-relative.b",
+      "from": {
+        "nodeId": "center",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "relative",
+        "portId": "b"
+      }
+    },
+    "clampedUV.out-shapeSample.uv": {
+      "id": "clampedUV.out-shapeSample.uv",
+      "from": {
+        "nodeId": "clampedUV",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shapeSample",
+        "portId": "uv"
+      }
+    },
+    "curlNormal.out-illustrationLight.a": {
+      "id": "curlNormal.out-illustrationLight.a",
+      "from": {
+        "nodeId": "curlNormal",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "illustrationLight",
+        "portId": "a"
+      }
+    },
+    "distance.out-textureOutput.x": {
+      "id": "distance.out-textureOutput.x",
+      "from": {
+        "nodeId": "distance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "textureOutput",
+        "portId": "x"
+      }
+    },
+    "distanceScale.out-boxRadius.b": {
+      "id": "distanceScale.out-boxRadius.b",
+      "from": {
+        "nodeId": "distanceScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxRadius",
+        "portId": "b"
+      }
+    },
+    "distanceScale.out-distance.b": {
+      "id": "distanceScale.out-distance.b",
+      "from": {
+        "nodeId": "distanceScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "distance",
+        "portId": "b"
+      }
+    },
+    "distanceScale.out-rangeScale.b": {
+      "id": "distanceScale.out-rangeScale.b",
+      "from": {
+        "nodeId": "distanceScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rangeScale",
+        "portId": "b"
+      }
+    },
+    "edgeDetail.out-fineBites.a": {
+      "id": "edgeDetail.out-fineBites.a",
+      "from": {
+        "nodeId": "edgeDetail",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "fineBites",
+        "portId": "a"
+      }
+    },
+    "edgeDistance.out-shadowDistance.a": {
+      "id": "edgeDistance.out-shadowDistance.a",
+      "from": {
+        "nodeId": "edgeDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowDistance",
+        "portId": "a"
+      }
+    },
+    "edgeNoise.out-ragged.a": {
+      "id": "edgeNoise.out-ragged.a",
+      "from": {
+        "nodeId": "edgeNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ragged",
+        "portId": "a"
+      }
+    },
+    "ellipseDistance.out-ellipseOutput.x": {
+      "id": "ellipseDistance.out-ellipseOutput.x",
+      "from": {
+        "nodeId": "ellipseDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseOutput",
+        "portId": "x"
+      }
+    },
+    "ellipseField.out-ellipseDistance.a": {
+      "id": "ellipseField.out-ellipseDistance.a",
+      "from": {
+        "nodeId": "ellipseField",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseDistance",
+        "portId": "a"
+      }
+    },
+    "ellipseGradient.out-ellipseSafeGradient.a": {
+      "id": "ellipseGradient.out-ellipseSafeGradient.a",
+      "from": {
+        "nodeId": "ellipseGradient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseSafeGradient",
+        "portId": "a"
+      }
+    },
+    "ellipseGradientLength.out-ellipseGradient.a": {
+      "id": "ellipseGradientLength.out-ellipseGradient.a",
+      "from": {
+        "nodeId": "ellipseGradientLength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseGradient",
+        "portId": "a"
+      }
+    },
+    "ellipseGradientVector.out-ellipseGradientLength.in": {
+      "id": "ellipseGradientVector.out-ellipseGradientLength.in",
+      "from": {
+        "nodeId": "ellipseGradientVector",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseGradientLength",
+        "portId": "in"
+      }
+    },
+    "ellipseRadius.out-ellipseField.a": {
+      "id": "ellipseRadius.out-ellipseField.a",
+      "from": {
+        "nodeId": "ellipseRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseField",
+        "portId": "a"
+      }
+    },
+    "ellipseRadius.out-ellipseSafeRadius.a": {
+      "id": "ellipseRadius.out-ellipseSafeRadius.a",
+      "from": {
+        "nodeId": "ellipseRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseSafeRadius",
+        "portId": "a"
+      }
+    },
+    "ellipseSafeGradient.out-ellipseDistance.b": {
+      "id": "ellipseSafeGradient.out-ellipseDistance.b",
+      "from": {
+        "nodeId": "ellipseSafeGradient",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseDistance",
+        "portId": "b"
+      }
+    },
+    "ellipseSafeRadius.out-ellipseGradient.b": {
+      "id": "ellipseSafeRadius.out-ellipseGradient.b",
+      "from": {
+        "nodeId": "ellipseSafeRadius",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseGradient",
+        "portId": "b"
+      }
+    },
+    "fieldMargin.out-noiseBudget.a": {
+      "id": "fieldMargin.out-noiseBudget.a",
+      "from": {
+        "nodeId": "fieldMargin",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseBudget",
+        "portId": "a"
+      }
+    },
+    "fineBites.out-growingBites.a": {
+      "id": "fineBites.out-growingBites.a",
+      "from": {
+        "nodeId": "fineBites",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingBites",
+        "portId": "a"
+      }
+    },
+    "finish.out-master.baseColor": {
+      "id": "finish.out-master.baseColor",
+      "from": {
+        "nodeId": "finish",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "master",
+        "portId": "baseColor"
+      }
+    },
+    "growingBites.out-tornDistance.b": {
+      "id": "growingBites.out-tornDistance.b",
+      "from": {
+        "nodeId": "growingBites",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "tornDistance",
+        "portId": "b"
+      }
+    },
+    "growingRoughness.out-growingBites.b": {
+      "id": "growingRoughness.out-growingBites.b",
+      "from": {
+        "nodeId": "growingRoughness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingBites",
+        "portId": "b"
+      }
+    },
+    "growingRoughness.out-ragged.b": {
+      "id": "growingRoughness.out-ragged.b",
+      "from": {
+        "nodeId": "growingRoughness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ragged",
+        "portId": "b"
+      }
+    },
+    "growingWidth.out-variedPeelWidth.a": {
+      "id": "growingWidth.out-variedPeelWidth.a",
+      "from": {
+        "nodeId": "growingWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "variedPeelWidth",
+        "portId": "a"
+      }
+    },
+    "height.out-heightLimit.in": {
+      "id": "height.out-heightLimit.in",
+      "from": {
+        "nodeId": "height",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "heightLimit",
+        "portId": "in"
+      }
+    },
+    "heightLimit.out-reliefStrength.a": {
+      "id": "heightLimit.out-reliefStrength.a",
+      "from": {
+        "nodeId": "heightLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "reliefStrength",
+        "portId": "a"
+      }
+    },
+    "heightLimit.out-shadowStrength.a": {
+      "id": "heightLimit.out-shadowStrength.a",
+      "from": {
+        "nodeId": "heightLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowStrength",
+        "portId": "a"
+      }
+    },
+    "heightLimit.out-shadowWidth.in": {
+      "id": "heightLimit.out-shadowWidth.in",
+      "from": {
+        "nodeId": "heightLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowWidth",
+        "portId": "in"
+      }
+    },
+    "hole.out-shadowInHole.b": {
+      "id": "hole.out-shadowInHole.b",
+      "from": {
+        "nodeId": "hole",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowInHole",
+        "portId": "b"
+      }
+    },
+    "hole.out-wall.t": {
+      "id": "hole.out-wall.t",
+      "from": {
+        "nodeId": "hole",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wall",
+        "portId": "t"
+      }
+    },
+    "illustrationLight.out-reliefLight.in": {
+      "id": "illustrationLight.out-reliefLight.in",
+      "from": {
+        "nodeId": "illustrationLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "reliefLight",
+        "portId": "in"
+      }
+    },
+    "innerWall.out-wall.b": {
+      "id": "innerWall.out-wall.b",
+      "from": {
+        "nodeId": "innerWall",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wall",
+        "portId": "b"
+      }
+    },
+    "innerWallSample.a-innerWall.t": {
+      "id": "innerWallSample.a-innerWall.t",
+      "from": {
+        "nodeId": "innerWallSample",
+        "portId": "a"
+      },
+      "to": {
+        "nodeId": "innerWall",
+        "portId": "t"
+      }
+    },
+    "innerWallSample.rgb-innerWall.b": {
+      "id": "innerWallSample.rgb-innerWall.b",
+      "from": {
+        "nodeId": "innerWallSample",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "innerWall",
+        "portId": "b"
+      }
+    },
+    "innerWallTexture.out-innerWallSample.texture": {
+      "id": "innerWallTexture.out-innerWallSample.texture",
+      "from": {
+        "nodeId": "innerWallTexture",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "innerWallSample",
+        "portId": "texture"
+      }
+    },
+    "inside.out-hole.a": {
+      "id": "inside.out-hole.a",
+      "from": {
+        "nodeId": "inside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hole",
+        "portId": "a"
+      }
+    },
+    "insideRange.out-textureOutput.z": {
+      "id": "insideRange.out-textureOutput.z",
+      "from": {
+        "nodeId": "insideRange",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "textureOutput",
+        "portId": "z"
+      }
+    },
+    "insideSpan.out-insideRange.a": {
+      "id": "insideSpan.out-insideRange.a",
+      "from": {
+        "nodeId": "insideSpan",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "insideRange",
+        "portId": "a"
+      }
+    },
+    "intact.out-backingBand.b": {
+      "id": "intact.out-backingBand.b",
+      "from": {
+        "nodeId": "intact",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "backingBand",
+        "portId": "b"
+      }
+    },
+    "limitedRoughness.out-growingRoughness.a": {
+      "id": "limitedRoughness.out-growingRoughness.a",
+      "from": {
+        "nodeId": "limitedRoughness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingRoughness",
+        "portId": "a"
+      }
+    },
+    "limitedShadowWidth.out-safeShadowWidth.a": {
+      "id": "limitedShadowWidth.out-safeShadowWidth.a",
+      "from": {
+        "nodeId": "limitedShadowWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeShadowWidth",
+        "portId": "a"
+      }
+    },
+    "lip.out-lipCurve.a": {
+      "id": "lip.out-lipCurve.a",
+      "from": {
+        "nodeId": "lip",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lipCurve",
+        "portId": "a"
+      }
+    },
+    "lipCurve.out-lipHeight.a": {
+      "id": "lipCurve.out-lipHeight.a",
+      "from": {
+        "nodeId": "lipCurve",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lipHeight",
+        "portId": "a"
+      }
+    },
+    "lipHeight.out-raisedPaper.a": {
+      "id": "lipHeight.out-raisedPaper.a",
+      "from": {
+        "nodeId": "lipHeight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "raisedPaper",
+        "portId": "a"
+      }
+    },
+    "local.out-absLocal.in": {
+      "id": "local.out-absLocal.in",
+      "from": {
+        "nodeId": "local",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "absLocal",
+        "portId": "in"
+      }
+    },
+    "local.out-ellipseGradientVector.a": {
+      "id": "local.out-ellipseGradientVector.a",
+      "from": {
+        "nodeId": "local",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseGradientVector",
+        "portId": "a"
+      }
+    },
+    "local.out-ellipseRadius.in": {
+      "id": "local.out-ellipseRadius.in",
+      "from": {
+        "nodeId": "local",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseRadius",
+        "portId": "in"
+      }
+    },
+    "local.out-shapeUV.a": {
+      "id": "local.out-shapeUV.a",
+      "from": {
+        "nodeId": "local",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shapeUV",
+        "portId": "a"
+      }
+    },
+    "localParts.x-maxAxis.a": {
+      "id": "localParts.x-maxAxis.a",
+      "from": {
+        "nodeId": "localParts",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "maxAxis",
+        "portId": "a"
+      }
+    },
+    "localParts.y-maxAxis.b": {
+      "id": "localParts.y-maxAxis.b",
+      "from": {
+        "nodeId": "localParts",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "maxAxis",
+        "portId": "b"
+      }
+    },
+    "maxAxis.out-boxDistance.a": {
+      "id": "maxAxis.out-boxDistance.a",
+      "from": {
+        "nodeId": "maxAxis",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxDistance",
+        "portId": "a"
+      }
+    },
+    "minSize.out-distanceScale.a": {
+      "id": "minSize.out-distanceScale.a",
+      "from": {
+        "nodeId": "minSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "distanceScale",
+        "portId": "a"
+      }
+    },
+    "noiseBudget.out-limitedRoughness.b": {
+      "id": "noiseBudget.out-limitedRoughness.b",
+      "from": {
+        "nodeId": "noiseBudget",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "limitedRoughness",
+        "portId": "b"
+      }
+    },
+    "noiseOrigin.out-wallNoisePosition.a": {
+      "id": "noiseOrigin.out-wallNoisePosition.a",
+      "from": {
+        "nodeId": "noiseOrigin",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wallNoisePosition",
+        "portId": "a"
+      }
+    },
+    "noisePosition.out-edgeDetail.p": {
+      "id": "noisePosition.out-edgeDetail.p",
+      "from": {
+        "nodeId": "noisePosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeDetail",
+        "portId": "p"
+      }
+    },
+    "noisePosition.out-edgeNoise.p": {
+      "id": "noisePosition.out-edgeNoise.p",
+      "from": {
+        "nodeId": "noisePosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeNoise",
+        "portId": "p"
+      }
+    },
+    "noisePosition.out-peelPosition.a": {
+      "id": "noisePosition.out-peelPosition.a",
+      "from": {
+        "nodeId": "noisePosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelPosition",
+        "portId": "a"
+      }
+    },
+    "open.out-growingRoughness.b": {
+      "id": "open.out-growingRoughness.b",
+      "from": {
+        "nodeId": "open",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingRoughness",
+        "portId": "b"
+      }
+    },
+    "open.out-growingWidth.b": {
+      "id": "open.out-growingWidth.b",
+      "from": {
+        "nodeId": "open",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingWidth",
+        "portId": "b"
+      }
+    },
+    "open.out-opening.in": {
+      "id": "open.out-opening.in",
+      "from": {
+        "nodeId": "open",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "opening",
+        "portId": "in"
+      }
+    },
+    "open.out-safeOpen.a": {
+      "id": "open.out-safeOpen.a",
+      "from": {
+        "nodeId": "open",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeOpen",
+        "portId": "a"
+      }
+    },
+    "opening.out-backing.b": {
+      "id": "opening.out-backing.b",
+      "from": {
+        "nodeId": "opening",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "backing",
+        "portId": "b"
+      }
+    },
+    "opening.out-hole.b": {
+      "id": "opening.out-hole.b",
+      "from": {
+        "nodeId": "opening",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "hole",
+        "portId": "b"
+      }
+    },
+    "outerEdge.out-intact.in": {
+      "id": "outerEdge.out-intact.in",
+      "from": {
+        "nodeId": "outerEdge",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "intact",
+        "portId": "in"
+      }
+    },
+    "outside.out-backingBand.a": {
+      "id": "outside.out-backingBand.a",
+      "from": {
+        "nodeId": "outside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "backingBand",
+        "portId": "a"
+      }
+    },
+    "outside.out-inside.in": {
+      "id": "outside.out-inside.in",
+      "from": {
+        "nodeId": "outside",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "inside",
+        "portId": "in"
+      }
+    },
+    "outsideRange.out-textureOutput.y": {
+      "id": "outsideRange.out-textureOutput.y",
+      "from": {
+        "nodeId": "outsideRange",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "textureOutput",
+        "portId": "y"
+      }
+    },
+    "paperColor.out-shadedPaper.a": {
+      "id": "paperColor.out-shadedPaper.a",
+      "from": {
+        "nodeId": "paperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadedPaper",
+        "portId": "a"
+      }
+    },
+    "peelBudget.out-peelWidth.b": {
+      "id": "peelBudget.out-peelWidth.b",
+      "from": {
+        "nodeId": "peelBudget",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelWidth",
+        "portId": "b"
+      }
+    },
+    "peelNoise.out-peelPatch.in": {
+      "id": "peelNoise.out-peelPatch.in",
+      "from": {
+        "nodeId": "peelNoise",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelPatch",
+        "portId": "in"
+      }
+    },
+    "peelPatch.out-sparsePeel.a": {
+      "id": "peelPatch.out-sparsePeel.a",
+      "from": {
+        "nodeId": "peelPatch",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sparsePeel",
+        "portId": "a"
+      }
+    },
+    "peelPosition.out-peelNoise.p": {
+      "id": "peelPosition.out-peelNoise.p",
+      "from": {
+        "nodeId": "peelPosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelNoise",
+        "portId": "p"
+      }
+    },
+    "peelVariation.out-lipHeight.b": {
+      "id": "peelVariation.out-lipHeight.b",
+      "from": {
+        "nodeId": "peelVariation",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "lipHeight",
+        "portId": "b"
+      }
+    },
+    "peelVariation.out-shadowUnderPeel.b": {
+      "id": "peelVariation.out-shadowUnderPeel.b",
+      "from": {
+        "nodeId": "peelVariation",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowUnderPeel",
+        "portId": "b"
+      }
+    },
+    "peelVariation.out-variedPeelWidth.b": {
+      "id": "peelVariation.out-variedPeelWidth.b",
+      "from": {
+        "nodeId": "peelVariation",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "variedPeelWidth",
+        "portId": "b"
+      }
+    },
+    "peelWidth.out-outerEdge.b": {
+      "id": "peelWidth.out-outerEdge.b",
+      "from": {
+        "nodeId": "peelWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outerEdge",
+        "portId": "b"
+      }
+    },
+    "peelWidth.out-safeWidth.a": {
+      "id": "peelWidth.out-safeWidth.a",
+      "from": {
+        "nodeId": "peelWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeWidth",
+        "portId": "a"
+      }
+    },
+    "positiveSize.out-safeSize.a": {
+      "id": "positiveSize.out-safeSize.a",
+      "from": {
+        "nodeId": "positiveSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeSize",
+        "portId": "a"
+      }
+    },
+    "printedPaper.out-wall.a": {
+      "id": "printedPaper.out-wall.a",
+      "from": {
+        "nodeId": "printedPaper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wall",
+        "portId": "a"
+      }
+    },
+    "ragged.out-broadEdge.b": {
+      "id": "ragged.out-broadEdge.b",
+      "from": {
+        "nodeId": "ragged",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "broadEdge",
+        "portId": "b"
+      }
+    },
+    "raisedPaper.out-curlNormal.height": {
+      "id": "raisedPaper.out-curlNormal.height",
+      "from": {
+        "nodeId": "raisedPaper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "curlNormal",
+        "portId": "height"
+      }
+    },
+    "range.out-safeRange.a": {
+      "id": "range.out-safeRange.a",
+      "from": {
+        "nodeId": "range",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "safeRange",
+        "portId": "a"
+      }
+    },
+    "rangeScale.out-insideRange.b": {
+      "id": "rangeScale.out-insideRange.b",
+      "from": {
+        "nodeId": "rangeScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "insideRange",
+        "portId": "b"
+      }
+    },
+    "rangeScale.out-outsideRange.b": {
+      "id": "rangeScale.out-outsideRange.b",
+      "from": {
+        "nodeId": "rangeScale",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideRange",
+        "portId": "b"
+      }
+    },
+    "region.out-regionParts.in": {
+      "id": "region.out-regionParts.in",
+      "from": {
+        "nodeId": "region",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "regionParts",
+        "portId": "in"
+      }
+    },
+    "regionParts.w-size.y": {
+      "id": "regionParts.w-size.y",
+      "from": {
+        "nodeId": "regionParts",
+        "portId": "w"
+      },
+      "to": {
+        "nodeId": "size",
+        "portId": "y"
+      }
+    },
+    "regionParts.x-center.x": {
+      "id": "regionParts.x-center.x",
+      "from": {
+        "nodeId": "regionParts",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "center",
+        "portId": "x"
+      }
+    },
+    "regionParts.y-center.y": {
+      "id": "regionParts.y-center.y",
+      "from": {
+        "nodeId": "regionParts",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "center",
+        "portId": "y"
+      }
+    },
+    "regionParts.z-size.x": {
+      "id": "regionParts.z-size.x",
+      "from": {
+        "nodeId": "regionParts",
+        "portId": "z"
+      },
+      "to": {
+        "nodeId": "size",
+        "portId": "x"
+      }
+    },
+    "relative.out-boxAbsPosition.in": {
+      "id": "relative.out-boxAbsPosition.in",
+      "from": {
+        "nodeId": "relative",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxAbsPosition",
+        "portId": "in"
+      }
+    },
+    "relative.out-local.a": {
+      "id": "relative.out-local.a",
+      "from": {
+        "nodeId": "relative",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "local",
+        "portId": "a"
+      }
+    },
+    "reliefLight.out-shadedPaper.b": {
+      "id": "reliefLight.out-shadedPaper.b",
+      "from": {
+        "nodeId": "reliefLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadedPaper",
+        "portId": "b"
+      }
+    },
+    "reliefStrength.out-curlNormal.strength": {
+      "id": "reliefStrength.out-curlNormal.strength",
+      "from": {
+        "nodeId": "reliefStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "curlNormal",
+        "portId": "strength"
+      }
+    },
+    "roughness.out-roughnessLimit.in": {
+      "id": "roughness.out-roughnessLimit.in",
+      "from": {
+        "nodeId": "roughness",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "roughnessLimit",
+        "portId": "in"
+      }
+    },
+    "roughnessLimit.out-limitedRoughness.a": {
+      "id": "roughnessLimit.out-limitedRoughness.a",
+      "from": {
+        "nodeId": "roughnessLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "limitedRoughness",
+        "portId": "a"
+      }
+    },
+    "safeOpen.out-distanceScale.b": {
+      "id": "safeOpen.out-distanceScale.b",
+      "from": {
+        "nodeId": "safeOpen",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "distanceScale",
+        "portId": "b"
+      }
+    },
+    "safeOpen.out-scaledSize.b": {
+      "id": "safeOpen.out-scaledSize.b",
+      "from": {
+        "nodeId": "safeOpen",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scaledSize",
+        "portId": "b"
+      }
+    },
+    "safeRange.out-rangeScale.a": {
+      "id": "safeRange.out-rangeScale.a",
+      "from": {
+        "nodeId": "safeRange",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "rangeScale",
+        "portId": "a"
+      }
+    },
+    "safeRange.out-textureDistance.b": {
+      "id": "safeRange.out-textureDistance.b",
+      "from": {
+        "nodeId": "safeRange",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "textureDistance",
+        "portId": "b"
+      }
+    },
+    "safeShadowWidth.out-shadowDistance.b": {
+      "id": "safeShadowWidth.out-shadowDistance.b",
+      "from": {
+        "nodeId": "safeShadowWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowDistance",
+        "portId": "b"
+      }
+    },
+    "safeSize.out-scaledSize.a": {
+      "id": "safeSize.out-scaledSize.a",
+      "from": {
+        "nodeId": "safeSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "scaledSize",
+        "portId": "a"
+      }
+    },
+    "safeSize.out-sizeParts.in": {
+      "id": "safeSize.out-sizeParts.in",
+      "from": {
+        "nodeId": "safeSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "sizeParts",
+        "portId": "in"
+      }
+    },
+    "safeWidth.out-across.b": {
+      "id": "safeWidth.out-across.b",
+      "from": {
+        "nodeId": "safeWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "across",
+        "portId": "b"
+      }
+    },
+    "scaledSize.out-boxHalfSize.a": {
+      "id": "scaledSize.out-boxHalfSize.a",
+      "from": {
+        "nodeId": "scaledSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boxHalfSize",
+        "portId": "a"
+      }
+    },
+    "scaledSize.out-ellipseGradientVector.b": {
+      "id": "scaledSize.out-ellipseGradientVector.b",
+      "from": {
+        "nodeId": "scaledSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "ellipseGradientVector",
+        "portId": "b"
+      }
+    },
+    "scaledSize.out-local.b": {
+      "id": "scaledSize.out-local.b",
+      "from": {
+        "nodeId": "scaledSize",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "local",
+        "portId": "b"
+      }
+    },
+    "seed.out-seedOffset.a": {
+      "id": "seed.out-seedOffset.a",
+      "from": {
+        "nodeId": "seed",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "seedOffset",
+        "portId": "a"
+      }
+    },
+    "seedOffset.out-noisePosition.b": {
+      "id": "seedOffset.out-noisePosition.b",
+      "from": {
+        "nodeId": "seedOffset",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noisePosition",
+        "portId": "b"
+      }
+    },
+    "shadedPaper.out-finish.b": {
+      "id": "shadedPaper.out-finish.b",
+      "from": {
+        "nodeId": "shadedPaper",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "finish",
+        "portId": "b"
+      }
+    },
+    "shadow.out-shadowLight.in": {
+      "id": "shadow.out-shadowLight.in",
+      "from": {
+        "nodeId": "shadow",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowLight",
+        "portId": "in"
+      }
+    },
+    "shadowBlur.out-shadowInHole.a": {
+      "id": "shadowBlur.out-shadowInHole.a",
+      "from": {
+        "nodeId": "shadowBlur",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowInHole",
+        "portId": "a"
+      }
+    },
+    "shadowBudget.out-limitedShadowWidth.b": {
+      "id": "shadowBudget.out-limitedShadowWidth.b",
+      "from": {
+        "nodeId": "shadowBudget",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "limitedShadowWidth",
+        "portId": "b"
+      }
+    },
+    "shadowDistance.out-shadowFalloff.a": {
+      "id": "shadowDistance.out-shadowFalloff.a",
+      "from": {
+        "nodeId": "shadowDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowFalloff",
+        "portId": "a"
+      }
+    },
+    "shadowFalloff.out-shadowBlur.in": {
+      "id": "shadowFalloff.out-shadowBlur.in",
+      "from": {
+        "nodeId": "shadowFalloff",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowBlur",
+        "portId": "in"
+      }
+    },
+    "shadowInHole.out-shadowUnderPeel.a": {
+      "id": "shadowInHole.out-shadowUnderPeel.a",
+      "from": {
+        "nodeId": "shadowInHole",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowUnderPeel",
+        "portId": "a"
+      }
+    },
+    "shadowLight.out-shadowedWall.b": {
+      "id": "shadowLight.out-shadowedWall.b",
+      "from": {
+        "nodeId": "shadowLight",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowedWall",
+        "portId": "b"
+      }
+    },
+    "shadowStrength.out-shadow.b": {
+      "id": "shadowStrength.out-shadow.b",
+      "from": {
+        "nodeId": "shadowStrength",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadow",
+        "portId": "b"
+      }
+    },
+    "shadowUnderPeel.out-shadow.a": {
+      "id": "shadowUnderPeel.out-shadow.a",
+      "from": {
+        "nodeId": "shadowUnderPeel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadow",
+        "portId": "a"
+      }
+    },
+    "shadowWidth.out-limitedShadowWidth.a": {
+      "id": "shadowWidth.out-limitedShadowWidth.a",
+      "from": {
+        "nodeId": "shadowWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "limitedShadowWidth",
+        "portId": "a"
+      }
+    },
+    "shadowedWall.out-finish.a": {
+      "id": "shadowedWall.out-finish.a",
+      "from": {
+        "nodeId": "shadowedWall",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "finish",
+        "portId": "a"
+      }
+    },
+    "shape.out-shapeSample.texture": {
+      "id": "shape.out-shapeSample.texture",
+      "from": {
+        "nodeId": "shape",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shapeSample",
+        "portId": "texture"
+      }
+    },
+    "shapeChannels.x-signedField.b": {
+      "id": "shapeChannels.x-signedField.b",
+      "from": {
+        "nodeId": "shapeChannels",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "signedField",
+        "portId": "b"
+      }
+    },
+    "shapeData.out-shapeChannels.in": {
+      "id": "shapeData.out-shapeChannels.in",
+      "from": {
+        "nodeId": "shapeData",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shapeChannels",
+        "portId": "in"
+      }
+    },
+    "shapeInput.x-broadEdge.a": {
+      "id": "shapeInput.x-broadEdge.a",
+      "from": {
+        "nodeId": "shapeInput",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "broadEdge",
+        "portId": "a"
+      }
+    },
+    "shapeInput.y-fieldMargin.a": {
+      "id": "shapeInput.y-fieldMargin.a",
+      "from": {
+        "nodeId": "shapeInput",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "fieldMargin",
+        "portId": "a"
+      }
+    },
+    "shapeInput.y-peelBudget.a": {
+      "id": "shapeInput.y-peelBudget.a",
+      "from": {
+        "nodeId": "shapeInput",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "peelBudget",
+        "portId": "a"
+      }
+    },
+    "shapeInput.z-fieldMargin.b": {
+      "id": "shapeInput.z-fieldMargin.b",
+      "from": {
+        "nodeId": "shapeInput",
+        "portId": "z"
+      },
+      "to": {
+        "nodeId": "fieldMargin",
+        "portId": "b"
+      }
+    },
+    "shapeInput.z-shadowBudget.a": {
+      "id": "shapeInput.z-shadowBudget.a",
+      "from": {
+        "nodeId": "shapeInput",
+        "portId": "z"
+      },
+      "to": {
+        "nodeId": "shadowBudget",
+        "portId": "a"
+      }
+    },
+    "shapeSample.rgb-shapeData.in": {
+      "id": "shapeSample.rgb-shapeData.in",
+      "from": {
+        "nodeId": "shapeSample",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "shapeData",
+        "portId": "in"
+      }
+    },
+    "shapeUV.out-clampedUV.in": {
+      "id": "shapeUV.out-clampedUV.in",
+      "from": {
+        "nodeId": "shapeUV",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "clampedUV",
+        "portId": "in"
+      }
+    },
+    "signedField.out-textureDistance.a": {
+      "id": "signedField.out-textureDistance.a",
+      "from": {
+        "nodeId": "signedField",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "textureDistance",
+        "portId": "a"
+      }
+    },
+    "size.vec2-positiveSize.in": {
+      "id": "size.vec2-positiveSize.in",
+      "from": {
+        "nodeId": "size",
+        "portId": "vec2"
+      },
+      "to": {
+        "nodeId": "positiveSize",
+        "portId": "in"
+      }
+    },
+    "sizeParts.x-minSize.a": {
+      "id": "sizeParts.x-minSize.a",
+      "from": {
+        "nodeId": "sizeParts",
+        "portId": "x"
+      },
+      "to": {
+        "nodeId": "minSize",
+        "portId": "a"
+      }
+    },
+    "sizeParts.y-minSize.b": {
+      "id": "sizeParts.y-minSize.b",
+      "from": {
+        "nodeId": "sizeParts",
+        "portId": "y"
+      },
+      "to": {
+        "nodeId": "minSize",
+        "portId": "b"
+      }
+    },
+    "sparsePeel.out-peelVariation.in": {
+      "id": "sparsePeel.out-peelVariation.in",
+      "from": {
+        "nodeId": "sparsePeel",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelVariation",
+        "portId": "in"
+      }
+    },
+    "textureDistance.out-boundedDistance.a": {
+      "id": "textureDistance.out-boundedDistance.a",
+      "from": {
+        "nodeId": "textureDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "boundedDistance",
+        "portId": "a"
+      }
+    },
+    "textureOutput.vec3-shapeInput.in": {
+      "id": "textureOutput.vec3-shapeInput.in",
+      "from": {
+        "nodeId": "textureOutput",
+        "portId": "vec3"
+      },
+      "to": {
+        "nodeId": "shapeInput",
+        "portId": "in"
+      }
+    },
+    "threshold.out-thresholdLimit.in": {
+      "id": "threshold.out-thresholdLimit.in",
+      "from": {
+        "nodeId": "threshold",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "thresholdLimit",
+        "portId": "in"
+      }
+    },
+    "thresholdLimit.out-insideSpan.in": {
+      "id": "thresholdLimit.out-insideSpan.in",
+      "from": {
+        "nodeId": "thresholdLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "insideSpan",
+        "portId": "in"
+      }
+    },
+    "thresholdLimit.out-outsideRange.a": {
+      "id": "thresholdLimit.out-outsideRange.a",
+      "from": {
+        "nodeId": "thresholdLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outsideRange",
+        "portId": "a"
+      }
+    },
+    "thresholdLimit.out-signedField.a": {
+      "id": "thresholdLimit.out-signedField.a",
+      "from": {
+        "nodeId": "thresholdLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "signedField",
+        "portId": "a"
+      }
+    },
+    "tornDistance.out-across.a": {
+      "id": "tornDistance.out-across.a",
+      "from": {
+        "nodeId": "tornDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "across",
+        "portId": "a"
+      }
+    },
+    "tornDistance.out-edgeDistance.in": {
+      "id": "tornDistance.out-edgeDistance.in",
+      "from": {
+        "nodeId": "tornDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "edgeDistance",
+        "portId": "in"
+      }
+    },
+    "tornDistance.out-outerEdge.a": {
+      "id": "tornDistance.out-outerEdge.a",
+      "from": {
+        "nodeId": "tornDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outerEdge",
+        "portId": "a"
+      }
+    },
+    "tornDistance.out-outside.in": {
+      "id": "tornDistance.out-outside.in",
+      "from": {
+        "nodeId": "tornDistance",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "outside",
+        "portId": "in"
+      }
+    },
+    "uv.out-innerWallSample.uv": {
+      "id": "uv.out-innerWallSample.uv",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "innerWallSample",
+        "portId": "uv"
+      }
+    },
+    "uv.out-noiseOrigin.a": {
+      "id": "uv.out-noiseOrigin.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noiseOrigin",
+        "portId": "a"
+      }
+    },
+    "uv.out-relative.a": {
+      "id": "uv.out-relative.a",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "relative",
+        "portId": "a"
+      }
+    },
+    "uv.out-wallpaperSample.uv": {
+      "id": "uv.out-wallpaperSample.uv",
+      "from": {
+        "nodeId": "uv",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wallpaperSample",
+        "portId": "uv"
+      }
+    },
+    "variedPeelWidth.out-peelWidth.a": {
+      "id": "variedPeelWidth.out-peelWidth.a",
+      "from": {
+        "nodeId": "variedPeelWidth",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "peelWidth",
+        "portId": "a"
+      }
+    },
+    "wall.out-shadowedWall.a": {
+      "id": "wall.out-shadowedWall.a",
+      "from": {
+        "nodeId": "wall",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "shadowedWall",
+        "portId": "a"
+      }
+    },
+    "wallColor.out-innerWall.a": {
+      "id": "wallColor.out-innerWall.a",
+      "from": {
+        "nodeId": "wallColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "innerWall",
+        "portId": "a"
+      }
+    },
+    "wallNoisePosition.out-noisePosition.a": {
+      "id": "wallNoisePosition.out-noisePosition.a",
+      "from": {
+        "nodeId": "wallNoisePosition",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "noisePosition",
+        "portId": "a"
+      }
+    },
+    "wallpaperColor.out-printedPaper.a": {
+      "id": "wallpaperColor.out-printedPaper.a",
+      "from": {
+        "nodeId": "wallpaperColor",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "printedPaper",
+        "portId": "a"
+      }
+    },
+    "wallpaperSample.a-printedPaper.t": {
+      "id": "wallpaperSample.a-printedPaper.t",
+      "from": {
+        "nodeId": "wallpaperSample",
+        "portId": "a"
+      },
+      "to": {
+        "nodeId": "printedPaper",
+        "portId": "t"
+      }
+    },
+    "wallpaperSample.rgb-printedPaper.b": {
+      "id": "wallpaperSample.rgb-printedPaper.b",
+      "from": {
+        "nodeId": "wallpaperSample",
+        "portId": "rgb"
+      },
+      "to": {
+        "nodeId": "printedPaper",
+        "portId": "b"
+      }
+    },
+    "wallpaperTexture.out-wallpaperSample.texture": {
+      "id": "wallpaperTexture.out-wallpaperSample.texture",
+      "from": {
+        "nodeId": "wallpaperTexture",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "wallpaperSample",
+        "portId": "texture"
+      }
+    },
+    "width.out-widthLimit.in": {
+      "id": "width.out-widthLimit.in",
+      "from": {
+        "nodeId": "width",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "widthLimit",
+        "portId": "in"
+      }
+    },
+    "widthLimit.out-growingWidth.a": {
+      "id": "widthLimit.out-growingWidth.a",
+      "from": {
+        "nodeId": "widthLimit",
+        "portId": "out"
+      },
+      "to": {
+        "nodeId": "growingWidth",
+        "portId": "a"
+      }
+    }
+  },
+  "properties": [
+    {
+      "id": "wallpaperTexture",
+      "label": "Wallpaper image",
+      "name": "wallpaperTexture",
+      "exposed": true,
+      "type": "texture",
+      "value": {
+        "type": "texture",
+        "assetId": "template:botanical-sage-wallpaper"
+      }
+    },
+    {
+      "id": "innerWallTexture",
+      "label": "Inner wall image",
+      "name": "innerWallTexture",
+      "exposed": true,
+      "type": "texture",
+      "value": {
+        "type": "texture",
+        "assetId": "template:light-concrete-wall"
+      }
+    },
+    {
+      "id": "tearShape",
+      "label": "Tear shape · SDF image",
+      "name": "tearShape",
+      "exposed": true,
+      "type": "texture",
+      "value": {
+        "type": "texture",
+        "assetId": "template:tear-shape-sdf"
+      }
+    },
+    {
+      "id": "sdfThreshold",
+      "label": "SDF boundary · 0–1",
+      "name": "sdfThreshold",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.5
+      }
+    },
+    {
+      "id": "sdfRange",
+      "label": "SDF range · texture UV units",
+      "name": "sdfRange",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.5
+      }
+    },
+    {
+      "id": "tearRegion",
+      "label": "Tear region · XY center / ZW size",
+      "name": "tearRegion",
+      "exposed": true,
+      "type": "vec4",
+      "value": {
+        "type": "vec4",
+        "value": [
+          0.5,
+          0.5,
+          0.64,
+          0.55
+        ]
+      }
+    },
+    {
+      "id": "boxRoundness",
+      "label": "Box corner radius · fraction of size",
+      "name": "boxRoundness",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.12
+      }
+    },
+    {
+      "id": "tearAmount",
+      "label": "Tear amount · 0–1",
+      "name": "tearAmount",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 1
+      }
+    },
+    {
+      "id": "edgeRoughness",
+      "label": "Edge roughness",
+      "name": "edgeRoughness",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.055
+      }
+    },
+    {
+      "id": "curlWidth",
+      "label": "Peel width · UV units",
+      "name": "curlWidth",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.05
+      }
+    },
+    {
+      "id": "curlHeight",
+      "label": "Edge lift · 0–1",
+      "name": "curlHeight",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 0.6
+      }
+    },
+    {
+      "id": "seed",
+      "label": "Tear variation",
+      "name": "seed",
+      "exposed": true,
+      "type": "float",
+      "value": {
+        "type": "float",
+        "value": 2
+      }
+    },
+    {
+      "id": "wallpaperColor",
+      "label": "Wallpaper color",
+      "name": "wallpaperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.242281,
+          0.323143,
+          0.309469
+        ]
+      }
+    },
+    {
+      "id": "wallColor",
+      "label": "Exposed wall color",
+      "name": "wallColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.973445,
+          0.955973,
+          0.913099
+        ]
+      }
+    },
+    {
+      "id": "paperColor",
+      "label": "Paper underside color",
+      "name": "paperColor",
+      "exposed": true,
+      "type": "vec3",
+      "widget": "color",
+      "value": {
+        "type": "vec3",
+        "value": [
+          0.814847,
+          0.752942,
+          0.62396
+        ]
+      }
+    }
+  ]
+}
