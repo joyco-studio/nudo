@@ -127,6 +127,38 @@ describe('BridgeRoom dispatch', () => {
     await expect(pending).resolves.toMatchObject({ ok: false, error: { code: 'timeout' } })
   })
 
+  it('hands the active tab to the remaining tab when the active one closes', async () => {
+    const key = uniqueKey()
+    const first = await connectTab(key, 'tab-1')
+    const second = await connectTab(key, 'tab-2')
+    await first.next('active-tab') // tab-1 hello
+    await first.next('active-tab') // tab-2 hello
+
+    second.close()
+    await expect(first.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-1',
+    })
+
+    const pending = dispatchGetGraph(key)
+    const request = await first.next('request')
+    first.send({ kind: 'response', id: request.id, ok: true, result: 'from tab-1' })
+    await expect(pending).resolves.toEqual({ ok: true, value: 'from tab-1' })
+  })
+
+  it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
+    'dispatch resolves invalid for timeoutMs %s without sending a request',
+    async (timeoutMs) => {
+      const key = uniqueKey()
+      const tab = await connectTab(key, 'tab-1')
+
+      const result = await dispatchGetGraph(key, timeoutMs)
+
+      expect(result).toMatchObject({ ok: false, error: { code: 'invalid' } })
+      expect(tab.received.some((message) => message.kind === 'request')).toBe(false)
+    },
+  )
+
   it('ignores a response from a tab that did not receive the request', async () => {
     const key = uniqueKey()
     const first = await connectTab(key, 'tab-1')

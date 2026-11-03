@@ -56,6 +56,10 @@ const agentError = (code: AgentError['code'], message: string): AgentError => ({
 const NOT_CONNECTED = agentError('not_connected', 'No nudo tab is connected for this key.')
 const TAB_CLOSED = agentError('not_connected', 'The nudo tab closed before it answered.')
 
+const INVALID_TIMEOUT = agentError('invalid', 'timeoutMs must be a finite number above zero.')
+
+const isValidTimeout = (timeoutMs: number): boolean => Number.isFinite(timeoutMs) && timeoutMs > 0
+
 const timeoutError = (timeoutMs: number): AgentError =>
   agentError('timeout', `The nudo tab did not answer within ${String(timeoutMs)} ms.`)
 
@@ -120,6 +124,7 @@ export class BridgeRoom extends DurableObject {
   }
 
   dispatch(request: DispatchRequest): Promise<DispatchResult> {
+    if (!isValidTimeout(request.timeoutMs)) return Promise.resolve(err(INVALID_TIMEOUT))
     const activeTab = this.activeTab()
     if (activeTab === null) return Promise.resolve(err(NOT_CONNECTED))
 
@@ -241,7 +246,11 @@ export class BridgeRoom extends DurableObject {
   private dropSocket(socket: WebSocket): void {
     const attachment = readAttachment(socket)
     if (attachment === null) return
-    const wasActive = this.activeTab()?.attachment.connectionId === attachment.connectionId
+    // Decided without the closing socket: the runtime may already leave it out of getWebSockets().
+    const nextActive = this.activeTab(attachment.connectionId)
+    const wasActive =
+      attachment.tabId !== null &&
+      attachment.activatedAt > (nextActive?.attachment.activatedAt ?? 0)
 
     for (const [id, pending] of this.pending) {
       if (pending.connectionId === attachment.connectionId) this.settle(id, err(TAB_CLOSED))
