@@ -519,3 +519,102 @@ describe('new_graph and load_template', () => {
     expect(getState().graph).toBe(before)
   })
 })
+
+describe('a target deleted while the cursor travels', () => {
+  async function runWithDeletion(tool: keyof typeof writeTools, args: unknown, targetId: NodeId) {
+    let release: () => void = () => undefined
+    const arrival = new Promise<void>((resolve) => (release = resolve))
+    const choreograph: Choreograph = {
+      arrive: () => arrival,
+      settle: () => undefined,
+    }
+    const harness = createHarness({ choreograph })
+    const pending = run(tool, args, harness.context)
+    await Promise.resolve()
+    getState().removeNodes([targetId])
+    const graphAfterDeletion = getState().graph
+    release()
+    return { result: await pending, harness, graphAfterDeletion }
+  }
+
+  const cases: { tool: keyof typeof writeTools; args: (id: NodeId) => unknown }[] = [
+    { tool: 'remove_nodes', args: (id) => ({ ids: [id] }) },
+    { tool: 'move_nodes', args: (id) => ({ positions: { [id]: { x: 9, y: 9 } } }) },
+    {
+      tool: 'set_input',
+      args: (id) => ({ nodeId: id, portId: 'a', value: { type: 'float', value: 1 } }),
+    },
+    { tool: 'set_param', args: (id) => ({ nodeId: id, paramId: 'x', value: 1 }) },
+    {
+      tool: 'connect',
+      args: (id) => ({
+        from: { nodeId: id, portId: 'out' },
+        to: { nodeId: MASTER_NODE_ID, portId: 'roughness' },
+      }),
+    },
+  ]
+
+  it.each(cases)(
+    '$tool returns not_found, does not touch and leaves the graph alone',
+    async ({ tool, args }) => {
+      const id =
+        tool === 'set_param'
+          ? asNodeId(field(await run('add_node', { type: 'input/position' }), 'nodeId'))
+          : await addMath()
+      const paramArgs =
+        tool === 'set_param' ? { nodeId: id, paramId: 'space', value: 'world' } : args(id)
+
+      const { result, harness, graphAfterDeletion } = await runWithDeletion(tool, paramArgs, id)
+
+      expect(result).toMatchObject({ ok: false, error: { code: 'not_found' } })
+      expect(harness.touches).toEqual([])
+      expect(getState().graph).toBe(graphAfterDeletion)
+    },
+  )
+})
+
+describe('one undo entry per property write', () => {
+  it('add_property with a name is one entry and shows the name as the label', async () => {
+    const result = await run('add_property', { kind: 'float', name: 'speed' })
+    const id = field(result, 'id')
+
+    expect(historyLength()).toBe(1)
+    expect(getState().graph.properties.find((p) => p.id === id)).toMatchObject({
+      label: 'speed',
+      name: 'speed',
+      exposed: true,
+    })
+  })
+
+  it('set_property with several fields is one entry', async () => {
+    const id = field(await run('add_property', { kind: 'float' }), 'id')
+    useEditorStore.temporal.getState().clear()
+
+    const result = await run('set_property', {
+      id,
+      label: 'Wind Speed',
+      name: 'windSpeed',
+      exposed: false,
+      value: { type: 'float', value: 4 },
+    })
+
+    expect(result.ok).toBe(true)
+    expect(historyLength()).toBe(1)
+    expect(getState().graph.properties.find((p) => p.id === id)).toMatchObject({
+      label: 'Wind Speed',
+      name: 'windSpeed',
+      exposed: false,
+      value: float(4),
+    })
+  })
+
+  it('set_property with only a label lets the reference follow it, in one entry', async () => {
+    const id = field(await run('add_property', { kind: 'float' }), 'id')
+    useEditorStore.temporal.getState().clear()
+
+    await run('set_property', { id, label: 'Wind Speed' })
+
+    expect(historyLength()).toBe(1)
+    expect(getState().graph.properties.find((p) => p.id === id)?.name).toBe('windSpeed')
+  })
+})

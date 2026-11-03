@@ -15,6 +15,7 @@ import {
   renameProperty,
   resolvePortTypes,
   setParam,
+  setPropertyExposed,
   setPropertyValue,
 } from '@nudo-tsl/core'
 import type {
@@ -22,7 +23,10 @@ import type {
   Graph,
   GraphError,
   NodeId,
+  ParamRef,
+  ParamValue,
   PortRef,
+  PortValue,
   PropertyError,
   PropertyId,
   Result,
@@ -34,7 +38,9 @@ import { openExample } from '@/features/examples/open-example'
 import { readInitialLocale } from '@/i18n/locale'
 import { graphContents, hasWorkToLose } from '@/shared/lib/graph-contents'
 import { useEditorStore } from '@/store/editor-store'
+import { createPropertyId } from '@/store/ids'
 import { registry } from '@/store/registry'
+import { relabelProperty } from '@/store/property-slice'
 import { placeForAgent } from './agent-placement'
 import { defineHandler } from './define-handler'
 import type { AgentGraph } from './agent-graph-view'
@@ -106,7 +112,12 @@ function fromPropertyError(error: PropertyError): Result<never, AgentError> {
   return invalid(`The property edit was rejected: ${error.code}.`, error)
 }
 
-/** Moves the cursor, runs the edit once it has arrived, and always lets the cursor rest after. */
+type Problem = Result<never, AgentError> | null
+
+/**
+ * Moves the cursor, then runs the edit. The graph can change while the cursor travels, so every
+ * edit re-validates its target and answers with a problem instead of silently doing nothing.
+ * The cursor always rests after. */
 async function atCursor<T>(
   context: ToolContext,
   arrive: () => Promise<void>,
@@ -166,17 +177,25 @@ const addNodeTool = defineHandler('add_node', async ({ type, position }, context
 const removeNodes = defineHandler('remove_nodes', async ({ ids }, context) => {
   const nodeIds = ids.map(asNodeId)
   if (nodeIds.includes(MASTER_NODE_ID)) return invalid('The output node cannot be removed.')
-  if (!knownNodeIds(currentGraph(), nodeIds)) return notFound('Some nodes do not exist.')
+  const missing = (): Problem =>
+    knownNodeIds(currentGraph(), nodeIds) ? null : notFound('Some nodes do not exist.')
+  const early = missing()
+  if (early !== null) return early
   const [first] = nodeIds
   if (first === undefined) return succeed({ removed: [] })
 
-  await atCursor(
+  const problem = await atCursor(
     context,
     () => context.choreograph.arrive({ kind: 'node', nodeId: first }),
     () => {
+      const gone = missing()
+      if (gone !== null) return gone
       useEditorStore.getState().removeNodes(nodeIds)
+      return null
     },
   )
+  if (problem !== null) return problem
+  // Deliberately no onTouch: a deleted node cannot anchor where the next node is placed.
   return succeed({ removed: ids })
 })
 
@@ -184,24 +203,29 @@ const moveNodes = defineHandler('move_nodes', async ({ positions }, context) => 
   const entries = Object.entries(positions).map(
     ([id, position]) => [asNodeId(id), position] as const,
   )
-  if (
-    !knownNodeIds(
+  const missing = (): Problem =>
+    knownNodeIds(
       currentGraph(),
       entries.map(([id]) => id),
     )
-  ) {
-    return notFound('Some nodes do not exist.')
-  }
+      ? null
+      : notFound('Some nodes do not exist.')
+  const early = missing()
+  if (early !== null) return early
   const [first] = entries
   if (first === undefined) return succeed({ moved: [] })
 
-  await atCursor(
+  const problem = await atCursor(
     context,
     () => context.choreograph.arrive({ kind: 'node', nodeId: first[0] }),
     () => {
+      const gone = missing()
+      if (gone !== null) return gone
       useEditorStore.getState().commitMove(Object.fromEntries(entries))
+      return null
     },
   )
+  if (problem !== null) return problem
   for (const [nodeId] of entries) touchEdited(context, nodeId)
   return succeed({ moved: entries.map(([id]) => id) })
 })
@@ -222,9 +246,7 @@ function findEdgeId(graph: Graph, from: PortRef, to: PortRef): string | undefine
   )?.id
 }
 
-const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }, context) => {
-  const from = toPortRef(rawFrom)
-  const to = toPortRef(rawTo)
+function connectProblem(from: PortRef, to: PortRef): Problem {
   const graph = currentGraph()
   if (!knownNodeIds(graph, [from.nodeId, to.nodeId])) return notFound('Some nodes do not exist.')
   if (!hasPort(graph, from, 'outputs'))
@@ -232,9 +254,17 @@ const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }
   if (!hasPort(graph, to, 'inputs'))
     return notFound(`Node ${to.nodeId} has no input "${to.portId}".`)
   const check = checkConnection(graph, registry, from, to)
-  if (!check.ok) return rejected(check.reason)
+  return check.ok ? null : rejected(check.reason)
+}
 
-  const connection = await atCursor(
+const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }, context) => {
+  const from = toPortRef(rawFrom)
+  const to = toPortRef(rawTo)
+  const early = connectProblem(from, to)
+  if (early !== null) return early
+  const graph = currentGraph()
+
+  const problem = await atCursor(
     context,
     async () => {
       await context.choreograph.arrive(
@@ -243,9 +273,14 @@ const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }
       )
       await context.choreograph.arrive({ kind: 'port', ref: to })
     },
-    () => useEditorStore.getState().connect(from, to),
+    () => {
+      const stale = connectProblem(from, to)
+      if (stale !== null) return stale
+      const connection = useEditorStore.getState().connect(from, to)
+      return connection.ok ? null : rejected(connection.reason)
+    },
   )
-  if (!connection.ok) return rejected(connection.reason)
+  if (problem !== null) return problem
   const edgeId = findEdgeId(currentGraph(), from, to)
   if (edgeId === undefined) return invalid('The connection could not be made.')
   touchEdited(context, to.nodeId)
@@ -265,113 +300,155 @@ const disconnectTool = defineHandler('disconnect', ({ edgeIds }, context) => {
   return Promise.resolve(succeed({ disconnected: edgeIds }))
 })
 
+function inputProblem(ref: PortRef, value: PortValue): Problem {
+  const graph = currentGraph()
+  if (graph.nodes[ref.nodeId] === undefined) return notFound(`Node ${ref.nodeId} does not exist.`)
+  if (!hasPort(graph, ref, 'inputs'))
+    return notFound(`Node ${ref.nodeId} has no input "${ref.portId}".`)
+  if (Object.values(graph.edges).some((edge) => portKey(edge.to) === portKey(ref))) {
+    return invalid(`Input "${ref.portId}" is connected; disconnect it to set a constant.`)
+  }
+  const portType = resolvePortTypes(graph, registry).inputs.get(portKey(ref))
+  if (portType === value.type) return null
+  return invalid(
+    `Input "${ref.portId}" takes a ${portType ?? 'different'} value, not ${value.type}.`,
+  )
+}
+
 const setInput = defineHandler(
   'set_input',
   async ({ nodeId: rawNodeId, portId, value }, context) => {
     const ref: PortRef = { nodeId: asNodeId(rawNodeId), portId }
-    const graph = currentGraph()
-    if (graph.nodes[ref.nodeId] === undefined) return notFound(`Node ${rawNodeId} does not exist.`)
-    if (!hasPort(graph, ref, 'inputs'))
-      return notFound(`Node ${rawNodeId} has no input "${portId}".`)
-    if (Object.values(graph.edges).some((edge) => portKey(edge.to) === portKey(ref))) {
-      return invalid(`Input "${portId}" is connected; disconnect it to set a constant.`)
-    }
-    const portType = resolvePortTypes(graph, registry).inputs.get(portKey(ref))
-    if (portType !== value.type) {
-      return invalid(
-        `Input "${portId}" takes a ${portType ?? 'different'} value, not ${value.type}.`,
-      )
-    }
+    const early = inputProblem(ref, value)
+    if (early !== null) return early
 
-    await atCursor(
+    const problem = await atCursor(
       context,
       () => context.choreograph.arrive({ kind: 'port', ref }),
       () => {
+        const stale = inputProblem(ref, value)
+        if (stale !== null) return stale
         useEditorStore.getState().setInputValue(ref, value)
+        return null
       },
     )
+    if (problem !== null) return problem
     touchEdited(context, ref.nodeId)
     return succeed({ nodeId: rawNodeId, portId })
   },
 )
 
+function paramProblem(ref: ParamRef, value: ParamValue): Problem {
+  const graph = currentGraph()
+  const node = graph.nodes[ref.nodeId]
+  if (node === undefined) return notFound(`Node ${ref.nodeId} does not exist.`)
+  const definition = registry.get(node.type)
+  if (definition !== undefined && findParamDefinition(definition, ref.paramId) === undefined) {
+    return notFound(`Node ${ref.nodeId} has no param "${ref.paramId}".`)
+  }
+  const dryRun = setParam(graph, registry, ref, value)
+  return dryRun.ok ? null : fromGraphError(dryRun.error)
+}
+
 const setParamTool = defineHandler(
   'set_param',
   async ({ nodeId: rawNodeId, paramId, value }, context) => {
-    const ref = { nodeId: asNodeId(rawNodeId), paramId }
-    const graph = currentGraph()
-    const node = graph.nodes[ref.nodeId]
-    if (node === undefined) return notFound(`Node ${rawNodeId} does not exist.`)
-    const definition = registry.get(node.type)
-    if (definition !== undefined && findParamDefinition(definition, paramId) === undefined) {
-      return notFound(`Node ${rawNodeId} has no param "${paramId}".`)
-    }
-    const dryRun = setParam(graph, registry, ref, value)
-    if (!dryRun.ok) return fromGraphError(dryRun.error)
+    const ref: ParamRef = { nodeId: asNodeId(rawNodeId), paramId }
+    const early = paramProblem(ref, value)
+    if (early !== null) return early
 
-    await atCursor(
+    const problem = await atCursor(
       context,
       () => context.choreograph.arrive({ kind: 'node', nodeId: ref.nodeId }),
       () => {
+        const stale = paramProblem(ref, value)
+        if (stale !== null) return stale
         useEditorStore.getState().setParam(ref, value)
+        return null
       },
     )
+    if (problem !== null) return problem
     touchEdited(context, ref.nodeId)
     return succeed({ nodeId: rawNodeId, paramId })
   },
 )
 
+/**
+ * Applies a pure property edit as one history entry. A refusal (from the edit, or from the graph
+ * having changed since) is reported with its property error; nothing changes then.
+ */
+function applyPropertyEdit(
+  edit: (graph: Graph) => Result<Graph, PropertyError>,
+): Result<never, AgentError> | null {
+  const captured: { refusal: PropertyError | null } = { refusal: null }
+  const reason = useEditorStore.getState().applyGraphChange((graph) => {
+    const result = edit(graph)
+    if (result.ok) return result
+    captured.refusal = result.error
+    return err(result.error.code)
+  })
+  if (reason === null) return null
+  return captured.refusal === null ? invalid(reason) : fromPropertyError(captured.refusal)
+}
+
 const addPropertyTool = defineHandler('add_property', ({ kind, name }) => {
-  const graph = currentGraph()
-  if (name !== undefined) {
-    const spec = PROPERTY_KIND_SPECS[kind]
-    const dryRun = addProperty(graph, {
-      id: asPropertyId('dry-run'),
+  if (name === undefined) {
+    const id = useEditorStore.getState().addProperty(kind)
+    if (id === null) return Promise.resolve(invalid('The property could not be added.'))
+    return Promise.resolve(succeed({ id }))
+  }
+  // A requested name is both the label and the reference, so the blackboard shows it as given.
+  const id = createPropertyId()
+  const spec = PROPERTY_KIND_SPECS[kind]
+  const problem = applyPropertyEdit((graph) =>
+    addProperty(graph, {
+      id,
       label: name,
       name,
       exposed: true,
       type: spec.type,
+      ...(spec.widget === undefined ? {} : { widget: spec.widget }),
       value: spec.defaultValue,
-    })
-    if (!dryRun.ok) return Promise.resolve(fromPropertyError(dryRun.error))
-  }
-  const store = useEditorStore.getState()
-  const id = store.addProperty(kind)
-  if (id === null) return Promise.resolve(invalid('The property could not be added.'))
-  const renamed = name === undefined ? null : store.renameProperty(id, name)
-  if (renamed !== null) return Promise.resolve(fromPropertyError(renamed))
-  return Promise.resolve(succeed({ id }))
+    }),
+  )
+  return Promise.resolve(problem ?? succeed({ id }))
 })
 
 function findProperty(id: PropertyId) {
   return currentGraph().properties.find((property) => property.id === id)
 }
 
+type PropertyEdit = (graph: Graph) => Result<Graph, PropertyError>
+
+/** Chains pure edits; the first refusal stops the chain. */
+const sequence =
+  (edits: readonly PropertyEdit[]): PropertyEdit =>
+  (graph) => {
+    let current: Result<Graph, PropertyError> = ok(graph)
+    for (const edit of edits) {
+      if (!current.ok) return current
+      current = edit(current.value)
+    }
+    return current
+  }
+
 const setPropertyTool = defineHandler(
   'set_property',
   ({ id: rawId, label, name, exposed, value }) => {
     const id = asPropertyId(rawId)
-    const graph = currentGraph()
     if (findProperty(id) === undefined)
       return Promise.resolve(fromPropertyError({ code: 'property-not-found', id }))
 
-    // Validate everything that can be refused against the current graph before applying anything,
-    // so a rejected field leaves the graph as it was.
-    const nameCheck = name === undefined ? null : renameProperty(graph, id, name)
-    if (nameCheck !== null && !nameCheck.ok)
-      return Promise.resolve(fromPropertyError(nameCheck.error))
-    const valueCheck = value === undefined ? null : setPropertyValue(graph, id, value)
-    if (valueCheck !== null && !valueCheck.ok)
-      return Promise.resolve(fromPropertyError(valueCheck.error))
+    // One pure chain, so the whole call is one history entry and a refused field applies nothing.
+    const edits: PropertyEdit[] = []
+    if (label !== undefined) edits.push((graph) => relabelProperty(graph, id, label))
+    if (name !== undefined) edits.push((graph) => renameProperty(graph, id, name))
+    if (exposed !== undefined) edits.push((graph) => setPropertyExposed(graph, id, exposed))
+    if (value !== undefined) edits.push((graph) => setPropertyValue(graph, id, value))
+    if (edits.length === 0) return Promise.resolve(succeed({ id: rawId }))
 
-    const store = useEditorStore.getState()
-    const labelError = label === undefined ? null : store.renamePropertyLabel(id, label)
-    if (labelError !== null) return Promise.resolve(fromPropertyError(labelError))
-    const nameError = name === undefined ? null : store.renameProperty(id, name)
-    if (nameError !== null) return Promise.resolve(fromPropertyError(nameError))
-    if (exposed !== undefined) store.setPropertyExposed(id, exposed)
-    if (value !== undefined) store.setPropertyValue(id, value)
-    return Promise.resolve(succeed({ id: rawId }))
+    const problem = applyPropertyEdit(sequence(edits))
+    return Promise.resolve(problem ?? succeed({ id: rawId }))
   },
 )
 
