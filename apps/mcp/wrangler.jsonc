@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nudo-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "durable_objects": {
+    "bindings": [{ "name": "BRIDGE_ROOM", "class_name": "BridgeRoom" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["BridgeRoom"] }],
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:5173",
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+    },
+  },
+}

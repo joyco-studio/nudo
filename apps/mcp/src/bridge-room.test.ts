@@ -1,0 +1,189 @@
+import { hashKey, MAX_MESSAGE_BYTES, PROTOCOL_VERSION } from '@nudo-tsl/agent-protocol'
+import { runInDurableObject } from 'cloudflare:test'
+import { describe, expect, it } from 'vitest'
+import { BridgeRoom } from './bridge-room'
+import { connectTab, helloMessage, openBridgeSocket, roomFor } from './testing/bridge-socket'
+
+const AGENT = { sessionId: 'session-1', name: 'Test Agent' }
+const LONG_TIMEOUT_MS = 5_000
+const SHORT_TIMEOUT_MS = 50
+
+const uniqueKey = (): string => `key-${crypto.randomUUID()}`
+
+const dispatchGetGraph = async (key: string, timeoutMs: number = LONG_TIMEOUT_MS) => {
+  const room = await roomFor(key)
+  return room.dispatch({ tool: 'get_graph', args: {}, agent: AGENT, timeoutMs })
+}
+
+describe('BridgeRoom handshake', () => {
+  it('closes with 4001 when the hello key does not hash to the room name', async () => {
+    const socket = await openBridgeSocket(await hashKey(uniqueKey()))
+    socket.send(helloMessage('some-other-key', 'tab-1'))
+
+    await expect(socket.next('rejected')).resolves.toEqual({ kind: 'rejected', reason: 'bad_key' })
+    await expect(socket.closed).resolves.toMatchObject({ code: 4001 })
+  })
+
+  it('closes with 4002 when the protocol version does not match', async () => {
+    const key = uniqueKey()
+    const socket = await openBridgeSocket(await hashKey(key))
+    socket.send({ ...helloMessage(key, 'tab-1'), protocolVersion: PROTOCOL_VERSION + 1 })
+
+    await expect(socket.next('rejected')).resolves.toEqual({
+      kind: 'rejected',
+      reason: 'protocol_mismatch',
+    })
+    await expect(socket.closed).resolves.toMatchObject({ code: 4002 })
+  })
+
+  it('welcomes a tab and makes it active', async () => {
+    const key = uniqueKey()
+    const socket = await openBridgeSocket(await hashKey(key))
+    socket.send(helloMessage(key, 'tab-1'))
+
+    await expect(socket.next('welcome')).resolves.toEqual({ kind: 'welcome', activeTabId: 'tab-1' })
+    await expect(socket.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-1',
+    })
+  })
+})
+
+describe('BridgeRoom dispatch', () => {
+  it('dispatch resolves not_connected with no tab', async () => {
+    const result = await dispatchGetGraph(uniqueKey())
+    expect(result).toMatchObject({ ok: false, error: { code: 'not_connected' } })
+  })
+
+  it('dispatch round-trips through the active tab', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    const pending = dispatchGetGraph(key)
+    const request = await tab.next('request')
+    expect(request).toMatchObject({ tool: 'get_graph', args: {}, agent: AGENT })
+    tab.send({ kind: 'response', id: request.id, ok: true, result: { n: 1 } })
+
+    await expect(pending).resolves.toEqual({ ok: true, value: { n: 1 } })
+  })
+
+  it('dispatch passes an error response through', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    const pending = dispatchGetGraph(key)
+    const request = await tab.next('request')
+    const error = { code: 'not_found', message: 'gone', state: { nodeIds: [] } }
+    tab.send({ kind: 'response', id: request.id, ok: false, error })
+
+    await expect(pending).resolves.toEqual({ ok: false, error })
+  })
+
+  it('dispatch goes to the most recently focused tab', async () => {
+    const key = uniqueKey()
+    const first = await connectTab(key, 'tab-1')
+    const second = await connectTab(key, 'tab-2')
+    first.send({ kind: 'focus', tabId: 'tab-1' })
+    await first.next('active-tab') // tab-1 hello
+    await first.next('active-tab') // tab-2 hello
+    await expect(first.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-1',
+    })
+    second.send({ kind: 'focus', tabId: 'tab-2' })
+    await second.next('active-tab') // tab-2 hello
+    await second.next('active-tab') // tab-1 focus
+    await expect(second.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-2',
+    })
+
+    const pending = dispatchGetGraph(key)
+    const request = await second.next('request')
+    second.send({ kind: 'response', id: request.id, ok: true, result: 'from tab-2' })
+
+    await expect(pending).resolves.toEqual({ ok: true, value: 'from tab-2' })
+    expect(first.received.some((message) => message.kind === 'request')).toBe(false)
+  })
+
+  it('pending dispatch resolves not_connected when the tab closes', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    const pending = dispatchGetGraph(key)
+    await tab.next('request')
+    tab.close()
+
+    await expect(pending).resolves.toMatchObject({ ok: false, error: { code: 'not_connected' } })
+  })
+
+  it('dispatch resolves timeout after timeoutMs', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    const pending = dispatchGetGraph(key, SHORT_TIMEOUT_MS)
+    await tab.next('request')
+
+    await expect(pending).resolves.toMatchObject({ ok: false, error: { code: 'timeout' } })
+  })
+
+  it('ignores a response from a tab that did not receive the request', async () => {
+    const key = uniqueKey()
+    const first = await connectTab(key, 'tab-1')
+    const second = await connectTab(key, 'tab-2')
+
+    const pending = dispatchGetGraph(key)
+    const request = await second.next('request')
+    first.send({ kind: 'response', id: request.id, ok: true, result: 'impostor' })
+    second.send({ kind: 'response', id: request.id, ok: true, result: 'real' })
+
+    await expect(pending).resolves.toEqual({ ok: true, value: 'real' })
+  })
+})
+
+describe('BridgeRoom malformed input', () => {
+  it('an invalid message gets an invalid response and the socket stays open', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    tab.sendRaw('{ not json')
+    await expect(tab.next('error')).resolves.toMatchObject({ error: { code: 'invalid' } })
+
+    const pending = dispatchGetGraph(key)
+    const request = await tab.next('request')
+    tab.send({ kind: 'response', id: request.id, ok: true, result: null })
+    await expect(pending).resolves.toEqual({ ok: true, value: null })
+  })
+
+  it('rejects a frame whose UTF-8 size exceeds MAX_MESSAGE_BYTES even if its length does not', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+    const twoByteChar = 'é'
+    const frame = twoByteChar.repeat(Math.ceil(MAX_MESSAGE_BYTES / 2) + 1)
+    expect(frame.length).toBeLessThan(MAX_MESSAGE_BYTES)
+
+    tab.sendRaw(frame)
+    const response = await tab.next('error')
+    expect(response.error.code).toBe('invalid')
+    expect(response.error.message).toContain('maximum size')
+  })
+
+  it('answers a message sent before hello with invalid', async () => {
+    const socket = await openBridgeSocket(await hashKey(uniqueKey()))
+    socket.send({ kind: 'focus', tabId: 'tab-1' })
+    await expect(socket.next('error')).resolves.toMatchObject({ error: { code: 'invalid' } })
+  })
+})
+
+describe('BridgeRoom sessions', () => {
+  it('remembers the client name of a registered session', async () => {
+    const room = await roomFor(uniqueKey())
+    await room.registerSession('session-1', 'Cursor')
+
+    await expect(room.clientName('session-1')).resolves.toBe('Cursor')
+    await expect(room.clientName('unknown')).resolves.toBeNull()
+    await runInDurableObject(room, async (instance: BridgeRoom) => {
+      await expect(instance.clientName('session-1')).resolves.toBe('Cursor')
+    })
+  })
+})

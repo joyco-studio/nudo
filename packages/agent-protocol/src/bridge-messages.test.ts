@@ -48,4 +48,12 @@ describe('parseRoomMessage', () => {
     })
     expect(parseRoomMessage(raw).ok).toBe(false)
   })
+
+  it('parses an error carrying an invalid AgentError', () => {
+    const raw = JSON.stringify({ kind: 'error', error: { code: 'invalid', message: 'bad' } })
+    expect(parseRoomMessage(raw)).toEqual({
+      ok: true,
+      value: { kind: 'error', error: { code: 'invalid', message: 'bad' } },
+    })
+  })
 })

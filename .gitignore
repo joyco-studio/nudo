@@ -31,3 +31,6 @@ yarn-error.log*
 # agent workspace
 .superpowers/
 .context/
+
+# cloudflare
+.wrangler/

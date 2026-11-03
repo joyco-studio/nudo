@@ -65,11 +65,15 @@ const requestSchema = z.object({
 
 const activeTabSchema = z.object({ kind: z.literal('active-tab'), activeTabId: z.string() })
 
+/** Sent by the room when a browser frame is malformed; the socket stays open. */
+const roomErrorSchema = z.object({ kind: z.literal('error'), error: agentErrorSchema })
+
 const roomMessageSchema = z.discriminatedUnion('kind', [
   welcomeSchema,
   rejectedSchema,
   requestSchema,
   activeTabSchema,
+  roomErrorSchema,
 ])
 
 export type AgentIdentity = z.infer<typeof agentIdentitySchema>
