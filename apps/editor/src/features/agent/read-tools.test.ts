@@ -8,6 +8,7 @@ const context: ToolContext = {
   agent: { sessionId: 's', name: 'agent' },
   choreograph: immediateChoreograph,
   onTouch: () => undefined,
+  lastTouched: () => null,
   tidyUp: () => Promise.resolve(),
   confirm: () => Promise.resolve(true),
 }

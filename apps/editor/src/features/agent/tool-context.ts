@@ -13,6 +13,8 @@ export interface ToolContext {
   agent: AgentIdentity
   choreograph: Choreograph
   onTouch(touch: NodeTouch): void
+  /** The node the agent created or edited last in this task, if any. */
+  lastTouched(): NodeId | null
   tidyUp(): Promise<void>
   confirm(kind: ConfirmKind): Promise<boolean>
 }

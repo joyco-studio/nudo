@@ -9,6 +9,7 @@ const AGENT = { sessionId: 's1', name: 'agent' }
 const context = {
   choreograph: immediateChoreograph,
   onTouch: () => undefined,
+  lastTouched: () => null,
   tidyUp: () => Promise.resolve(),
   confirm: () => Promise.resolve(true),
 }
