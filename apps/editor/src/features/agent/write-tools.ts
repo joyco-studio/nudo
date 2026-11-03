@@ -36,6 +36,7 @@ import { PROPERTY_KIND_SPECS } from '@/features/blackboard/property-kinds'
 import { listedExamples } from '@/examples'
 import { openExample } from '@/features/examples/open-example'
 import { readInitialLocale } from '@/i18n/locale'
+import type { Locale } from '@/i18n/locale'
 import { graphContents, hasWorkToLose } from '@/shared/lib/graph-contents'
 import { useEditorStore } from '@/store/editor-store'
 import { createPropertyId } from '@/store/ids'
@@ -509,25 +510,35 @@ const newGraph = defineHandler('new_graph', async (_args, context) => {
   return guard.refusal() ?? succeed({})
 })
 
-const loadTemplate = defineHandler('load_template', async ({ id }, context) => {
-  const templates = listedExamples()
-  const example = templates.find((candidate) => candidate.id === id)
-  if (example === undefined) {
-    return notFound(`Unknown template "${id}".`, {
-      templateIds: templates.map((template) => template.id),
-    })
-  }
-  if (!(await isReplacementConfirmed(context, 'load_template'))) return declined('load_template')
-  const locale = readInitialLocale(window.localStorage, window.navigator.language)
-  const guard = guardedCommit(context)
-  const isOpened = await openExample(example, locale, undefined, guard.commit)
-  const refusal = guard.refusal()
-  if (refusal !== null) return refusal
-  if (!isOpened) return invalid(`Template "${id}" could not be opened.`)
-  return succeed({ id })
-})
+/** Reads the UI locale at the moment a template opens, so its node names match the interface. */
+export type ReadLocale = () => Locale
 
-export const writeTools: Pick<Record<WriteToolName, ToolHandler>, WriteToolName> = {
+const browserLocale: ReadLocale = () =>
+  readInitialLocale(window.localStorage, window.navigator.language)
+
+const loadTemplateIn = (readLocale: ReadLocale): ToolHandler =>
+  defineHandler('load_template', async ({ id }, context) => {
+    const templates = listedExamples()
+    const example = templates.find((candidate) => candidate.id === id)
+    if (example === undefined) {
+      return notFound(`Unknown template "${id}".`, {
+        templateIds: templates.map((template) => template.id),
+      })
+    }
+    if (!(await isReplacementConfirmed(context, 'load_template'))) return declined('load_template')
+    const locale = readLocale()
+    const guard = guardedCommit(context)
+    const isOpened = await openExample(example, locale, undefined, guard.commit)
+    const refusal = guard.refusal()
+    if (refusal !== null) return refusal
+    if (!isOpened) return invalid(`Template "${id}" could not be opened.`)
+    return succeed({ id })
+  })
+
+export type WriteTools = Pick<Record<WriteToolName, ToolHandler>, WriteToolName>
+
+/** The write tools, opening templates in the locale `readLocale` gives (the UI's, when mounted). */
+export const createWriteTools = (readLocale: ReadLocale): WriteTools => ({
   add_node: addNodeTool,
   remove_nodes: removeNodes,
   move_nodes: moveNodes,
@@ -540,5 +551,8 @@ export const writeTools: Pick<Record<WriteToolName, ToolHandler>, WriteToolName>
   remove_property: removePropertyTool,
   tidy_up: tidyUp,
   new_graph: newGraph,
-  load_template: loadTemplate,
-}
+  load_template: loadTemplateIn(readLocale),
+})
+
+/** The write tools with the locale the editor would start in (stored, else the browser's). */
+export const writeTools: WriteTools = createWriteTools(browserLocale)

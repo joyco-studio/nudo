@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'nudo-tsl:agent-key'
 const KEY_BYTES = 32
 
-type KeyStorage = Pick<Storage, 'getItem' | 'setItem'>
+export type KeyStorage = Pick<Storage, 'getItem' | 'setItem'>
 
 function toBase64Url(bytes: Uint8Array): string {
   let binary = ''
@@ -41,4 +41,10 @@ export function rotateKey(storage: KeyStorage): string {
   const key = generateKey()
   storeKey(storage, key)
   return key
+}
+
+/** The stored key, without creating one: null until the person first opens "Connect an agent". */
+export function loadKey(storage: KeyStorage): string | null {
+  const stored = readStoredKey(storage)
+  return stored === null || stored === '' ? null : stored
 }
