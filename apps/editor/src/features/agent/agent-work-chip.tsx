@@ -58,7 +58,7 @@ function ChipContent({ view }: { view: ChipView }) {
       <>
         {isWorking ? <WorkingDots /> : null}
         <span className="max-w-48 truncate max-sm:max-w-24">
-          {isWorking || view.step === null ? label : `${t('agent.chip.stopped')} · ${label}`}
+          {isWorking || view.step === null ? label : t('agent.chip.stoppedStep', { step: label })}
         </span>
         {/* The time is in the panel header too; here it would change the name every second. */}
         {isWorking ? (

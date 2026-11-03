@@ -89,6 +89,13 @@ const buttonNamed = (name: string): HTMLButtonElement => {
   return found
 }
 
+/** A stopped task does not open the panel by itself; the person opens it from the chip. */
+function openPanelFromChip(): void {
+  act(() => {
+    container.querySelector<HTMLButtonElement>('button[aria-expanded]')?.click()
+  })
+}
+
 describe('AgentActivityPanel', () => {
   it('is a labeled region with the quoted prompt and every step', () => {
     mount()
@@ -111,7 +118,7 @@ describe('AgentActivityPanel', () => {
       stop.click()
     })
     expect(useEditorStore.getState().agentTask?.status).toBe('stopped')
-    expect(panel()?.textContent).toContain('stopped')
+    expect(panel()?.querySelector('h2')?.textContent).toBe('Claude Code · stopped')
 
     act(() => {
       buttonNamed('Let it continue').click()
@@ -134,6 +141,76 @@ describe('AgentActivityPanel', () => {
     await vi.waitFor(() => {
       expect(document.body.querySelector('[role="alertdialog"]')).not.toBeNull()
     })
+  })
+
+  it('keeps focus in the stopped panel after Undo all disables its button', async () => {
+    useEditorStore.setState({ agentTask: { ...task, status: 'stopped' } })
+    beginSnapshot()
+    mount()
+    openPanelFromChip()
+    const undo = buttonNamed('Undo all')
+    await act(async () => {
+      undo.focus()
+      undo.click()
+      await Promise.resolve()
+    })
+
+    expect(undo.disabled).toBe(true)
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement).toBe(panel())
+  })
+
+  it('gives focus back to the stopped panel after Undo all is confirmed', async () => {
+    useEditorStore.setState({ agentTask: { ...task, status: 'stopped' } })
+    beginSnapshot()
+    mount()
+    openPanelFromChip()
+    act(() => {
+      const store = useEditorStore.getState()
+      store.replaceGraph({ ...store.graph })
+    })
+    const undo = buttonNamed('Undo all')
+    act(() => {
+      undo.focus()
+      undo.click()
+    })
+    const dialog = await vi.waitFor(() => {
+      const found = document.body.querySelector<HTMLElement>('[role="alertdialog"]')
+      if (found === null) throw new Error('No confirm dialog yet')
+      return found
+    })
+    const confirm = [...dialog.querySelectorAll('button')].find(
+      (button) => button.textContent === 'Undo all',
+    )
+
+    await act(async () => {
+      confirm?.click()
+      await Promise.resolve()
+    })
+
+    await vi.waitFor(() => {
+      expect(document.body.querySelector('[role="alertdialog"]')).toBeNull()
+      expect(document.activeElement).not.toBe(document.body)
+      expect(document.activeElement).toBe(panel())
+    })
+  })
+
+  it('hands focus to the chip when Undo all finishes an active task and the panel collapses', async () => {
+    const stopTracking = trackInputModality(document)
+    beginSnapshot()
+    mount()
+    const undo = buttonNamed('Undo all')
+    await act(async () => {
+      undo.focus()
+      undo.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      undo.click()
+      await Promise.resolve()
+    })
+
+    expect(useEditorStore.getState().agentTask?.status).toBe('finished')
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement).toBe(container.querySelector('button[aria-expanded]'))
+    stopTracking()
   })
 
   it('Escape collapses the panel and focuses the chip', () => {

@@ -84,6 +84,15 @@ describe('AgentWorkChip', () => {
     expect(chip().getAttribute('aria-expanded')).not.toBeNull()
   })
 
+  it('names the step a stopped agent was on, in one translatable message', () => {
+    useEditorStore.setState({
+      agentConnection: 'connected',
+      agentTask: { ...workingTask, status: 'stopped' },
+    })
+    mount()
+    expect(chip().textContent).toBe('Stopped · Adding Voronoi')
+  })
+
   it('offers to connect an agent while disconnected and opens the connect dialog', () => {
     const bridge = fakeBridge()
     mount(bridge)

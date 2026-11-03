@@ -6,6 +6,7 @@ import { useEditorStore } from '@/store/editor-store'
 
 import type { AgentBridgeHandle } from './agent-bridge'
 import { AgentConfirmDialog } from './agent-confirm-dialog'
+import type { FocusTargetFor } from './agent-confirm-dialog'
 import { AgentConnectDialog } from './agent-connect-dialog'
 import { AgentUiContext } from './agent-ui-context'
 import type { AgentUi } from './agent-ui-context'
@@ -65,6 +66,25 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
     chipElementRef.current?.focus()
   }, [])
 
+  const isPanelOpenRef = useRef(isPanelOpen)
+  useEffect(() => {
+    isPanelOpenRef.current = isPanelOpen
+  }, [isPanelOpen])
+
+  /**
+   * A confirm opened from the panel (Undo all) returns focus there, unless the panel collapsed
+   * meanwhile (the task finished: the toolbar control takes it) or the opener is now disabled.
+   */
+  const confirmFocusTarget = useCallback<FocusTargetFor>(
+    (opener) => {
+      const panel = document.getElementById(panelId)
+      if (opener === null || panel?.contains(opener) !== true) return opener
+      if (!isPanelOpenRef.current) return chipElementRef.current
+      return opener instanceof HTMLButtonElement && opener.disabled ? panel : opener
+    },
+    [panelId],
+  )
+
   const openConnectDialog = useCallback(() => {
     connectOpenerRef.current = activeElement()
     setAgentKey(bridge.connect() ?? bridge.currentKey())
@@ -118,7 +138,7 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
         onGenerateKey={generateNewKey}
         restoreFocus={restoreConnectFocus}
       />
-      <AgentConfirmDialog broker={confirmBroker} />
+      <AgentConfirmDialog broker={confirmBroker} focusTargetFor={confirmFocusTarget} />
     </AgentUiContext>
   )
 }

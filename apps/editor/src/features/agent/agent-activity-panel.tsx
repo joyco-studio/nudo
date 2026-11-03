@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react'
 import type { KeyboardEvent } from 'react'
 import { Check, Circle, LoaderCircle, Play, Square, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -15,7 +15,7 @@ import type { AgentStep, AgentTask } from '@/store/store-types'
 
 import { useAgentUi } from './agent-ui-context'
 import { resumeAgent, stopAgent } from './task-machine'
-import { hasSnapshot, undoAll } from './undo-all'
+import { hasSnapshot, subscribeSnapshot, undoAll } from './undo-all'
 import { useTaskTimer } from './use-task-timer'
 
 const STEP_ICONS: Readonly<Record<AgentStep['state'], LucideIcon>> = {
@@ -62,16 +62,18 @@ function StepRow({ step }: { step: AgentStep }) {
   )
 }
 
-function StatusText({ task }: { task: AgentTask }) {
+/** "{name} · working 0:14", "{name} · stopped", "{name} · done": one message, so word order translates. */
+function HeadingText({ task }: { task: AgentTask }) {
   const t = useT()
   const elapsed = useTaskTimer(task.startedAt, task.status === 'active')
+  const name = task.agent.name
   switch (task.status) {
     case 'active':
-      return t('agent.panel.working', { elapsed })
+      return t('agent.panel.working', { name, elapsed })
     case 'stopped':
-      return t('agent.panel.stopped')
+      return t('agent.panel.stopped', { name })
     case 'finished':
-      return t('agent.panel.done')
+      return t('agent.panel.done', { name })
   }
 }
 
@@ -126,8 +128,15 @@ export function AgentActivityPanel() {
   const isOpen = ui.isPanelOpen && task !== null
   const { presence, element, presenceKey } = useOverlayMotion('quickFade', isOpen)
   const sectionRef = useRef<HTMLElement | null>(null)
-  // Undo all changes no store state when the task is stopped; re-render to disable the button.
-  const [, setUndoCount] = useState(0)
+  const canUndoAll = useSyncExternalStore(subscribeSnapshot, hasSnapshot)
+  const undoButtonRef = useRef<HTMLButtonElement | null>(null)
+
+  // Undo all disables its own button; the panel keeps the focus instead of it falling to the page.
+  // A layout effect, so it runs before the browser drops focus from the disabled button.
+  useLayoutEffect(() => {
+    if (canUndoAll || document.activeElement !== undoButtonRef.current) return
+    sectionRef.current?.focus({ preventScroll: true })
+  }, [canUndoAll])
 
   useEffect(() => {
     if (ui.panelFocusRequest === 0) return
@@ -141,9 +150,7 @@ export function AgentActivityPanel() {
   }
 
   const runUndoAll = (): void => {
-    void undoAll(() => ui.confirm('undo_all')).then(() => {
-      setUndoCount((count) => count + 1)
-    })
+    void undoAll(() => ui.confirm('undo_all'))
   }
 
   return (
@@ -161,12 +168,8 @@ export function AgentActivityPanel() {
           className="pointer-events-auto w-72 max-w-full border bg-background/85 backdrop-blur-md"
         >
           <div className="flex h-9 items-center gap-2 bg-muted/50 pr-1 pl-3">
-            <h2 className="min-w-0 flex-1 truncate text-xs">
-              <span className="font-semibold">{task.agent.name}</span>
-              <span className="text-muted-foreground">
-                {' · '}
-                <StatusText task={task} />
-              </span>
+            <h2 className="min-w-0 flex-1 truncate text-xs font-medium">
+              <HeadingText task={task} />
             </h2>
             {task.status === 'active' ? (
               <Button variant="secondary" size="sm" className="h-7" onClick={stopAgent}>
@@ -193,7 +196,13 @@ export function AgentActivityPanel() {
                 {t('agent.panel.connection')}
               </Button>
             ) : null}
-            <Button variant="ghost" size="sm" disabled={!hasSnapshot()} onClick={runUndoAll}>
+            <Button
+              ref={undoButtonRef}
+              variant="ghost"
+              size="sm"
+              disabled={!canUndoAll}
+              onClick={runUndoAll}
+            >
               {t('agent.panel.undoAll')}
             </Button>
           </div>

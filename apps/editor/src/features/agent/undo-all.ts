@@ -19,12 +19,27 @@ const state: UndoAllState = {
   agentWriteDepth: 0,
 }
 
+const snapshotListeners = new Set<() => void>()
+
+const notifySnapshotChange = (): void => {
+  for (const listener of snapshotListeners) listener()
+}
+
+/** Calls `listener` whenever a snapshot is taken or dropped; for `useSyncExternalStore`. */
+export function subscribeSnapshot(listener: () => void): () => void {
+  snapshotListeners.add(listener)
+  return () => {
+    snapshotListeners.delete(listener)
+  }
+}
+
 /** Keeps the graph as it is now, so Undo all can return to it. Starts a new task's tracking. */
 export function beginSnapshot(): void {
   const graph = useEditorStore.getState().graph
   state.snapshot = graph
   state.agentGraphs = new WeakSet([graph])
   state.userEditedDuringTask = false
+  notifySnapshotChange()
 }
 
 /** Forgets the snapshot, so Undo all has nothing to do until the next task begins. */
@@ -32,6 +47,7 @@ export function discardSnapshot(): void {
   state.snapshot = null
   state.agentGraphs = new WeakSet()
   state.userEditedDuringTask = false
+  notifySnapshotChange()
 }
 
 export const hasSnapshot = (): boolean => state.snapshot !== null
