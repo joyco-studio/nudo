@@ -104,6 +104,9 @@ export const en = {
   'command.example-god-rays.keywords':
     'template example sample demo god rays sun beams light shafts dust',
   'command.example-pond.label': 'Template: Pond',
+  'command.example-torn-wallpaper.label': 'Template: Torn wallpaper',
+  'command.example-torn-wallpaper.keywords':
+    'template example paper wallpaper tear torn rip cut peel curl',
   'command.example-pond.keywords': 'template example sample demo pond water',
   'command.example-poster.label': 'Template: Poster',
   'command.example-poster.keywords':
@@ -235,6 +238,11 @@ export const en = {
   'example.god-rays.teaches':
     'After Cyanilux: stretch a plane toward the light, shape stripes from noise, multiply edge and depth fades, and fade stationary Voronoi dust. A hand-placed light sheet without automatic billboarding or shadow masking.',
   'example.pond.title': 'Pond',
+  'example.torn-wallpaper.title': 'Torn wallpaper',
+  'example.torn-wallpaper.description':
+    'Textured wallpaper with three interchangeable SDF shape groups',
+  'example.torn-wallpaper.teaches':
+    'Choose the texture SDF, ellipse, or rounded-box group. Connect its final Combine → Vec3 to Split → In in CONNECT ONE SHAPE HERE; the texture is connected by default. All three share the region controls. Wall-anchored noise adds ragged edges; Wallpaper image and Inner wall image supply the surface detail.',
   'example.pond.description': 'Illustrated water: rosettes, lace and a sun band',
   'example.pond.teaches':
     'Layers Voronoi cells, edges and stamps into flat colors with no lighting. Moving noise bends the pattern like water.',
@@ -292,6 +300,9 @@ export const en = {
   'example.ink-swirl.teaches':
     'Bends the normal with Noise Color and snaps it to a Minkowski Voronoi, so the light breaks into brush facets that a Color Ramp cuts into flat paint bands. A sharp Minkowski brush (exponent 32, nearly square cells) breaks the light into ink swirls.',
   'templateTexture.paper-grain': 'Paper grain',
+  'templateTexture.botanical-sage-wallpaper': 'Sage botanical wallpaper',
+  'templateTexture.light-concrete-wall': 'Light concrete wall',
+  'templateTexture.tear-shape-sdf': 'Tear shape SDF',
   'templateTexture.brush-stroke': 'Brush strokes',
   'templateTexture.stroke-mask': 'Stroke mask',
   'example.texture-fixture.title': 'Paper grain (test fixture)',
@@ -466,6 +477,7 @@ export const en = {
   'texture.change': 'Change image',
   'texture.slot': '{action} for {port}',
   'texture.dropHint': 'Or drop one here',
+  'texture.dropReplace': 'Drop image to replace',
   'texture.missingHint': 'Saved image not found',
   'texture.missing': 'Missing',
   'texture.missingDetail': 'texture',

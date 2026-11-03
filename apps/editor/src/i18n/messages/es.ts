@@ -107,6 +107,9 @@ export const es = {
   'command.example-god-rays.label': 'Plantilla: Rayos de luz',
   'command.example-god-rays.keywords': 'plantilla ejemplo muestra demo rayos luz sol haces polvo',
   'command.example-pond.label': 'Plantilla: Estanque',
+  'command.example-torn-wallpaper.label': 'Plantilla: Papel rasgado',
+  'command.example-torn-wallpaper.keywords':
+    'plantilla ejemplo papel empapelado rasgado roto corte pliegue',
   'command.example-pond.keywords': 'plantilla ejemplo muestra demo estanque agua',
   'command.example-poster.label': 'Plantilla: Afiche',
   'command.example-poster.keywords':
@@ -241,6 +244,11 @@ export const es = {
   'example.god-rays.teaches':
     'Basado en Cyanilux: estirá un plano hacia la luz, creá franjas con ruido, multiplicá desvanecidos de borde y profundidad y animá el brillo de motas Voronoi fijas. Un plano de luz ubicado a mano, sin orientación automática a cámara ni máscara de sombras.',
   'example.pond.title': 'Estanque',
+  'example.torn-wallpaper.title': 'Papel rasgado',
+  'example.torn-wallpaper.description':
+    'Empapelado con texturas y tres grupos de formas SDF intercambiables',
+  'example.torn-wallpaper.teaches':
+    'Elegí el grupo de SDF de textura, elipse o rectángulo redondeado. Conectá su Combine → Vec3 final a Split → In en CONECTÁ UNA SOLA FORMA ACÁ; la textura viene conectada. Las tres comparten los controles de región. El noise fijo a la pared agrega irregularidad y las imágenes aportan el detalle de superficie.',
   'example.pond.description': 'Agua ilustrada: rosetas, encaje y una banda de sol',
   'example.pond.teaches':
     'Superpone celdas, bordes y sellos de Voronoi en colores planos, sin iluminación. Un ruido en movimiento curva el dibujo como el agua.',
@@ -302,6 +310,9 @@ export const es = {
   'example.ink-swirl.teaches':
     'Dobla la normal con el Color de un Noise y la ajusta a un Voronoi Minkowski, así la luz se parte en facetas de pincel que una Color Ramp corta en bandas planas de pintura. Un pincel Minkowski filoso (exponente 32, celdas casi cuadradas) parte la luz en remolinos de tinta.',
   'templateTexture.paper-grain': 'Grano de papel',
+  'templateTexture.botanical-sage-wallpaper': 'Empapelado botánico verde salvia',
+  'templateTexture.light-concrete-wall': 'Pared de cemento claro',
+  'templateTexture.tear-shape-sdf': 'SDF de la forma del rasgado',
   'templateTexture.brush-stroke': 'Pinceladas',
   'templateTexture.stroke-mask': 'Máscara de trazos',
   'example.texture-fixture.title': 'Grano de papel (fixture de prueba)',
@@ -478,6 +489,7 @@ export const es = {
   'texture.change': 'Cambiar imagen',
   'texture.slot': '{action} para {port}',
   'texture.dropHint': 'O soltar una acá',
+  'texture.dropReplace': 'Soltá la imagen para reemplazarla',
   'texture.missingHint': 'No se encontró la imagen guardada',
   'texture.missing': 'Falta',
   'texture.missingDetail': 'la textura',

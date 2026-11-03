@@ -1,7 +1,10 @@
 import type { TemplateTexture } from '../template-texture'
+import botanicalWallpaperUrl from '../textures/botanical-sage-wallpaper.png?url&no-inline'
 import brushStrokeUrl from '../textures/brush-stroke.png?url&no-inline'
 import paperGrainUrl from '../textures/paper-grain.png?url&no-inline'
+import concreteWallUrl from '../textures/light-concrete-wall.png?url&no-inline'
 import strokeMaskUrl from '../textures/stroke-mask.png?url&no-inline'
+import tearShapeUrl from '../textures/tear-shape-sdf.png?url&no-inline'
 
 /**
  * The images templates can bundle, from `examples/textures/`. Each is its own file in the build
@@ -14,6 +17,27 @@ export const PAPER_GRAIN: TemplateTexture = {
   id: 'paper-grain',
   file: paperGrainUrl,
   label: 'templateTexture.paper-grain',
+}
+
+/** Generated botanical print, also published at r2.joyco.studio/nudo/wallpapers/botanical-sage-01a1a1d4.png. */
+export const BOTANICAL_WALLPAPER: TemplateTexture = {
+  id: 'botanical-sage-wallpaper',
+  file: botanicalWallpaperUrl,
+  label: 'templateTexture.botanical-sage-wallpaper',
+}
+
+/** Generated pale concrete albedo for the exposed wall behind torn wallpaper. */
+export const CONCRETE_WALL: TemplateTexture = {
+  id: 'light-concrete-wall',
+  file: concreteWallUrl,
+  label: 'templateTexture.light-concrete-wall',
+}
+
+/** Single-channel SDF: white inside, 0.5 boundary, encoded range 256 / 512 = 0.5 UV. */
+export const TEAR_SHAPE: TemplateTexture = {
+  id: 'tear-shape-sdf',
+  file: tearShapeUrl,
+  label: 'templateTexture.tear-shape-sdf',
 }
 
 /**

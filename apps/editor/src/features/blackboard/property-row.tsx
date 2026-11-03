@@ -1,7 +1,10 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, MouseEvent, Ref } from 'react'
 import type { BlackboardProperty } from '@nudo-tsl/core'
-import { GripVertical, SquarePlus, Trash2 } from 'lucide-react'
+import { GripVertical, ImagePlus, SquarePlus, Trash2 } from 'lucide-react'
+
+import { useImageDrop } from '@/features/assets/use-image-drop'
+import type { TextureFieldHandle } from '@/features/canvas/texture-field'
 
 import { DisclosureChevron } from '@/shared/components/disclosure-chevron'
 import { TypeChip } from '@/shared/components/type-chip'
@@ -117,6 +120,9 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
   const [isOpen, setIsOpen] = useState(false)
   const isRenaming = useIsRenaming(property.id)
   const handleRef = useRef<HTMLButtonElement>(null)
+  const textureFieldRef = useRef<TextureFieldHandle>(null)
+  const isTexture = property.value.type === 'texture'
+  const drop = useImageDrop((file) => textureFieldRef.current?.takeFile(file), isTexture)
   const isHandleFocusOwed = useRef(false)
   const t = useT()
 
@@ -131,7 +137,30 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
   return (
     <li className="border-b last:border-b-0">
       <Collapsible asChild open={isOpen} onOpenChange={setIsOpen}>
-        <div role="group" aria-label={property.label} className="flex flex-col">
+        <div
+          role="group"
+          aria-label={property.label}
+          className="relative flex flex-col"
+          data-texture-drop-zone={isTexture || undefined}
+          data-drop-target={drop.isDropTarget || undefined}
+          onDragEnterCapture={drop.onDragEnter}
+          onDragOverCapture={drop.onDragOver}
+          onDragLeaveCapture={drop.onDragLeave}
+          onDropCapture={drop.onDrop}
+        >
+          {drop.isDropTarget && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center gap-2 bg-background/90 text-xs font-medium text-foreground outline-1 -outline-offset-1 outline-foreground outline-solid"
+            >
+              <ImagePlus aria-hidden="true" className="size-4" />
+              {t(
+                property.value.type === 'texture' && property.value.assetId !== null
+                  ? 'texture.dropReplace'
+                  : 'texture.dropHint',
+              )}
+            </span>
+          )}
           <div className="flex h-8 items-center gap-1 px-1">
             <CollapsibleTrigger asChild>
               <Button
@@ -207,6 +236,7 @@ export function PropertyRow({ property, actions, onDelete }: PropertyRowProps) {
           <div className="flex min-h-7 flex-wrap items-center gap-x-1.5 pr-2 pb-1 pl-8">
             <PropertyValueField
               property={property}
+              textureFieldRef={textureFieldRef}
               onCommit={(value) => {
                 actions.setValue(property.id, value)
               }}

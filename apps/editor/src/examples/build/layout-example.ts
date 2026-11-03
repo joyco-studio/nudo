@@ -1,4 +1,4 @@
-import { MASTER_NODE_ID, addNode, asNodeId, moveNodes, setParam } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, addNode, asEdgeId, asNodeId, moveNodes, setParam } from '@nudo-tsl/core'
 import type { Graph, NodeId, NodeRegistry, ParamValue, Result, XY } from '@nudo-tsl/core'
 import { commentNode } from '@nudo-tsl/nodes'
 
@@ -9,6 +9,7 @@ import { planTidyUp } from '@/features/canvas/tidy-up/plan-tidy-up'
 import type { NodeGeometry } from '@/features/canvas/tidy-up/plan-tidy-up'
 
 import { frameIdOf } from './example-spec'
+import { portRef, wireId } from './assemble-graph'
 import type { ExampleSpec, GroupSpec } from './example-spec'
 import { estimateGeometry } from './node-geometry'
 
@@ -176,6 +177,13 @@ export function layoutExample(graph: Graph, spec: ExampleSpec, registry: NodeReg
   })
 
   const placedPositions = Object.fromEntries(framed.map((item) => [item.id, item.position]))
-  const plan = planTidyUp(Object.values(withFrames.edges), framed, { kind: 'graph' })
+  const layoutEdges = (spec.layoutWires ?? []).map((wire) => ({
+    id: asEdgeId(`layout-${wireId(wire)}`),
+    from: portRef(wire[0]),
+    to: portRef(wire[1]),
+  }))
+  const plan = planTidyUp([...Object.values(withFrames.edges), ...layoutEdges], framed, {
+    kind: 'graph',
+  })
   return moveNodes(withFrames, { ...placedPositions, ...plan })
 }
