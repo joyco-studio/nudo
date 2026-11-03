@@ -50,7 +50,7 @@ interface Harness {
   client: ReturnType<typeof createBridgeClient>
 }
 
-function setup(): Harness {
+function setup(isFocused: () => boolean = () => true): Harness {
   const sockets: FakeSocket[] = []
   const statuses: ConnectionStatus[] = []
   const onRequest = vi.fn<(request: BridgeRequest) => Promise<BridgeResponse>>(() =>
@@ -67,6 +67,7 @@ function setup(): Harness {
     },
     onRequest,
     onStatus: (status) => statuses.push(status),
+    isFocused,
   })
   return { sockets, statuses, onRequest, client }
 }
@@ -102,8 +103,15 @@ describe('bridge client', () => {
       protocolVersion: PROTOCOL_VERSION,
       key: 'secret',
       tabId: 'tab-a',
+      focused: true,
     })
     expect(harness.statuses).toEqual(['connecting'])
+  })
+
+  it('says in hello when the tab is in the background, so it does not take over', async () => {
+    const harness = setup(() => false)
+    const socket = await startAndOpen(harness)
+    expect(JSON.parse(socket.sent[0] ?? '')).toMatchObject({ kind: 'hello', focused: false })
   })
 
   it('maps welcome to connected and active-tab changes to other-tab', async () => {

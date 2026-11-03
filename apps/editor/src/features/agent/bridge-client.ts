@@ -26,6 +26,8 @@ export interface BridgeClientOptions {
   socketFactory: (url: string) => BridgeSocket
   onRequest: (request: BridgeRequest) => Promise<BridgeResponse>
   onStatus: (status: ConnectionStatus) => void
+  /** Whether the tab has focus now; sent in hello, so a background tab does not take over. */
+  isFocused?: () => boolean
 }
 
 export interface BridgeClient {
@@ -46,6 +48,7 @@ const BACKOFF_FACTOR = 2
  */
 export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
   const { url, key, tabId, socketFactory, onRequest, onStatus } = options
+  const isFocused = options.isFocused ?? (() => document.hasFocus())
 
   let socket: BridgeSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -132,7 +135,13 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
     socket = opened
 
     opened.onopen = () => {
-      send(opened, { kind: 'hello', protocolVersion: PROTOCOL_VERSION, key, tabId })
+      send(opened, {
+        kind: 'hello',
+        protocolVersion: PROTOCOL_VERSION,
+        key,
+        tabId,
+        focused: isFocused(),
+      })
     }
     opened.onmessage = (event: MessageEvent) => {
       if (typeof event.data !== 'string') return

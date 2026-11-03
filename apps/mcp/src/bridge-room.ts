@@ -271,8 +271,16 @@ export class BridgeRoom extends DurableObject {
       this.reject(socket, 'protocol_mismatch', CLOSE_CODE_PROTOCOL_MISMATCH)
       return
     }
-    sendMessage(socket, { kind: 'welcome', activeTabId: hello.tabId })
-    this.activate(socket, attachment, hello.tabId)
+    // A background tab that reconnects (a network blip, a wake from sleep) must not take the
+    // agent away from the tab the person is using; it only becomes active when no tab is.
+    const currentActive = this.activeTab(attachment.connectionId)
+    if (hello.focused || currentActive === null) {
+      sendMessage(socket, { kind: 'welcome', activeTabId: hello.tabId })
+      this.activate(socket, attachment, hello.tabId)
+      return
+    }
+    writeAttachment(socket, { ...attachment, tabId: hello.tabId, activatedAt: 0 })
+    sendMessage(socket, { kind: 'welcome', activeTabId: currentActive.attachment.tabId })
   }
 
   private reject(socket: WebSocket, reason: 'bad_key' | 'protocol_mismatch', code: number): void {

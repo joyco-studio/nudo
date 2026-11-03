@@ -50,6 +50,51 @@ describe('BridgeRoom handshake', () => {
   })
 })
 
+describe('BridgeRoom active tab on hello', () => {
+  it('a background tab that reconnects does not take over the active tab', async () => {
+    const key = uniqueKey()
+    const focused = await connectTab(key, 'tab-1')
+    await focused.next('active-tab')
+
+    const background = await openBridgeSocket(await hashKey(key))
+    background.send(helloMessage(key, 'tab-2', false))
+
+    await expect(background.next('welcome')).resolves.toEqual({
+      kind: 'welcome',
+      activeTabId: 'tab-1',
+    })
+    const pending = dispatchGetGraph(key)
+    const request = await focused.next('request')
+    focused.send({ kind: 'response', id: request.id, ok: true, result: 'from tab-1' })
+    await expect(pending).resolves.toEqual({ ok: true, value: 'from tab-1' })
+    expect(background.received.some((message) => message.kind === 'request')).toBe(false)
+  })
+
+  it('a background tab becomes active when no other tab is', async () => {
+    const key = uniqueKey()
+    const socket = await openBridgeSocket(await hashKey(key))
+    socket.send(helloMessage(key, 'tab-1', false))
+
+    await expect(socket.next('welcome')).resolves.toEqual({ kind: 'welcome', activeTabId: 'tab-1' })
+    await expect(socket.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-1',
+    })
+  })
+
+  it('a focused tab that says hello takes over', async () => {
+    const key = uniqueKey()
+    const first = await connectTab(key, 'tab-1')
+    await first.next('active-tab')
+    await connectTab(key, 'tab-2')
+
+    await expect(first.next('active-tab')).resolves.toEqual({
+      kind: 'active-tab',
+      activeTabId: 'tab-2',
+    })
+  })
+})
+
 describe('BridgeRoom dispatch', () => {
   it('dispatch resolves not_connected with no tab', async () => {
     const result = await dispatchGetGraph(uniqueKey())

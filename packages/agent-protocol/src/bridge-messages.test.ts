@@ -3,8 +3,19 @@ import { MAX_MESSAGE_BYTES, parseBrowserMessage, parseRoomMessage } from './brid
 
 describe('parseBrowserMessage', () => {
   it('parses a valid hello', () => {
-    const raw = JSON.stringify({ kind: 'hello', protocolVersion: 1, key: 'k', tabId: 't' })
+    const raw = JSON.stringify({
+      kind: 'hello',
+      protocolVersion: 1,
+      key: 'k',
+      tabId: 't',
+      focused: true,
+    })
     expect(parseBrowserMessage(raw).ok).toBe(true)
+  })
+
+  it('requires hello to say whether the tab has focus', () => {
+    const raw = JSON.stringify({ kind: 'hello', protocolVersion: 1, key: 'k', tabId: 't' })
+    expect(parseBrowserMessage(raw)).toMatchObject({ ok: false, error: { code: 'invalid' } })
   })
 
   it('rejects invalid JSON with code invalid', () => {

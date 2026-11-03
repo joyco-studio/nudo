@@ -27,6 +27,8 @@ const helloSchema = z.object({
   protocolVersion: z.number(),
   key: z.string(),
   tabId: z.string(),
+  /** Whether the tab had focus when it connected; a background tab never takes over the agent. */
+  focused: z.boolean(),
 })
 
 const focusSchema = z.object({ kind: z.literal('focus'), tabId: z.string() })

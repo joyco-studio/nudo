@@ -103,17 +103,21 @@ export const openBridgeSocket = async (hash: string): Promise<TestSocket> => {
   }
 }
 
-export const helloMessage = (key: string, tabId: string) => ({
+export const helloMessage = (key: string, tabId: string, focused = true) => ({
   kind: 'hello',
   protocolVersion: PROTOCOL_VERSION,
   key,
   tabId,
+  focused,
 })
 
-/** Opens a socket for `key`, sends hello as `tabId` and waits for the welcome. */
-export const connectTab = async (key: string, tabId: string): Promise<TestSocket> => {
+/**
+ * Opens a socket for `key`, sends hello as `tabId` (a focused tab unless `focused` is false) and
+ * waits for the welcome.
+ */
+export const connectTab = async (key: string, tabId: string, focused = true): Promise<TestSocket> => {
   const socket = await openBridgeSocket(await hashKey(key))
-  socket.send(helloMessage(key, tabId))
+  socket.send(helloMessage(key, tabId, focused))
   await socket.next('welcome')
   return socket
 }
