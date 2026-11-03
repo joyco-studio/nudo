@@ -2,7 +2,7 @@ import { PROTOCOL_VERSION, hashKey } from '@nudo-tsl/agent-protocol'
 import type { BridgeRequest, BridgeResponse } from '@nudo-tsl/agent-protocol'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createBridgeClient } from './bridge-client'
-import type { ConnectionStatus } from './bridge-client'
+import type { BridgeSocket, ConnectionStatus } from './bridge-client'
 
 const OPEN = 1
 const CLOSED = 3
@@ -10,9 +10,9 @@ const CLOSED = 3
 class FakeSocket {
   readyState = 0
   readonly sent: string[] = []
-  onopen: (() => void) | null = null
+  onopen: ((event: Event) => void) | null = null
   onmessage: ((event: MessageEvent) => void) | null = null
-  onclose: (() => void) | null = null
+  onclose: ((event: CloseEvent) => void) | null = null
   closeCalls = 0
   constructor(readonly url: string) {}
   send(data: string): void {
@@ -24,14 +24,14 @@ class FakeSocket {
   }
   open(): void {
     this.readyState = OPEN
-    this.onopen?.()
+    this.onopen?.(new Event('open'))
   }
   receive(message: unknown): void {
     this.onmessage?.(new MessageEvent('message', { data: JSON.stringify(message) }))
   }
   drop(): void {
     this.readyState = CLOSED
-    this.onclose?.()
+    this.onclose?.(new CloseEvent('close'))
   }
 }
 
@@ -217,3 +217,6 @@ describe('bridge client', () => {
     expect(harness.sockets).toHaveLength(1)
   })
 })
+
+/** Type-level guard: a real WebSocket factory is assignable without a cast. Never called. */
+export const realSocketFactory: (url: string) => BridgeSocket = (url) => new WebSocket(url)

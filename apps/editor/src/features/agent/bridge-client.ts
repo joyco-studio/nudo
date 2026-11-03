@@ -12,9 +12,9 @@ export type ConnectionStatus =
 /** The part of `WebSocket` the client uses, so tests can pass a small fake. */
 export interface BridgeSocket {
   readonly readyState: number
-  onopen: (() => void) | null
+  onopen: ((event: Event) => void) | null
   onmessage: ((event: MessageEvent) => void) | null
-  onclose: (() => void) | null
+  onclose: ((event: CloseEvent) => void) | null
   send(data: string): void
   close(): void
 }
