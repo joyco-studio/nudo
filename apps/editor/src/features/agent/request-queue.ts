@@ -36,15 +36,17 @@ async function execute(
   const spec = SPECS_BY_NAME.get(request.tool)
   if (spec === undefined) return invalid(request.id, `Unknown tool "${request.tool}".`)
 
-  const parsed = spec.args.safeParse(request.args)
-  if (!parsed.success) {
-    return invalid(request.id, `Invalid arguments for ${request.tool}.`, parsed.error.issues)
-  }
-
-  const handler = handlers[spec.name]
-  if (handler === undefined) return invalid(request.id, `Tool "${request.tool}" is not available.`)
-
   try {
+    const parsed = spec.args.safeParse(request.args)
+    if (!parsed.success) {
+      return invalid(request.id, `Invalid arguments for ${request.tool}.`, parsed.error.issues)
+    }
+
+    const handler = handlers[spec.name]
+    if (handler === undefined) {
+      return invalid(request.id, `Tool "${request.tool}" is not available.`)
+    }
+
     const result = await handler(parsed.data, { ...context, agent: request.agent })
     if (!result.ok) return failure(request.id, result.error)
     return { kind: 'response', id: request.id, ok: true, result: result.value }

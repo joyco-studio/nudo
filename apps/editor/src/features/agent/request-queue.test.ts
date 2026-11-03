@@ -84,4 +84,20 @@ describe('request queue', () => {
     expect(response).toMatchObject({ ok: false, error: { code: 'invalid', message: 'boom' } })
     expect(next).toMatchObject({ ok: true, result: 'x' })
   })
+
+  it('a validation that throws does not poison the queue', async () => {
+    const queue = createRequestQueue({ get_code: () => Promise.resolve(ok('x')) }, context)
+    const brokenRequest = request('a', 'get_code')
+    Object.defineProperty(brokenRequest, 'args', {
+      get: () => {
+        throw new Error('getter exploded')
+      },
+    })
+
+    const broken = await queue(brokenRequest)
+    const next = await queue(request('b', 'get_code'))
+
+    expect(broken).toMatchObject({ ok: false, error: { code: 'invalid' } })
+    expect(next).toMatchObject({ ok: true, result: 'x' })
+  })
 })

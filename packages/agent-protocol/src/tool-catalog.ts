@@ -62,105 +62,167 @@ const spec = (
   timeoutMs: number = DEFAULT_TOOL_TIMEOUT_MS,
 ): ToolSpec => ({ name, description, args, timeoutMs })
 
+export const TOOL_ARG_SCHEMAS = {
+  get_graph: noArgs,
+  list_node_types: z.object({ query: z.string().optional(), category: z.string().optional() }),
+  get_code: noArgs,
+  get_preview_image: noArgs,
+  add_node: z.object({ type: z.string(), position: positionSchema.optional() }),
+  remove_nodes: z.object({ ids: z.array(z.string()) }),
+  move_nodes: z.object({ positions: z.record(z.string(), positionSchema) }),
+  connect: z.object({ from: endpointSchema, to: endpointSchema }),
+  disconnect: z.object({ edgeIds: z.array(z.string()) }),
+  set_input: z.object({ nodeId: z.string(), portId: z.string(), value: portValueSchema }),
+  set_param: z.object({
+    nodeId: z.string(),
+    paramId: z.string(),
+    value: z.union([z.string(), finiteNumber, z.boolean()]),
+  }),
+  add_property: z.object({ kind: propertyKindSchema, name: z.string().optional() }),
+  set_property: z.object({
+    id: z.string(),
+    label: z.string().optional(),
+    name: z.string().optional(),
+    exposed: z.boolean().optional(),
+    value: portValueSchema.optional(),
+  }),
+  remove_property: z.object({ id: z.string() }),
+  tidy_up: noArgs,
+  new_graph: noArgs,
+  load_template: z.object({ id: z.string() }),
+  start_task: z.object({ prompt: z.string(), steps: z.array(z.string()).optional() }),
+  set_step: z.object({ label: z.string(), detail: z.string().optional() }),
+  finish_task: z.object({ summary: z.string().optional() }),
+} satisfies Record<ToolName, z.ZodType>
+
+export type ToolArgs<N extends ToolName> = z.infer<(typeof TOOL_ARG_SCHEMAS)[N]>
+
+type ArgParsers = {
+  [N in ToolName]: (raw: unknown) => z.ZodSafeParseResult<ToolArgs<N>>
+}
+
+const ARG_PARSERS: ArgParsers = {
+  get_graph: (raw) => TOOL_ARG_SCHEMAS.get_graph.safeParse(raw),
+  list_node_types: (raw) => TOOL_ARG_SCHEMAS.list_node_types.safeParse(raw),
+  get_code: (raw) => TOOL_ARG_SCHEMAS.get_code.safeParse(raw),
+  get_preview_image: (raw) => TOOL_ARG_SCHEMAS.get_preview_image.safeParse(raw),
+  add_node: (raw) => TOOL_ARG_SCHEMAS.add_node.safeParse(raw),
+  remove_nodes: (raw) => TOOL_ARG_SCHEMAS.remove_nodes.safeParse(raw),
+  move_nodes: (raw) => TOOL_ARG_SCHEMAS.move_nodes.safeParse(raw),
+  connect: (raw) => TOOL_ARG_SCHEMAS.connect.safeParse(raw),
+  disconnect: (raw) => TOOL_ARG_SCHEMAS.disconnect.safeParse(raw),
+  set_input: (raw) => TOOL_ARG_SCHEMAS.set_input.safeParse(raw),
+  set_param: (raw) => TOOL_ARG_SCHEMAS.set_param.safeParse(raw),
+  add_property: (raw) => TOOL_ARG_SCHEMAS.add_property.safeParse(raw),
+  set_property: (raw) => TOOL_ARG_SCHEMAS.set_property.safeParse(raw),
+  remove_property: (raw) => TOOL_ARG_SCHEMAS.remove_property.safeParse(raw),
+  tidy_up: (raw) => TOOL_ARG_SCHEMAS.tidy_up.safeParse(raw),
+  new_graph: (raw) => TOOL_ARG_SCHEMAS.new_graph.safeParse(raw),
+  load_template: (raw) => TOOL_ARG_SCHEMAS.load_template.safeParse(raw),
+  start_task: (raw) => TOOL_ARG_SCHEMAS.start_task.safeParse(raw),
+  set_step: (raw) => TOOL_ARG_SCHEMAS.set_step.safeParse(raw),
+  finish_task: (raw) => TOOL_ARG_SCHEMAS.finish_task.safeParse(raw),
+}
+
+/** Validates raw args for one tool and keeps the schema's inferred type. */
+export const parseToolArgs = <N extends ToolName>(
+  name: N,
+  raw: unknown,
+): z.ZodSafeParseResult<ToolArgs<N>> => ARG_PARSERS[name](raw)
+
 export const TOOL_CATALOG: readonly ToolSpec[] = [
   spec(
     'get_graph',
     'Returns the current graph: nodes, edges, properties and the output node, with the resolved type of every port.',
-    noArgs,
+    TOOL_ARG_SCHEMAS.get_graph,
   ),
   spec(
     'list_node_types',
     'Lists the node types you can add, with their ports and params. Filter by a search query or a category.',
-    z.object({ query: z.string().optional(), category: z.string().optional() }),
+    TOOL_ARG_SCHEMAS.list_node_types,
   ),
-  spec('get_code', 'Returns the TSL code generated from the current graph.', noArgs),
+  spec(
+    'get_code',
+    'Returns the TSL code generated from the current graph.',
+    TOOL_ARG_SCHEMAS.get_code,
+  ),
   spec(
     'get_preview_image',
     'Returns an image of the current shader preview, so you can check how the graph looks.',
-    noArgs,
+    TOOL_ARG_SCHEMAS.get_preview_image,
   ),
   spec(
     'add_node',
     'Adds a node of a type from list_node_types. Omit position to let nudo place it next to related nodes.',
-    z.object({ type: z.string(), position: positionSchema.optional() }),
+    TOOL_ARG_SCHEMAS.add_node,
   ),
   spec(
     'remove_nodes',
     'Removes the nodes with the given ids, along with the edges attached to them.',
-    z.object({ ids: z.array(z.string()) }),
+    TOOL_ARG_SCHEMAS.remove_nodes,
   ),
   spec(
     'move_nodes',
     'Moves nodes to new canvas positions, keyed by node id.',
-    z.object({ positions: z.record(z.string(), positionSchema) }),
+    TOOL_ARG_SCHEMAS.move_nodes,
   ),
   spec(
     'connect',
     'Connects an output port to an input port. Fails if the types are incompatible or the edge would create a cycle.',
-    z.object({ from: endpointSchema, to: endpointSchema }),
+    TOOL_ARG_SCHEMAS.connect,
   ),
-  spec(
-    'disconnect',
-    'Removes the edges with the given ids.',
-    z.object({ edgeIds: z.array(z.string()) }),
-  ),
+  spec('disconnect', 'Removes the edges with the given ids.', TOOL_ARG_SCHEMAS.disconnect),
   spec(
     'set_input',
     'Sets the constant value of an unconnected input port. The value must match the port type.',
-    z.object({ nodeId: z.string(), portId: z.string(), value: portValueSchema }),
+    TOOL_ARG_SCHEMAS.set_input,
   ),
   spec(
     'set_param',
     'Sets a node param, such as an operator or a toggle.',
-    z.object({
-      nodeId: z.string(),
-      paramId: z.string(),
-      value: z.union([z.string(), finiteNumber, z.boolean()]),
-    }),
+    TOOL_ARG_SCHEMAS.set_param,
   ),
   spec(
     'add_property',
     'Adds a blackboard property (a named uniform-like value) and returns its id.',
-    z.object({ kind: propertyKindSchema, name: z.string().optional() }),
+    TOOL_ARG_SCHEMAS.add_property,
   ),
   spec(
     'set_property',
     'Updates a blackboard property: its label, name, whether it is exposed, or its value.',
-    z.object({
-      id: z.string(),
-      label: z.string().optional(),
-      name: z.string().optional(),
-      exposed: z.boolean().optional(),
-      value: portValueSchema.optional(),
-    }),
+    TOOL_ARG_SCHEMAS.set_property,
   ),
-  spec('remove_property', 'Removes a blackboard property by id.', z.object({ id: z.string() })),
-  spec('tidy_up', 'Rearranges all nodes into a clean left-to-right layout.', noArgs),
+  spec('remove_property', 'Removes a blackboard property by id.', TOOL_ARG_SCHEMAS.remove_property),
+  spec(
+    'tidy_up',
+    'Rearranges all nodes into a clean left-to-right layout.',
+    TOOL_ARG_SCHEMAS.tidy_up,
+  ),
   spec(
     'new_graph',
     'Replaces the current graph with an empty one. The person must confirm first, so this can take a while.',
-    noArgs,
+    TOOL_ARG_SCHEMAS.new_graph,
     CONFIRM_TOOL_TIMEOUT_MS,
   ),
   spec(
     'load_template',
     'Replaces the current graph with a built-in template by id. The person must confirm first, so this can take a while.',
-    z.object({ id: z.string() }),
+    TOOL_ARG_SCHEMAS.load_template,
     CONFIRM_TOOL_TIMEOUT_MS,
   ),
   spec(
     'start_task',
     'Announces a multi-step job to the person, with an optional list of planned steps. Call it before you start editing.',
-    z.object({ prompt: z.string(), steps: z.array(z.string()).optional() }),
+    TOOL_ARG_SCHEMAS.start_task,
   ),
   spec(
     'set_step',
     'Tells the person which step of the task you are on now.',
-    z.object({ label: z.string(), detail: z.string().optional() }),
+    TOOL_ARG_SCHEMAS.set_step,
   ),
   spec(
     'finish_task',
     'Marks the task as done, with an optional short summary for the person.',
-    z.object({ summary: z.string().optional() }),
+    TOOL_ARG_SCHEMAS.finish_task,
   ),
 ]
