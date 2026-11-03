@@ -67,7 +67,7 @@ claude mcp add --transport http nudo https://<your-worker>/mcp --header "Authori
 
 Then ask Claude Code for a shader. The agent always edits the tab you used last; other tabs say so.
 
-**Keep the key secret.** Anyone with it can edit the graph in your open tab. The key is kept in your browser, and the Worker finds your tab by its hash. If it leaks, click **Generate new key** in the same dialog: the old key stops working, and you add the server again with the new command.
+**Keep the key secret.** Anyone with it can edit the graph in your open tab. The key is kept in your browser, and the Worker finds your tab by its hash. If it leaks, click **Generate new key** in the same dialog (also reachable from the activity panel's **Connection** button while a task is stopped): the old key stops working, every open nudo tab in this browser switches to the new one by itself, and you add the server again with the new command.
 
 **Self-host the Worker.** The agent server lives in `apps/mcp`, a Cloudflare Worker with one Durable Object per key. To run your own:
 
@@ -76,7 +76,7 @@ pnpm --filter @nudo-tsl/mcp exec wrangler login
 pnpm --filter @nudo-tsl/mcp run deploy
 ```
 
-- Set `ALLOWED_ORIGINS` (in `apps/mcp/wrangler.jsonc` or as a Worker variable) to a comma-separated list of the origins that serve the editor, such as `https://nudo.example.com,http://localhost:5173`. The bridge refuses any other origin.
+- Set `ALLOWED_ORIGINS` in `apps/mcp/wrangler.jsonc` to a comma-separated list of the origins that serve the editor, such as `https://nudo.example.com,http://localhost:5173`. The bridge refuses any other origin, and the connect dialog then says the agent server doesn't allow the site. Set it in the file, not in the Cloudflare dashboard: `wrangler deploy` replaces the dashboard's variables with the file's `vars` on every deploy. For one value per environment, put it under `env.<name>.vars` and deploy with `--env <name>`; to manage it in the dashboard instead, add `"keep_vars": true` to `wrangler.jsonc`.
 - Build the editor with `VITE_NUDO_MCP_URL` set to the Worker URL, such as `https://nudo-mcp.<account>.workers.dev`. Without it the connect dialog says agent connections are not set up.
 
 For local work, run `VITE_NUDO_MCP_URL=http://localhost:8787 pnpm dev`: it starts the editor and the Worker (`wrangler dev` on http://localhost:8787) together.

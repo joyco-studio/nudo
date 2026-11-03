@@ -680,6 +680,8 @@ export const es = {
   'agent.status.badKey': 'El servidor rechazó esta key. Generá una key nueva.',
   'agent.status.outdated': 'Esta pestaña tiene una versión vieja de nudo.',
   'agent.status.unreachable': 'No se puede llegar al servidor del agent. Reintentando…',
+  'agent.status.originRefused':
+    'El servidor del agent no permite este sitio. Agregá su dirección a ALLOWED_ORIGINS en el servidor.',
   'agent.confirm.newGraph.title': '¿Dejar que {name} empiece un grafo nuevo?',
   'agent.confirm.newGraph.description':
     'Esto elimina {contents}. Deshacer (Ctrl/⌘ Z) lo recupera todo.',

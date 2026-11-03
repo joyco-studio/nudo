@@ -7,7 +7,15 @@ import type {
 } from '@nudo-tsl/agent-protocol'
 
 export type ConnectionStatus =
-  'off' | 'connecting' | 'connected' | 'other-tab' | 'bad-key' | 'outdated' | 'unreachable'
+  | 'off'
+  | 'connecting'
+  | 'connected'
+  | 'other-tab'
+  | 'bad-key'
+  | 'outdated'
+  | 'unreachable'
+  /** The server refuses this site's origin (it is not in the Worker's `ALLOWED_ORIGINS`). */
+  | 'origin-refused'
 
 /** The part of `WebSocket` the client uses, so tests can pass a small fake. */
 export interface BridgeSocket {
@@ -28,6 +36,23 @@ export interface BridgeClientOptions {
   onStatus: (status: ConnectionStatus) => void
   /** Whether the tab has focus now; sent in hello, so a background tab does not take over. */
   isFocused?: () => boolean
+  /**
+   * Asked when a socket closes before it ever opened, with the bridge's http URL: whether the
+   * server refuses this site's origin. A browser hides why an upgrade failed, so this asks again.
+   */
+  isOriginRefused?: (bridgeUrl: string) => Promise<boolean>
+}
+
+const HTTP_FORBIDDEN = 403
+
+/** A plain GET to the bridge answers 403 for a refused origin (the Worker lets the page read it). */
+async function fetchIsOriginRefused(bridgeUrl: string): Promise<boolean> {
+  try {
+    const response = await fetch(bridgeUrl, { cache: 'no-store' })
+    return response.status === HTTP_FORBIDDEN
+  } catch {
+    return false
+  }
 }
 
 export interface BridgeClient {
@@ -49,6 +74,7 @@ const BACKOFF_FACTOR = 2
 export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
   const { url, key, tabId, socketFactory, onRequest, onStatus } = options
   const isFocused = options.isFocused ?? (() => document.hasFocus())
+  const isOriginRefused = options.isOriginRefused ?? fetchIsOriginRefused
 
   let socket: BridgeSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -133,6 +159,14 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
     }, delay)
   }
 
+  /** A socket that never opened: the server may be down, or may refuse this site's origin. */
+  const reportFailedUpgrade = async (attempt: number, bridgeUrl: string): Promise<void> => {
+    const isRefused = await isOriginRefused(bridgeUrl)
+    if (attempt !== generation) return
+    onStatus(isRefused ? 'origin-refused' : 'unreachable')
+    scheduleReconnect()
+  }
+
   const connect = async (): Promise<void> => {
     const attempt = generation
     let hash: string
@@ -144,9 +178,11 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
     }
     if (attempt !== generation) return
 
+    const bridgeUrl = `${url}/bridge/${hash}`
     let opened: BridgeSocket
+    let didOpen = false
     try {
-      opened = socketFactory(`${url}/bridge/${hash}`)
+      opened = socketFactory(bridgeUrl)
     } catch {
       onStatus('unreachable')
       scheduleReconnect()
@@ -155,6 +191,7 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
     socket = opened
 
     opened.onopen = () => {
+      didOpen = true
       send(opened, {
         kind: 'hello',
         protocolVersion: PROTOCOL_VERSION,
@@ -173,8 +210,12 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
       if (attempt !== generation) return
       socket = null
       if (rejected) return
-      onStatus('unreachable')
-      scheduleReconnect()
+      if (didOpen) {
+        onStatus('unreachable')
+        scheduleReconnect()
+        return
+      }
+      void reportFailedUpgrade(attempt, bridgeUrl)
     }
   }
 

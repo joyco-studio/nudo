@@ -51,7 +51,10 @@ interface Harness {
   client: ReturnType<typeof createBridgeClient>
 }
 
-function setup(isFocused: () => boolean = () => true): Harness {
+function setup(
+  isFocused: () => boolean = () => true,
+  isOriginRefused: (url: string) => Promise<boolean> = () => Promise.resolve(false),
+): Harness {
   const sockets: FakeSocket[] = []
   const statuses: ConnectionStatus[] = []
   const onRequest = vi.fn<(request: BridgeRequest) => Promise<BridgeResponse>>(() =>
@@ -69,6 +72,7 @@ function setup(isFocused: () => boolean = () => true): Harness {
     onRequest,
     onStatus: (status) => statuses.push(status),
     isFocused,
+    isOriginRefused,
   })
   return { sockets, statuses, onRequest, client }
 }
@@ -235,6 +239,41 @@ describe('bridge client', () => {
     await vi.advanceTimersByTimeAsync(1)
     await flush()
     expect(harness.sockets).toHaveLength(3)
+  })
+
+  it('says the origin is refused when the server turned the socket down before it opened', async () => {
+    const probed: string[] = []
+    const harness = setup(
+      () => true,
+      (url) => {
+        probed.push(url)
+        return Promise.resolve(true)
+      },
+    )
+    harness.client.start()
+    await vi.waitFor(() => {
+      expect(harness.sockets).toHaveLength(1)
+    })
+    harness.sockets[0]?.drop()
+    await flush()
+
+    expect(probed).toEqual([`http://localhost:8787/bridge/${await hashKey('secret')}`])
+    expect(harness.statuses.at(-1)).toBe('origin-refused')
+    // It keeps trying, so fixing the server's allowlist is enough.
+    await vi.advanceTimersByTimeAsync(1_000)
+    await flush()
+    expect(harness.sockets).toHaveLength(2)
+  })
+
+  it('stays unreachable when a socket that never opened was not refused', async () => {
+    const harness = setup()
+    harness.client.start()
+    await vi.waitFor(() => {
+      expect(harness.sockets).toHaveLength(1)
+    })
+    harness.sockets[0]?.drop()
+    await flush()
+    expect(harness.statuses.at(-1)).toBe('unreachable')
   })
 
   it('stop closes the socket, reports off and cancels reconnects', async () => {

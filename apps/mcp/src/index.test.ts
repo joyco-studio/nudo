@@ -11,6 +11,16 @@ describe('worker router', () => {
     expect(response.status).toBe(403)
   })
 
+  it('lets the editor read the 403, so it can say its origin is not allowed', async () => {
+    const response = await exports.default.fetch(
+      new Request(`https://nudo-mcp.test/bridge/${await hashKey('k')}`, {
+        headers: { Origin: 'https://evil.example' },
+      }),
+    )
+    expect(response.status).toBe(403)
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+  })
+
   it('rejects a bridge request without an Origin header with 403', async () => {
     const response = await exports.default.fetch(
       new Request(`https://nudo-mcp.test/bridge/${await hashKey('k')}`, {

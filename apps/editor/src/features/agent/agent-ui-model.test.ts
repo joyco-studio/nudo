@@ -36,7 +36,7 @@ describe('chipViewOf', () => {
   })
 
   it('offers to connect when off, unreachable, rejected or outdated', () => {
-    for (const status of ['off', 'unreachable', 'bad-key', 'outdated'] as const) {
+    for (const status of ['off', 'unreachable', 'origin-refused', 'bad-key', 'outdated'] as const) {
       expect(chipViewOf(status, null)).toEqual({ kind: 'connect' })
     }
   })
@@ -59,6 +59,7 @@ describe('connection details', () => {
   it('says the connection is not set up before anything else', () => {
     expect(connectionStatusKey('connected', false)).toBe('agent.status.notConfigured')
     expect(connectionStatusKey('outdated', true)).toBe('agent.status.outdated')
+    expect(connectionStatusKey('origin-refused', true)).toBe('agent.status.originRefused')
   })
 
   it('accepts only http(s) urls and drops the trailing slash', () => {

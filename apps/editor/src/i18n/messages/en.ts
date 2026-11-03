@@ -665,6 +665,8 @@ export const en = {
   'agent.status.badKey': 'The server refused this key. Generate a new key.',
   'agent.status.outdated': 'This tab runs an older version of nudo.',
   'agent.status.unreachable': "Can't reach the agent server. Trying again…",
+  'agent.status.originRefused':
+    "The agent server doesn't allow this site. Add its address to the server's ALLOWED_ORIGINS.",
   'agent.confirm.newGraph.title': 'Let {name} start a new graph?',
   'agent.confirm.newGraph.description':
     'This removes {contents}. Undo (Ctrl/⌘ Z) brings them back.',

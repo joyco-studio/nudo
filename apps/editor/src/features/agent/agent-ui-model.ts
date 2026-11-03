@@ -42,6 +42,7 @@ export function chipViewOf(status: ConnectionStatus, task: AgentTask | null): Ch
       return { kind: 'other-tab' }
     case 'off':
     case 'unreachable':
+    case 'origin-refused':
     case 'bad-key':
     case 'outdated':
       return { kind: 'connect' }
@@ -81,6 +82,8 @@ export function connectionStatusKey(status: ConnectionStatus, isConfigured: bool
       return 'agent.status.outdated'
     case 'unreachable':
       return 'agent.status.unreachable'
+    case 'origin-refused':
+      return 'agent.status.originRefused'
   }
 }
 
