@@ -15,6 +15,7 @@
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.3.0",
     "@fontsource-variable/roboto-mono": "^5.3.0",
+    "@nudo-tsl/agent-protocol": "workspace:*",
     "@nudo-tsl/codegen": "workspace:*",
     "@nudo-tsl/core": "workspace:*",
     "@nudo-tsl/nodes": "workspace:*",

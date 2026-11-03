@@ -50,6 +50,9 @@ importers:
       '@fontsource-variable/roboto-mono':
         specifier: ^5.3.0
         version: 5.3.0
+      '@nudo-tsl/agent-protocol':
+        specifier: workspace:*
+        version: link:../../packages/agent-protocol
       '@nudo-tsl/codegen':
         specifier: workspace:*
         version: link:../../packages/codegen

@@ -16,8 +16,10 @@ import type {
   Result,
   XY,
 } from '@nudo-tsl/core'
+import type { AgentIdentity } from '@nudo-tsl/agent-protocol'
 import type { StateCreator } from 'zustand'
 
+import type { ConnectionStatus } from '@/features/agent/bridge-client'
 import type { MessageKey } from '@/i18n/translate'
 
 import type { PropertyKind } from '@/features/blackboard/property-kinds'
@@ -183,7 +185,43 @@ export interface CompileSlice {
   setCompileErrors(errors: readonly CompileError[]): void
 }
 
-export type EditorState = GraphSlice & PropertySlice & UiSlice & CompileSlice
+export interface AgentStep {
+  label: string
+  detail: string | null
+  state: 'done' | 'current' | 'pending'
+}
+
+export interface AgentTask {
+  agent: AgentIdentity
+  prompt: string | null
+  implicit: boolean
+  startedAt: number
+  steps: readonly AgentStep[]
+  status: 'active' | 'stopped' | 'finished'
+  createdNodeIds: readonly NodeId[]
+}
+
+/** Where the agent's cursor is on the canvas, with the node or wire it is about to draw. */
+export interface AgentPresence {
+  target:
+    | { kind: 'node'; nodeId: NodeId }
+    | { kind: 'port'; ref: PortRef }
+    | { kind: 'point'; position: XY }
+  ghost: { type: NodeTypeId; position: XY } | null
+  pendingWire: { from: PortRef; to: XY } | null
+}
+
+/** Agent state is live session state: it is never part of the undo history. */
+export interface AgentSlice {
+  agentConnection: ConnectionStatus
+  agentTask: AgentTask | null
+  agentPresence: AgentPresence | null
+  setAgentConnection(status: ConnectionStatus): void
+  setAgentTask(task: AgentTask | null): void
+  setAgentPresence(presence: AgentPresence | null): void
+}
+
+export type EditorState = GraphSlice & PropertySlice & UiSlice & CompileSlice & AgentSlice
 
 /** A slice creator that lives inside the zundo `temporal` middleware. */
 export type EditorSliceCreator<Slice> = StateCreator<
