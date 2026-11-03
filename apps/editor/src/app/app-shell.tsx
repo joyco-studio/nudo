@@ -44,6 +44,8 @@ export interface AppShellProps {
   /** Controls in the Code header (Copy). */
   codeActions: ReactNode
   headerActions: ReactNode
+  /** The agent's activity island, stacked above the code drawer at the bottom left. */
+  agentActivity: ReactNode
 }
 
 /**
@@ -93,6 +95,7 @@ export function AppShell({
   codePanel,
   codeActions,
   headerActions,
+  agentActivity,
 }: AppShellProps) {
   const layout = useEditorStore((state) => effectivePreviewLayout(state.panels))
   const splitPercent = useEditorStore(
@@ -202,23 +205,31 @@ export function AppShell({
             </div>
           </div>
         </ResizablePanel>
-        {/* Over the canvas, pinned to its bottom edge, after the column in the tab order. */}
-        <PanelFrame
-          panel="code"
-          title={t('panel.code.title')}
-          edge="bottom"
-          headerActions={codeActions}
-          isHidden={layout === 'full'}
+        {/*
+         * Over the canvas, pinned to its bottom edge, after the column in the tab order. The agent's
+         * activity island stacks above the code drawer, so neither covers the other.
+         */}
+        <div
           className={cn(
-            'absolute right-4 bottom-4 left-16 z-20',
+            'pointer-events-none absolute right-4 bottom-4 left-16 z-20 flex flex-col items-start gap-2',
             layout === 'docked' && 'md:right-[22rem]',
           )}
           style={codePanelStyle(layout, splitPercent)}
-          // The code region inside scrolls (and takes focus); the body itself never does.
-          bodyClassName="h-48"
         >
-          {codePanel}
-        </PanelFrame>
+          {agentActivity}
+          <PanelFrame
+            panel="code"
+            title={t('panel.code.title')}
+            edge="bottom"
+            headerActions={codeActions}
+            isHidden={layout === 'full'}
+            className="pointer-events-auto w-full"
+            // The code region inside scrolls (and takes focus); the body itself never does.
+            bodyClassName="h-48"
+          >
+            {codePanel}
+          </PanelFrame>
+        </div>
       </ResizablePanelGroup>
     </div>
   )

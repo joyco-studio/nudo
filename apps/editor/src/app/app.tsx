@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { ReactFlowProvider } from '@xyflow/react'
 
+import { AgentActivityPanel } from '@/features/agent/agent-activity-panel'
+import { AgentBridgeMount } from '@/features/agent/agent-bridge-mount'
+import { AgentWorkChip } from '@/features/agent/agent-work-chip'
 import { AddNodeButton } from '@/features/add-node-menu/add-node-button'
 import { AddNodeMenuProvider } from '@/features/add-node-menu/add-node-menu-provider'
 import {
@@ -42,6 +45,7 @@ function GlobalShortcuts() {
 function HeaderActions() {
   return (
     <>
+      <AgentWorkChip />
       <CommandPaletteButton />
       <NewGraphButton />
       <TemplatesButton />
@@ -80,19 +84,22 @@ export function App() {
                 <NewGraphProvider>
                   <ExamplesProvider>
                     <EditorCommands>
-                      <GlobalShortcuts />
-                      <NodePreviewSync />
-                      <NoticeToaster />
-                      <AppShell
-                        canvas={<GraphCanvasContainer />}
-                        blackboard={<BlackboardContainer />}
-                        blackboardActions={<AddPropertyMenuContainer />}
-                        inspector={<InspectorContainer />}
-                        previewPanel={<MainPreview />}
-                        codePanel={<CodePanelContainer />}
-                        codeActions={<CopyCodeButton />}
-                        headerActions={<HeaderActions />}
-                      />
+                      <AgentBridgeMount>
+                        <GlobalShortcuts />
+                        <NodePreviewSync />
+                        <NoticeToaster />
+                        <AppShell
+                          canvas={<GraphCanvasContainer />}
+                          blackboard={<BlackboardContainer />}
+                          blackboardActions={<AddPropertyMenuContainer />}
+                          inspector={<InspectorContainer />}
+                          previewPanel={<MainPreview />}
+                          codePanel={<CodePanelContainer />}
+                          codeActions={<CopyCodeButton />}
+                          headerActions={<HeaderActions />}
+                          agentActivity={<AgentActivityPanel />}
+                        />
+                      </AgentBridgeMount>
                     </EditorCommands>
                   </ExamplesProvider>
                 </NewGraphProvider>

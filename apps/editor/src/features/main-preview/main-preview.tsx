@@ -285,6 +285,7 @@ function PreviewWorkspace({ candidate, buildFailed, errorCount }: PreviewWorkspa
             {BACKEND_LABELS[backend]}
           </Badge>
         )}
+        <UpdatingLiveBadge />
       </div>
       <div className="flex flex-col gap-3 border-t p-3">
         <MeshPicker shape={shape} hasModel={model !== null} onShapeChange={selectShape} />
@@ -369,6 +370,19 @@ function statusFor(rejection: MaterialRejection | null, errorCount: number, t: T
 }
 
 /** The live preview: compiles the editor graph and shows it on a mesh. */
+/** While the agent works the preview follows its edits; this says so (spec §6). */
+function UpdatingLiveBadge() {
+  const t = useT()
+  const isAgentWorking = useEditorStore((state) => state.agentTask?.status === 'active')
+  if (!isAgentWorking) return null
+  return (
+    <Badge className="absolute top-2 right-2 gap-1.5 bg-agent py-0 text-agent-foreground">
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+      {t('preview.updatingLive')}
+    </Badge>
+  )
+}
+
 export function MainPreview() {
   const { material: candidate, buildFailed } = useLiveMaterial()
   const errorCount = useEditorStore((state) => Object.keys(state.errorsByNode).length)
