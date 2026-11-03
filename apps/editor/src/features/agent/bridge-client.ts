@@ -1,4 +1,4 @@
-import { PROTOCOL_VERSION, hashKey, parseRoomMessage } from '@nudo-tsl/agent-protocol'
+import { MAX_MESSAGE_BYTES, PROTOCOL_VERSION, hashKey, parseRoomMessage } from '@nudo-tsl/agent-protocol'
 import type {
   BridgeRequest,
   BridgeResponse,
@@ -79,7 +79,27 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
         error: { code: 'invalid', message },
       }
     }
-    send(target, response)
+    sendResponse(target, response)
+  }
+
+  /** The room drops a frame over the limit; the agent hears why instead of waiting it out. */
+  const sendResponse = (target: BridgeSocket, response: BridgeResponse): void => {
+    if (target.readyState !== SOCKET_OPEN) return
+    const frame = JSON.stringify(response)
+    const size = new TextEncoder().encode(frame).byteLength
+    if (size <= MAX_MESSAGE_BYTES) {
+      target.send(frame)
+      return
+    }
+    send(target, {
+      kind: 'response',
+      id: response.id,
+      ok: false,
+      error: {
+        code: 'invalid',
+        message: `The answer is too large to send (${String(size)} bytes, the limit is ${String(MAX_MESSAGE_BYTES)}).`,
+      },
+    })
   }
 
   const handleRoomMessage = (target: BridgeSocket, message: RoomMessage): void => {

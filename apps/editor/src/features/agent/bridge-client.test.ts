@@ -1,4 +1,4 @@
-import { PROTOCOL_VERSION, hashKey } from '@nudo-tsl/agent-protocol'
+import { MAX_MESSAGE_BYTES, PROTOCOL_VERSION, hashKey } from '@nudo-tsl/agent-protocol'
 import type { BridgeRequest, BridgeResponse } from '@nudo-tsl/agent-protocol'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createBridgeClient } from './bridge-client'
@@ -174,6 +174,28 @@ describe('bridge client', () => {
     await flush()
     const reply: unknown = JSON.parse(socket.sent[1] ?? '')
     expect(reply).toMatchObject({ kind: 'response', id: 'r1', ok: false })
+  })
+
+  it('never sends a response over the message limit: it answers invalid for that request', async () => {
+    const harness = setup()
+    harness.onRequest.mockResolvedValueOnce({
+      kind: 'response',
+      id: 'r1',
+      ok: true,
+      result: { mimeType: 'image/png', data: 'A'.repeat(MAX_MESSAGE_BYTES) },
+    })
+    const socket = await startAndOpen(harness)
+    socket.receive(REQUEST)
+    await flush()
+
+    const frame = socket.sent[1] ?? ''
+    expect(new TextEncoder().encode(frame).byteLength).toBeLessThanOrEqual(MAX_MESSAGE_BYTES)
+    expect(JSON.parse(frame)).toMatchObject({
+      kind: 'response',
+      id: 'r1',
+      ok: false,
+      error: { code: 'invalid' },
+    })
   })
 
   it('ignores a room error message without closing or changing status', async () => {

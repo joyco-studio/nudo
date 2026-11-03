@@ -44,7 +44,11 @@ const initializeMessageSchema = z.object({
   params: z.object({ clientInfo: z.object({ name: z.string() }) }),
 })
 
-const previewImageSchema = z.object({ mimeType: z.string(), data: z.string() })
+/** The tab sends a PNG, or a WebP or JPEG when a noisy preview needs compressing to fit. */
+const previewImageSchema = z.object({
+  mimeType: z.enum(['image/png', 'image/webp', 'image/jpeg']),
+  data: z.string(),
+})
 
 const jsonRpcError = (status: number, code: number, message: string): Response =>
   Response.json({ jsonrpc: '2.0', error: { code, message }, id: null }, { status })

@@ -200,6 +200,43 @@ describe('MCP endpoint', () => {
     expect(result.content).toEqual([{ type: 'image', mimeType: 'image/png', data: PNG_BASE64 }])
     tab.close()
   })
+
+  it.each(['image/webp', 'image/jpeg'])(
+    'get_preview_image accepts a %s the tab re-encoded to fit',
+    async (mimeType) => {
+      const key = uniqueKey()
+      const tab = await connectTab(key, 'tab-1')
+      const client = await connectClient(key)
+
+      const call = client.callTool({ name: 'get_preview_image', arguments: {} })
+      const request = await tab.next('request')
+      tab.send({ kind: 'response', id: request.id, ok: true, result: { mimeType, data: 'AAAA' } })
+
+      const result = await call
+      expect(result.isError).toBeFalsy()
+      expect(result.content).toEqual([{ type: 'image', mimeType, data: 'AAAA' }])
+      tab.close()
+    },
+  )
+
+  it('get_preview_image refuses an image type it does not know', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+    const client = await connectClient(key)
+
+    const call = client.callTool({ name: 'get_preview_image', arguments: {} })
+    const request = await tab.next('request')
+    tab.send({
+      kind: 'response',
+      id: request.id,
+      ok: true,
+      result: { mimeType: 'image/gif', data: 'AAAA' },
+    })
+
+    const result = await call
+    expect(result.isError).toBe(true)
+    tab.close()
+  })
 })
 
 describe('callTool', () => {

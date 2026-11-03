@@ -70,6 +70,28 @@ const isValidTimeout = (timeoutMs: number): boolean => Number.isFinite(timeoutMs
 const timeoutError = (timeoutMs: number): AgentError =>
   agentError('timeout', `The nudo tab did not answer within ${String(timeoutMs)} ms.`)
 
+const OVERSIZE_MESSAGE = 'Message exceeds the maximum size.'
+const OVERSIZE_RESPONSE = agentError(
+  'invalid',
+  "The nudo tab's answer exceeds the maximum message size, so it could not be delivered.",
+)
+
+/** How far into an oversize frame the room looks for a response id; the id comes first. */
+const RESPONSE_HEAD_CHARS = 256
+const RESPONSE_HEAD_PATTERN = /^\{"kind":"response","id":"([^"\\]{1,128})"/
+
+/**
+ * The request id of an oversize response, read from the head of the frame without parsing all of
+ * it (the tab serializes `kind` and `id` first); null for anything else.
+ */
+const oversizeResponseId = (frame: string | ArrayBuffer): string | null => {
+  const head =
+    typeof frame === 'string'
+      ? frame.slice(0, RESPONSE_HEAD_CHARS)
+      : new TextDecoder().decode(frame.slice(0, RESPONSE_HEAD_CHARS))
+  return RESPONSE_HEAD_PATTERN.exec(head)?.[1] ?? null
+}
+
 const byteSize = (frame: string | ArrayBuffer): number =>
   typeof frame === 'string' ? new TextEncoder().encode(frame).byteLength : frame.byteLength
 
@@ -200,7 +222,8 @@ export class BridgeRoom extends DurableObject {
     if (attachment === null) return
 
     if (byteSize(frame) > MAX_MESSAGE_BYTES) {
-      sendInvalid(socket, 'Message exceeds the maximum size.')
+      this.settleOversizeResponse(attachment, frame)
+      sendInvalid(socket, OVERSIZE_MESSAGE)
       return
     }
     const parsed = parseBrowserMessage(frameText(frame))
@@ -299,6 +322,13 @@ export class BridgeRoom extends DurableObject {
     // A late answer (after a timeout) or one from a tab that never got the request is ignored.
     if (pending?.connectionId !== attachment.connectionId) return
     this.settle(response.id, responseResult(response))
+  }
+
+  /** An answer too large to read still ends its request at once, instead of at its timeout. */
+  private settleOversizeResponse(attachment: SocketAttachment, frame: string | ArrayBuffer): void {
+    const id = oversizeResponseId(frame)
+    if (id === null || this.pending.get(id)?.connectionId !== attachment.connectionId) return
+    this.settle(id, err(OVERSIZE_RESPONSE))
   }
 
   private settle(id: string, result: DispatchResult): void {

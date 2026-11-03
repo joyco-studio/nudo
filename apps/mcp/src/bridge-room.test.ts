@@ -251,6 +251,29 @@ describe('BridgeRoom malformed input', () => {
     expect(response.error.message).toContain('maximum size')
   })
 
+  it('an oversize response settles its request with invalid instead of waiting for the timeout', async () => {
+    const key = uniqueKey()
+    const tab = await connectTab(key, 'tab-1')
+
+    const pending = dispatchGetGraph(key)
+    const request = await tab.next('request')
+    tab.sendRaw(
+      JSON.stringify({
+        kind: 'response',
+        id: request.id,
+        ok: true,
+        result: 'a'.repeat(MAX_MESSAGE_BYTES),
+      }),
+    )
+
+    const result: unknown = await pending
+    const { error } = z
+      .object({ ok: z.literal(false), error: z.object({ code: z.string(), message: z.string() }) })
+      .parse(result)
+    expect(error.code).toBe('invalid')
+    expect(error.message).toContain('maximum message size')
+  })
+
   it('answers a message sent before hello with invalid', async () => {
     const socket = await openBridgeSocket(await hashKey(uniqueKey()))
     socket.send({ kind: 'focus', tabId: 'tab-1' })
