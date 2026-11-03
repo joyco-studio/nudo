@@ -1,6 +1,9 @@
 import { isWebSocketUpgrade, parseBridgePath } from './bridge-route'
+import { handleMcp } from './mcp-endpoint'
 
 export { BridgeRoom } from './bridge-room'
+
+const MCP_PATH = '/mcp'
 
 const parseAllowedOrigins = (value: string): ReadonlySet<string> =>
   new Set(
@@ -31,7 +34,10 @@ const handleBridge = (
 
 export default {
   fetch(request, env) {
-    const roomHash = parseBridgePath(new URL(request.url).pathname)
+    const { pathname } = new URL(request.url)
+    // No Origin check on /mcp: CLIs call it, and the bearer key is its protection.
+    if (pathname === MCP_PATH) return handleMcp(request, env)
+    const roomHash = parseBridgePath(pathname)
     if (roomHash !== null) return handleBridge(request, env, roomHash)
     return new Response('Not found', { status: 404 })
   },
