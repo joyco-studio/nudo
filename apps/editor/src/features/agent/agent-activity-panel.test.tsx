@@ -128,6 +128,33 @@ describe('AgentActivityPanel', () => {
     expect(useEditorStore.getState().agentTask?.status).toBe('active')
   })
 
+  it('moves focus to Let it continue after Stop, and back to Stop after resuming', () => {
+    mount()
+    const stop = buttonNamed('Stop')
+    act(() => {
+      stop.focus()
+      stop.click()
+    })
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement).toBe(buttonNamed('Let it continue'))
+
+    act(() => {
+      buttonNamed('Let it continue').click()
+    })
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement).toBe(buttonNamed('Stop'))
+  })
+
+  it('offers the connection details while the task is stopped, not while it runs', () => {
+    mount()
+    expect(() => buttonNamed('Connection')).toThrow()
+
+    act(() => {
+      buttonNamed('Stop').click()
+    })
+    expect(buttonNamed('Connection').disabled).toBe(false)
+  })
+
   it('Undo all asks for confirmation when the user edited during the task', async () => {
     beginSnapshot()
     mount()

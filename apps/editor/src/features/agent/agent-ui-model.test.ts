@@ -9,6 +9,7 @@ import {
   opensActivityPanel,
   chipPressFor,
   panelChangeFor,
+  showsConnectionEntry,
   toSocketUrl,
 } from './agent-ui-model'
 
@@ -49,6 +50,12 @@ describe('chipViewOf', () => {
 })
 
 describe('connection details', () => {
+  it('are offered from the panel once the task is stopped or finished, not while it runs', () => {
+    expect(showsConnectionEntry(task('active'))).toBe(false)
+    expect(showsConnectionEntry(task('stopped'))).toBe(true)
+    expect(showsConnectionEntry(task('finished'))).toBe(true)
+  })
+
   it('says the connection is not set up before anything else', () => {
     expect(connectionStatusKey('connected', false)).toBe('agent.status.notConfigured')
     expect(connectionStatusKey('outdated', true)).toBe('agent.status.outdated')

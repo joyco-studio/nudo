@@ -54,6 +54,15 @@ export function opensActivityPanel(view: ChipView): boolean {
   return view.kind === 'connected' && view.hasLastTask
 }
 
+/**
+ * Whether the activity panel offers the connection details. Not while the agent works (the panel
+ * is about its work then), but as soon as it is stopped, so a leaked key can be replaced without
+ * letting the agent continue first.
+ */
+export function showsConnectionEntry(task: AgentTask): boolean {
+  return task.status !== 'active'
+}
+
 /** The connection in words, for the connect dialog. */
 export function connectionStatusKey(status: ConnectionStatus, isConfigured: boolean): MessageKey {
   if (!isConfigured) return 'agent.status.notConfigured'

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react'
-import type { KeyboardEvent } from 'react'
+import type { KeyboardEvent, RefObject } from 'react'
 import { Check, Circle, LoaderCircle, Play, Square, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
@@ -16,6 +16,7 @@ import { useEditorStore } from '@/store/editor-store'
 import type { AgentStep, AgentTask } from '@/store/store-types'
 
 import { useAgentUi } from './agent-ui-context'
+import { showsConnectionEntry } from './agent-ui-model'
 import { resumeAgent, stopAgent } from './task-machine'
 import { hasSnapshot, subscribeSnapshot, undoAll } from './undo-all'
 import { useTaskTimer } from './use-task-timer'
@@ -106,7 +107,13 @@ function scrollTopToReveal(box: HTMLElement, row: HTMLElement): number {
   return box.scrollTop
 }
 
-function TaskBody({ task }: { task: AgentTask }) {
+interface TaskBodyProps {
+  task: AgentTask
+  resumeButtonRef: RefObject<HTMLButtonElement | null>
+  onResume: () => void
+}
+
+function TaskBody({ task, resumeButtonRef, onResume }: TaskBodyProps) {
   const t = useT()
   const name = task.agent.name
   const bodyRef = useRef<HTMLDivElement | null>(null)
@@ -156,7 +163,13 @@ function TaskBody({ task }: { task: AgentTask }) {
           <p className="min-w-0 flex-1 text-xs text-muted-foreground">
             {t('agent.panel.stoppedNote', { name })}
           </p>
-          <Button variant="secondary" size="sm" className="h-7" onClick={resumeAgent}>
+          <Button
+            ref={resumeButtonRef}
+            variant="secondary"
+            size="sm"
+            className="h-7"
+            onClick={onResume}
+          >
             <Play aria-hidden="true" />
             {t('agent.panel.resume')}
           </Button>
@@ -188,6 +201,24 @@ export function AgentActivityPanel() {
     if (canUndoAll || document.activeElement !== undoButtonRef.current) return
     sectionRef.current?.focus({ preventScroll: true })
   }, [canUndoAll])
+
+  // Stop and Let it continue replace each other: the one pressed unmounts, so focus moves to the
+  // one that takes its place instead of falling to the page.
+  const stopButtonRef = useRef<HTMLButtonElement | null>(null)
+  const resumeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const isTogglingRun = useRef(false)
+  const taskStatus = task?.status
+  useLayoutEffect(() => {
+    if (!isTogglingRun.current) return
+    isTogglingRun.current = false
+    const target = taskStatus === 'stopped' ? resumeButtonRef.current : stopButtonRef.current
+    target?.focus()
+  }, [taskStatus])
+
+  const toggleRun = (change: () => void): void => {
+    isTogglingRun.current = true
+    change()
+  }
 
   useEffect(() => {
     if (ui.panelFocusRequest === 0) return
@@ -226,7 +257,15 @@ export function AgentActivityPanel() {
               <HeadingText task={task} />
             </h2>
             {task.status === 'active' ? (
-              <Button variant="secondary" size="sm" className="h-7" onClick={stopAgent}>
+              <Button
+                ref={stopButtonRef}
+                variant="secondary"
+                size="sm"
+                className="h-7"
+                onClick={() => {
+                  toggleRun(stopAgent)
+                }}
+              >
                 <Square aria-hidden="true" className="size-3 fill-current" />
                 {t('agent.panel.stop')}
               </Button>
@@ -241,11 +280,17 @@ export function AgentActivityPanel() {
               <X aria-hidden="true" />
             </Button>
           </div>
-          <TaskBody task={task} />
+          <TaskBody
+            task={task}
+            resumeButtonRef={resumeButtonRef}
+            onResume={() => {
+              toggleRun(resumeAgent)
+            }}
+          />
           <div className="flex shrink-0 items-center justify-end border-t p-1">
-            {/* Once the task is over the toolbar control reopens this panel, so the connection
-                details are one step away from here instead. */}
-            {task.status === 'finished' ? (
+            {/* While the task is stopped or over the toolbar control reopens this panel, so the
+                connection details (and a new key) are one step away from here instead. */}
+            {showsConnectionEntry(task) ? (
               <Button variant="ghost" size="sm" className="mr-auto" onClick={ui.openConnectDialog}>
                 {t('agent.panel.connection')}
               </Button>
