@@ -10,7 +10,7 @@ import type { FocusTargetFor } from './agent-confirm-dialog'
 import { AgentConnectDialog } from './agent-connect-dialog'
 import { AgentUiContext } from './agent-ui-context'
 import type { AgentUi } from './agent-ui-context'
-import { panelChangeFor } from './agent-ui-model'
+import { chipPressFor, panelChangeFor } from './agent-ui-model'
 import type { ConfirmBroker } from './confirm-broker'
 
 interface AgentUiProviderProps {
@@ -36,6 +36,8 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
     () => useEditorStore.getState().agentTask?.status === 'active',
   )
   const [panelFocusRequest, setPanelFocusRequest] = useState(0)
+  // True while the panel is open because a task started, not because the person opened it.
+  const wasOpenedByTaskRef = useRef(isPanelOpen)
   const [isConnectOpen, setIsConnectOpen] = useState(false)
   const [agentKey, setAgentKey] = useState<string | null>(null)
   const connectOpenerRef = useRef<HTMLElement | null>(null)
@@ -51,17 +53,25 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
           const panel = document.getElementById(panelId)
           if (panel?.contains(document.activeElement) === true) chipElementRef.current?.focus()
         }
+        wasOpenedByTaskRef.current = change === 'open'
         setIsPanelOpen(change === 'open')
       }),
     [panelId],
   )
 
   const togglePanel = useCallback(() => {
-    if (!isPanelOpen) setPanelFocusRequest((request) => request + 1)
-    setIsPanelOpen(!isPanelOpen)
+    const press = chipPressFor(isPanelOpen, wasOpenedByTaskRef.current)
+    wasOpenedByTaskRef.current = false
+    if (press === 'collapse') {
+      setIsPanelOpen(false)
+      return
+    }
+    setPanelFocusRequest((request) => request + 1)
+    setIsPanelOpen(true)
   }, [isPanelOpen])
 
   const collapsePanel = useCallback(() => {
+    wasOpenedByTaskRef.current = false
     setIsPanelOpen(false)
     chipElementRef.current?.focus()
   }, [])

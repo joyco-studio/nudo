@@ -86,16 +86,16 @@ function activityPanel(page: Page): Locator {
 
 /**
  * Moves focus into the activity panel the way a keyboard user does from the toolbar control (where
- * focus went back when the connect dialog closed): Enter twice, since the panel opens by itself
- * when a task starts, so the first press hides it and the second shows it again with focus inside.
+ * focus went back when the connect dialog closed): one Enter. The panel opened by itself when the
+ * task started, so the press takes focus into it instead of hiding it.
  */
 async function focusActivityPanel(page: Page): Promise<void> {
   const chip = agentChip(page)
   await expect(chip).toBeFocused()
-  await page.keyboard.press('Enter')
-  await expect(activityPanel(page)).toBeHidden()
+  await expect(activityPanel(page)).toBeVisible()
   await page.keyboard.press('Enter')
   await expect(activityPanel(page)).toBeFocused()
+  await expect(chip).toHaveAttribute('aria-expanded', 'true')
 }
 
 function edges(page: Page): Locator {

@@ -9,6 +9,7 @@ import type { MessageKey } from '@/i18n/translate'
 import { RichMessage } from '@/i18n/rich-message'
 import { useT } from '@/i18n/use-t'
 import { cn } from '@/shared/lib/utils'
+import { useScrollOverflow } from '@/shared/lib/use-scroll-overflow'
 import { useOverlayMotion } from '@/shared/motion/use-motion-preset'
 import { Button } from '@/shared/ui/button'
 import { useEditorStore } from '@/store/editor-store'
@@ -96,12 +97,42 @@ function HeadingText({ task }: { task: AgentTask }) {
   }
 }
 
+/** The scroll position that shows `row` inside `box`, moving as little as possible. */
+function scrollTopToReveal(box: HTMLElement, row: HTMLElement): number {
+  const rowTop = row.offsetTop - box.offsetTop
+  const rowBottom = rowTop + row.offsetHeight
+  if (rowTop < box.scrollTop) return rowTop
+  if (rowBottom > box.scrollTop + box.clientHeight) return rowBottom - box.clientHeight
+  return box.scrollTop
+}
+
 function TaskBody({ task }: { task: AgentTask }) {
   const t = useT()
   const name = task.agent.name
+  const bodyRef = useRef<HTMLDivElement | null>(null)
+  const { isScrollable } = useScrollOverflow(bodyRef, task.steps.length)
+  const currentIndex = task.steps.findIndex((step) => step.state === 'current')
+
+  // A long task keeps its current step in sight as the agent moves on.
+  useEffect(() => {
+    const body = bodyRef.current
+    if (body === null) return
+    const current = body.querySelector<HTMLElement>('[aria-current="step"]')
+    if (current === null) return
+    body.scrollTop = scrollTopToReveal(body, current)
+  }, [currentIndex])
   return (
-    // One column that may shrink below its content, so long labels wrap inside the panel.
-    <div className="grid grid-cols-1 gap-2 p-2">
+    // One column that may shrink below its content, so long labels wrap inside the panel. A long
+    // task scrolls here, between the header (Stop) and the footer (Undo all), which stay put;
+    // focusable only then, so a keyboard user can scroll it.
+    <div
+      ref={bodyRef}
+      role="group"
+      aria-label={t('agent.panel.steps')}
+      tabIndex={isScrollable ? 0 : undefined}
+      data-focus-ring="inset"
+      className="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto p-2"
+    >
       {task.implicit || task.prompt === null ? null : (
         <p className="px-2 text-xs break-words text-muted-foreground">
           {t('agent.panel.prompt', { prompt: task.prompt })}
@@ -185,10 +216,12 @@ export function AgentActivityPanel() {
           aria-label={t('agent.panel.region', { name: task.agent.name })}
           tabIndex={-1}
           onKeyDown={onKeyDown}
-          className="pointer-events-auto w-72 max-w-full border bg-background/85 backdrop-blur-md"
+          // Capped, so a long task never covers the canvas (or, on a phone, the stacked panels);
+          // its steps scroll between the header and the footer instead.
+          className="pointer-events-auto flex max-h-[32rem] min-h-0 w-72 max-w-full flex-col border max-sm:max-h-[45dvh] bg-background/85 backdrop-blur-md"
         >
           {/* pl-4 puts the heading on the same left edge as the prompt and the steps below. */}
-          <div className="flex h-9 items-center gap-2 bg-muted/50 pr-1 pl-4">
+          <div className="flex h-9 shrink-0 items-center gap-2 bg-muted/50 pr-1 pl-4">
             <h2 className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
               <HeadingText task={task} />
             </h2>
@@ -209,7 +242,7 @@ export function AgentActivityPanel() {
             </Button>
           </div>
           <TaskBody task={task} />
-          <div className="flex items-center justify-end border-t p-1">
+          <div className="flex shrink-0 items-center justify-end border-t p-1">
             {/* Once the task is over the toolbar control reopens this panel, so the connection
                 details are one step away from here instead. */}
             {task.status === 'finished' ? (

@@ -236,4 +236,29 @@ describe('AgentActivityPanel', () => {
     expect(chip?.getAttribute('aria-expanded')).toBe('false')
     stopTracking()
   })
+
+  it('the chip first takes focus into a panel the task opened, then hides it', () => {
+    const stopTracking = trackInputModality(document)
+    mount()
+    const chip = (): HTMLButtonElement | null =>
+      container.querySelector<HTMLButtonElement>('button[aria-expanded]')
+    expect(panel()).not.toBeNull()
+    expect(chip()?.getAttribute('aria-expanded')).toBe('true')
+
+    act(() => {
+      chip()?.focus()
+      chip()?.click()
+    })
+    expect(panel()).not.toBeNull()
+    expect(document.activeElement).toBe(panel())
+    expect(chip()?.getAttribute('aria-expanded')).toBe('true')
+
+    act(() => {
+      chip()?.focus()
+      chip()?.click()
+    })
+    expect(panel()).toBeNull()
+    expect(chip()?.getAttribute('aria-expanded')).toBe('false')
+    stopTracking()
+  })
 })

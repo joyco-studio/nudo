@@ -7,6 +7,7 @@ import {
   chipViewOf,
   connectionStatusKey,
   opensActivityPanel,
+  chipPressFor,
   panelChangeFor,
   toSocketUrl,
 } from './agent-ui-model'
@@ -76,5 +77,17 @@ describe('panelChangeFor', () => {
   it('leaves the panel as it is when the person stops and resumes the agent', () => {
     expect(panelChangeFor(task('active'), task('stopped'))).toBeNull()
     expect(panelChangeFor(task('stopped'), task('active'))).toBeNull()
+  })
+})
+
+describe('chipPressFor', () => {
+  it('opens a closed panel', () => {
+    expect(chipPressFor(false, false)).toBe('open')
+    expect(chipPressFor(false, true)).toBe('open')
+  })
+
+  it('takes focus into a panel the task opened, and hides one the person has been in', () => {
+    expect(chipPressFor(true, true)).toBe('focus')
+    expect(chipPressFor(true, false)).toBe('collapse')
   })
 })

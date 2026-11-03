@@ -649,6 +649,7 @@ export const es = {
   'agent.panel.working': '{name} · trabajando {elapsed}',
   'agent.panel.stopped': '{name} · detenido',
   'agent.panel.done': '{name} · listo',
+  'agent.panel.steps': 'Tarea y pasos',
   'agent.panel.prompt': '“{prompt}”',
   'agent.panel.noSteps': '{name} está editando el grafo.',
   'agent.panel.stoppedNote': '{name} espera hasta que lo dejes continuar.',

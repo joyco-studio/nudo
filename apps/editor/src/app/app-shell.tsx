@@ -209,12 +209,13 @@ export function AppShell({
          * Over the canvas, pinned to its bottom edge, after the column in the tab order. The agent's
          * activity island stacks above the code drawer, so neither covers the other. In full, where
          * the preview's own controls fill the bottom, it moves to the top left of the 3D view,
-         * just under the preview header.
+         * just under the preview header. Bounded top and bottom, so a long task scrolls inside it.
          */}
         <div
           className={cn(
-            'pointer-events-none absolute right-4 left-16 z-20 flex flex-col items-start gap-2',
-            layout === 'full' ? 'top-28 left-8' : 'bottom-4',
+            'pointer-events-none absolute right-4 bottom-4 left-16 z-20 flex flex-col items-start gap-2',
+            // On a phone the preview's "Updating live" badge spans the top, so it starts below that.
+            layout === 'full' ? 'top-28 left-8 justify-start max-sm:top-36' : 'top-16 justify-end',
             layout === 'docked' && 'md:right-[22rem]',
           )}
           style={codePanelStyle(layout, splitPercent)}
@@ -226,7 +227,7 @@ export function AppShell({
             edge="bottom"
             headerActions={codeActions}
             isHidden={layout === 'full'}
-            className="pointer-events-auto w-full"
+            className="pointer-events-auto w-full shrink-0"
             // The code region inside scrolls (and takes focus); the body itself never does.
             bodyClassName="h-48"
           >

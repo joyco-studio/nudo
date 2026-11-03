@@ -111,3 +111,16 @@ export function panelChangeFor(previous: AgentTask | null, next: AgentTask | nul
   const isNewTask = previous === null || previous.startedAt !== next.startedAt
   return isNewTask || previous.status === 'finished' ? 'open' : null
 }
+
+/** What pressing the toolbar control does to the activity panel. */
+export type ChipPress = 'open' | 'focus' | 'collapse'
+
+/**
+ * A closed panel opens with focus inside. A panel the task opened by itself has never held the
+ * person's focus, so the first press takes them into it instead of hiding what they came to read;
+ * once they have been there, the control hides it again, like any disclosure.
+ */
+export function chipPressFor(isPanelOpen: boolean, wasOpenedByTask: boolean): ChipPress {
+  if (!isPanelOpen) return 'open'
+  return wasOpenedByTask ? 'focus' : 'collapse'
+}
