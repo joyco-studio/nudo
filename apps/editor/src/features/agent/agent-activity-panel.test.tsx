@@ -35,6 +35,7 @@ const bridge: AgentBridgeHandle = {
   currentKey: () => 'key-1',
   connect: () => 'key-1',
   generateNewKey: () => 'key-2',
+  subscribeKey: () => () => undefined,
 }
 
 /** jsdom has no ResizeObserver; the chip's Radix tooltip measures with one when it takes focus. */

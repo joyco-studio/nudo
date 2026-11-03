@@ -101,6 +101,15 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
     setIsConnectOpen(true)
   }, [bridge])
 
+  // Another tab may generate a new key: the dialog shows the command that works now.
+  useEffect(
+    () =>
+      bridge.subscribeKey(() => {
+        setAgentKey(bridge.currentKey())
+      }),
+    [bridge],
+  )
+
   const generateNewKey = useCallback(() => {
     setAgentKey(bridge.generateNewKey())
   }, [bridge])

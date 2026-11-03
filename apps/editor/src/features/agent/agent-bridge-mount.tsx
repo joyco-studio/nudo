@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { useTidyUp } from '@/features/canvas/tidy-up/use-tidy-up'
 import { useCurrentLocale } from '@/i18n/use-t'
 
+import { watchKeyChanges } from './agent-key'
 import { clearPresenceWhenTaskEnds, createAgentSession } from './agent-session'
 import { bridgeUrlFrom } from './agent-ui-model'
 import { AgentUiProvider } from './agent-ui-provider'
@@ -67,9 +68,12 @@ export function AgentBridgeMount({ children }: AgentBridgeMountProps) {
 
   useEffect(() => {
     const stopClearing = clearPresenceWhenTaskEnds()
+    // A key generated in another tab cuts the old one here too.
+    const stopWatchingKey = watchKeyChanges(window, session.syncStoredKey)
     session.resume()
     return () => {
       stopClearing()
+      stopWatchingKey()
       session.dispose()
     }
   }, [session])

@@ -34,6 +34,7 @@ const fakeBridge = (): AgentBridgeHandle => ({
   currentKey: vi.fn(() => 'key-1'),
   connect: vi.fn(() => 'key-1'),
   generateNewKey: vi.fn(() => 'key-2'),
+  subscribeKey: () => () => undefined,
 })
 
 let container: HTMLDivElement

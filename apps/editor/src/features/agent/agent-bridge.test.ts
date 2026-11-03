@@ -87,6 +87,36 @@ describe('agent bridge', () => {
     expect(clients[1]?.start).toHaveBeenCalledTimes(1)
   })
 
+  it('follows a key another tab generated: stops the old client and reconnects with the new key', () => {
+    const { bridge, clients, storage } = setup()
+    const oldKey = bridge.connect()
+    const onKeyChange = vi.fn<() => void>()
+    bridge.subscribeKey(onKeyChange)
+
+    const otherTab = createAgentBridge({
+      url: 'http://localhost:8787',
+      storage,
+      createClient: () => ({ start: vi.fn(), stop: vi.fn(), claimFocus: vi.fn() }),
+    })
+    const newKey = otherTab.generateNewKey()
+    bridge.syncStoredKey()
+
+    expect(newKey).not.toBe(oldKey)
+    expect(bridge.currentKey()).toBe(newKey)
+    expect(clients[0]?.stop).toHaveBeenCalledTimes(1)
+    expect(clients[1]?.key).toBe(newKey)
+    expect(clients[1]?.start).toHaveBeenCalledTimes(1)
+    expect(onKeyChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignores a storage sync that leaves the key as it is', () => {
+    const { bridge, clients } = setup()
+    bridge.connect()
+    bridge.syncStoredKey()
+    expect(clients).toHaveLength(1)
+    expect(clients[0]?.stop).not.toHaveBeenCalled()
+  })
+
   it('does nothing without a configured url', () => {
     const { bridge, clients } = setup(null)
     expect(bridge.connect()).toBeNull()

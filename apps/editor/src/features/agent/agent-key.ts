@@ -48,3 +48,17 @@ export function loadKey(storage: KeyStorage): string | null {
   const stored = readStoredKey(storage)
   return stored === null || stored === '' ? null : stored
 }
+
+/**
+ * Calls `onChange` when another tab changes the stored key (a `storage` event for it, or a cleared
+ * storage). Returns the unsubscribe.
+ */
+export function watchKeyChanges(target: Window, onChange: () => void): () => void {
+  const listener = (event: StorageEvent): void => {
+    if (event.key === null || event.key === STORAGE_KEY) onChange()
+  }
+  target.addEventListener('storage', listener)
+  return () => {
+    target.removeEventListener('storage', listener)
+  }
+}

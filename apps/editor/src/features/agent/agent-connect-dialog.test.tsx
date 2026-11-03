@@ -66,6 +66,7 @@ describe('AgentConnectDialog', () => {
       currentKey: () => 'key-1',
       connect: () => 'key-1',
       generateNewKey: () => 'key-2',
+      subscribeKey: () => () => undefined,
     })
     expect(commandIn(dialog)).toBe(
       `claude mcp add --transport http nudo ${URL}/mcp --header "Authorization: Bearer key-1"`,
@@ -80,6 +81,7 @@ describe('AgentConnectDialog', () => {
       currentKey: () => 'key-1',
       connect: () => 'key-1',
       generateNewKey,
+      subscribeKey: () => () => undefined,
     })
 
     act(() => {
@@ -91,6 +93,30 @@ describe('AgentConnectDialog', () => {
     expect(commandIn(dialog)).not.toContain('key-1')
   })
 
+  it('shows the key another tab generated while the dialog is open', () => {
+    let key = 'key-1'
+    const listeners = new Set<() => void>()
+    const dialog = openDialog({
+      url: URL,
+      currentKey: () => key,
+      connect: () => key,
+      generateNewKey: () => key,
+      subscribeKey: (listener) => {
+        listeners.add(listener)
+        return () => {
+          listeners.delete(listener)
+        }
+      },
+    })
+
+    act(() => {
+      key = 'key-from-other-tab'
+      for (const listener of listeners) listener()
+    })
+
+    expect(commandIn(dialog)).toContain('Bearer key-from-other-tab')
+  })
+
   it('says the connection is not configured when there is no url', () => {
     const connect = vi.fn(() => null)
     const dialog = openDialog({
@@ -98,6 +124,7 @@ describe('AgentConnectDialog', () => {
       currentKey: () => null,
       connect,
       generateNewKey: () => null,
+      subscribeKey: () => () => undefined,
     })
     expect(dialog.textContent).toContain('not set up')
     expect(dialog.querySelector('code')).toBeNull()
@@ -110,6 +137,7 @@ describe('AgentConnectDialog', () => {
       currentKey: () => 'key-1',
       connect: () => 'key-1',
       generateNewKey: () => 'key-2',
+      subscribeKey: () => () => undefined,
     }
     const dialog = openDialog(bridge)
     expect(dialog.textContent).toContain('Reload nudo')

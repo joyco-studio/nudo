@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { loadOrCreateKey, rotateKey } from './agent-key'
+import { describe, expect, it, vi } from 'vitest'
+import { loadOrCreateKey, rotateKey, watchKeyChanges } from './agent-key'
 
 const KEY_LENGTH = 43
 
@@ -47,5 +47,24 @@ describe('agent key', () => {
     const key = loadOrCreateKey(throwingStorage)
     expect(key).toHaveLength(KEY_LENGTH)
     expect(rotateKey(throwingStorage)).toHaveLength(KEY_LENGTH)
+  })
+})
+
+describe('watchKeyChanges', () => {
+  it('reports changes to the agent key made in other tabs, and nothing else', () => {
+    const onChange = vi.fn<() => void>()
+    const stop = watchKeyChanges(window, onChange)
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'nudo-tsl:theme', newValue: 'dark' }))
+    expect(onChange).not.toHaveBeenCalled()
+    window.dispatchEvent(new StorageEvent('storage', { key: 'nudo-tsl:agent-key', newValue: 'k' }))
+    expect(onChange).toHaveBeenCalledTimes(1)
+    // A cleared storage reports a null key.
+    window.dispatchEvent(new StorageEvent('storage', { key: null }))
+    expect(onChange).toHaveBeenCalledTimes(2)
+
+    stop()
+    window.dispatchEvent(new StorageEvent('storage', { key: 'nudo-tsl:agent-key', newValue: 'x' }))
+    expect(onChange).toHaveBeenCalledTimes(2)
   })
 })

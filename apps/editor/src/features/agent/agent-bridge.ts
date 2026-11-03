@@ -18,11 +18,18 @@ export interface AgentBridgeHandle {
   readonly connect: () => string | null
   /** Replaces the key and reconnects with it; the new key, or null when unconfigured. */
   readonly generateNewKey: () => string | null
+  /** Calls `listener` whenever the key changes (here or in another tab). Returns the unsubscribe. */
+  readonly subscribeKey: (listener: () => void) => () => void
 }
 
 export interface AgentBridge extends AgentBridgeHandle {
   /** Reconnects on page load, but only when the person paired an agent before. */
   readonly resume: () => void
+  /**
+   * Adopts the key stored by another tab (after it generated a new one): reconnects with it, so
+   * no tab keeps serving the old key.
+   */
+  readonly syncStoredKey: () => void
   readonly dispose: () => void
 }
 
@@ -30,6 +37,10 @@ export interface AgentBridge extends AgentBridgeHandle {
 export function createAgentBridge({ url, storage, createClient }: AgentBridgeOptions): AgentBridge {
   let key: string | null = loadKey(storage)
   let client: BridgeClient | null = null
+  const keyListeners = new Set<() => void>()
+  const notifyKeyChange = (): void => {
+    for (const listener of keyListeners) listener()
+  }
 
   const startWith = (baseUrl: string, nextKey: string): void => {
     client?.stop()
@@ -50,7 +61,21 @@ export function createAgentBridge({ url, storage, createClient }: AgentBridgeOpt
     generateNewKey() {
       if (url === null) return null
       startWith(url, rotateKey(storage))
+      notifyKeyChange()
       return key
+    },
+    syncStoredKey() {
+      const stored = loadKey(storage)
+      if (stored === null || stored === key) return
+      if (url === null) key = stored
+      else startWith(url, stored)
+      notifyKeyChange()
+    },
+    subscribeKey(listener) {
+      keyListeners.add(listener)
+      return () => {
+        keyListeners.delete(listener)
+      }
     },
     resume() {
       if (url === null || client !== null || key === null) return
