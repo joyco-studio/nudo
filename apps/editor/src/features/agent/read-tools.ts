@@ -6,6 +6,7 @@ import { rerouteNode } from '@nudo-tsl/nodes'
 import { useEditorStore } from '@/store/editor-store'
 import { registry } from '@/store/registry'
 import { toAgentGraph } from './agent-graph-view'
+import { capturePreview } from './capture-preview'
 import { defineHandler } from './define-handler'
 import type { ToolHandler } from './tool-context'
 
@@ -95,8 +96,11 @@ const getCode = defineHandler('get_code', () => {
   return Promise.resolve(ok({ code, errors }))
 })
 
+const getPreviewImage = defineHandler('get_preview_image', () => capturePreview())
+
 export const readTools = {
   get_graph: getGraph,
   list_node_types: listNodeTypes,
   get_code: getCode,
-} satisfies Record<'get_graph' | 'list_node_types' | 'get_code', ToolHandler>
+  get_preview_image: getPreviewImage,
+} satisfies Record<'get_graph' | 'list_node_types' | 'get_code' | 'get_preview_image', ToolHandler>

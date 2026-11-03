@@ -26,6 +26,7 @@ import type { RendererBackend } from './create-renderer'
 import { disposeModel, loadGlbModel } from './glb-model'
 import { ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR, zoomView } from './orbit-view'
 import type { OrbitView } from './orbit-view'
+import { PreviewCaptureRegistrar } from './preview-capture-registrar'
 import { PreviewErrorBoundary } from './preview-error-boundary'
 import { MAX_PREVIEW_PIXEL_RATIO, PREVIEW_CAMERA, startPreviewRenderer } from './preview-gl'
 import type { PreviewMaterials } from './preview-materials'
@@ -92,6 +93,7 @@ function Viewport({ onBackend, ...scene }: ViewportProps) {
         canvasRef.current = gl.domElement
       }}
     >
+      <PreviewCaptureRegistrar />
       <PreviewScene {...scene} />
     </Canvas>
   )
