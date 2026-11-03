@@ -613,4 +613,10 @@ export const en = {
   'colorRamp.moveDownStop': 'Move stop {number} down',
   'colorRamp.removeStop': 'Remove stop {number}',
   'colorRamp.add': 'Add stop',
+  // Agent presence on the canvas
+  'agent.byAgent': 'by {name}',
+  'agent.editing': '{name} · editing',
+  'agent.adding': 'adding…',
+  'agent.offscreen': '{name} is working here',
+  'agent.stepAnnouncement': '{name}: {step}',
 } as const

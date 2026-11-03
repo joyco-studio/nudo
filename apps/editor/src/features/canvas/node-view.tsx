@@ -4,6 +4,7 @@ import { COLLAPSED_PARAM, MASTER_NODE_ID } from '@nudo-tsl/core'
 import type { NodeProps } from '@xyflow/react'
 import { TriangleAlert } from 'lucide-react'
 
+import { AgentCreatedBadge, AgentEditingTag } from '@/features/agent/agent-editing-tag'
 import { ColorRampEditor } from '@/features/color-ramp/color-ramp-editor'
 import { isColorRamp, isColorRampStopInput } from '@/features/color-ramp/color-ramp-stops'
 import { NodePreview } from '@/features/node-previews/node-preview'
@@ -235,6 +236,7 @@ function NodeHeader({ data }: { data: FlowNodeData }) {
         </Tooltip>
         {formula !== undefined && <NodeFormula formula={formula} />}
       </div>
+      <AgentCreatedBadge nodeId={data.node.id} />
       {/* -mr-2: 4px from the right edge, top-aligned with the collapse chevron in the title row. */}
       <PreviewToggle node={data.node} definition={definition} className="-mr-2 shrink-0" />
     </header>
@@ -252,7 +254,8 @@ function NodeError({ message }: { message: string }) {
 
 function nodeFrameClass(data: FlowNodeData, selected: boolean): string {
   return cn(
-    'graph-node flex flex-col border bg-card text-card-foreground',
+    // relative: the agent's editing tag sits just above the frame.
+    'graph-node relative flex flex-col border bg-card text-card-foreground',
     selected && SELECTED_FRAME_CLASS,
     data.error !== undefined && 'border-destructive',
   )
@@ -274,8 +277,10 @@ function PropertyPill({ data, selected }: { data: FlowNodeData; selected: boolea
         <p id={nodeDescriptionId(data.node.id)} className="sr-only">
           {nodeAccessibleDescription(data.definition, t)}
         </p>
+        <AgentEditingTag nodeId={data.node.id} />
         <div data-port-id={output.id} className="relative flex h-7 items-center gap-2 pr-3 pl-3">
           <span className="min-w-0 flex-1 truncate text-xs font-medium">{data.title}</span>
+          <AgentCreatedBadge nodeId={data.node.id} />
           <TypeChip>{data.typeChip ?? dataType}</TypeChip>
           <ConnectablePort
             nodeId={data.node.id}
@@ -317,6 +322,7 @@ function NodeViewComponent({ data, selected }: NodeProps<FlowNode>) {
         <p id={nodeDescriptionId(node.id)} className="sr-only">
           {nodeAccessibleDescription(definition, t)}
         </p>
+        <AgentEditingTag nodeId={node.id} />
         <NodeHeader data={data} />
         {params.length > 0 && <ParamFields node={node} params={params} />}
         {outputs.length > 0 && (

@@ -627,4 +627,10 @@ export const es = {
   'colorRamp.moveDownStop': 'Bajar la parada {number}',
   'colorRamp.removeStop': 'Quitar la parada {number}',
   'colorRamp.add': 'Agregar parada',
+  // Agent presence on the canvas
+  'agent.byAgent': 'por {name}',
+  'agent.editing': '{name} · editando',
+  'agent.adding': 'agregando…',
+  'agent.offscreen': '{name} está trabajando acá',
+  'agent.stepAnnouncement': '{name}: {step}',
 } satisfies Messages

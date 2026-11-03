@@ -13,6 +13,7 @@ import type {
   OnNodesChange,
 } from '@xyflow/react'
 
+import { AgentPresenceLayer } from '@/features/agent/agent-presence-layer'
 import type { MessageKey, Translate } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
 
@@ -136,6 +137,8 @@ export function GraphCanvas({
           size={1}
           color="var(--border)"
         />
+        {/* Before the controls: over the nodes, under the panels, and its pointer tabs first. */}
+        <AgentPresenceLayer />
         <CanvasControls />
       </ReactFlow>
     </PaneContextMenu>
