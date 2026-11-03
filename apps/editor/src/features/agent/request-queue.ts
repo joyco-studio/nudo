@@ -6,6 +6,7 @@ import type {
   ToolName,
   ToolSpec,
 } from '@nudo-tsl/agent-protocol'
+import type { ToolGate } from './task-machine'
 import type { ToolContext, ToolHandler } from './tool-context'
 
 const SPECS_BY_NAME: ReadonlyMap<string, ToolSpec> = new Map(
@@ -32,6 +33,7 @@ async function execute(
   request: IncomingRequest,
   handlers: Partial<Record<ToolName, ToolHandler>>,
   context: Omit<ToolContext, 'agent'>,
+  gate: ToolGate,
 ): Promise<BridgeResponse> {
   const spec = SPECS_BY_NAME.get(request.tool)
   if (spec === undefined) return invalid(request.id, `Unknown tool "${request.tool}".`)
@@ -47,6 +49,10 @@ async function execute(
       return invalid(request.id, `Tool "${request.tool}" is not available.`)
     }
 
+    // Stop, busy and implicit tasks are decided here, before the handler can touch the graph.
+    const admitted = gate(spec.name, request.agent)
+    if (!admitted.ok) return failure(request.id, admitted.error)
+
     const result = await handler(parsed.data, { ...context, agent: request.agent })
     if (!result.ok) return failure(request.id, result.error)
     return { kind: 'response', id: request.id, ok: true, result: result.value }
@@ -55,17 +61,21 @@ async function execute(
   }
 }
 
-/** Runs bridge requests one at a time, in arrival order, validating args against the catalog. */
 /** A request whose tool name is not yet known to be in the catalog. */
 export type IncomingRequest = Omit<BridgeRequest, 'tool'> & { tool: string }
 
+/**
+ * Runs bridge requests one at a time, in arrival order, validating args against the catalog.
+ * `gate` (the task machine's) runs before every handler and can refuse the call.
+ */
 export function createRequestQueue(
   handlers: Partial<Record<ToolName, ToolHandler>>,
   context: Omit<ToolContext, 'agent'>,
+  gate: ToolGate,
 ): (request: IncomingRequest) => Promise<BridgeResponse> {
   let tail: Promise<unknown> = Promise.resolve()
   return (request) => {
-    const response = tail.then(() => execute(request, handlers, context))
+    const response = tail.then(() => execute(request, handlers, context, gate))
     tail = response
     return response
   }

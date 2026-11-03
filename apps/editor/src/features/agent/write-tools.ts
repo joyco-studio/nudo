@@ -44,22 +44,9 @@ import { relabelProperty } from '@/store/property-slice'
 import { placeForAgent } from './agent-placement'
 import { defineHandler } from './define-handler'
 import type { AgentGraph } from './agent-graph-view'
+import type { WriteToolName } from './tool-kinds'
 import type { ConfirmKind, ToolContext, ToolHandler } from './tool-context'
-
-type WriteToolName =
-  | 'add_node'
-  | 'remove_nodes'
-  | 'move_nodes'
-  | 'connect'
-  | 'disconnect'
-  | 'set_input'
-  | 'set_param'
-  | 'add_property'
-  | 'set_property'
-  | 'remove_property'
-  | 'tidy_up'
-  | 'new_graph'
-  | 'load_template'
+import { markAgentWrite } from './undo-all'
 
 type WriteResult<T extends object = object> = Result<
   T & { errors: AgentGraph['errors'] },
@@ -167,7 +154,7 @@ const addNodeTool = defineHandler('add_node', async ({ type, position }, context
         { kind: 'point', position: spot },
         { ghost: { type, position: spot } },
       ),
-    () => useEditorStore.getState().addNode(type, spot),
+    () => markAgentWrite(() => useEditorStore.getState().addNode(type, spot)),
   )
   if (nodeId === null) return invalid(`Node type "${type}" cannot be added directly.`)
   context.onTouch({ nodeId, created: true })
@@ -190,7 +177,9 @@ const removeNodes = defineHandler('remove_nodes', async ({ ids }, context) => {
     () => {
       const gone = missing()
       if (gone !== null) return gone
-      useEditorStore.getState().removeNodes(nodeIds)
+      markAgentWrite(() => {
+        useEditorStore.getState().removeNodes(nodeIds)
+      })
       return null
     },
   )
@@ -221,7 +210,9 @@ const moveNodes = defineHandler('move_nodes', async ({ positions }, context) => 
     () => {
       const gone = missing()
       if (gone !== null) return gone
-      useEditorStore.getState().commitMove(Object.fromEntries(entries))
+      markAgentWrite(() => {
+        useEditorStore.getState().commitMove(Object.fromEntries(entries))
+      })
       return null
     },
   )
@@ -276,7 +267,7 @@ const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }
     () => {
       const stale = connectProblem(from, to)
       if (stale !== null) return stale
-      const connection = useEditorStore.getState().connect(from, to)
+      const connection = markAgentWrite(() => useEditorStore.getState().connect(from, to))
       return connection.ok ? null : rejected(connection.reason)
     },
   )
@@ -295,7 +286,9 @@ const disconnectTool = defineHandler('disconnect', ({ edgeIds }, context) => {
       notFound('Some edges do not exist.', { edgeIds: Object.keys(graph.edges) }),
     )
   }
-  useEditorStore.getState().disconnect(edgeIds.map(asEdgeId))
+  markAgentWrite(() => {
+    useEditorStore.getState().disconnect(edgeIds.map(asEdgeId))
+  })
   for (const edge of edges) if (edge !== undefined) touchEdited(context, edge.to.nodeId)
   return Promise.resolve(succeed({ disconnected: edgeIds }))
 })
@@ -328,7 +321,9 @@ const setInput = defineHandler(
       () => {
         const stale = inputProblem(ref, value)
         if (stale !== null) return stale
-        useEditorStore.getState().setInputValue(ref, value)
+        markAgentWrite(() => {
+          useEditorStore.getState().setInputValue(ref, value)
+        })
         return null
       },
     )
@@ -363,7 +358,9 @@ const setParamTool = defineHandler(
       () => {
         const stale = paramProblem(ref, value)
         if (stale !== null) return stale
-        useEditorStore.getState().setParam(ref, value)
+        markAgentWrite(() => {
+          useEditorStore.getState().setParam(ref, value)
+        })
         return null
       },
     )
@@ -381,19 +378,21 @@ function applyPropertyEdit(
   edit: (graph: Graph) => Result<Graph, PropertyError>,
 ): Result<never, AgentError> | null {
   const captured: { refusal: PropertyError | null } = { refusal: null }
-  const reason = useEditorStore.getState().applyGraphChange((graph) => {
-    const result = edit(graph)
-    if (result.ok) return result
-    captured.refusal = result.error
-    return err(result.error.code)
-  })
+  const reason = markAgentWrite(() =>
+    useEditorStore.getState().applyGraphChange((graph) => {
+      const result = edit(graph)
+      if (result.ok) return result
+      captured.refusal = result.error
+      return err(result.error.code)
+    }),
+  )
   if (reason === null) return null
   return captured.refusal === null ? invalid(reason) : fromPropertyError(captured.refusal)
 }
 
 const addPropertyTool = defineHandler('add_property', ({ kind, name }) => {
   if (name === undefined) {
-    const id = useEditorStore.getState().addProperty(kind)
+    const id = markAgentWrite(() => useEditorStore.getState().addProperty(kind))
     if (id === null) return Promise.resolve(invalid('The property could not be added.'))
     return Promise.resolve(succeed({ id }))
   }
@@ -456,7 +455,9 @@ const removePropertyTool = defineHandler('remove_property', ({ id: rawId }) => {
   const id = asPropertyId(rawId)
   if (findProperty(id) === undefined)
     return Promise.resolve(fromPropertyError({ code: 'property-not-found', id }))
-  useEditorStore.getState().removeProperty(id)
+  markAgentWrite(() => {
+    useEditorStore.getState().removeProperty(id)
+  })
   return Promise.resolve(succeed({ id: rawId }))
 })
 
@@ -476,7 +477,9 @@ async function isReplacementConfirmed(context: ToolContext, kind: ConfirmKind): 
 
 const newGraph = defineHandler('new_graph', async (_args, context) => {
   if (!(await isReplacementConfirmed(context, 'new_graph'))) return declined('new_graph')
-  useEditorStore.getState().resetGraph()
+  markAgentWrite(() => {
+    useEditorStore.getState().resetGraph()
+  })
   return succeed({})
 })
 
@@ -490,7 +493,8 @@ const loadTemplate = defineHandler('load_template', async ({ id }, context) => {
   }
   if (!(await isReplacementConfirmed(context, 'load_template'))) return declined('load_template')
   const locale = readInitialLocale(window.localStorage, window.navigator.language)
-  if (!(await openExample(example, locale))) return invalid(`Template "${id}" could not be opened.`)
+  if (!(await openExample(example, locale, undefined, markAgentWrite)))
+    return invalid(`Template "${id}" could not be opened.`)
   return succeed({ id })
 })
 

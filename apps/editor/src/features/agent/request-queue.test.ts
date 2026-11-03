@@ -1,8 +1,9 @@
 import type { BridgeRequest } from '@nudo-tsl/agent-protocol'
-import { ok } from '@nudo-tsl/core'
+import { err, ok } from '@nudo-tsl/core'
 import { describe, expect, it, vi } from 'vitest'
 import { immediateChoreograph } from './choreography'
 import { createRequestQueue } from './request-queue'
+import type { ToolGate } from './task-machine'
 import type { ToolHandler } from './tool-context'
 
 const AGENT = { sessionId: 's1', name: 'agent' }
@@ -13,6 +14,8 @@ const context = {
   tidyUp: () => Promise.resolve(),
   confirm: () => Promise.resolve(true),
 }
+
+const admitAll: ToolGate = () => ok(undefined)
 
 const request = (id: string, tool: BridgeRequest['tool'], args: unknown = {}): BridgeRequest => ({
   kind: 'request',
@@ -38,7 +41,7 @@ describe('request queue', () => {
       events.push('second:start')
       return Promise.resolve(ok(2))
     }
-    const queue = createRequestQueue({ get_graph: first, get_code: second }, context)
+    const queue = createRequestQueue({ get_graph: first, get_code: second }, context, admitAll)
 
     const a = queue(request('a', 'get_graph'))
     const b = queue(request('b', 'get_code'))
@@ -55,7 +58,7 @@ describe('request queue', () => {
 
   it('answers invalid args with code invalid and does not call the handler', async () => {
     const handler = vi.fn<ToolHandler>(() => Promise.resolve(ok(null)))
-    const queue = createRequestQueue({ add_node: handler }, context)
+    const queue = createRequestQueue({ add_node: handler }, context, admitAll)
 
     const response = await queue(request('a', 'add_node', { type: 42 }))
 
@@ -66,7 +69,7 @@ describe('request queue', () => {
   })
 
   it('answers an unknown tool with invalid', async () => {
-    const queue = createRequestQueue({}, context)
+    const queue = createRequestQueue({}, context, admitAll)
     const response = await queue({ ...request('a', 'get_graph'), tool: 'nope' })
 
     expect(response).toMatchObject({ ok: false, error: { code: 'invalid' } })
@@ -77,6 +80,7 @@ describe('request queue', () => {
     const queue = createRequestQueue(
       { get_graph: boom, get_code: () => Promise.resolve(ok('x')) },
       context,
+      admitAll,
     )
 
     const response = await queue(request('a', 'get_graph'))
@@ -86,8 +90,24 @@ describe('request queue', () => {
     expect(next).toMatchObject({ ok: true, result: 'x' })
   })
 
+  it('a refused call answers with the gate error and never reaches the handler', async () => {
+    const handler = vi.fn<ToolHandler>(() => Promise.resolve(ok(null)))
+    const gate = vi.fn<ToolGate>(() => err({ code: 'stopped_by_user', message: 'stopped' }))
+    const queue = createRequestQueue({ add_node: handler }, context, gate)
+
+    const response = await queue(request('a', 'add_node', { type: 'math/add' }))
+
+    expect(gate).toHaveBeenCalledWith('add_node', AGENT)
+    expect(handler).not.toHaveBeenCalled()
+    expect(response).toMatchObject({ id: 'a', ok: false, error: { code: 'stopped_by_user' } })
+  })
+
   it('a validation that throws does not poison the queue', async () => {
-    const queue = createRequestQueue({ get_code: () => Promise.resolve(ok('x')) }, context)
+    const queue = createRequestQueue(
+      { get_code: () => Promise.resolve(ok('x')) },
+      context,
+      admitAll,
+    )
     const brokenRequest = request('a', 'get_code')
     Object.defineProperty(brokenRequest, 'args', {
       get: () => {

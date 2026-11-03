@@ -17,6 +17,7 @@ describe('agent slice', () => {
       steps: [{ label: 'Add node', detail: null, state: 'current' }],
       status: 'active',
       createdNodeIds: [asNodeId('n1')],
+      summary: null,
     })
     state().setAgentPresence({
       target: { kind: 'point', position: { x: 1, y: 2 } },

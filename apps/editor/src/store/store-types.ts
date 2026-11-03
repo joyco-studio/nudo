@@ -199,6 +199,8 @@ export interface AgentTask {
   steps: readonly AgentStep[]
   status: 'active' | 'stopped' | 'finished'
   createdNodeIds: readonly NodeId[]
+  /** What the agent said it did when it finished, kept so the panel can show it afterwards. */
+  summary: string | null
 }
 
 /** Where the agent's cursor is on the canvas, with the node or wire it is about to draw. */
