@@ -11,11 +11,12 @@ const context = {
   choreograph: immediateChoreograph,
   onTouch: () => undefined,
   lastTouched: () => null,
+  canWrite: () => ok(undefined),
   tidyUp: () => Promise.resolve(),
   confirm: () => Promise.resolve(true),
 }
 
-const admitAll: ToolGate = () => ok(undefined)
+const admitAll: ToolGate = { admit: () => ok(undefined), settle: () => undefined }
 
 const request = (id: string, tool: BridgeRequest['tool'], args: unknown = {}): BridgeRequest => ({
   kind: 'request',
@@ -92,14 +93,31 @@ describe('request queue', () => {
 
   it('a refused call answers with the gate error and never reaches the handler', async () => {
     const handler = vi.fn<ToolHandler>(() => Promise.resolve(ok(null)))
-    const gate = vi.fn<ToolGate>(() => err({ code: 'stopped_by_user', message: 'stopped' }))
-    const queue = createRequestQueue({ add_node: handler }, context, gate)
+    const admit = vi.fn<ToolGate['admit']>(() =>
+      err({ code: 'stopped_by_user', message: 'stopped' }),
+    )
+    const settle = vi.fn<ToolGate['settle']>()
+    const queue = createRequestQueue({ add_node: handler }, context, { admit, settle })
 
     const response = await queue(request('a', 'add_node', { type: 'math/add' }))
 
-    expect(gate).toHaveBeenCalledWith('add_node', AGENT)
+    expect(admit).toHaveBeenCalledWith('add_node', AGENT)
+    expect(settle).not.toHaveBeenCalled()
     expect(handler).not.toHaveBeenCalled()
     expect(response).toMatchObject({ id: 'a', ok: false, error: { code: 'stopped_by_user' } })
+  })
+
+  it('the gate hears that an admitted handler settled, even when it throws', async () => {
+    const settle = vi.fn<ToolGate['settle']>()
+    const queue = createRequestQueue(
+      { get_graph: () => Promise.reject(new Error('boom')) },
+      context,
+      { admit: () => ok(undefined), settle },
+    )
+
+    await queue(request('a', 'get_graph'))
+
+    expect(settle).toHaveBeenCalledWith(AGENT)
   })
 
   it('a validation that throws does not poison the queue', async () => {

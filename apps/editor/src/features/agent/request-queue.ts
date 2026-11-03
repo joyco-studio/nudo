@@ -50,12 +50,16 @@ async function execute(
     }
 
     // Stop, busy and implicit tasks are decided here, before the handler can touch the graph.
-    const admitted = gate(spec.name, request.agent)
+    const admitted = gate.admit(spec.name, request.agent)
     if (!admitted.ok) return failure(request.id, admitted.error)
 
-    const result = await handler(parsed.data, { ...context, agent: request.agent })
-    if (!result.ok) return failure(request.id, result.error)
-    return { kind: 'response', id: request.id, ok: true, result: result.value }
+    try {
+      const result = await handler(parsed.data, { ...context, agent: request.agent })
+      if (!result.ok) return failure(request.id, result.error)
+      return { kind: 'response', id: request.id, ok: true, result: result.value }
+    } finally {
+      gate.settle(request.agent)
+    }
   } catch (thrown) {
     return invalid(request.id, describeThrown(thrown))
   }
@@ -66,7 +70,8 @@ export type IncomingRequest = Omit<BridgeRequest, 'tool'> & { tool: string }
 
 /**
  * Runs bridge requests one at a time, in arrival order, validating args against the catalog.
- * `gate` (the task machine's) runs before every handler and can refuse the call.
+ * `gate` (the task machine's) admits every call before its handler, and can refuse it, and is told
+ * when the handler settles.
  */
 export function createRequestQueue(
   handlers: Partial<Record<ToolName, ToolHandler>>,

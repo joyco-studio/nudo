@@ -1,5 +1,5 @@
 import { generateModule } from '@nudo-tsl/codegen'
-import { MASTER_NODE_ID, asEdgeId, asNodeId, createGraph, float } from '@nudo-tsl/core'
+import { MASTER_NODE_ID, asEdgeId, asNodeId, createGraph, float, ok } from '@nudo-tsl/core'
 import type { NodeId } from '@nudo-tsl/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEditorStore } from '@/store/editor-store'
@@ -26,6 +26,7 @@ function createHarness(overrides: Partial<ToolContext> = {}): Harness {
     choreograph: immediateChoreograph,
     onTouch: (touch) => touches.push(touch),
     lastTouched: () => touches.at(-1)?.nodeId ?? null,
+    canWrite: () => ok(undefined),
     tidyUp: () => {
       calls.push('tidy')
       return Promise.resolve()

@@ -45,7 +45,7 @@ import { placeForAgent } from './agent-placement'
 import { defineHandler } from './define-handler'
 import type { AgentGraph } from './agent-graph-view'
 import type { WriteToolName } from './tool-kinds'
-import type { ConfirmKind, ToolContext, ToolHandler } from './tool-context'
+import type { CommitWrite, ConfirmKind, ToolContext, ToolHandler } from './tool-context'
 import { markAgentWrite } from './undo-all'
 
 type WriteResult<T extends object = object> = Result<
@@ -99,20 +99,43 @@ function fromPropertyError(error: PropertyError): Result<never, AgentError> {
   return invalid(`The property edit was rejected: ${error.code}.`, error)
 }
 
-type Problem = Result<never, AgentError> | null
+type Refusal = Result<never, AgentError>
+type Problem = Refusal | null
 
 /**
- * Moves the cursor, then runs the edit. The graph can change while the cursor travels, so every
- * edit re-validates its target and answers with a problem instead of silently doing nothing.
- * The cursor always rests after. */
+ * Why the agent may not write now, if it may not. The gate already admitted the call, but the
+ * person can press Stop while the cursor travels or a confirmation is open, so every commit that
+ * follows an await asks again.
+ */
+function writeRefusal(context: ToolContext): Problem {
+  const allowed = context.canWrite(context.agent)
+  return allowed.ok ? null : allowed
+}
+
+/** A `CommitWrite` that refuses after Stop and remembers why, for handlers that commit late. */
+function guardedCommit(context: ToolContext): { commit: CommitWrite; refusal: () => Problem } {
+  let refusal: Problem = null
+  const commit: CommitWrite = (write) => {
+    refusal = writeRefusal(context)
+    if (refusal !== null) return false
+    markAgentWrite(write)
+    return true
+  }
+  return { commit, refusal: () => refusal }
+}
+
+/**
+ * Moves the cursor, then runs the edit, unless the agent was stopped meanwhile. The graph can
+ * change while the cursor travels, so every edit re-validates its target and answers with a
+ * problem instead of silently doing nothing. The cursor always rests after. */
 async function atCursor<T>(
   context: ToolContext,
   arrive: () => Promise<void>,
   edit: () => T,
-): Promise<T> {
+): Promise<T | Refusal> {
   try {
     await arrive()
-    return edit()
+    return writeRefusal(context) ?? edit()
   } finally {
     context.choreograph.settle()
   }
@@ -157,6 +180,7 @@ const addNodeTool = defineHandler('add_node', async ({ type, position }, context
     () => markAgentWrite(() => useEditorStore.getState().addNode(type, spot)),
   )
   if (nodeId === null) return invalid(`Node type "${type}" cannot be added directly.`)
+  if (typeof nodeId !== 'string') return nodeId
   context.onTouch({ nodeId, created: true })
   return succeed({ nodeId })
 })
@@ -462,8 +486,9 @@ const removePropertyTool = defineHandler('remove_property', ({ id: rawId }) => {
 })
 
 const tidyUp = defineHandler('tidy_up', async (_args, context) => {
-  await context.tidyUp()
-  return succeed({})
+  const guard = guardedCommit(context)
+  await context.tidyUp(guard.commit)
+  return guard.refusal() ?? succeed({})
 })
 
 const declined = (kind: ConfirmKind): Result<never, AgentError> =>
@@ -477,10 +502,11 @@ async function isReplacementConfirmed(context: ToolContext, kind: ConfirmKind): 
 
 const newGraph = defineHandler('new_graph', async (_args, context) => {
   if (!(await isReplacementConfirmed(context, 'new_graph'))) return declined('new_graph')
-  markAgentWrite(() => {
+  const guard = guardedCommit(context)
+  guard.commit(() => {
     useEditorStore.getState().resetGraph()
   })
-  return succeed({})
+  return guard.refusal() ?? succeed({})
 })
 
 const loadTemplate = defineHandler('load_template', async ({ id }, context) => {
@@ -493,8 +519,11 @@ const loadTemplate = defineHandler('load_template', async ({ id }, context) => {
   }
   if (!(await isReplacementConfirmed(context, 'load_template'))) return declined('load_template')
   const locale = readInitialLocale(window.localStorage, window.navigator.language)
-  if (!(await openExample(example, locale, undefined, markAgentWrite)))
-    return invalid(`Template "${id}" could not be opened.`)
+  const guard = guardedCommit(context)
+  const isOpened = await openExample(example, locale, undefined, guard.commit)
+  const refusal = guard.refusal()
+  if (refusal !== null) return refusal
+  if (!isOpened) return invalid(`Template "${id}" could not be opened.`)
   return succeed({ id })
 })
 

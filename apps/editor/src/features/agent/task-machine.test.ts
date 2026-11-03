@@ -1,4 +1,4 @@
-import type { BridgeRequest } from '@nudo-tsl/agent-protocol'
+import type { AgentIdentity, BridgeRequest, ToolName } from '@nudo-tsl/agent-protocol'
 import { createGraph } from '@nudo-tsl/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEditorStore } from '@/store/editor-store'
@@ -25,6 +25,41 @@ function sharedContext(): Omit<ToolContext, 'agent'> {
 }
 
 const contextFor = (agent: ToolContext['agent']): ToolContext => ({ agent, ...sharedContext() })
+
+/** One whole tool call as the queue makes it: admitted, then settled at once. */
+function call(tool: ToolName, agent: AgentIdentity) {
+  const admitted = machine.gate.admit(tool, agent)
+  if (admitted.ok) machine.gate.settle(agent)
+  return admitted
+}
+
+interface Deferred<T> {
+  promise: Promise<T>
+  resolve: (value: T) => void
+}
+
+function deferred<T>(): Deferred<T> {
+  let resolve: (value: T) => void = () => undefined
+  const promise = new Promise<T>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
+const writeRequest = (tool: ToolName, args: unknown): BridgeRequest => ({
+  kind: 'request',
+  id: tool,
+  tool,
+  args,
+  agent: FIRST,
+})
+
+/** A graph with a node in it, so replacing it asks the person first. */
+function graphWithWork() {
+  useEditorStore.getState().addNode('math/add', { x: 0, y: 0 })
+  useEditorStore.temporal.getState().clear()
+  return useEditorStore.getState().graph
+}
 
 beforeEach(() => {
   useEditorStore.setState({ graph: createGraph(), agentTask: null })
@@ -113,15 +148,15 @@ describe('task machine', () => {
     const started = await machine.taskTools.start_task({ prompt: 'mine' }, contextFor(SECOND))
     expect(started).toMatchObject({ ok: false, error: { code: 'busy' } })
     expect(task()?.agent).toEqual(FIRST)
-    expect(machine.gate('get_graph', SECOND).ok).toBe(true)
+    expect(call('get_graph', SECOND).ok).toBe(true)
   })
 
   it('the implicit task finishes after 60s idle', () => {
     vi.useFakeTimers()
-    expect(machine.gate('add_node', FIRST).ok).toBe(true)
+    expect(call('add_node', FIRST).ok).toBe(true)
 
     vi.advanceTimersByTime(IMPLICIT_TASK_IDLE_MS / 2)
-    machine.gate('get_graph', FIRST)
+    call('get_graph', FIRST)
     vi.advanceTimersByTime(IMPLICIT_TASK_IDLE_MS - 1)
     expect(task()?.status).toBe('active')
 
@@ -175,5 +210,103 @@ describe('task machine', () => {
 
     expect(task()?.createdNodeIds).toEqual([])
     expect(machine.contextHooks.lastTouched()).toBeNull()
+  })
+})
+
+describe('task machine around in-flight writes', () => {
+  it('Stop pressed while the cursor travels refuses the write and leaves the graph alone', async () => {
+    const arrived = deferred<undefined>()
+    const travel = deferred<undefined>()
+    const queue = createRequestQueue(
+      writeTools,
+      {
+        ...sharedContext(),
+        choreograph: {
+          arrive: () => {
+            arrived.resolve(undefined)
+            return travel.promise
+          },
+          settle: () => undefined,
+        },
+      },
+      machine.gate,
+    )
+    const before = useEditorStore.getState().graph
+
+    const pending = queue(writeRequest('add_node', { type: 'math/add', position: { x: 0, y: 0 } }))
+    await arrived.promise
+    machine.stopAgent()
+    travel.resolve(undefined)
+
+    expect(await pending).toMatchObject({ ok: false, error: { code: 'stopped_by_user' } })
+    expect(useEditorStore.getState().graph).toBe(before)
+  })
+
+  it('Stop pressed while new_graph waits for confirmation refuses the reset', async () => {
+    const before = graphWithWork()
+    const asked = deferred<undefined>()
+    const answer = deferred<boolean>()
+    const queue = createRequestQueue(
+      writeTools,
+      {
+        ...sharedContext(),
+        confirm: () => {
+          asked.resolve(undefined)
+          return answer.promise
+        },
+      },
+      machine.gate,
+    )
+
+    const pending = queue(writeRequest('new_graph', {}))
+    await asked.promise
+    machine.stopAgent()
+    answer.resolve(true)
+
+    expect(await pending).toMatchObject({ ok: false, error: { code: 'stopped_by_user' } })
+    expect(useEditorStore.getState().graph).toBe(before)
+  })
+
+  it('finishTask leaves a stopped task stopped, so writes stay refused', () => {
+    machine.guardWrite(FIRST, 0)
+    machine.stopAgent()
+
+    machine.finishTask('done')
+
+    expect(task()?.status).toBe('stopped')
+    expect(machine.guardWrite(FIRST, 1)).toMatchObject({
+      ok: false,
+      error: { code: 'stopped_by_user' },
+    })
+  })
+
+  it('the task does not go idle while its agent waits on a long handler', async () => {
+    vi.useFakeTimers()
+    graphWithWork()
+    const asked = deferred<undefined>()
+    const answer = deferred<boolean>()
+    const queue = createRequestQueue(
+      writeTools,
+      {
+        ...sharedContext(),
+        confirm: () => {
+          asked.resolve(undefined)
+          return answer.promise
+        },
+      },
+      machine.gate,
+    )
+
+    const pending = queue(writeRequest('new_graph', {}))
+    await asked.promise
+    vi.advanceTimersByTime(IMPLICIT_TASK_IDLE_MS * 2)
+    expect(task()?.status).toBe('active')
+
+    answer.resolve(true)
+    expect(await pending).toMatchObject({ ok: true })
+    vi.advanceTimersByTime(IMPLICIT_TASK_IDLE_MS - 1)
+    expect(task()?.status).toBe('active')
+    vi.advanceTimersByTime(1)
+    expect(task()?.status).toBe('finished')
   })
 })

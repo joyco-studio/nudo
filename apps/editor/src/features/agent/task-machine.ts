@@ -39,14 +39,23 @@ const systemClock: TaskClock = {
   },
 }
 
-export type ToolGate = (tool: ToolName, agent: AgentIdentity) => Result<void, AgentError>
+/** What the request queue asks the task machine around every tool call. */
+export interface ToolGate {
+  /** Before the handler: may refuse the call (Stop, busy) and opens implicit tasks for writes. */
+  admit: (tool: ToolName, agent: AgentIdentity) => Result<void, AgentError>
+  /** After an admitted handler settles, whatever its outcome. */
+  settle: (agent: AgentIdentity) => void
+}
 
-export type TaskContextHooks = Pick<ToolContext, 'onTouch' | 'lastTouched'>
+export type TaskContextHooks = Pick<ToolContext, 'onTouch' | 'lastTouched' | 'canWrite'>
 
 export interface TaskMachine {
   /** Runs before every write tool: Stop and busy refuse it, and no active task opens an implicit one. */
   guardWrite: (agent: AgentIdentity, now: number) => Result<void, AgentError>
-  /** Runs before every tool call: guards writes and keeps the owner's task from going idle. */
+  /**
+   * Wraps every tool call: guards writes, and keeps the owner's task from going idle, both while its
+   * handler runs (a confirmation can take longer than the idle time) and for the idle time after.
+   */
   gate: ToolGate
   stopAgent: () => void
   resumeAgent: () => void
@@ -86,6 +95,8 @@ function refusal(agent: AgentIdentity): Result<never, AgentError> | null {
 export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
   let idleTimer: TimerHandle | null = null
   let lastTouchedId: NodeId | null = null
+  /** The agent whose handler is running; its task never goes idle meanwhile. */
+  let runningAgent: AgentIdentity | null = null
 
   const cancelIdle = (): void => {
     if (idleTimer === null) return
@@ -93,10 +104,11 @@ export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
     idleTimer = null
   }
 
+  /** Finishes an active task. A stopped one stays stopped: only `resumeAgent` ends that. */
   const finishTask = (summary?: string): void => {
-    cancelIdle()
     const task = currentTask()
-    if (task === null || task.status === 'finished') return
+    if (task?.status !== 'active') return
+    cancelIdle()
     getStore().setAgentTask(completeTask(task, summary ?? null))
   }
 
@@ -105,8 +117,15 @@ export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
     if (currentTask()?.status === 'active') finishTask()
   }
 
+  const isOwnerRunning = (): boolean => {
+    const task = currentTask()
+    return runningAgent !== null && task !== null && isOwner(task, runningAgent)
+  }
+
+  /** Arms the idle timer, unless the owner's handler is running; `settle` arms it then. */
   const restartIdle = (): void => {
     cancelIdle()
+    if (isOwnerRunning()) return
     idleTimer = clock.setTimer(finishIfIdle, IMPLICIT_TASK_IDLE_MS)
   }
 
@@ -132,13 +151,20 @@ export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
     return ok(undefined)
   }
 
-  const gate: ToolGate = (tool, agent) => {
-    if (isWriteTool(tool)) {
-      const guarded = guardWrite(agent, clock.now())
-      if (!guarded.ok) return guarded
-    }
-    noteActivity(agent)
-    return ok(undefined)
+  const gate: ToolGate = {
+    admit: (tool, agent) => {
+      if (isWriteTool(tool)) {
+        const guarded = guardWrite(agent, clock.now())
+        if (!guarded.ok) return guarded
+      }
+      runningAgent = agent
+      if (isOwnerRunning()) cancelIdle()
+      return ok(undefined)
+    },
+    settle: (agent) => {
+      runningAgent = null
+      noteActivity(agent)
+    },
   }
 
   const stopAgent = (): void => {
@@ -200,6 +226,7 @@ export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
       if (!created || task?.status !== 'active') return
       getStore().setAgentTask(withCreatedNode(task, nodeId))
     },
+    canWrite: (agent) => refusal(agent) ?? ok(undefined),
     lastTouched: () => {
       if (lastTouchedId === null) return null
       return getStore().graph.nodes[lastTouchedId] === undefined ? null : lastTouchedId
@@ -239,7 +266,7 @@ export const taskMachine = createTaskMachine()
 
 export const {
   guardWrite,
-  gate: gateToolCall,
+  gate: toolGate,
   stopAgent,
   resumeAgent,
   finishTask,

@@ -1,4 +1,4 @@
-import { MASTER_NODE_TYPE } from '@nudo-tsl/core'
+import { MASTER_NODE_TYPE, ok } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
 import { immediateChoreograph } from './choreography'
 import { describeNodeTypes, readTools, type NodeTypeDescription } from './read-tools'
@@ -9,6 +9,7 @@ const context: ToolContext = {
   choreograph: immediateChoreograph,
   onTouch: () => undefined,
   lastTouched: () => null,
+  canWrite: () => ok(undefined),
   tidyUp: () => Promise.resolve(),
   confirm: () => Promise.resolve(true),
 }

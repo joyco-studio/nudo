@@ -19,8 +19,9 @@ const TEXTURES_UNSAVED_NOTICE: Notice = {
 }
 
 const alwaysWanted = (): boolean => true
-const runNow = (write: () => void): void => {
+const runNow = (write: () => void): boolean => {
   write()
+  return true
 }
 
 /** What the person should hear about the textures; a missing image outweighs an unsaved one. */
@@ -38,14 +39,15 @@ function texturesNotice(textures: TemplateTextureLoad): Notice | null {
  * only, and a notice says which; a document that doesn't parse leaves the graph alone and says so.
  * Once the textures are in, the example is dropped (the graph left alone) when the graph was
  * swapped meanwhile (replaced, reset, undone or redone) or `isStillWanted` says no (another
- * template was asked for). `commitWrite` runs the graph swap, so the agent can mark it as its own.
+ * template was asked for). `commitWrite` runs the graph swap, so the agent can mark it as its own
+ * or refuse it (Stop pressed meanwhile); a refused swap leaves everything alone and resolves false.
  * Resolves whether the example opened; never rejects.
  */
 export async function openExample(
   example: Example,
   locale: Locale,
   isStillWanted: () => boolean = alwaysWanted,
-  commitWrite: (write: () => void) => void = runNow,
+  commitWrite: (write: () => void) => boolean = runNow,
 ): Promise<boolean> {
   const graph = exampleGraph(example, locale)
   if (!graph.ok) {
@@ -56,9 +58,10 @@ export async function openExample(
   const textures = await loadTemplateTextures(example.textures, 'open')
   const store = useEditorStore.getState()
   if (store.graphGeneration !== generation || !isStillWanted()) return false
-  commitWrite(() => {
+  const isCommitted = commitWrite(() => {
     store.replaceGraph(bindTemplateTextures(graph.value, textures.bindings))
   })
+  if (!isCommitted) return false
   store.setPreviewShape(example.previewShape)
   const notice = texturesNotice(textures)
   if (notice !== null) store.showNotice(notice)
