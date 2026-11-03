@@ -4,7 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEditorStore } from '@/store/editor-store'
 import { immediateChoreograph } from './choreography'
 import { createRequestQueue } from './request-queue'
-import { IMPLICIT_TASK_IDLE_MS, STOPPED_MESSAGE, createTaskMachine } from './task-machine'
+import {
+  EXPLICIT_TASK_IDLE_MS,
+  IMPLICIT_TASK_IDLE_MS,
+  STOPPED_MESSAGE,
+  createTaskMachine,
+} from './task-machine'
 import type { TaskMachine } from './task-machine'
 import type { ToolContext } from './tool-context'
 import { writeTools } from './write-tools'
@@ -163,6 +168,33 @@ describe('task machine', () => {
     vi.advanceTimersByTime(1)
     expect(task()?.status).toBe('finished')
     expect(IMPLICIT_TASK_IDLE_MS).toBe(60_000)
+  })
+
+  it('an explicit task stays open for 10 minutes without activity', async () => {
+    vi.useFakeTimers()
+    await machine.taskTools.start_task({ prompt: 'Make it glow' }, contextFor(FIRST))
+    machine.gate.settle(FIRST)
+
+    vi.advanceTimersByTime(IMPLICIT_TASK_IDLE_MS)
+    expect(task()?.status).toBe('active')
+    vi.advanceTimersByTime(EXPLICIT_TASK_IDLE_MS - IMPLICIT_TASK_IDLE_MS - 1)
+    expect(task()?.status).toBe('active')
+
+    vi.advanceTimersByTime(1)
+    expect(task()?.status).toBe('finished')
+    expect(EXPLICIT_TASK_IDLE_MS).toBe(600_000)
+  })
+
+  it('an explicit task resumed after Stop keeps the 10 minute idle time', async () => {
+    vi.useFakeTimers()
+    await machine.taskTools.start_task({ prompt: 'Make it glow' }, contextFor(FIRST))
+    machine.stopAgent()
+    machine.resumeAgent()
+
+    vi.advanceTimersByTime(EXPLICIT_TASK_IDLE_MS - 1)
+    expect(task()?.status).toBe('active')
+    vi.advanceTimersByTime(1)
+    expect(task()?.status).toBe('finished')
   })
 
   it('set_step marks the previous step done', async () => {

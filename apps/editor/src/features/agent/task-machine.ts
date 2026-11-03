@@ -17,8 +17,14 @@ import type { TaskToolName } from './tool-kinds'
 import type { ToolContext, ToolHandler } from './tool-context'
 import { beginSnapshot } from './undo-all'
 
-/** A task with no tool call from its agent for this long finishes by itself. */
+/** An implicit task (opened by a write) with no tool call from its agent for this long finishes. */
 export const IMPLICIT_TASK_IDLE_MS = 60_000
+
+/** A task opened with `start_task` waits longer: its agent may be thinking between steps. */
+export const EXPLICIT_TASK_IDLE_MS = 600_000
+
+const idleTimeFor = (task: AgentTask | null): number =>
+  task?.implicit === false ? EXPLICIT_TASK_IDLE_MS : IMPLICIT_TASK_IDLE_MS
 
 export const STOPPED_MESSAGE = 'The person stopped you. Stop and ask them before continuing.'
 
@@ -126,7 +132,7 @@ export function createTaskMachine(clock: TaskClock = systemClock): TaskMachine {
   const restartIdle = (): void => {
     cancelIdle()
     if (isOwnerRunning()) return
-    idleTimer = clock.setTimer(finishIfIdle, IMPLICIT_TASK_IDLE_MS)
+    idleTimer = clock.setTimer(finishIfIdle, idleTimeFor(currentTask()))
   }
 
   const openTask = (opening: TaskOpening): void => {
