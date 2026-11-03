@@ -73,13 +73,13 @@ Then ask Claude Code for a shader. The agent always edits the tab you used last;
 
 ```bash
 pnpm --filter @nudo-tsl/mcp exec wrangler login
-pnpm --filter @nudo-tsl/mcp deploy
+pnpm --filter @nudo-tsl/mcp run deploy
 ```
 
 - Set `ALLOWED_ORIGINS` (in `apps/mcp/wrangler.jsonc` or as a Worker variable) to a comma-separated list of the origins that serve the editor, such as `https://nudo.example.com,http://localhost:5173`. The bridge refuses any other origin.
 - Build the editor with `VITE_NUDO_MCP_URL` set to the Worker URL, such as `https://nudo-mcp.<account>.workers.dev`. Without it the connect dialog says agent connections are not set up.
 
-For local work, run `pnpm --filter @nudo-tsl/mcp dev` (the Worker on http://localhost:8787) next to `VITE_NUDO_MCP_URL=http://localhost:8787 pnpm dev`.
+For local work, run `VITE_NUDO_MCP_URL=http://localhost:8787 pnpm dev`: it starts the editor and the Worker (`wrangler dev` on http://localhost:8787) together.
 
 ## Node catalog
 
@@ -110,7 +110,7 @@ For local work, run `pnpm --filter @nudo-tsl/mcp dev` (the Worker on http://loca
 
 The first `pnpm e2e` run needs the browser: `pnpm --filter @nudo-tsl/editor exec playwright install chromium`.
 
-`pnpm e2e` starts the editor on port 5173 and the agent Worker on port 8787, and reuses a server already running there. The agent specs need an editor built with `VITE_NUDO_MCP_URL`, so when your own `pnpm dev` is up, run them elsewhere: `E2E_PORT=5190 E2E_MCP_PORT=8790 pnpm e2e`.
+`pnpm e2e` starts the editor on port 5173 and the agent Worker on port 8787, and reuses a server already running there. The agent specs need an editor built with `VITE_NUDO_MCP_URL`, so when your own `pnpm dev` is up (editor on 5173, Worker on 8787), run them on ports of their own: `E2E_PORT=5190 E2E_MCP_PORT=8790 pnpm e2e`.
 
 ## Packages
 
