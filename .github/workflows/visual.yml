@@ -1,0 +1,65 @@
+name: Visual snapshots
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Keep in sync with the exact @playwright/test version in pnpm-lock.yaml.
+    container: mcr.microsoft.com/playwright:v1.64.1-noble
+    env:
+      CI: '1'
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Run provenance and acceptance use the branch SHA, not a temporary merge SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify browser image matches lockfile
+        run: test "$(pnpm --filter @nudo-tsl/editor exec node -p "require('@playwright/test/package.json').version")" = "1.64.1"
+      - run: node --test scripts/visual-accept.test.mjs
+      - run: pnpm visual:test
+      - name: Collect review candidates
+        if: ${{ !cancelled() }}
+        run: node scripts/visual-artifacts.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: visual-candidates
+          path: apps/editor/test-results/visual-review/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: visual-report
+          path: |
+            apps/editor/playwright-report/visual/
+            apps/editor/test-results/visual/
+          retention-days: 14
+      - name: Review instructions
+        if: ${{ !cancelled() }}
+        run: |
+          echo '### Review visual changes' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Download visual-report to inspect expected, actual and diff images. Missing baselines need an initial human review.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'After checking out this exact branch commit, accept only intentional cases:' >> "$GITHUB_STEP_SUMMARY"
+          echo '\`node scripts/visual-accept.mjs ${{ github.run_id }} ink-swirl\`' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Commit the selected PNGs to the PR branch. CI never approves or commits reference images.' >> "$GITHUB_STEP_SUMMARY"

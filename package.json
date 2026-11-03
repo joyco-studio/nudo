@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Open-source node-based editor for three.js shading language (TSL) shaders.",
   "license": "MIT",
-  "author": "Alejo Pequeño",
+  "author": "Alejo Peque\u00f1o",
   "packageManager": "pnpm@11.0.3",
   "engines": {
     "node": ">=22"
@@ -19,7 +19,9 @@
     "e2e": "turbo run e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "visual:test": "pnpm --filter @nudo-tsl/editor visual:test",
+    "visual:update": "pnpm --filter @nudo-tsl/editor visual:update"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

@@ -26,7 +26,15 @@ const restrictImports = ({ packages, allowedInternal, reason }) => ({
 })
 
 export default defineConfig(
-  globalIgnores(['**/dist/**', '**/.turbo/**', '**/coverage/**', '**/node_modules/**', 'docs/**']),
+  globalIgnores([
+    '**/dist/**',
+    '**/.turbo/**',
+    '**/coverage/**',
+    '**/node_modules/**',
+    'docs/**',
+    '**/playwright-report/**',
+    '**/test-results/**',
+  ]),
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
