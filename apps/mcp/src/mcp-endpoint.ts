@@ -32,7 +32,7 @@ const BAD_IMAGE_MESSAGE = 'The nudo tab returned a preview image in an unexpecte
  * as returning `never` because its `unknown` args and result are not provably serializable; the
  * stub is still assignable here, and at runtime `dispatch` resolves to a `DispatchResult`.
  */
-interface Room {
+export interface Room {
   dispatch: (request: DispatchRequest) => Promise<DispatchResult>
   registerSession: (sessionId: string, clientName: string) => Promise<void>
   clientName: (sessionId: string) => Promise<string | null>
@@ -98,22 +98,36 @@ const resolveAgent = async (room: Room, sessionId: string): Promise<AgentIdentit
   return { sessionId, name: name === null || name === '' ? FALLBACK_AGENT_NAME : name }
 }
 
+const describeThrown = (thrown: unknown): string =>
+  thrown instanceof Error ? thrown.message : String(thrown)
+
+/**
+ * Forwards one tool call to the room. A thrown RPC (the Durable Object was reset or the network
+ * dropped) is a lost connection to the tab, not a server failure: the agent sees `not_connected`
+ * with the reason and can call again.
+ */
+export const callTool = async (
+  room: Room,
+  sessionId: string,
+  spec: ToolSpec,
+  args: unknown,
+): Promise<CallToolResult> => {
+  try {
+    const agent = await resolveAgent(room, sessionId)
+    const result = await room.dispatch({ tool: spec.name, args, agent, timeoutMs: spec.timeoutMs })
+    return toToolResult(spec.name, result)
+  } catch (thrown) {
+    return { isError: true, content: [textContent(`not_connected: ${describeThrown(thrown)}`)] }
+  }
+}
+
 const createServer = (room: Room, sessionId: string): McpServer => {
   const server = new McpServer(SERVER_INFO)
   for (const spec of TOOL_CATALOG) {
     server.registerTool(
       spec.name,
       { description: spec.description, inputSchema: spec.args },
-      async (args: unknown): Promise<CallToolResult> => {
-        const agent = await resolveAgent(room, sessionId)
-        const result = await room.dispatch({
-          tool: spec.name,
-          args,
-          agent,
-          timeoutMs: spec.timeoutMs,
-        })
-        return toToolResult(spec.name, result)
-      },
+      (args: unknown): Promise<CallToolResult> => callTool(room, sessionId, spec, args),
     )
   }
   return server

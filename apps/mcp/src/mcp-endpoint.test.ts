@@ -3,6 +3,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { exports } from 'cloudflare:workers'
 import { afterEach, describe, expect, it } from 'vitest'
+import { callTool, type Room } from './mcp-endpoint'
 import { connectTab } from './testing/bridge-socket'
 
 const MCP_URL = 'https://nudo-mcp.test/mcp'
@@ -182,5 +183,44 @@ describe('MCP endpoint', () => {
     expect(result.isError).toBeFalsy()
     expect(result.content).toEqual([{ type: 'image', mimeType: 'image/png', data: PNG_BASE64 }])
     tab.close()
+  })
+})
+
+describe('callTool', () => {
+  const getGraph = TOOL_CATALOG.find((spec) => spec.name === 'get_graph')
+  const brokenRoom = (failure: Error): Room => ({
+    dispatch: () => Promise.reject(failure),
+    registerSession: () => Promise.resolve(),
+    clientName: () => Promise.resolve('test-client'),
+  })
+
+  it('maps a thrown room RPC (a reset Durable Object) to not_connected instead of failing', async () => {
+    if (getGraph === undefined) throw new Error('get_graph is missing from the catalog')
+    const room = brokenRoom(new Error('Durable Object reset because its code was updated.'))
+
+    const result = await callTool(room, 'session-1', getGraph, {})
+
+    expect(result.isError).toBe(true)
+    expect(result.content).toEqual([
+      {
+        type: 'text',
+        text: 'not_connected: Durable Object reset because its code was updated.',
+      },
+    ])
+  })
+
+  it('maps a thrown client name lookup to not_connected too', async () => {
+    if (getGraph === undefined) throw new Error('get_graph is missing from the catalog')
+    const room: Room = {
+      ...brokenRoom(new Error('unused')),
+      clientName: () => Promise.reject(new Error('Network connection lost.')),
+    }
+
+    const result = await callTool(room, 'session-1', getGraph, {})
+
+    expect(result).toEqual({
+      isError: true,
+      content: [{ type: 'text', text: 'not_connected: Network connection lost.' }],
+    })
   })
 })
