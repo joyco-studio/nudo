@@ -656,6 +656,15 @@ export const en = {
   'agent.connect.keyWarning': 'Anyone with this key can edit your open graph.',
   'agent.connect.newKey': 'Generate new key',
   'agent.connect.newKeyHint': 'The old key stops working.',
+  'agent.connect.existingKey': 'I already have a key',
+  'agent.connect.existingKeyLabel': 'Your key',
+  'agent.connect.existingKeyHint': 'To see the key Claude Code uses, run {command} in a terminal.',
+  'agent.connect.useKey': 'Use this key',
+  'agent.connect.invalidKey':
+    "That isn't a nudo key. Paste the 43-character key or the whole command.",
+  'agent.connect.sameKey': 'This browser already uses that key.',
+  'agent.connect.keyAdopted':
+    'Key saved. This browser now uses that key, so Claude Code needs no changes.',
   'agent.connect.reload': 'Reload nudo',
   'agent.status.notConfigured': 'Agent connections are not set up in this copy of nudo.',
   'agent.status.off': 'Not connected.',

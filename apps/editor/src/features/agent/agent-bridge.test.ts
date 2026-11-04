@@ -4,6 +4,8 @@ import type { Mock } from 'vitest'
 import { createAgentBridge } from './agent-bridge'
 import type { BridgeClient } from './bridge-client'
 
+const EXISTING_KEY = 'AbCdEfGhIjKlMnOpQrStUvWxYz0123456789-_abcde'
+
 function createMemoryStorage(): Pick<Storage, 'getItem' | 'setItem'> {
   const values = new Map<string, string>()
   return {
@@ -117,10 +119,51 @@ describe('agent bridge', () => {
     expect(clients[0]?.stop).not.toHaveBeenCalled()
   })
 
+  it('adopts an existing key: stores it, reconnects with it and notifies, like a new key', () => {
+    const { bridge, clients, storage } = setup()
+    bridge.connect()
+    const onKeyChange = vi.fn<() => void>()
+    bridge.subscribeKey(onKeyChange)
+
+    expect(bridge.adoptKey(`Bearer ${EXISTING_KEY}`)).toBe('adopted')
+
+    expect(bridge.currentKey()).toBe(EXISTING_KEY)
+    expect(storage.getItem('nudo-tsl:agent-key')).toBe(EXISTING_KEY)
+    expect(clients[0]?.stop).toHaveBeenCalledTimes(1)
+    expect(clients[1]?.key).toBe(EXISTING_KEY)
+    expect(clients[1]?.start).toHaveBeenCalledTimes(1)
+    expect(onKeyChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects input that is not a key without touching the connection', () => {
+    const { bridge, clients } = setup()
+    const key = bridge.connect()
+
+    expect(bridge.adoptKey('nope')).toBe('invalid')
+
+    expect(bridge.currentKey()).toBe(key)
+    expect(clients).toHaveLength(1)
+    expect(clients[0]?.stop).not.toHaveBeenCalled()
+  })
+
+  it('does not reconnect when the pasted key is the one in use', () => {
+    const { bridge, clients } = setup()
+    const key = bridge.connect() ?? ''
+    const onKeyChange = vi.fn<() => void>()
+    bridge.subscribeKey(onKeyChange)
+
+    expect(bridge.adoptKey(`  ${key}  `)).toBe('unchanged')
+
+    expect(clients).toHaveLength(1)
+    expect(clients[0]?.stop).not.toHaveBeenCalled()
+    expect(onKeyChange).not.toHaveBeenCalled()
+  })
+
   it('does nothing without a configured url', () => {
     const { bridge, clients } = setup(null)
     expect(bridge.connect()).toBeNull()
     expect(bridge.generateNewKey()).toBeNull()
+    expect(bridge.adoptKey(EXISTING_KEY)).toBe('unconfigured')
     bridge.resume()
     expect(clients).toHaveLength(0)
   })

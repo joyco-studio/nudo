@@ -5,9 +5,11 @@ import type { AgentTask } from '@/store/store-types'
 import {
   bridgeUrlFrom,
   chipViewOf,
+  connectCommand,
   connectionStatusKey,
   opensActivityPanel,
   chipPressFor,
+  existingKeyMessage,
   panelChangeFor,
   showsConnectionEntry,
   toSocketUrl,
@@ -97,5 +99,22 @@ describe('chipPressFor', () => {
   it('takes focus into a panel the task opened, and hides one the person has been in', () => {
     expect(chipPressFor(true, true)).toBe('focus')
     expect(chipPressFor(true, false)).toBe('collapse')
+  })
+})
+
+describe('connectCommand', () => {
+  it('adds nudo at user scope, so the command works from any folder', () => {
+    expect(connectCommand('https://w.dev', 'k1')).toBe(
+      'claude mcp add --scope user --transport http nudo https://w.dev/mcp --header "Authorization: Bearer k1"',
+    )
+  })
+})
+
+describe('existingKeyMessage', () => {
+  it('names the outcome of pasting a key', () => {
+    expect(existingKeyMessage('adopted')).toBe('agent.connect.keyAdopted')
+    expect(existingKeyMessage('unchanged')).toBe('agent.connect.sameKey')
+    expect(existingKeyMessage('invalid')).toBe('agent.connect.invalidKey')
+    expect(existingKeyMessage('unconfigured')).toBe('agent.status.notConfigured')
   })
 })

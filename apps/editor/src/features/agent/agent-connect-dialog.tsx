@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { Ref } from 'react'
 import { Check, Copy, KeyRound, RotateCw, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -15,6 +16,8 @@ import {
 } from '@/shared/ui/dialog'
 import { useEditorStore } from '@/store/editor-store'
 
+import type { KeyAdoption } from './agent-bridge'
+import { AgentExistingKeyForm } from './agent-existing-key-form'
 import { connectCommand, connectionStatusKey } from './agent-ui-model'
 
 type CopyStatus = 'idle' | 'copied' | 'failed'
@@ -34,7 +37,12 @@ const COPY_ICONS: Readonly<Record<CopyStatus, LucideIcon>> = {
   failed: X,
 }
 
-function CopyCommandButton({ command }: { command: string }) {
+interface CopyCommandButtonProps {
+  command: string
+  ref?: Ref<HTMLButtonElement>
+}
+
+function CopyCommandButton({ command, ref }: CopyCommandButtonProps) {
   const t = useT()
   const [status, setStatus] = useState<CopyStatus>('idle')
 
@@ -52,6 +60,7 @@ function CopyCommandButton({ command }: { command: string }) {
   return (
     <>
       <Button
+        ref={ref}
         variant="outline"
         size="sm"
         aria-label={t('agent.connect.copyAction')}
@@ -75,10 +84,12 @@ interface CommandBlockProps {
   url: string
   agentKey: string
   onGenerateKey: () => void
+  onAdoptKey: (input: string) => KeyAdoption
 }
 
-function CommandBlock({ url, agentKey, onGenerateKey }: CommandBlockProps) {
+function CommandBlock({ url, agentKey, onGenerateKey, onAdoptKey }: CommandBlockProps) {
   const t = useT()
+  const copyButtonRef = useRef<HTMLButtonElement | null>(null)
   const command = connectCommand(url, agentKey)
   return (
     <div className="grid gap-3">
@@ -87,7 +98,7 @@ function CommandBlock({ url, agentKey, onGenerateKey }: CommandBlockProps) {
           <code>{command}</code>
         </pre>
         <div className="flex justify-end">
-          <CopyCommandButton command={command} />
+          <CopyCommandButton ref={copyButtonRef} command={command} />
         </div>
       </div>
       <p className="flex gap-2 text-xs text-muted-foreground">
@@ -101,6 +112,12 @@ function CommandBlock({ url, agentKey, onGenerateKey }: CommandBlockProps) {
         </Button>
         <span className="text-xs text-muted-foreground">{t('agent.connect.newKeyHint')}</span>
       </div>
+      <AgentExistingKeyForm
+        onAdoptKey={onAdoptKey}
+        onAdopted={() => {
+          copyButtonRef.current?.focus()
+        }}
+      />
     </div>
   )
 }
@@ -137,13 +154,16 @@ export interface AgentConnectDialogProps {
   url: string | null
   agentKey: string | null
   onGenerateKey: () => void
+  /** Switches to a key the person already uses in another browser. */
+  onAdoptKey: (input: string) => KeyAdoption
   /** Runs after the dialog closes, in place of Radix's default, to put focus back. */
   restoreFocus: () => void
 }
 
 /**
  * How to connect an agent: the command to paste (with the key in its header), a warning that the
- * key is a secret, a way to replace the key, and the connection status in words.
+ * key is a secret, a way to replace the key or to use one this person already has, and the
+ * connection status in words.
  */
 export function AgentConnectDialog({
   open,
@@ -151,6 +171,7 @@ export function AgentConnectDialog({
   url,
   agentKey,
   onGenerateKey,
+  onAdoptKey,
   restoreFocus,
 }: AgentConnectDialogProps) {
   const t = useT()
@@ -175,7 +196,12 @@ export function AgentConnectDialog({
           ) : null}
         </DialogHeader>
         {url !== null && agentKey !== null ? (
-          <CommandBlock url={url} agentKey={agentKey} onGenerateKey={onGenerateKey} />
+          <CommandBlock
+            url={url}
+            agentKey={agentKey}
+            onGenerateKey={onGenerateKey}
+            onAdoptKey={onAdoptKey}
+          />
         ) : null}
         <ConnectionStatusLine isConfigured={isConfigured} />
       </DialogContent>

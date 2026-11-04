@@ -117,11 +117,22 @@ async function connectFromDialog(page: Page): Promise<AgentClient> {
     dialog.getByRole('status').filter({ hasText: 'Ready. Your agent can edit this tab.' }),
   ).toBeVisible()
   const command = await dialog.locator('code').innerText()
+  expect(command).toContain('claude mcp add --scope user ')
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   // Focus goes back to the control that opened the dialog.
   await expect(page.getByRole('button', { name: 'Agent connected' })).toBeFocused()
   return connectAgent(credentialsFromCommand(command))
+}
+
+/** The command the connect dialog shows, read by opening the dialog and closing it again. */
+async function connectCommandOf(page: Page): Promise<string> {
+  await page.getByRole('button', { name: 'Agent connected' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Connect an agent' })
+  const command = await dialog.locator('code').innerText()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  return command
 }
 
 async function masterId(agent: AgentClient): Promise<string> {
@@ -248,4 +259,53 @@ test('a second tab shows "working in another tab"', async ({ page, context }) =>
   await agent.callJson('start_task', { prompt: 'dither' })
   await expect(activityPanel(page)).toBeVisible()
   await expect(activityPanel(second)).toBeHidden()
+})
+
+test('another browser joins the same agent with the key pasted from the first', async ({
+  page,
+  browser,
+}) => {
+  agent = await connectFromDialog(page)
+  const firstCommand = await connectCommandOf(page)
+
+  // A separate browser profile: its own storage, so its own generated key at first.
+  const otherBrowser = await browser.newContext()
+  try {
+    const other = await otherBrowser.newPage()
+    await other.goto(new URL('/', page.url()).href)
+    await expect(graphNode(other, 'Master Stack')).toBeVisible()
+    await tabUntilFocused(other, other.getByRole('button', { name: 'Connect an agent' }))
+    await other.keyboard.press('Enter')
+    const dialog = other.getByRole('dialog', { name: 'Connect an agent' })
+    await expect(dialog.locator('code')).not.toHaveText(firstCommand)
+
+    await tabUntilFocused(other, dialog.getByRole('button', { name: 'I already have a key' }))
+    await other.keyboard.press('Enter')
+    const keyField = dialog.getByLabel('Your key')
+    await expect(keyField).toBeVisible()
+    await keyField.focus()
+    await keyField.fill('not a key')
+    await other.keyboard.press('Enter')
+    await expect(dialog.getByText("That isn't a nudo key.")).toBeVisible()
+    await expect(keyField).toBeFocused()
+
+    await keyField.fill(firstCommand)
+    await other.keyboard.press('Enter')
+    await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeFocused()
+    await expect(dialog.locator('code')).toHaveText(firstCommand)
+    await expect(dialog.getByRole('status').filter({ hasText: 'Key saved.' })).toBeVisible()
+
+    // The agent Claude Code already has now reaches the newest tab, in the other browser.
+    await expect(
+      dialog.getByRole('status').filter({ hasText: 'Ready. Your agent can edit this tab.' }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Agent in another tab' })).toBeVisible()
+    await other.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(other.getByRole('button', { name: 'Agent connected' })).toBeFocused()
+    await agent.callJson('start_task', { prompt: 'dither' })
+    await expect(activityPanel(other)).toBeVisible()
+  } finally {
+    await otherBrowser.close()
+  }
 })

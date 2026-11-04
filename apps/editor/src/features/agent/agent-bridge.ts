@@ -1,4 +1,4 @@
-import { loadKey, loadOrCreateKey, rotateKey } from './agent-key'
+import { adoptExistingKey, loadKey, loadOrCreateKey, parseAgentKey, rotateKey } from './agent-key'
 import type { KeyStorage } from './agent-key'
 import type { BridgeClient } from './bridge-client'
 
@@ -10,6 +10,12 @@ export interface AgentBridgeOptions {
   createClient: (key: string, url: string) => BridgeClient
 }
 
+/**
+ * What pasting a key the person already uses does: switches to it, finds it already in use, finds
+ * no key in the input, or nothing, because this build has no agent server.
+ */
+export type KeyAdoption = 'adopted' | 'unchanged' | 'invalid' | 'unconfigured'
+
 /** What the connect dialog needs from the bridge. */
 export interface AgentBridgeHandle {
   readonly url: string | null
@@ -18,6 +24,11 @@ export interface AgentBridgeHandle {
   readonly connect: () => string | null
   /** Replaces the key and reconnects with it; the new key, or null when unconfigured. */
   readonly generateNewKey: () => string | null
+  /**
+   * Switches to a key the person already uses in another browser (bare, `Bearer <key>` or the
+   * whole command) and reconnects with it, like `generateNewKey`; the same key changes nothing.
+   */
+  readonly adoptKey: (input: string) => KeyAdoption
   /** Calls `listener` whenever the key changes (here or in another tab). Returns the unsubscribe. */
   readonly subscribeKey: (listener: () => void) => () => void
 }
@@ -49,6 +60,12 @@ export function createAgentBridge({ url, storage, createClient }: AgentBridgeOpt
     client.start()
   }
 
+  /** Reconnects with a key that replaced the old one, and tells the listeners. */
+  const switchTo = (baseUrl: string, nextKey: string): void => {
+    startWith(baseUrl, nextKey)
+    notifyKeyChange()
+  }
+
   return {
     url,
     currentKey: () => key,
@@ -60,15 +77,27 @@ export function createAgentBridge({ url, storage, createClient }: AgentBridgeOpt
     },
     generateNewKey() {
       if (url === null) return null
-      startWith(url, rotateKey(storage))
-      notifyKeyChange()
+      switchTo(url, rotateKey(storage))
       return key
+    },
+    adoptKey(input) {
+      if (url === null) return 'unconfigured'
+      const pasted = parseAgentKey(input)
+      if (pasted === null) return 'invalid'
+      if (pasted === key) return 'unchanged'
+      const adopted = adoptExistingKey(storage, pasted)
+      if (adopted === null) return 'invalid'
+      switchTo(url, adopted)
+      return 'adopted'
     },
     syncStoredKey() {
       const stored = loadKey(storage)
       if (stored === null || stored === key) return
-      if (url === null) key = stored
-      else startWith(url, stored)
+      if (url !== null) {
+        switchTo(url, stored)
+        return
+      }
+      key = stored
       notifyKeyChange()
     },
     subscribeKey(listener) {

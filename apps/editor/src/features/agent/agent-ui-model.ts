@@ -1,6 +1,7 @@
 import type { MessageKey } from '@/i18n/translate'
 import type { AgentTask } from '@/store/store-types'
 
+import type { KeyAdoption } from './agent-bridge'
 import type { ConnectionStatus } from './bridge-client'
 
 /** What the toolbar control shows: an offer to connect, the connection, or the agent's work. */
@@ -87,9 +88,29 @@ export function connectionStatusKey(status: ConnectionStatus, isConfigured: bool
   }
 }
 
-/** The command that adds nudo to Claude Code with this key. */
+/**
+ * The command that adds nudo to Claude Code with this key, at user scope so it works from any
+ * folder.
+ */
 export function connectCommand(url: string, key: string): string {
-  return `claude mcp add --transport http nudo ${url}/mcp --header "Authorization: Bearer ${key}"`
+  return `claude mcp add --scope user --transport http nudo ${url}/mcp --header "Authorization: Bearer ${key}"`
+}
+
+/** The command that prints the nudo server Claude Code has, with the key in its header. */
+export const SHOW_KEY_COMMAND = 'claude mcp get nudo'
+
+/** What the dialog says after the person pastes a key they already use. */
+export function existingKeyMessage(adoption: KeyAdoption): MessageKey {
+  switch (adoption) {
+    case 'adopted':
+      return 'agent.connect.keyAdopted'
+    case 'unchanged':
+      return 'agent.connect.sameKey'
+    case 'invalid':
+      return 'agent.connect.invalidKey'
+    case 'unconfigured':
+      return 'agent.status.notConfigured'
+  }
 }
 
 /**

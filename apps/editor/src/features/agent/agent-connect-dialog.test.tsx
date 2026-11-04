@@ -59,6 +59,53 @@ const buttonNamed = (dialog: HTMLElement, name: string): HTMLButtonElement => {
   return found
 }
 
+function typeInto(input: HTMLInputElement, text: string): void {
+  // The prototype's setter, so React's own value tracking on the element sees a change.
+  Reflect.set(HTMLInputElement.prototype, 'value', text, input)
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
+/** Opens the "I already have a key" disclosure and returns its input. */
+function revealKeyInput(dialog: HTMLElement): HTMLInputElement {
+  const toggle = buttonNamed(dialog, 'I already have a key')
+  expect(toggle.getAttribute('aria-expanded')).toBe('false')
+  act(() => {
+    toggle.click()
+  })
+  expect(toggle.getAttribute('aria-expanded')).toBe('true')
+  const input = dialog.querySelector<HTMLInputElement>('input')
+  if (input === null) throw new Error('No key input')
+  return input
+}
+
+function submitKey(dialog: HTMLElement, input: HTMLInputElement, text: string): void {
+  act(() => {
+    input.focus()
+    typeInto(input, text)
+  })
+  act(() => {
+    buttonNamed(dialog, 'Use this key').click()
+  })
+}
+
+/** A bridge whose `adoptKey` answers `result` and, when adopted, switches to `adoptedKey`. */
+function adoptingBridge(result: ReturnType<AgentBridgeHandle['adoptKey']>, adoptedKey = 'key-1') {
+  let key = 'key-1'
+  const adoptKey = vi.fn<AgentBridgeHandle['adoptKey']>(() => {
+    if (result === 'adopted') key = adoptedKey
+    return result
+  })
+  const bridge: AgentBridgeHandle = {
+    url: URL,
+    currentKey: () => key,
+    connect: () => key,
+    generateNewKey: () => 'key-2',
+    subscribeKey: () => () => undefined,
+    adoptKey,
+  }
+  return { bridge, adoptKey }
+}
+
 describe('AgentConnectDialog', () => {
   it("the connect dialog's command contains the url and the key header", () => {
     const dialog = openDialog({
@@ -67,9 +114,10 @@ describe('AgentConnectDialog', () => {
       connect: () => 'key-1',
       generateNewKey: () => 'key-2',
       subscribeKey: () => () => undefined,
+      adoptKey: () => 'invalid',
     })
     expect(commandIn(dialog)).toBe(
-      `claude mcp add --transport http nudo ${URL}/mcp --header "Authorization: Bearer key-1"`,
+      `claude mcp add --scope user --transport http nudo ${URL}/mcp --header "Authorization: Bearer key-1"`,
     )
     expect(dialog.textContent).toContain('Anyone with this key can edit your open graph')
   })
@@ -82,6 +130,7 @@ describe('AgentConnectDialog', () => {
       connect: () => 'key-1',
       generateNewKey,
       subscribeKey: () => () => undefined,
+      adoptKey: () => 'invalid',
     })
 
     act(() => {
@@ -101,6 +150,7 @@ describe('AgentConnectDialog', () => {
       currentKey: () => key,
       connect: () => key,
       generateNewKey: () => key,
+      adoptKey: () => 'invalid',
       subscribeKey: (listener) => {
         listeners.add(listener)
         return () => {
@@ -125,6 +175,7 @@ describe('AgentConnectDialog', () => {
       connect,
       generateNewKey: () => null,
       subscribeKey: () => () => undefined,
+      adoptKey: () => 'unconfigured',
     })
     expect(dialog.textContent).toContain('not set up')
     expect(dialog.querySelector('code')).toBeNull()
@@ -138,6 +189,7 @@ describe('AgentConnectDialog', () => {
       connect: () => 'key-1',
       generateNewKey: () => 'key-2',
       subscribeKey: () => () => undefined,
+      adoptKey: () => 'invalid',
     }
     const dialog = openDialog(bridge)
     expect(dialog.textContent).toContain('Reload nudo')
@@ -146,5 +198,60 @@ describe('AgentConnectDialog', () => {
       useEditorStore.setState({ agentConnection: 'other-tab' })
     })
     expect(dialog.textContent).toContain('The agent is working in another tab')
+  })
+
+  it('reveals a labelled key field with a hint on where to find the key in use', () => {
+    const { bridge } = adoptingBridge('invalid')
+    const dialog = openDialog(bridge)
+    expect(dialog.querySelector('input')).toBeNull()
+
+    const input = revealKeyInput(dialog)
+
+    expect(input.labels?.[0]?.textContent).toBe('Your key')
+    expect(input.closest('form')).not.toBeNull()
+    expect(dialog.textContent).toContain('claude mcp get nudo')
+  })
+
+  it('says why an invalid key was refused, linked to the field, and keeps focus there', () => {
+    const { bridge, adoptKey } = adoptingBridge('invalid')
+    const dialog = openDialog(bridge)
+    const input = revealKeyInput(dialog)
+
+    submitKey(dialog, input, 'not-a-key')
+
+    expect(adoptKey).toHaveBeenCalledWith('not-a-key')
+    expect(input.getAttribute('aria-invalid')).toBe('true')
+    const errorId = (input.getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .find((id) => document.getElementById(id)?.textContent.includes("isn't a nudo key"))
+    expect(errorId).toBeDefined()
+    expect(document.activeElement).toBe(input)
+    expect(commandIn(dialog)).toContain('Bearer key-1')
+  })
+
+  it('uses a valid key: the command updates, it confirms and focus moves to Copy', () => {
+    const { bridge, adoptKey } = adoptingBridge('adopted', 'pasted-key')
+    const dialog = openDialog(bridge)
+    const input = revealKeyInput(dialog)
+
+    submitKey(dialog, input, 'Bearer pasted-key')
+
+    expect(adoptKey).toHaveBeenCalledTimes(1)
+    expect(commandIn(dialog)).toContain('Bearer pasted-key')
+    expect(dialog.textContent).toContain('This browser now uses that key')
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Copy command')
+    expect(document.activeElement).not.toBe(document.body)
+  })
+
+  it('says so when the pasted key is already the one in use, and changes nothing', () => {
+    const { bridge } = adoptingBridge('unchanged')
+    const dialog = openDialog(bridge)
+    const input = revealKeyInput(dialog)
+
+    submitKey(dialog, input, 'key-1')
+
+    expect(dialog.textContent).toContain('This browser already uses that key')
+    expect(input.getAttribute('aria-invalid')).not.toBe('true')
+    expect(commandIn(dialog)).toContain('Bearer key-1')
   })
 })

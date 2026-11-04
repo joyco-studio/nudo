@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { focusOpenerOrCanvas } from '@/shared/lib/focus-opener'
 import { useEditorStore } from '@/store/editor-store'
 
-import type { AgentBridgeHandle } from './agent-bridge'
+import type { AgentBridgeHandle, KeyAdoption } from './agent-bridge'
 import { AgentConfirmDialog } from './agent-confirm-dialog'
 import type { FocusTargetFor } from './agent-confirm-dialog'
 import { AgentConnectDialog } from './agent-connect-dialog'
@@ -114,6 +114,15 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
     setAgentKey(bridge.generateNewKey())
   }, [bridge])
 
+  const adoptKey = useCallback(
+    (input: string): KeyAdoption => {
+      const adoption = bridge.adoptKey(input)
+      if (adoption === 'adopted') setAgentKey(bridge.currentKey())
+      return adoption
+    },
+    [bridge],
+  )
+
   const restoreConnectFocus = useCallback(() => {
     focusOpenerOrCanvas(connectOpenerRef.current ?? chipElementRef.current)
   }, [])
@@ -155,6 +164,7 @@ export function AgentUiProvider({ bridge, confirmBroker, children }: AgentUiProv
         url={bridge.url}
         agentKey={agentKey}
         onGenerateKey={generateNewKey}
+        onAdoptKey={adoptKey}
         restoreFocus={restoreConnectFocus}
       />
       <AgentConfirmDialog broker={confirmBroker} focusTargetFor={confirmFocusTarget} />

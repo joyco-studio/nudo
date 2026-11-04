@@ -670,6 +670,16 @@ export const es = {
   'agent.connect.keyWarning': 'Cualquiera con esta key puede editar tu grafo abierto.',
   'agent.connect.newKey': 'Generar key nueva',
   'agent.connect.newKeyHint': 'La key anterior deja de funcionar.',
+  'agent.connect.existingKey': 'Ya tengo una key',
+  'agent.connect.existingKeyLabel': 'Tu key',
+  'agent.connect.existingKeyHint':
+    'Para ver la key que usa Claude Code, ejecutá {command} en una terminal.',
+  'agent.connect.useKey': 'Usar esta key',
+  'agent.connect.invalidKey':
+    'Eso no es una key de nudo. Pegá la key de 43 caracteres o el comando completo.',
+  'agent.connect.sameKey': 'Este navegador ya usa esa key.',
+  'agent.connect.keyAdopted':
+    'Key guardada. Este navegador ya usa esa key, así que no hace falta cambiar nada en Claude Code.',
   'agent.connect.reload': 'Recargar nudo',
   'agent.status.notConfigured':
     'Las conexiones con agents no están configuradas en esta copia de nudo.',
