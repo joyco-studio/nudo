@@ -99,6 +99,9 @@ export function connectCommand(url: string, key: string): string {
 /** The command that prints the nudo server Claude Code has, with the key in its header. */
 export const SHOW_KEY_COMMAND = 'claude mcp get nudo'
 
+/** The command that removes a nudo server added before, which `claude mcp add` refuses to replace. */
+export const REMOVE_SERVER_COMMAND = 'claude mcp remove nudo'
+
 /** What the dialog says after the person pastes a key they already use. */
 export function existingKeyMessage(adoption: KeyAdoption): MessageKey {
   switch (adoption) {

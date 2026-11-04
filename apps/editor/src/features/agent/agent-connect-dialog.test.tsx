@@ -120,6 +120,7 @@ describe('AgentConnectDialog', () => {
       `claude mcp add --scope user --transport http nudo ${URL}/mcp --header "Authorization: Bearer key-1"`,
     )
     expect(dialog.textContent).toContain('Anyone with this key can edit your open graph')
+    expect(dialog.textContent).toContain('claude mcp remove nudo')
   })
 
   it('Generate new key changes the command and calls reconnect', () => {
@@ -225,6 +226,7 @@ describe('AgentConnectDialog', () => {
       .split(' ')
       .find((id) => document.getElementById(id)?.textContent.includes("isn't a nudo key"))
     expect(errorId).toBeDefined()
+    expect(document.getElementById(errorId ?? '')?.getAttribute('role')).toBe('alert')
     expect(document.activeElement).toBe(input)
     expect(commandIn(dialog)).toContain('Bearer key-1')
   })

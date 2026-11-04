@@ -670,6 +670,8 @@ export const es = {
   'agent.connect.keyWarning': 'Cualquiera con esta key puede editar tu grafo abierto.',
   'agent.connect.newKey': 'Generar key nueva',
   'agent.connect.newKeyHint': 'La key anterior deja de funcionar.',
+  'agent.connect.alreadyAddedHint':
+    '¿Ya agregaste nudo? Ejecutá {command} primero y después pegá este comando.',
   'agent.connect.existingKey': 'Ya tengo una key',
   'agent.connect.existingKeyLabel': 'Tu key',
   'agent.connect.existingKeyHint':

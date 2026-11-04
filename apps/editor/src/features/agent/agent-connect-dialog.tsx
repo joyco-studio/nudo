@@ -3,6 +3,7 @@ import type { Ref } from 'react'
 import { Check, Copy, KeyRound, RotateCw, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
+import { RichMessage } from '@/i18n/rich-message'
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
 import { writeToClipboard } from '@/shared/lib/write-to-clipboard'
@@ -18,7 +19,7 @@ import { useEditorStore } from '@/store/editor-store'
 
 import type { KeyAdoption } from './agent-bridge'
 import { AgentExistingKeyForm } from './agent-existing-key-form'
-import { connectCommand, connectionStatusKey } from './agent-ui-model'
+import { connectCommand, connectionStatusKey, REMOVE_SERVER_COMMAND } from './agent-ui-model'
 
 type CopyStatus = 'idle' | 'copied' | 'failed'
 
@@ -100,6 +101,12 @@ function CommandBlock({ url, agentKey, onGenerateKey, onAdoptKey }: CommandBlock
         <div className="flex justify-end">
           <CopyCommandButton ref={copyButtonRef} command={command} />
         </div>
+        <p className="text-xs text-muted-foreground">
+          <RichMessage
+            messageKey="agent.connect.alreadyAddedHint"
+            values={{ command: <code className="font-mono">{REMOVE_SERVER_COMMAND}</code> }}
+          />
+        </p>
       </div>
       <p className="flex gap-2 text-xs text-muted-foreground">
         <KeyRound aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />

@@ -656,6 +656,8 @@ export const en = {
   'agent.connect.keyWarning': 'Anyone with this key can edit your open graph.',
   'agent.connect.newKey': 'Generate new key',
   'agent.connect.newKeyHint': 'The old key stops working.',
+  'agent.connect.alreadyAddedHint':
+    'Already added nudo? Run {command} first, then paste this command.',
   'agent.connect.existingKey': 'I already have a key',
   'agent.connect.existingKeyLabel': 'Your key',
   'agent.connect.existingKeyHint': 'To see the key Claude Code uses, run {command} in a terminal.',

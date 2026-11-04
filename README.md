@@ -65,7 +65,7 @@ An AI agent such as Claude Code can edit the graph in your open nudo tab while y
 claude mcp add --scope user --transport http nudo https://<your-worker>/mcp --header "Authorization: Bearer <key>"
 ```
 
-`--scope user` adds the server for every folder, not only the one you run it in. Then ask Claude Code for a shader. The agent always edits the tab you used last; other tabs say so.
+`--scope user` adds the server for every folder, not only the one you run it in. If `nudo` is already added, run `claude mcp remove nudo` first (`claude mcp add` refuses an existing name); an old per-folder entry also shadows the user one, so remove it with `claude mcp remove nudo -s local` from that folder. Then ask Claude Code for a shader. The agent always edits the tab you used last; other tabs say so.
 
 **Another browser.** Each browser makes its own key. To use nudo in a second browser with the agent you already added, open **Connect an agent** there, click **I already have a key** and paste your key (the bare key, `Bearer <key>` or the whole command all work). To see the key Claude Code uses, run `claude mcp get nudo`.
 

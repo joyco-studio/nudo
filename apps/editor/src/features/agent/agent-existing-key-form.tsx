@@ -103,7 +103,7 @@ export function AgentExistingKeyForm({ onAdoptKey, onAdopted }: AgentExistingKey
             </Button>
           </div>
           {isInvalid && adoption !== null ? (
-            <p id={errorId} className="text-xs text-destructive">
+            <p id={errorId} role="alert" className="text-xs text-destructive">
               {t(existingKeyMessage(adoption))}
             </p>
           ) : null}
