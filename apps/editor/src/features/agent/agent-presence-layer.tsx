@@ -3,7 +3,8 @@ import type { NodeId, XY } from '@nudo-tsl/core'
 import { useStore } from '@xyflow/react'
 import type { InternalNode, ReactFlowState } from '@xyflow/react'
 import { ArrowRight } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react'
+import type { MotionValue } from 'motion/react'
 
 import { NEW_NODE_SIZE } from '@/features/add-node-menu/add-node-placement'
 import { focusFlowNode } from '@/features/canvas/focus-flow-node'
@@ -15,6 +16,7 @@ import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 import type { AgentPresence, AgentTask } from '@/store/store-types'
 
+import { EDGE_INDICATOR_ATTRIBUTE, isCanvasPointShown } from './canvas-visibility'
 import {
   cssPlacement,
   edgeIndicatorWithin,
@@ -96,34 +98,98 @@ function useViewTransform(): ViewTransform {
   return { x, y, zoom }
 }
 
+/** Where the cursor is drawn inside the panned layer, as motion values the wire can follow. */
+interface CursorPosition {
+  readonly x: MotionValue<number>
+  readonly y: MotionValue<number>
+}
+
 /**
- * The arrow and name pill. The pan applies at once on the outer layer; inside it the cursor only
- * travels (animates) when the agent moves to a new target. A zoom or a dragged target node moves
- * it at once, so it never trails behind what it points at.
+ * Glides the cursor to `offset` when it travels to a new target, else puts it there at once. A new
+ * trip starts from wherever the cursor is, so a quick next step retargets instead of snapping.
+ */
+function useCursorPosition(offset: XY, travels: boolean): CursorPosition {
+  const prefersReducedMotion = useReducedMotion() === true
+  const x = useMotionValue(offset.x)
+  const y = useMotionValue(offset.y)
+  useLayoutEffect(() => {
+    const transition = cursorTransitionFor(prefersReducedMotion, travels)
+    if (transition.duration === 0) {
+      x.jump(offset.x)
+      y.jump(offset.y)
+      return
+    }
+    const trips = [animate(x, offset.x, transition), animate(y, offset.y, transition)]
+    return () => {
+      for (const trip of trips) trip.stop()
+    }
+  }, [x, y, offset.x, offset.y, travels, prefersReducedMotion])
+  return { x, y }
+}
+
+/** The wire the agent is dragging: from its port to the loose end, which rides on the cursor. */
+function PendingWire({ from, cursor }: { from: XY; cursor: CursorPosition }) {
+  const fromX = useMotionValue(from.x)
+  const fromY = useMotionValue(from.y)
+  useLayoutEffect(() => {
+    fromX.jump(from.x)
+    fromY.jump(from.y)
+  }, [fromX, fromY, from.x, from.y])
+  const path = useTransform(
+    [fromX, fromY, cursor.x, cursor.y],
+    ([startX = 0, startY = 0, endX = 0, endY = 0]: number[]) =>
+      wirePath({ x: startX, y: startY }, { x: endX, y: endY }),
+  )
+  return (
+    <svg className="absolute top-0 left-0 size-px overflow-visible">
+      <motion.path
+        d={path}
+        className="fill-none stroke-agent"
+        strokeWidth={1.5}
+        strokeDasharray="5 4"
+      />
+    </svg>
+  )
+}
+
+/**
+ * The arrow and name pill, with the wire it drags. The pan applies at once on the outer layer;
+ * inside it the cursor glides only when the agent moves to a new target. A zoom or a dragged target
+ * node moves it at once, so it never trails behind what it points at.
  */
 function AgentCursor({
   point,
+  wireFrom,
   target,
   name,
 }: {
   point: XY
+  wireFrom: XY | null
   target: AgentPresence['target']
   name: string
 }) {
   const transform = useViewTransform()
-  const prefersReducedMotion = useReducedMotion() === true
   const offset = { x: point.x * transform.zoom, y: point.y * transform.zoom }
   const [move, setMove] = useState(() => restingCursorMove(target, offset))
   const next = nextCursorMove(move, target, offset)
   if (next !== move) setMove(next)
+  const cursor = useCursorPosition(next.offset, next.travels)
+  const placement = useTransform(
+    [cursor.x, cursor.y],
+    ([x = 0, y = 0]: number[]) => `translate(${String(x)}px, ${String(y)}px)`,
+  )
   return (
     <div className="absolute top-0 left-0" style={{ transform: cssPlacement(transform) }}>
+      {wireFrom !== null && (
+        <PendingWire
+          from={{ x: wireFrom.x * transform.zoom, y: wireFrom.y * transform.zoom }}
+          cursor={cursor}
+        />
+      )}
       <motion.div
         data-agent-cursor
-        className="absolute top-0 left-0 flex items-start gap-0.5"
-        initial={false}
-        animate={{ x: next.offset.x, y: next.offset.y }}
-        transition={cursorTransitionFor(prefersReducedMotion, next.travels)}
+        className="absolute top-0 left-0 flex items-start gap-0.5 will-change-transform"
+        style={{ transform: placement }}
       >
         <svg width="14" height="16" viewBox="0 0 14 16" className="fill-agent stroke-background">
           <path d="M1 1 L1 14 L4.5 10.5 L7 15 L9 14 L6.6 9.6 L12 9.6 Z" strokeWidth="1" />
@@ -160,21 +226,6 @@ function GhostNode({ ghost }: { ghost: NonNullable<AgentPresence['ghost']> }) {
         <span className="shrink-0 text-micro text-muted-foreground">{t('agent.adding')}</span>
       </div>
     </div>
-  )
-}
-
-/** The wire the agent is drawing, from its port to the loose end at the cursor. */
-function PendingWire({ from, to }: { from: XY; to: XY }) {
-  const transform = useViewTransform()
-  return (
-    <svg className="absolute inset-0 size-full overflow-visible">
-      <path
-        d={wirePath(flowToScreen(from, transform), flowToScreen(to, transform))}
-        className="fill-none stroke-agent"
-        strokeWidth={1.5}
-        strokeDasharray="5 4"
-      />
-    </svg>
   )
 }
 
@@ -227,13 +278,13 @@ function EdgeIndicator({
   const width = useStore((state) => state.width)
   const height = useStore((state) => state.height)
   // Measured at render: the pointer must clear the panels as they are now (collapsed or resized).
-  const { insets } = measureCanvasArea()
-  const indicator = edgeIndicatorWithin(
-    flowToScreen(point, transform),
-    { width, height },
-    insets,
-    EDGE_INDICATOR_INSET_PX,
-  )
+  const { rect, insets } = measureCanvasArea()
+  const screen = flowToScreen(point, transform)
+  // The insets are whole strips (the header's spans the width), so they only place the pointer;
+  // whether the agent is in view is the browser's hit test, when it has one.
+  const shown = isCanvasPointShown({ x: rect.left + screen.x, y: rect.top + screen.y })
+  if (shown === true) return null
+  const indicator = edgeIndicatorWithin(screen, { width, height }, insets, EDGE_INDICATOR_INSET_PX)
   if (indicator === null) return null
   return (
     <EdgeIndicatorButton
@@ -260,6 +311,7 @@ function EdgeIndicatorButton({ indicator, label, name, onActivate }: EdgeIndicat
   return (
     <button
       ref={ref}
+      {...{ [EDGE_INDICATOR_ATTRIBUTE]: '' }}
       type="button"
       aria-label={label}
       onClick={onActivate}
@@ -279,16 +331,17 @@ function EdgeIndicatorButton({ indicator, label, name, onActivate }: EdgeIndicat
 function PresenceScene({ presence, task }: { presence: AgentPresence; task: AgentTask }) {
   const points = usePresencePoints(presence)
   const name = task.agent.name
-  const wireTo = presence.pendingWire?.to
   return (
     <>
       <div aria-hidden="true" className="absolute inset-0">
         {presence.ghost !== null && <GhostNode ghost={presence.ghost} />}
-        {points.wireFrom !== null && wireTo !== undefined && (
-          <PendingWire from={points.wireFrom} to={wireTo} />
-        )}
         {points.cursor !== null && (
-          <AgentCursor point={points.cursor} target={presence.target} name={name} />
+          <AgentCursor
+            point={points.cursor}
+            wireFrom={points.wireFrom}
+            target={presence.target}
+            name={name}
+          />
         )}
       </div>
       {points.cursor !== null && (

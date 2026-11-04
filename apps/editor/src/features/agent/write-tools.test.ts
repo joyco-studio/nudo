@@ -268,7 +268,7 @@ describe('connect and disconnect', () => {
     expect(getState().graph).toBe(before)
   })
 
-  it('moves the cursor to both ports, source first, with a pending wire', async () => {
+  it('reaches the source port, then drags a pending wire from it to the target port', async () => {
     const source = await addMath()
     const arrive = vi.fn(() => Promise.resolve())
     const choreograph: Choreograph = { arrive, settle: vi.fn() }
@@ -283,12 +283,10 @@ describe('connect and disconnect', () => {
     )
 
     expect(arrive).toHaveBeenCalledTimes(2)
-    expect(arrive.mock.calls[0]).toMatchObject([
-      { kind: 'port', ref: { nodeId: source, portId: 'out' } },
-      { pendingWire: { from: { nodeId: source, portId: 'out' } } },
-    ])
-    expect(arrive.mock.calls[1]).toMatchObject([
+    expect(arrive.mock.calls[0]).toEqual([{ kind: 'port', ref: { nodeId: source, portId: 'out' } }])
+    expect(arrive.mock.calls[1]).toEqual([
       { kind: 'port', ref: { nodeId: MASTER_NODE_ID, portId: 'roughness' } },
+      { pendingWire: { from: { nodeId: source, portId: 'out' } } },
     ])
   })
 

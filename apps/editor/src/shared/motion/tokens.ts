@@ -27,6 +27,8 @@ export const DURATION_MS = {
 export const EASE = {
   /** Surfaces opening and closing, position changes. */
   smoothOut: [0.22, 1, 0.36, 1],
+  /** Something travelling across the screen (the agent cursor): eases in and out of the trip. */
+  move: [0.77, 0, 0.175, 1],
   /** CSS `ease-in-out`: icon and text swaps. */
   inOut: [0.42, 0, 0.58, 1],
   /** CSS `ease-out`: tooltips. */

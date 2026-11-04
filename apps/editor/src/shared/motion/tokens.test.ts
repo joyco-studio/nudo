@@ -52,6 +52,7 @@ describe('motion tokens (transitions.dev scale, ruling P2-R12)', () => {
   it('has the exact easings', () => {
     expect(EASE).toEqual({
       smoothOut: [0.22, 1, 0.36, 1],
+      move: [0.77, 0, 0.175, 1],
       inOut: [0.42, 0, 0.58, 1],
       out: [0, 0, 0.58, 1],
       linear: 'linear',
@@ -76,6 +77,7 @@ describe('motion tokens (transitions.dev scale, ruling P2-R12)', () => {
     expect(cssToken('duration-very-slow')).toBe(`${String(DURATION_MS.verySlow)}ms`)
 
     expect(cssEase('ease-smooth-out')).toEqual(EASE.smoothOut)
+    expect(cssEase('ease-move')).toEqual(EASE.move)
     expect(cssEase('ease-in-out')).toEqual(EASE.inOut)
     expect(cssEase('ease-out')).toEqual(EASE.out)
     expect(cssEase('ease-linear')).toEqual(EASE.linear)

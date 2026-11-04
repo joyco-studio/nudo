@@ -83,13 +83,15 @@ export function nextCursorMove(
 
 /**
  * How the cursor reaches its offset: over the choreography's travel time (`DURATION_MS.slow`, the
- * same wait the tools await) when it travels to a new target, else at once. Reduced motion always
- * jumps. The keyboard modality does not apply: the agent moves the cursor, not the person.
+ * same wait the tools await, so it lands as the edit applies) when it travels to a new target,
+ * else at once. It eases in and out of the trip like a hand moving a mouse; an ease-out would
+ * cover most of the way in the first frames and read as a jump. Reduced motion always jumps. The
+ * keyboard modality does not apply: the agent moves the cursor, not the person.
  */
 export function cursorTransitionFor(
   prefersReducedMotion: boolean,
   travels: boolean,
 ): CursorTransition {
   const duration = travels && !prefersReducedMotion ? toSeconds(DURATION_MS.slow) : 0
-  return { duration, ease: EASE.smoothOut }
+  return { duration, ease: EASE.move }
 }

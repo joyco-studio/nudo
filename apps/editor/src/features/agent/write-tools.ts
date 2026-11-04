@@ -30,7 +30,6 @@ import type {
   PropertyError,
   PropertyId,
   Result,
-  XY,
 } from '@nudo-tsl/core'
 import { PROPERTY_KIND_SPECS } from '@/features/blackboard/property-kinds'
 import { listedExamples } from '@/examples'
@@ -141,9 +140,6 @@ async function atCursor<T>(
     context.choreograph.settle()
   }
 }
-
-const nodePosition = (graph: Graph, nodeId: NodeId): XY =>
-  graph.nodes[nodeId]?.position ?? { x: 0, y: 0 }
 
 const toPortRef = (endpoint: { nodeId: string; portId: string }): PortRef => ({
   nodeId: asNodeId(endpoint.nodeId),
@@ -278,16 +274,13 @@ const connectTool = defineHandler('connect', async ({ from: rawFrom, to: rawTo }
   const to = toPortRef(rawTo)
   const early = connectProblem(from, to)
   if (early !== null) return early
-  const graph = currentGraph()
 
   const problem = await atCursor(
     context,
     async () => {
-      await context.choreograph.arrive(
-        { kind: 'port', ref: from },
-        { pendingWire: { from, to: nodePosition(graph, to.nodeId) } },
-      )
-      await context.choreograph.arrive({ kind: 'port', ref: to })
+      // Reach for the output, then drag the wire out of it to the input, like a person would.
+      await context.choreograph.arrive({ kind: 'port', ref: from })
+      await context.choreograph.arrive({ kind: 'port', ref: to }, { pendingWire: { from } })
     },
     () => {
       const stale = connectProblem(from, to)

@@ -210,7 +210,8 @@ export interface AgentPresence {
     | { kind: 'port'; ref: PortRef }
     | { kind: 'point'; position: XY }
   ghost: { type: NodeTypeId; position: XY } | null
-  pendingWire: { from: PortRef; to: XY } | null
+  /** A wire being dragged out of `from`; its loose end follows the cursor. */
+  pendingWire: { from: PortRef } | null
 }
 
 /** Agent state is live session state: it is never part of the undo history. */

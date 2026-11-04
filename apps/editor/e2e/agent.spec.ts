@@ -102,6 +102,10 @@ function edges(page: Page): Locator {
   return page.locator('.react-flow__edge-path')
 }
 
+/** The `claude mcp add` command in the connect dialog (it also shows `claude mcp remove`). */
+const addCommand = (dialog: Locator): Locator =>
+  dialog.locator('code').filter({ hasText: 'claude mcp add' })
+
 /**
  * Opens the connect dialog with Tab and Enter, waits until the bridge is ready, reads the URL and
  * key back from the command, closes the dialog with Escape and connects an MCP client with them.
@@ -116,7 +120,7 @@ async function connectFromDialog(page: Page): Promise<AgentClient> {
   await expect(
     dialog.getByRole('status').filter({ hasText: 'Ready. Your agent can edit this tab.' }),
   ).toBeVisible()
-  const command = await dialog.locator('code').innerText()
+  const command = await addCommand(dialog).innerText()
   expect(command).toContain('claude mcp add --scope user ')
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
@@ -129,7 +133,7 @@ async function connectFromDialog(page: Page): Promise<AgentClient> {
 async function connectCommandOf(page: Page): Promise<string> {
   await page.getByRole('button', { name: 'Agent connected' }).click()
   const dialog = page.getByRole('dialog', { name: 'Connect an agent' })
-  const command = await dialog.locator('code').innerText()
+  const command = await addCommand(dialog).innerText()
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   return command
@@ -277,7 +281,7 @@ test('another browser joins the same agent with the key pasted from the first', 
     await tabUntilFocused(other, other.getByRole('button', { name: 'Connect an agent' }))
     await other.keyboard.press('Enter')
     const dialog = other.getByRole('dialog', { name: 'Connect an agent' })
-    await expect(dialog.locator('code')).not.toHaveText(firstCommand)
+    await expect(addCommand(dialog)).not.toHaveText(firstCommand)
 
     await tabUntilFocused(other, dialog.getByRole('button', { name: 'I already have a key' }))
     await other.keyboard.press('Enter')
@@ -292,7 +296,7 @@ test('another browser joins the same agent with the key pasted from the first', 
     await keyField.fill(firstCommand)
     await other.keyboard.press('Enter')
     await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeFocused()
-    await expect(dialog.locator('code')).toHaveText(firstCommand)
+    await expect(addCommand(dialog)).toHaveText(firstCommand)
     await expect(dialog.getByRole('status').filter({ hasText: 'Key saved.' })).toBeVisible()
 
     // The agent Claude Code already has now reaches the newest tab, in the other browser.
