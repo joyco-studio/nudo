@@ -10,7 +10,7 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["BridgeRoom"] }],
   "vars": {
-    "ALLOWED_ORIGINS": "http://localhost:5173",
+    "ALLOWED_ORIGINS": "https://nudo.joyco.studio,http://localhost:5173",
   },
   "observability": {
     "logs": {
