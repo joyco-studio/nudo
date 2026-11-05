@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nudo-mcp",
+  // JOYCO's Cloudflare account, so a deploy never lands in someone's personal account.
+  "account_id": "74589758e55c41f0869a5e1f42ca5d11",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-01",
   "durable_objects": {
