@@ -28,16 +28,19 @@ const connectClient = async (key: string): Promise<Client> => {
   return client
 }
 
-const initializeBody = JSON.stringify({
-  jsonrpc: '2.0',
-  id: 1,
-  method: 'initialize',
-  params: {
-    protocolVersion: '2025-06-18',
-    capabilities: {},
-    clientInfo: { name: CLIENT_NAME, version: '1.0.0' },
-  },
-})
+const initializeBodyFor = (clientInfo: { name: string; title?: string }): string =>
+  JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'initialize',
+    params: {
+      protocolVersion: '2025-06-18',
+      capabilities: {},
+      clientInfo: { ...clientInfo, version: '1.0.0' },
+    },
+  })
+
+const initializeBody = initializeBodyFor({ name: CLIENT_NAME })
 
 const getGraphCallBody = JSON.stringify({
   jsonrpc: '2.0',
@@ -103,6 +106,16 @@ describe('MCP endpoint', () => {
 
     expect((await response).status).toBe(200)
     tab.close()
+  })
+
+  it('names the session after the client title when it sends one', async () => {
+    const key = uniqueKey()
+    const initialized = await postMcp(initializeBodyFor({ name: 'cli', title: 'Claude Code' }), {
+      Authorization: `Bearer ${key}`,
+    })
+    const sessionId = initialized.headers.get('Mcp-Session-Id') ?? ''
+    const room = await roomFor(key)
+    await expect(room.touchSession(sessionId)).resolves.toBe('Claude Code')
   })
 
   it('DELETE ends the session: the room forgets its client name', async () => {
