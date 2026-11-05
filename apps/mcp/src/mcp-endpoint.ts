@@ -41,9 +41,7 @@ export interface Room {
 
 const initializeMessageSchema = z.object({
   method: z.literal('initialize'),
-  params: z.object({
-    clientInfo: z.object({ name: z.string(), title: z.string().optional() }),
-  }),
+  params: z.object({ clientInfo: z.object({ name: z.string() }) }),
 })
 
 /** The tab sends a PNG, or a WebP or JPEG when a noisy preview needs compressing to fit. */
@@ -61,11 +59,7 @@ const bearerKey = (request: Request): string | null =>
 const roomForKey = async (env: Cloudflare.Env, key: string): Promise<Room> =>
   env.BRIDGE_ROOM.get(env.BRIDGE_ROOM.idFromName(await hashKey(key)))
 
-/**
- * The client's name from an `initialize` request body, or null when the body is anything else.
- * Prefers the human-readable `title` (MCP 2025-06-18+), since some clients send a bare `name`
- * like `cli` that says nothing about which product is calling.
- */
+/** The client name from an `initialize` request body, or null when the body is anything else. */
 const initializeClientName = async (request: Request): Promise<string | null> => {
   let body: unknown
   try {
@@ -76,9 +70,7 @@ const initializeClientName = async (request: Request): Promise<string | null> =>
   const messages: unknown[] = Array.isArray(body) ? body : [body]
   for (const message of messages) {
     const parsed = initializeMessageSchema.safeParse(message)
-    if (!parsed.success) continue
-    const { name, title } = parsed.data.params.clientInfo
-    return title === undefined || title.trim() === '' ? name : title
+    if (parsed.success) return parsed.data.params.clientInfo.name
   }
   return null
 }
