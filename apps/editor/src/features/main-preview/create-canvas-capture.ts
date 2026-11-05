@@ -22,10 +22,15 @@ export function createCanvasCapture(
     if (context === null) return Promise.reject(new Error('A 2D canvas is not available'))
     context.drawImage(source, 0, 0, width, height)
     return new Promise<Blob>((resolve, reject) => {
-      target.toBlob((blob) => {
-        if (blob === null) reject(new Error(`The canvas could not be encoded as ${encoding.mimeType}`))
-        else resolve(blob)
-      }, encoding.mimeType, encoding.quality)
+      target.toBlob(
+        (blob) => {
+          if (blob === null)
+            reject(new Error(`The canvas could not be encoded as ${encoding.mimeType}`))
+          else resolve(blob)
+        },
+        encoding.mimeType,
+        encoding.quality,
+      )
     })
   }
 }

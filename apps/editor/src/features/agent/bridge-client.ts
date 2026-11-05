@@ -1,4 +1,9 @@
-import { MAX_MESSAGE_BYTES, PROTOCOL_VERSION, hashKey, parseRoomMessage } from '@nudo-tsl/agent-protocol'
+import {
+  MAX_MESSAGE_BYTES,
+  PROTOCOL_VERSION,
+  hashKey,
+  parseRoomMessage,
+} from '@nudo-tsl/agent-protocol'
 import type {
   BridgeRequest,
   BridgeResponse,
