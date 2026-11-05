@@ -76,6 +76,8 @@ describe('AgentPresenceLayer', () => {
     renderLayer()
     const cursor = container.querySelector('[data-agent-cursor]')
     expect(cursor?.textContent).toContain('Claude')
+    // A known client gets its logo next to the name.
+    expect(cursor?.querySelector('[data-agent-brand="claudeCode"]')).not.toBeNull()
     expect(cursor?.closest('[aria-hidden="true"]')).not.toBeNull()
   })
 
