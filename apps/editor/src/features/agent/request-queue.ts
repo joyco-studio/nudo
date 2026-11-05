@@ -7,7 +7,6 @@ import type {
   ToolSpec,
 } from '@nudo-tsl/agent-protocol'
 import { err } from '@nudo-tsl/core'
-import { withDisplayName } from './agent-brand'
 import type { ToolGate } from './task-machine'
 import type { ToolContext, ToolHandler } from './tool-context'
 
@@ -81,21 +80,19 @@ async function execute(
       return invalid(request.id, `Tool "${request.tool}" is not available.`)
     }
 
-    // The agent goes by its product name ("Cursor", not `cursor-vscode`) everywhere it shows.
-    const agent = withDisplayName(request.agent)
     // Stop, busy and implicit tasks are decided here, before the handler can touch the graph.
-    const admitted = gate.admit(spec.name, agent)
+    const admitted = gate.admit(spec.name, request.agent)
     if (!admitted.ok) return failure(request.id, admitted.error)
 
     try {
       const result = await handler(parsed.data, {
         ...withDeadline(context, signal, request.timeoutMs),
-        agent,
+        agent: request.agent,
       })
       if (!result.ok) return failure(request.id, result.error)
       return { kind: 'response', id: request.id, ok: true, result: result.value }
     } finally {
-      gate.settle(agent)
+      gate.settle(request.agent)
     }
   } catch (thrown) {
     return invalid(request.id, describeThrown(thrown))

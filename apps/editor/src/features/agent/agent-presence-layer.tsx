@@ -16,7 +16,6 @@ import { CANVAS_ID } from '@/shared/lib/landmarks'
 import { useEditorStore } from '@/store/editor-store'
 import type { AgentPresence, AgentTask } from '@/store/store-types'
 
-import { AgentBrandIcon } from './agent-brand-icon'
 import { EDGE_INDICATOR_ATTRIBUTE, isCanvasPointShown } from './canvas-visibility'
 import {
   cssPlacement,
@@ -195,8 +194,7 @@ function AgentCursor({
         <svg width="14" height="16" viewBox="0 0 14 16" className="fill-agent stroke-background">
           <path d="M1 1 L1 14 L4.5 10.5 L7 15 L9 14 L6.6 9.6 L12 9.6 Z" strokeWidth="1" />
         </svg>
-        <span className="mt-3 flex items-center gap-1 bg-agent px-1.5 text-micro font-medium whitespace-nowrap text-agent-foreground">
-          <AgentBrandIcon name={name} className="size-2.5" />
+        <span className="mt-3 bg-agent px-1.5 text-micro font-medium whitespace-nowrap text-agent-foreground">
           {name}
         </span>
       </motion.div>

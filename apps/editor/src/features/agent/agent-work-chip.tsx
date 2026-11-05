@@ -7,7 +7,6 @@ import { Button } from '@/shared/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useEditorStore } from '@/store/editor-store'
 
-import { AgentBrandIcon } from './agent-brand-icon'
 import { useAgentUi } from './agent-ui-context'
 import { chipViewOf, opensActivityPanel } from './agent-ui-model'
 import type { ChipView } from './agent-ui-model'
@@ -58,7 +57,6 @@ function ChipContent({ view }: { view: ChipView }) {
     return (
       <>
         {/* The stopped chip keeps a mark on a phone, where its words are hidden. */}
-        <AgentBrandIcon name={view.agentName} />
         {isWorking ? <WorkingDots /> : <Pause aria-hidden="true" className="sm:hidden" />}
         {/* The step alone does not say whose it is; the panel header shows the name. */}
         <span className="sr-only">{t('agent.chip.agentName', { name: view.agentName })}</span>{' '}

@@ -15,7 +15,6 @@ import { Button } from '@/shared/ui/button'
 import { useEditorStore } from '@/store/editor-store'
 import type { AgentStep, AgentTask } from '@/store/store-types'
 
-import { AgentBrandIcon } from './agent-brand-icon'
 import { useAgentUi } from './agent-ui-context'
 import { showsConnectionEntry } from './agent-ui-model'
 import { resumeAgent, stopAgent } from './task-machine'
@@ -252,9 +251,8 @@ export function AgentActivityPanel() {
           // its steps scroll between the header and the footer instead.
           className="pointer-events-auto flex max-h-[32rem] min-h-0 w-72 max-w-full flex-col border max-sm:max-h-[45dvh] bg-background/85 backdrop-blur-md"
         >
-          {/* pl-4 puts the header (logo, then heading) on the same left edge as the prompt and steps. */}
+          {/* pl-4 puts the heading on the same left edge as the prompt and the steps below. */}
           <div className="flex h-9 shrink-0 items-center gap-2 bg-muted/50 pr-1 pl-4">
-            <AgentBrandIcon name={task.agent.name} className="size-3.5 text-foreground" />
             <h2 className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
               <HeadingText task={task} />
             </h2>
