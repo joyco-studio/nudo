@@ -1,20 +1,10 @@
+import { isAllowedOrigin } from './allowed-origins'
 import { isWebSocketUpgrade, parseBridgePath } from './bridge-route'
 import { handleMcp } from './mcp-endpoint'
 
 export { BridgeRoom } from './bridge-room'
 
 const MCP_PATH = '/mcp'
-
-const parseAllowedOrigins = (value: string): ReadonlySet<string> =>
-  new Set(
-    value
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter((origin) => origin !== ''),
-  )
-
-const isAllowedOrigin = (origin: string | null, allowedOrigins: string): boolean =>
-  origin !== null && parseAllowedOrigins(allowedOrigins).has(origin)
 
 /**
  * The refusals a browser probe reads (a plain GET, no upgrade): any page may see the status, so

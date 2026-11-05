@@ -10,7 +10,7 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["BridgeRoom"] }],
   "vars": {
-    "ALLOWED_ORIGINS": "https://nudo.joyco.studio,https://nudo-git-mcp-agent-design-edit-a7d615eb-joycostudio.vercel.app,http://localhost:5173",
+    "ALLOWED_ORIGINS": "https://nudo.joyco.studio,https://nudo-*-joycostudio.vercel.app,http://localhost:*",
   },
   "observability": {
     "logs": {
