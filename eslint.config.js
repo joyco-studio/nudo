@@ -26,7 +26,15 @@ const restrictImports = ({ packages, allowedInternal, reason }) => ({
 })
 
 export default defineConfig(
-  globalIgnores(['**/dist/**', '**/.turbo/**', '**/coverage/**', '**/node_modules/**', 'docs/**']),
+  globalIgnores([
+    '**/dist/**',
+    '**/.turbo/**',
+    // wrangler dev's build output (the e2e run starts the agent Worker).
+    '**/.wrangler/**',
+    '**/coverage/**',
+    '**/node_modules/**',
+    'docs/**',
+  ]),
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {

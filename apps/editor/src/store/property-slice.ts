@@ -1,5 +1,6 @@
 import {
   addProperty,
+  err,
   addPropertyNode,
   removeProperty,
   renameProperty,
@@ -7,7 +8,14 @@ import {
   setPropertyLabel,
   setPropertyValue,
 } from '@nudo-tsl/core'
-import type { BlackboardProperty, Graph, PortValue, PropertyId } from '@nudo-tsl/core'
+import type {
+  BlackboardProperty,
+  Graph,
+  PortValue,
+  PropertyError,
+  PropertyId,
+  Result,
+} from '@nudo-tsl/core'
 
 import { PROPERTY_KIND_SPECS, propertyKindOf } from '@/features/blackboard/property-kinds'
 import { valueComponents } from '@/features/canvas/inline-value'
@@ -44,6 +52,17 @@ function relabel(graph: Graph, property: BlackboardProperty, label: string) {
   const others = namesOfOthers(graph, property.id)
   if (!labelled.ok || !followsLabel(property, others, fallback)) return labelled
   return renameProperty(labelled.value, property.id, suggestReferenceName(label, others, fallback))
+}
+
+/** `relabel` for a property known only by id: the pure edit behind a label change. */
+export function relabelProperty(
+  graph: Graph,
+  id: PropertyId,
+  label: string,
+): Result<Graph, PropertyError> {
+  const property = findProperty(graph, id)
+  if (property === undefined) return err({ code: 'property-not-found', id })
+  return relabel(graph, property, label)
 }
 
 export const createPropertySlice: EditorSliceCreator<PropertySlice> = (set, get) => ({

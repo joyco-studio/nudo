@@ -22,6 +22,21 @@ import type { NodeGeometry, TidyPlan } from './plan-tidy-up'
 
 export type TidyTarget = 'graph' | 'selection'
 
+/** Runs the graph write; false when it was refused (the agent was stopped), so nothing moves. */
+export type CommitTidy = (write: () => void) => boolean
+
+export interface TidyOptions {
+  /** Routes the one graph write (an agent tidies through its own guard). Default: write at once. */
+  readonly commit?: CommitTidy
+  /** Leaves the view where it is instead of fitting the tidied graph (an agent never moves it). */
+  readonly keepView?: boolean
+}
+
+const commitAtOnce: CommitTidy = (write) => {
+  write()
+  return true
+}
+
 const getStore = () => useEditorStore.getState()
 
 type HandleBounds = NonNullable<InternalNode<FlowNode>['internals']['handleBounds']>
@@ -98,7 +113,7 @@ function boundsAfter(geometry: readonly NodeGeometry[], plan: TidyPlan): Bounds 
  * the nodes (and the view) glide there on the motion tokens; from the keyboard, or with reduced
  * motion, they move at once. Must be used inside a `ReactFlowProvider`.
  */
-export function useTidyUp(): (target: TidyTarget) => void {
+export function useTidyUp(): (target: TidyTarget, options?: TidyOptions) => void {
   const { getNodes, getInternalNode, getViewport, setViewport } = useReactFlow<FlowNode>()
   const flowStore = useStoreApi<FlowNode>()
   const prefersReducedMotion = useReducedMotion() === true
@@ -132,7 +147,8 @@ export function useTidyUp(): (target: TidyTarget) => void {
   )
 
   return useCallback(
-    (target) => {
+    (target, options = {}) => {
+      const { commit = commitAtOnce, keepView = false } = options
       const store = getStore()
       const geometry = getNodes().flatMap((node) => {
         const internal = getInternalNode(node.id)
@@ -153,8 +169,11 @@ export function useTidyUp(): (target: TidyTarget) => void {
       // Read before the running glide stops: a new glide starts from what is on screen.
       const start = startingPositions(plan)
       stopGlideRef.current?.()
-      const finalViewport = target === 'graph' ? fittedViewport(geometry, plan) : null
-      store.commitMove(plan)
+      const finalViewport = target === 'graph' && !keepView ? fittedViewport(geometry, plan) : null
+      const isCommitted = commit(() => {
+        store.commitMove(plan)
+      })
+      if (!isCommitted) return
       // Only a full-motion start glides: reduced motion has no fade for a move, so it jumps too.
       if (motionModeFor(prefersReducedMotion, document) !== 'full') {
         if (finalViewport !== null) void setViewport(finalViewport)

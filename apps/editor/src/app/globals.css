@@ -27,6 +27,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-agent: var(--agent);
+  --color-agent-soft: var(--agent-soft);
+  --color-agent-foreground: var(--agent-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -87,6 +90,11 @@
   --accent-foreground: oklch(0.205 0 0);
   /* Darker than joyco's 0.577 so node error text reaches 4.5:1 on the card. */
   --destructive: oklch(0.54 0.22 27.3);
+  /* The agent working over MCP: its cursor, ghost node, wire and tags. */
+  --agent: #6b46f0;
+  --agent-soft: rgb(107 70 240 / 12%);
+  /* Text on a filled agent pill: 4.5:1 or more on --agent in both themes. */
+  --agent-foreground: #ffffff;
   --border: oklch(0.922 0 0);
   --input: oklch(0.97 0 0);
   --ring: oklch(0.708 0 0);
@@ -122,6 +130,9 @@
   --accent: oklch(0.2768 0 0);
   --accent-foreground: oklch(0.8975 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --agent: #a08bff;
+  --agent-soft: rgb(160 139 255 / 16%);
+  --agent-foreground: #14092e;
   --border: oklch(0.285 0 0);
   --input: oklch(0.2134 0 0);
   --ring: oklch(0.556 0 0);

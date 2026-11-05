@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react'
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
 import { IconSwap } from '@/shared/components/icon-swap'
+import { writeToClipboard } from '@/shared/lib/write-to-clipboard'
 import { TextMorph } from '@/shared/components/text-morph'
 import { Button } from '@/shared/ui/button'
 
@@ -27,16 +28,6 @@ interface CopyFeedback {
   readonly status: CopyStatus
   /** Counts copies, so copying again while "Copied" shows restarts the reset. */
   readonly attempt: number
-}
-
-/** Writes `text` to the clipboard; false when the browser refuses. */
-async function writeToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch {
-    return false
-  }
 }
 
 /**

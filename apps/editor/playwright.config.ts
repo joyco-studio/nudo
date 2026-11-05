@@ -6,6 +6,15 @@ const BASE_URL = `http://localhost:${String(PORT)}`
 const isCi = Boolean(process.env.CI)
 
 /**
+ * The MCP Worker (`wrangler dev`) the agent specs talk to. Override with E2E_MCP_PORT when 8787 is
+ * taken. Its bridge only accepts the editor's origin, so the Worker gets this run's origin.
+ */
+const MCP_PORT = Number(process.env.E2E_MCP_PORT ?? 8787)
+const MCP_URL = `http://localhost:${String(MCP_PORT)}`
+/** wrangler's inspector port; one per Worker, so a second worktree's run needs its own too. */
+const MCP_INSPECTOR_PORT = MCP_PORT + 1000
+
+/**
  * Worker processes. Every page renders its previews with software WebGL (SwiftShader), which keeps
  * several cores busy per browser, so the default (half the cores: 9 on an 18-core machine) starved
  * the frame-sensitive specs. Six stays clear of that here; CI runners have two to four cores.
@@ -72,9 +81,25 @@ export default defineConfig({
     },
     ...gpuProjects,
   ],
-  webServer: {
-    command: `pnpm exec vite --port ${String(PORT)} --strictPort`,
-    url: BASE_URL,
-    reuseExistingServer: !isCi,
-  },
+  webServer: [
+    {
+      // A reused dev server must have been started with VITE_NUDO_MCP_URL set to MCP_URL, or the
+      // agent specs find no connection to offer.
+      command: `pnpm exec vite --port ${String(PORT)} --strictPort`,
+      url: BASE_URL,
+      env: { VITE_NUDO_MCP_URL: MCP_URL },
+      reuseExistingServer: !isCi,
+    },
+    {
+      command: [
+        'pnpm --filter @nudo-tsl/mcp exec wrangler dev',
+        `--port ${String(MCP_PORT)}`,
+        `--inspector-port ${String(MCP_INSPECTOR_PORT)}`,
+        `--var ALLOWED_ORIGINS:${BASE_URL}`,
+      ].join(' '),
+      // `/mcp` answers 401 without a key, which Playwright counts as up (`/` is a 404).
+      url: `${MCP_URL}/mcp`,
+      reuseExistingServer: !isCi,
+    },
+  ],
 })
