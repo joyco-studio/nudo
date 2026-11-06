@@ -112,6 +112,9 @@ export function compile<E>(
   function outputOf(ref: PortRef, scope: Scope<E>): Outcome<E> {
     const { zone, parent } = scope
     const isOutside = zone !== null && ref.nodeId !== zone.inputId && !zone.body.has(ref.nodeId)
+    // A texture is a reference to sample, not a value a var can hold: the body reads it as is.
+    const isTexture = resolved.outputs.get(portKey(ref)) === 'texture'
+    if (isOutside && isTexture && parent !== null) return outputOf(ref, parent)
     if (isOutside && parent !== null) {
       const key = portKey(ref)
       const cached = zone.captured.get(key)

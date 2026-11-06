@@ -16,7 +16,10 @@ export function removeNodes(graph: Graph, ids: readonly NodeId[]): Result<Graph,
   const missingId = ids.find((id) => graph.nodes[id] === undefined)
   if (missingId !== undefined) return err({ code: 'node-not-found', nodeId: missingId })
 
-  const removed = new Set<NodeId>(withRepeatPartners(graph, ids))
+  // A partner is never the master (see `repeatLinks`); the filter keeps that true here regardless.
+  const removed = new Set<NodeId>(
+    withRepeatPartners(graph, ids).filter((id) => id !== MASTER_NODE_ID),
+  )
   const keptNodes = Object.values(graph.nodes).filter((node) => !removed.has(node.id))
   const keptEdges = Object.values(graph.edges).filter(
     (edge) => !removed.has(edge.from.nodeId) && !removed.has(edge.to.nodeId),

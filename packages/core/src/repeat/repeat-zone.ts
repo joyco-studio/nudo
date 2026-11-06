@@ -1,7 +1,7 @@
 import type { NodeRegistry } from '../registry/node-registry'
 import type { Graph, GraphNode } from '../types/graph'
 import type { NodeId } from '../types/ids'
-import { asNodeId } from '../types/ids'
+import { MASTER_NODE_ID, asNodeId } from '../types/ids'
 
 /**
  * A Repeat zone is a pair of nodes, after Blender's: the Repeat Input takes the iteration count
@@ -35,15 +35,22 @@ export interface RepeatLink {
 }
 
 /**
- * Every pairing the graph stores: a node carrying `repeatInput` that names a node of the graph.
+ * Every pairing the graph stores: a node carrying `repeatInput` that names another node of the
+ * graph, never the master nor a node that names a Repeat Input itself.
  * Needs no registry, so the topological order and the cycle check can treat each pair as an edge
  * from the Repeat Input to the Repeat Output: the Output reads what the Input starts with.
  */
 export function repeatLinks(graph: Graph): readonly RepeatLink[] {
   return Object.values(graph.nodes).flatMap((node): RepeatLink[] => {
-    const input = node.params[REPEAT_INPUT_PARAM]
-    if (typeof input !== 'string' || graph.nodes[asNodeId(input)] === undefined) return []
-    return [{ input: asNodeId(input), output: node.id }]
+    const inputId = node.params[REPEAT_INPUT_PARAM]
+    const input = typeof inputId === 'string' ? graph.nodes[asNodeId(inputId)] : undefined
+    // A hand-edited reference may name anything: only a node that could be a Repeat Input counts.
+    const isCandidate =
+      input !== undefined &&
+      input.id !== node.id &&
+      input.id !== MASTER_NODE_ID &&
+      input.params[REPEAT_INPUT_PARAM] === undefined
+    return isCandidate ? [{ input: input.id, output: node.id }] : []
   })
 }
 

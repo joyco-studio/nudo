@@ -979,8 +979,33 @@ const repeatOutput = defineNode({
   },
 })
 
+const textureReference = defineNode({
+  type: 'test/texture-reference',
+  category: 'texture',
+  label: 'Texture Reference',
+  description: 'Hands its texture on',
+  keywords: [],
+  inputs: [{ id: 'map', label: 'Map', type: concrete('texture'), default: texture() }],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('texture') }],
+  build: ({ inputs }) => ({ out: inputs.map }),
+})
+
+const sampler = defineNode({
+  type: 'test/sampler',
+  category: 'texture',
+  label: 'Sampler',
+  description: 'Samples a texture',
+  keywords: [],
+  inputs: [
+    { id: 'texture', label: 'Texture', type: concrete('texture'), default: texture() },
+    { id: 'uv', label: 'UV', type: concrete('vec2'), default: vec2(0, 0) },
+  ],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('vec4') }],
+  build: ({ tsl, inputs }) => ({ out: tsl.textureSample(inputs.texture, inputs.uv, null) }),
+})
+
 describe('compile repeat zones', () => {
-  const registry = createRegistry(repeatInput, repeatOutput)
+  const registry = createRegistry(repeatInput, repeatOutput, textureReference, sampler)
   const zone = (extra: readonly (readonly [string, string])[] = []): Graph =>
     withNodesOn(
       unwrap(
@@ -1161,6 +1186,59 @@ describe('compile repeat zones', () => {
     expect(expectMasterSlots(result).roughness).toBe(
       'repeat(p,u(p:iterations),[u(p:a)],[repeat(p2,u(p2:iterations),[state(p,0)],[add(state(p2,0),captured(index(p)))],[index(p)])[0]],[])[0]',
     )
+  })
+
+  it('hands a texture from outside the zone to the body as is, not captured', () => {
+    let graph = zone([
+      ['map', 'test/texture-reference'],
+      ['sample', 'test/sampler'],
+    ])
+    graph = link(graph, registry, 'e1', ['p', 'a'], ['sample', 'uv'])
+    graph = link(graph, registry, 'e2', ['map', 'out'], ['sample', 'texture'])
+    graph = link(graph, registry, 'e3', ['sample', 'out'], ['r', 'b'])
+    graph = link(graph, registry, 'e4', ['r', 'b'], [MASTER_NODE_ID, 'roughness'])
+    const { result } = compileMaster(graph, registry)
+
+    expect(expectMasterSlots(result).roughness).toBe(
+      'repeat(p,u(p:iterations),[u(p:a),u(p:b)],[state(p,0),swizzle(textureSample(u(map:map),construct(vec2,[state(p,0)]),null),x)],[])[1]',
+    )
+  })
+
+  it('pairs a Repeat Output only with a free Repeat Input that does not read its results', () => {
+    let graph = unwrap(
+      addRepeatZone(zone([['c', 'test/color']]), registry, {
+        inputId: asNodeId('p2'),
+        outputId: asNodeId('r2'),
+        position: origin,
+      }),
+    )
+    graph = link(graph, registry, 'e1', ['r2', 'a'], ['p', 'a'])
+    const pairWith = (input: string) =>
+      setParam(graph, registry, { nodeId: asNodeId('r'), paramId: 'repeatInput' }, input)
+
+    expect(pairWith('c').ok).toBe(false)
+    expect(pairWith('p2').ok).toBe(false)
+    expect(pairWith('p').ok).toBe(true)
+    expect(
+      setParam(graph, registry, { nodeId: asNodeId('r2'), paramId: 'repeatInput' }, 'p').ok,
+    ).toBe(false)
+  })
+
+  it('never takes the master along when a stored pairing names it', () => {
+    const graph = zone()
+    const output = graph.nodes[asNodeId('r')]
+    if (output === undefined) throw new Error('The zone has no Repeat Output')
+    const tampered: Graph = {
+      ...graph,
+      nodes: {
+        ...graph.nodes,
+        [output.id]: { ...output, params: { repeatInput: MASTER_NODE_ID } },
+      },
+    }
+
+    const removed = unwrap(removeNodes(tampered, [asNodeId('r')]))
+
+    expect(Object.keys(removed.nodes).sort()).toEqual([MASTER_NODE_ID, 'p'])
   })
 
   it('refuses a node added on its own as either end of a zone', () => {
