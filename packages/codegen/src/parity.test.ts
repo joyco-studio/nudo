@@ -2,7 +2,19 @@ import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { rm, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { MAIN_LIGHT_DEFAULTS, MASTER_NODE_ID, parseGraph, setParam } from '@nudo-tsl/core'
+import {
+  MAIN_LIGHT_DEFAULTS,
+  MASTER_NODE_ID,
+  addNode,
+  asEdgeId,
+  asNodeId,
+  connect,
+  createGraph,
+  float,
+  parseGraph,
+  setInputValue,
+  setParam,
+} from '@nudo-tsl/core'
 import type { Graph } from '@nudo-tsl/core'
 import { createDefaultRegistry } from '@nudo-tsl/nodes'
 import ts from 'typescript'
@@ -137,6 +149,61 @@ describe('generated module parity', () => {
       'mainLightDirection',
       'mainLightColor',
     ])
+  })
+
+  it('builds a distorted, unnormalized noise read through every vector transform', async () => {
+    const origin = { x: 0, y: 0 }
+    let graph = createGraph()
+    let edges = 0
+    const add = (id: string, type: string): void => {
+      graph = unwrap(addNode(graph, registry, { id: asNodeId(id), type, position: origin }))
+    }
+    const param = (id: string, paramId: string, value: string | number | boolean): void => {
+      graph = unwrap(setParam(graph, registry, { nodeId: asNodeId(id), paramId }, value))
+    }
+    const link = (from: string, fromPort: string, to: string, toPort: string): void => {
+      edges += 1
+      graph = unwrap(
+        connect(graph, registry, {
+          id: asEdgeId(`e${String(edges)}`),
+          from: { nodeId: asNodeId(from), portId: fromPort },
+          to: { nodeId: asNodeId(to), portId: toPort },
+        }),
+      )
+    }
+
+    add('position', 'input/position')
+    add('noise', 'effects/noise')
+    param('noise', 'kind', 'perlin')
+    param('noise', 'octaves', 9)
+    param('noise', 'normalize', false)
+    graph = unwrap(
+      setInputValue(graph, { nodeId: asNodeId('noise'), portId: 'distortion' }, float(2)),
+    )
+    link('position', 'out', 'noise', 'p')
+    let sum = { id: 'noise', port: 'color' }
+    for (const type of ['point', 'vector', 'normal']) {
+      for (const from of ['world', 'object', 'camera']) {
+        for (const to of ['world', 'object', 'camera']) {
+          const id = `${type}-${from}-${to}`
+          add(id, 'vector/vector-transform')
+          param(id, 'type', type)
+          param(id, 'from', from)
+          param(id, 'to', to)
+          link('noise', 'color', id, 'in')
+          add(`sum-${id}`, 'math/add')
+          link(sum.id, sum.port, `sum-${id}`, 'a')
+          link(id, 'out', `sum-${id}`, 'b')
+          sum = { id: `sum-${id}`, port: 'out' }
+        }
+      }
+    }
+    link(sum.id, sum.port, MASTER_NODE_ID, 'baseColor')
+    const loaded = await loadGenerated(graph)
+
+    expect(expectEverySlotIsANode(loaded)).toContain('colorNode')
+    expect(loaded.code).toContain('vec3(-61.3, 17.9, 88.4)')
+    expect(loaded.code).toContain('modelWorldMatrixInverse.mul(cameraWorldMatrix)')
   })
 
   describe('catalog fixture', () => {

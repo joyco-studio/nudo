@@ -426,7 +426,7 @@
       "inputValues": {},
       "params": {
         "body": "Two noise reads scroll at their own speed and angle. Together they give one offset that bends every layer the same way, so the whole pattern sways like water; the rosettes bend a little more. breath makes the lace breathe with them.",
-        "height": 1455,
+        "height": 1483,
         "title": "Refraction",
         "width": 2848
       }
@@ -751,7 +751,7 @@
       "type": "effects/noise",
       "position": {
         "x": -11224,
-        "y": 1702
+        "y": 1646
       },
       "inputValues": {
         "scale": {
@@ -761,6 +761,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "tile": false
       }
     },
@@ -769,7 +770,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 1860
+        "y": 1832
       },
       "inputValues": {},
       "params": {}
@@ -789,6 +790,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "tile": false
       }
     },
@@ -797,7 +799,7 @@
       "type": "math/add",
       "position": {
         "x": -11544,
-        "y": 2340
+        "y": 2368
       },
       "inputValues": {},
       "params": {}
@@ -1019,7 +1021,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 1925
+        "y": 1897
       },
       "inputValues": {
         "b": {
@@ -1037,7 +1039,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2542
+        "y": 2570
       },
       "inputValues": {
         "b": {
@@ -1553,7 +1555,7 @@
       "type": "math/multiply",
       "position": {
         "x": -11864,
-        "y": 2239
+        "y": 2267
       },
       "inputValues": {
         "b": {
@@ -1581,7 +1583,7 @@
       "type": "effects/noise",
       "position": {
         "x": -4040,
-        "y": 636
+        "y": 608
       },
       "inputValues": {
         "scale": {
@@ -1591,6 +1593,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "tile": false
       }
     },

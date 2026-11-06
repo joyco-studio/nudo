@@ -83,7 +83,7 @@
       "type": "property/float",
       "position": {
         "x": -6568,
-        "y": 848
+        "y": 857
       },
       "inputValues": {},
       "params": {
@@ -95,7 +95,7 @@
       "type": "effects/noise",
       "position": {
         "x": -6616,
-        "y": 107
+        "y": 60
       },
       "inputValues": {
         "scale": {
@@ -105,6 +105,7 @@
       },
       "params": {
         "kind": "perlin",
+        "normalize": true,
         "octaves": 3,
         "tile": false
       }
@@ -215,7 +216,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7960,
-        "y": 660
+        "y": 654
       },
       "inputValues": {
         "b": {
@@ -260,12 +261,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6648,
-        "y": 11
+        "y": -36
       },
       "inputValues": {},
       "params": {
         "body": "The normal, bent by Noise Color in Linear Light, snaps to the cells of a Minkowski Voronoi: its exponent below 1 pinches each cell into a star. The normalized cell is the new normal, so the light breaks into brush-stroke facets.",
-        "height": 917,
+        "height": 964,
         "title": "Brush normals",
         "width": 1248
       }
@@ -275,7 +276,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8632,
-        "y": 413
+        "y": 407
       },
       "inputValues": {},
       "params": {
@@ -350,7 +351,7 @@
       "type": "math/add",
       "position": {
         "x": -7000,
-        "y": 493
+        "y": 487
       },
       "inputValues": {
         "b": {
@@ -365,7 +366,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7320,
-        "y": 530
+        "y": 524
       },
       "inputValues": {
         "b": {
@@ -535,7 +536,7 @@
       "type": "input/normal",
       "position": {
         "x": -6616,
-        "y": 587
+        "y": 596
       },
       "inputValues": {},
       "params": {
@@ -725,7 +726,7 @@
       "type": "input/position",
       "position": {
         "x": -8600,
-        "y": 742
+        "y": 736
       },
       "inputValues": {},
       "params": {
@@ -737,7 +738,7 @@
       "type": "vector/split",
       "position": {
         "x": -8280,
-        "y": 644
+        "y": 638
       },
       "inputValues": {},
       "params": {}
@@ -869,7 +870,7 @@
       "type": "vector/combine",
       "position": {
         "x": -7640,
-        "y": 539
+        "y": 533
       },
       "inputValues": {},
       "params": {}

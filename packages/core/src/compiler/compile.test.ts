@@ -78,6 +78,8 @@ const stringFacade: TslFacade<string> = {
   sceneDepthFade: (distance) => `sceneDepthFade(${distance})`,
   normalFromHeight: (height, strength) => `normalFromHeight(${height},${strength})`,
   mainLight: (component) => `mainLight(${component})`,
+  transform: (kind, from, to, value) => `transform(${kind},${from},${to},${value})`,
+  share: (value) => value,
   builtin: (name) => `builtin(${name})`,
   construct: (type, parts) => `construct(${type},${formatParts(parts)})`,
   swizzle: (value, components) => `swizzle(${value},${components})`,
@@ -772,6 +774,90 @@ describe('compile', () => {
     })
 
     expect(receivedParams).toEqual([{ kind: 'simplex', wrap: true, name: 'fallback', scale: 9 }])
+  })
+})
+
+describe('compile inputs that are off at 0', () => {
+  const zeroProbe = (seen: (ReadonlySet<string> | undefined)[]) =>
+    defineNode({
+      type: 'test/zero-probe',
+      category: 'utility',
+      label: 'Zero probe',
+      description: 'Records the inputs it may skip',
+      keywords: [],
+      inputs: [
+        {
+          id: 'warp',
+          label: 'Warp',
+          type: concrete('vec3'),
+          default: vec3(0, 0, 0),
+          offAtZero: true,
+        },
+        { id: 'gain', label: 'Gain', type: concrete('float'), default: float(0) },
+      ],
+      outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+      build: ({ inputs, zeroInputs }) => {
+        seen.push(zeroInputs)
+        return { out: inputs.gain }
+      },
+    })
+  const target = { kind: 'port', ref: { nodeId: asNodeId('z'), portId: 'out' } } as const
+
+  const zeroInputsOf = (
+    edit: (graph: Graph, registry: ReturnType<typeof createRegistry>) => Graph,
+  ) => {
+    const seen: (ReadonlySet<string> | undefined)[] = []
+    const registry = createRegistry(zeroProbe(seen))
+    const graph = edit(withNodes(registry, [['z', 'test/zero-probe']]), registry)
+    compile(graph, registry, createStringBackend().backend, target)
+    return seen.map((inputs) => (inputs === undefined ? undefined : [...inputs]))
+  }
+
+  it('hands build an unconnected input that holds 0 in every component', () => {
+    expect(zeroInputsOf((graph) => graph)).toEqual([['warp']])
+  })
+
+  it('leaves it out once any component is not 0', () => {
+    const ref = { nodeId: asNodeId('z'), portId: 'warp' }
+    expect(zeroInputsOf((graph) => unwrap(setInputValue(graph, ref, vec3(0, 0.1, 0))))).toEqual([
+      [],
+    ])
+  })
+
+  it('leaves it out while it is connected, whatever the stored value', () => {
+    expect(
+      zeroInputsOf((graph, registry) =>
+        link(
+          withNodesOn(graph, registry, [['c', 'test/color']]),
+          registry,
+          'e1',
+          ['c', 'out'],
+          ['z', 'warp'],
+        ),
+      ),
+    ).toEqual([[]])
+  })
+
+  it('gives nodes without such inputs no set at all', () => {
+    const seen: (ReadonlySet<string> | undefined)[] = []
+    const probe = defineNode({
+      type: 'test/plain-probe',
+      category: 'utility',
+      label: 'Plain probe',
+      description: 'Has no input that is off at 0',
+      keywords: [],
+      inputs: [{ id: 'gain', label: 'Gain', type: concrete('float'), default: float(0) }],
+      outputs: [{ id: 'out', label: 'Out', type: concrete('float') }],
+      build: ({ inputs, zeroInputs }) => {
+        seen.push(zeroInputs)
+        return { out: inputs.gain }
+      },
+    })
+    const registry = createRegistry(probe)
+    const graph = withNodes(registry, [['z', 'test/plain-probe']])
+    compile(graph, registry, createStringBackend().backend, target)
+
+    expect(seen).toEqual([undefined])
   })
 })
 

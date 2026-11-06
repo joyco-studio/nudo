@@ -6,7 +6,7 @@
       "type": "property/float",
       "position": {
         "x": -7800,
-        "y": 395
+        "y": 375
       },
       "inputValues": {},
       "params": {
@@ -18,7 +18,7 @@
       "type": "property/float",
       "position": {
         "x": -4248,
-        "y": 1298
+        "y": 1316
       },
       "inputValues": {},
       "params": {
@@ -30,7 +30,7 @@
       "type": "vector/split",
       "position": {
         "x": -3656,
-        "y": 1061
+        "y": 1079
       },
       "inputValues": {},
       "params": {}
@@ -40,7 +40,7 @@
       "type": "property/float",
       "position": {
         "x": -2648,
-        "y": 866
+        "y": 884
       },
       "inputValues": {},
       "params": {
@@ -52,7 +52,7 @@
       "type": "property/float",
       "position": {
         "x": -3288,
-        "y": 1355
+        "y": 1373
       },
       "inputValues": {},
       "params": {
@@ -64,7 +64,7 @@
       "type": "math/add",
       "position": {
         "x": -2376,
-        "y": 750
+        "y": 768
       },
       "inputValues": {},
       "params": {}
@@ -74,7 +74,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -2056,
-        "y": 851
+        "y": 869
       },
       "inputValues": {},
       "params": {}
@@ -84,7 +84,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3016,
-        "y": 1127
+        "y": 1145
       },
       "inputValues": {},
       "params": {}
@@ -94,7 +94,7 @@
       "type": "math/remap",
       "position": {
         "x": -2376,
-        "y": 1053
+        "y": 1071
       },
       "inputValues": {
         "inMax": {
@@ -113,7 +113,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -3976,
-        "y": 1182
+        "y": 1200
       },
       "inputValues": {
         "center": {
@@ -131,7 +131,7 @@
       "type": "math/sin",
       "position": {
         "x": -2696,
-        "y": 1090
+        "y": 1108
       },
       "inputValues": {},
       "params": {}
@@ -141,7 +141,7 @@
       "type": "math/add",
       "position": {
         "x": -3336,
-        "y": 1052
+        "y": 1070
       },
       "inputValues": {},
       "params": {}
@@ -151,7 +151,7 @@
       "type": "math/remap",
       "position": {
         "x": -9512,
-        "y": 563
+        "y": 575
       },
       "inputValues": {
         "outMax": {
@@ -170,7 +170,7 @@
       "type": "math/remap",
       "position": {
         "x": -9832,
-        "y": 794
+        "y": 806
       },
       "inputValues": {
         "inMax": {
@@ -189,7 +189,7 @@
       "type": "math/remap",
       "position": {
         "x": -9512,
-        "y": 950
+        "y": 962
       },
       "inputValues": {
         "outMin": {
@@ -204,11 +204,12 @@
       "type": "effects/noise",
       "position": {
         "x": -10152,
-        "y": 738
+        "y": 722
       },
       "inputValues": {},
       "params": {
         "kind": "perlin-2d",
+        "normalize": true,
         "octaves": 1,
         "tile": false
       }
@@ -218,7 +219,7 @@
       "type": "property/float",
       "position": {
         "x": -10424,
-        "y": 1054
+        "y": 1066
       },
       "inputValues": {},
       "params": {
@@ -240,7 +241,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4280,
-        "y": 670
+        "y": 688
       },
       "inputValues": {},
       "params": {
@@ -255,7 +256,7 @@
       "type": "utility/comment",
       "position": {
         "x": -10504,
-        "y": 467
+        "y": 479
       },
       "inputValues": {},
       "params": {
@@ -270,7 +271,7 @@
       "type": "utility/comment",
       "position": {
         "x": -6856,
-        "y": 363
+        "y": 372
       },
       "inputValues": {},
       "params": {
@@ -300,7 +301,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8520,
-        "y": 12
+        "y": -8
       },
       "inputValues": {},
       "params": {
@@ -315,7 +316,7 @@
       "type": "utility/comment",
       "position": {
         "x": -2408,
-        "y": 149
+        "y": 167
       },
       "inputValues": {},
       "params": {
@@ -330,12 +331,12 @@
       "type": "utility/comment",
       "position": {
         "x": -3368,
-        "y": -923
+        "y": -1017
       },
       "inputValues": {},
       "params": {
         "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
-        "height": 1040,
+        "height": 1152,
         "title": "Paper",
         "width": 1568
       }
@@ -345,7 +346,7 @@
       "type": "utility/comment",
       "position": {
         "x": -9160,
-        "y": 502
+        "y": 1224
       },
       "inputValues": {},
       "params": {
@@ -360,12 +361,12 @@
       "type": "utility/comment",
       "position": {
         "x": -7560,
-        "y": 1192
+        "y": 482
       },
       "inputValues": {},
       "params": {
         "body": "A soft noise over view space, scaled by Wobble: how far a line strays from a ruler. Both hatchings share it, so their lines bend together like one hand drew them.",
-        "height": 654,
+        "height": 710,
         "title": "Hand",
         "width": 608
       }
@@ -375,7 +376,7 @@
       "type": "effects/fresnel",
       "position": {
         "x": -2376,
-        "y": 245
+        "y": 263
       },
       "inputValues": {
         "power": {
@@ -390,7 +391,7 @@
       "type": "math/remap",
       "position": {
         "x": -2376,
-        "y": -598
+        "y": -636
       },
       "inputValues": {
         "inMax": {
@@ -413,7 +414,7 @@
       "type": "property/float",
       "position": {
         "x": -6824,
-        "y": 1007
+        "y": 1016
       },
       "inputValues": {},
       "params": {
@@ -425,7 +426,7 @@
       "type": "vector/split",
       "position": {
         "x": -6232,
-        "y": 770
+        "y": 779
       },
       "inputValues": {},
       "params": {}
@@ -435,7 +436,7 @@
       "type": "property/float",
       "position": {
         "x": -5864,
-        "y": 1064
+        "y": 1073
       },
       "inputValues": {},
       "params": {
@@ -447,7 +448,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -4632,
-        "y": 560
+        "y": 569
       },
       "inputValues": {},
       "params": {}
@@ -457,7 +458,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5592,
-        "y": 836
+        "y": 845
       },
       "inputValues": {},
       "params": {}
@@ -467,7 +468,7 @@
       "type": "math/remap",
       "position": {
         "x": -4952,
-        "y": 762
+        "y": 771
       },
       "inputValues": {
         "inMax": {
@@ -486,7 +487,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -6552,
-        "y": 891
+        "y": 900
       },
       "inputValues": {
         "center": {
@@ -504,7 +505,7 @@
       "type": "math/sin",
       "position": {
         "x": -5272,
-        "y": 799
+        "y": 808
       },
       "inputValues": {},
       "params": {}
@@ -514,7 +515,7 @@
       "type": "math/add",
       "position": {
         "x": -5912,
-        "y": 761
+        "y": 770
       },
       "inputValues": {},
       "params": {}
@@ -599,7 +600,7 @@
       "type": "math/power",
       "position": {
         "x": -8168,
-        "y": 129
+        "y": 109
       },
       "inputValues": {
         "b": {
@@ -614,7 +615,7 @@
       "type": "math/add",
       "position": {
         "x": -4952,
-        "y": 459
+        "y": 468
       },
       "inputValues": {},
       "params": {}
@@ -634,7 +635,7 @@
       "type": "input/main-light",
       "position": {
         "x": -8488,
-        "y": 96
+        "y": 76
       },
       "inputValues": {},
       "params": {}
@@ -656,7 +657,7 @@
       "type": "property/float",
       "position": {
         "x": -2328,
-        "y": 576
+        "y": 594
       },
       "inputValues": {},
       "params": {
@@ -668,7 +669,7 @@
       "type": "interpolation/aa-step",
       "position": {
         "x": -2056,
-        "y": 334
+        "y": 352
       },
       "inputValues": {},
       "params": {}
@@ -678,7 +679,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": -481
+        "y": -519
       },
       "inputValues": {},
       "params": {}
@@ -688,7 +689,7 @@
       "type": "property/vec3",
       "position": {
         "x": -2328,
-        "y": -211
+        "y": -249
       },
       "inputValues": {},
       "params": {
@@ -700,7 +701,7 @@
       "type": "math/add",
       "position": {
         "x": -2696,
-        "y": -561
+        "y": -599
       },
       "inputValues": {},
       "params": {}
@@ -710,7 +711,7 @@
       "type": "input/position",
       "position": {
         "x": -3336,
-        "y": -468
+        "y": -506
       },
       "inputValues": {},
       "params": {
@@ -722,7 +723,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3016,
-        "y": -843
+        "y": -937
       },
       "inputValues": {
         "scale": {
@@ -732,6 +733,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 4,
         "tile": false
       }
@@ -751,7 +753,7 @@
       "type": "math/add",
       "position": {
         "x": -7208,
-        "y": 130
+        "y": 110
       },
       "inputValues": {
         "b": {
@@ -766,7 +768,7 @@
       "type": "math/subtract",
       "position": {
         "x": -7848,
-        "y": 92
+        "y": 72
       },
       "inputValues": {
         "b": {
@@ -781,7 +783,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7528,
-        "y": 167
+        "y": 147
       },
       "inputValues": {},
       "params": {}
@@ -791,7 +793,7 @@
       "type": "effects/noise",
       "position": {
         "x": -3016,
-        "y": -363
+        "y": -401
       },
       "inputValues": {
         "scale": {
@@ -801,6 +803,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -810,7 +813,7 @@
       "type": "math/floor",
       "position": {
         "x": -8168,
-        "y": 777
+        "y": 1499
       },
       "inputValues": {},
       "params": {}
@@ -820,7 +823,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -7528,
-        "y": 619
+        "y": 1341
       },
       "inputValues": {
         "edge0": {
@@ -839,7 +842,7 @@
       "type": "math/hash",
       "position": {
         "x": -7848,
-        "y": 712
+        "y": 1434
       },
       "inputValues": {},
       "params": {}
@@ -849,7 +852,7 @@
       "type": "property/float",
       "position": {
         "x": -8760,
-        "y": 1098
+        "y": 1820
       },
       "inputValues": {},
       "params": {
@@ -861,7 +864,7 @@
       "type": "math/multiply",
       "position": {
         "x": -8488,
-        "y": 814
+        "y": 1536
       },
       "inputValues": {},
       "params": {}
@@ -871,7 +874,7 @@
       "type": "math/remap",
       "position": {
         "x": -7208,
-        "y": 582
+        "y": 1304
       },
       "inputValues": {
         "outMin": {
@@ -886,7 +889,7 @@
       "type": "vector/split",
       "position": {
         "x": -9128,
-        "y": 776
+        "y": 1498
       },
       "inputValues": {},
       "params": {}
@@ -896,7 +899,7 @@
       "type": "vector/combine",
       "position": {
         "x": -8808,
-        "y": 683
+        "y": 1405
       },
       "inputValues": {},
       "params": {}
@@ -906,7 +909,7 @@
       "type": "input/position",
       "position": {
         "x": -10472,
-        "y": 793
+        "y": 805
       },
       "inputValues": {},
       "params": {
@@ -918,7 +921,7 @@
       "type": "math/max",
       "position": {
         "x": -5272,
-        "y": 496
+        "y": 505
       },
       "inputValues": {
         "b": {
@@ -933,7 +936,7 @@
       "type": "property/float",
       "position": {
         "x": -7480,
-        "y": 1784
+        "y": 1130
       },
       "inputValues": {},
       "params": {
@@ -945,7 +948,7 @@
       "type": "effects/noise",
       "position": {
         "x": -7528,
-        "y": 1304
+        "y": 594
       },
       "inputValues": {
         "scale": {
@@ -955,6 +958,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -964,7 +968,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7208,
-        "y": 1514
+        "y": 846
       },
       "inputValues": {},
       "params": {}

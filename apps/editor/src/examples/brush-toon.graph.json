@@ -202,7 +202,7 @@
       "inputValues": {},
       "params": {
         "body": "Voronoi 3D over a noise-bent position cuts the mesh into cells. Random gives each cell its own direction (Out3, moved to -1…1); added to the normal × facet tilt, it tips every cell toward or away from the light like a flat brush dab.",
-        "height": 740,
+        "height": 768,
         "title": "Painted facets",
         "width": 3168
       }
@@ -541,7 +541,7 @@
       "type": "effects/noise",
       "position": {
         "x": -5000,
-        "y": 949
+        "y": 921
       },
       "inputValues": {
         "scale": {
@@ -551,6 +551,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "tile": false
       }
     },

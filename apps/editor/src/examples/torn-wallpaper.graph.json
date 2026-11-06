@@ -353,6 +353,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -372,7 +373,7 @@
       "type": "effects/noise",
       "position": {
         "x": -10712,
-        "y": 146
+        "y": 90
       },
       "inputValues": {
         "roughness": {
@@ -386,6 +387,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 4,
         "tile": false
       }
@@ -544,12 +546,12 @@
       "type": "utility/comment",
       "position": {
         "x": -11704,
-        "y": 66
+        "y": 10
       },
       "inputValues": {},
       "params": {
         "body": "Four octaves of low-frequency noise break the region into broad, uneven tears. Finer noise adds small bites. Noise stays anchored to the wall UV plus the seed: moving the region reveals new tears and backing patches, and returning to a position restores its pattern. Resizing the region keeps the noise scale fixed. The noise field has no polar seams.",
-        "height": 1343,
+        "height": 1455,
         "title": "05 · Noise-torn boundary",
         "width": 3168
       }
@@ -1082,7 +1084,7 @@
       "type": "effects/noise",
       "position": {
         "x": -8088,
-        "y": 732
+        "y": 704
       },
       "inputValues": {
         "scale": {
@@ -1092,6 +1094,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }

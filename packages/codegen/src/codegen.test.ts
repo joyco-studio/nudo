@@ -435,6 +435,104 @@ describe('generateModule', () => {
     })
   })
 
+  describe('noise distortion and normalize', () => {
+    const noiseTo = (edit: (graph: Graph) => Graph = (graph) => graph): string =>
+      generate(
+        edit(
+          withLink(
+            withNode(createGraph(), 'warp', 'effects/noise'),
+            port('warp', 'out'),
+            port('master', 'roughness'),
+          ),
+        ),
+      )
+    const DISTORTION_OFFSET = 'vec3(-61.3, 17.9, 88.4)'
+
+    it('prints no distortion while it is unwired at 0', () => {
+      expect(noiseTo()).not.toContain(DISTORTION_OFFSET)
+    })
+
+    it('bends the point with three noises once the distortion is not 0, or wired', () => {
+      const inline = noiseTo((graph) => withInput(graph, port('warp', 'distortion'), float(2)))
+      const wired = noiseTo((graph) =>
+        withLink(
+          withNode(graph, 'amount', 'input/float'),
+          port('amount', 'out'),
+          port('warp', 'distortion'),
+        ),
+      )
+
+      for (const code of [inline, wired]) {
+        expect(code).toContain(DISTORTION_OFFSET)
+        expect(code).toContain('vec3(43.6, -92.1, -27.5)')
+        expect(code).toContain('vec3(-8.2, 66.7, -113.8)')
+      }
+      expect(inline).toContain('.mul(float(2))')
+    })
+
+    it('declares the bent point once, however many octaves and channels read it', () => {
+      const code = noiseTo((graph) =>
+        withLink(
+          withParam(withInput(graph, port('warp', 'distortion'), float(2)), 'warp', 'octaves', 15),
+          port('warp', 'color'),
+          port('master', 'baseColor'),
+        ),
+      )
+
+      expect(code.split(DISTORTION_OFFSET)).toHaveLength(2)
+      expect(code).toMatch(/const distortedPoint\d+ = /)
+    })
+
+    it('leaves the octave weights out of the sum with Normalize off', () => {
+      const withOctaves = (graph: Graph): Graph => withParam(graph, 'warp', 'octaves', 3)
+      const normalized = noiseTo(withOctaves)
+      const raw = noiseTo((graph) => withParam(withOctaves(graph), 'warp', 'normalize', false))
+
+      expect(normalized).toContain('.div(')
+      expect(raw).not.toContain('.div(')
+    })
+  })
+
+  describe('vector transform', () => {
+    const transformTo = (params: Readonly<Record<string, string>>): string =>
+      generate(
+        Object.entries(params).reduce(
+          (graph, [paramId, value]) => withParam(graph, 'move', paramId, value),
+          withLink(
+            withNode(createGraph(), 'move', 'vector/vector-transform'),
+            port('move', 'out'),
+            port('master', 'baseColor'),
+          ),
+        ),
+      )
+
+    it('prints a world direction into object space with the inverse model matrix, w = 0', () => {
+      expect(transformTo({})).toMatch(
+        /modelWorldMatrixInverse\.mul\(vec4\(vec3\([^;]*\), 0\)\)\.xyz/,
+      )
+    })
+
+    it('prints a point with w = 1 and chains the matrices of camera to object', () => {
+      expect(transformTo({ type: 'point', from: 'camera', to: 'object' })).toMatch(
+        /modelWorldMatrixInverse\.mul\(cameraWorldMatrix\)\.mul\(vec4\(vec3\([^;]*\), 1\)\)\.xyz/,
+      )
+    })
+
+    it('prints a normal through the inverse transpose, from the matrix that goes back', () => {
+      const code = transformTo({ type: 'normal', from: 'object', to: 'world' })
+
+      expect(code).toMatch(/normalize\(transpose\(mat3\(modelWorldMatrixInverse\)\)\.mul\(vec3\(/)
+      expect(code).toMatch(/import \{[^}]*\bmat3\b[^}]*\btranspose\b[^}]*\} from 'three\/tsl'/)
+    })
+
+    it('prints the input unchanged within one space', () => {
+      for (const type of ['point', 'vector', 'normal']) {
+        const code = transformTo({ type, from: 'camera', to: 'camera' })
+        expect(code).not.toMatch(/Matrix/)
+      }
+    })
+  })
+
   describe('random hash', () => {
     const hashTo = (outputId: string, slot: string): Graph =>
       withLink(

@@ -40,6 +40,12 @@ export interface InputDefinition<I extends string> {
    * count). The editor shows no row for it and the node's `build` must not read it.
    */
   readonly hiddenWhen?: (params: Readonly<Record<string, ParamValue>>) => boolean
+  /**
+   * True when the node leaves out the work this input drives while it is unconnected and 0 (a
+   * Noise's Distortion), so a graph that never uses it pays nothing. Whether it is 0 then shapes
+   * the shader: crossing 0 recompiles, while any other edit stays an in-place uniform update.
+   */
+  readonly offAtZero?: boolean
 }
 
 /**
@@ -69,6 +75,11 @@ export interface BuildContext<E, I extends string> {
   readonly params: Readonly<Record<string, ParamValue>>
   /** The Blackboard property expression for `reads: 'property'` definitions; `null` otherwise. */
   readonly property: E | null
+  /**
+   * The `offAtZero` inputs that are unconnected and hold 0, which the node may leave out. Absent
+   * means none: inputs without `offAtZero` never appear here.
+   */
+  readonly zeroInputs?: ReadonlySet<I>
 }
 
 export interface NodeDefinition<I extends string, O extends string> {

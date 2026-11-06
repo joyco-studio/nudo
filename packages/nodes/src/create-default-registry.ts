@@ -75,6 +75,7 @@ import { reflectNode } from './vector/reflect-node'
 import { refractNode } from './vector/refract-node'
 import { rotate2dNode } from './vector/rotate-2d-node'
 import { splitNode } from './vector/split-node'
+import { vectorTransformNode } from './vector/vector-transform-node'
 
 const PHASE_1_DEFINITIONS: readonly AnyNodeDefinition[] = [
   masterStackNode,
@@ -163,6 +164,7 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   reflectNode,
   refractNode,
   toneMapNode,
+  vectorTransformNode,
 ]
 
 /** The two ends of a Repeat zone, a loop over the nodes between them. */

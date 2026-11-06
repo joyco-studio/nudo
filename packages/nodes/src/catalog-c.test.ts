@@ -34,6 +34,7 @@ import {
   refractNode,
   toneMapNode,
   triplanarNode,
+  vectorTransformNode,
   voronoi3dNode,
   voronoiNode,
 } from './index'
@@ -55,6 +56,7 @@ const CATALOG_C_TYPES = [
   'vector/reflect',
   'vector/refract',
   'color/tone-map',
+  'vector/vector-transform',
 ]
 
 const buildWith = (
@@ -718,6 +720,50 @@ describe('tone map', () => {
     expect(toneMapNode.inputs.map((input) => [input.id, input.default])).toEqual([
       ['color', { type: 'vec3', value: [1, 1, 1] }],
       ['exposure', { type: 'float', value: 1 }],
+    ])
+  })
+})
+
+describe('vector transform', () => {
+  const SPACES = ['world', 'object', 'camera'] as const
+
+  it('turns a world direction into object space by default', () => {
+    expect(buildWith(vectorTransformNode, { in: 'v' }).out).toBe('transform(vector,world,object,v)')
+  })
+
+  it.each(['point', 'vector', 'normal'] as const)(
+    'hands every From and To pair of a %s to the facade',
+    (type) => {
+      for (const from of SPACES) {
+        for (const to of SPACES) {
+          expect(buildWith(vectorTransformNode, { in: 'v' }, { type, from, to }).out).toBe(
+            `transform(${type},${from},${to},v)`,
+          )
+        }
+      }
+    },
+  )
+
+  it('falls back to the defaults for unknown options', () => {
+    expect(
+      buildWith(vectorTransformNode, { in: 'v' }, { type: 'nope', from: 'tangent', to: 'uv' }).out,
+    ).toBe('transform(vector,world,object,v)')
+  })
+
+  it('takes a vec3 at the origin and offers three types and three spaces', () => {
+    expect(vectorTransformNode.inputs.map((input) => [input.id, input.default])).toEqual([
+      ['in', { type: 'vec3', value: [0, 0, 0] }],
+    ])
+    expect(
+      (vectorTransformNode.params ?? []).map((param) => [
+        param.id,
+        param.kind === 'enum' ? param.options.map((option) => option.value) : [],
+        param.default,
+      ]),
+    ).toEqual([
+      ['type', ['point', 'vector', 'normal'], 'vector'],
+      ['from', ['world', 'object', 'camera'], 'world'],
+      ['to', ['world', 'object', 'camera'], 'object'],
     ])
   })
 })

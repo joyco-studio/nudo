@@ -6,7 +6,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -72,
-        "y": -1169
+        "y": -1190
       },
       "inputValues": {
         "b": {
@@ -25,7 +25,7 @@
       "type": "math/multiply",
       "position": {
         "x": -10152,
-        "y": 868
+        "y": 871
       },
       "inputValues": {},
       "params": {}
@@ -35,7 +35,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": 2113
+        "y": 2120
       },
       "inputValues": {
         "b": {
@@ -81,7 +81,7 @@
       "type": "property/vec3",
       "position": {
         "x": -984,
-        "y": -1086
+        "y": -1107
       },
       "inputValues": {},
       "params": {
@@ -105,7 +105,7 @@
       "type": "normal/normal-from-height",
       "position": {
         "x": 248,
-        "y": -39
+        "y": -32
       },
       "inputValues": {
         "strength": {
@@ -120,7 +120,7 @@
       "type": "math/one-minus",
       "position": {
         "x": -712,
-        "y": 329
+        "y": 336
       },
       "inputValues": {},
       "params": {}
@@ -130,7 +130,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": 248,
-        "y": -1206
+        "y": -1227
       },
       "inputValues": {
         "b": {
@@ -149,7 +149,7 @@
       "type": "math/derivatives",
       "position": {
         "x": -1352,
-        "y": 128
+        "y": 135
       },
       "inputValues": {},
       "params": {}
@@ -159,7 +159,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -1032,
-        "y": 91
+        "y": 98
       },
       "inputValues": {
         "edge0": {
@@ -178,7 +178,7 @@
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": 5
+        "y": 12
       },
       "inputValues": {},
       "params": {}
@@ -188,7 +188,7 @@
       "type": "math/one-minus",
       "position": {
         "x": -712,
-        "y": 54
+        "y": 61
       },
       "inputValues": {},
       "params": {}
@@ -198,7 +198,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": 140
+        "y": 147
       },
       "inputValues": {},
       "params": {}
@@ -208,7 +208,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1672,
-        "y": 38
+        "y": 17
       },
       "inputValues": {
         "scale": {
@@ -218,6 +218,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 3,
         "tile": false
       }
@@ -227,7 +228,7 @@
       "type": "math/add",
       "position": {
         "x": 248,
-        "y": -342
+        "y": -335
       },
       "inputValues": {},
       "params": {}
@@ -237,7 +238,7 @@
       "type": "math/multiply",
       "position": {
         "x": -9832,
-        "y": 831
+        "y": 834
       },
       "inputValues": {
         "b": {
@@ -256,7 +257,7 @@
       "type": "math/add",
       "position": {
         "x": -9512,
-        "y": 628
+        "y": 631
       },
       "inputValues": {},
       "params": {}
@@ -266,7 +267,7 @@
       "type": "math/multiply",
       "position": {
         "x": -712,
-        "y": 1028
+        "y": 1035
       },
       "inputValues": {},
       "params": {}
@@ -276,7 +277,7 @@
       "type": "effects/voronoi-3d",
       "position": {
         "x": -2632,
-        "y": 1063
+        "y": 1070
       },
       "inputValues": {
         "jitter": {
@@ -297,7 +298,7 @@
       "type": "color/blackbody",
       "position": {
         "x": -392,
-        "y": 716
+        "y": 723
       },
       "inputValues": {
         "temperature": {
@@ -312,7 +313,7 @@
       "type": "math/add",
       "position": {
         "x": -1992,
-        "y": 1076
+        "y": 1083
       },
       "inputValues": {
         "b": {
@@ -327,7 +328,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -1672,
-        "y": 1103
+        "y": 1110
       },
       "inputValues": {},
       "params": {}
@@ -337,7 +338,7 @@
       "type": "math/remap",
       "position": {
         "x": -1032,
-        "y": 1231
+        "y": 1238
       },
       "inputValues": {
         "inMax": {
@@ -360,7 +361,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1992,
-        "y": 1682
+        "y": 1689
       },
       "inputValues": {
         "b": {
@@ -375,7 +376,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1992,
-        "y": 1379
+        "y": 1386
       },
       "inputValues": {
         "b": {
@@ -390,7 +391,7 @@
       "type": "math/add",
       "position": {
         "x": -1672,
-        "y": 1434
+        "y": 1441
       },
       "inputValues": {},
       "params": {}
@@ -400,7 +401,7 @@
       "type": "math/sin",
       "position": {
         "x": -1352,
-        "y": 1359
+        "y": 1366
       },
       "inputValues": {},
       "params": {}
@@ -410,7 +411,7 @@
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": 803
+        "y": 810
       },
       "inputValues": {},
       "params": {}
@@ -420,7 +421,7 @@
       "type": "interpolation/step",
       "position": {
         "x": -1672,
-        "y": 799
+        "y": 806
       },
       "inputValues": {
         "edge": {
@@ -435,7 +436,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1032,
-        "y": 928
+        "y": 935
       },
       "inputValues": {},
       "params": {}
@@ -445,7 +446,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1352,
-        "y": 781
+        "y": 788
       },
       "inputValues": {},
       "params": {}
@@ -455,7 +456,7 @@
       "type": "math/derivatives",
       "position": {
         "x": -2312,
-        "y": 1057
+        "y": 1064
       },
       "inputValues": {},
       "params": {}
@@ -465,7 +466,7 @@
       "type": "math/one-minus",
       "position": {
         "x": -1352,
-        "y": 1084
+        "y": 1091
       },
       "inputValues": {},
       "params": {}
@@ -475,7 +476,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": 991
+        "y": 998
       },
       "inputValues": {
         "b": {
@@ -490,7 +491,7 @@
       "type": "math/add",
       "position": {
         "x": 248,
-        "y": 738
+        "y": 745
       },
       "inputValues": {},
       "params": {}
@@ -500,7 +501,7 @@
       "type": "property/float",
       "position": {
         "x": -10424,
-        "y": 1105
+        "y": 1108
       },
       "inputValues": {},
       "params": {
@@ -512,12 +513,12 @@
       "type": "utility/comment",
       "position": {
         "x": -1384,
-        "y": -1553
+        "y": -1574
       },
       "inputValues": {},
       "params": {
         "body": "Crust color, a little lighter or darker per plate (Voronoi's Random), rusted in patches by an oxide tint, reddened by the rim, and nearly black inside the seam where only the glow shows.",
-        "height": 1017,
+        "height": 1045,
         "title": "Crust",
         "width": 1888
       }
@@ -527,7 +528,7 @@
       "type": "utility/comment",
       "position": {
         "x": -2664,
-        "y": 636
+        "y": 643
       },
       "inputValues": {},
       "params": {
@@ -542,12 +543,12 @@
       "type": "utility/comment",
       "position": {
         "x": -10504,
-        "y": 446
+        "y": 430
       },
       "inputValues": {},
       "params": {
         "body": "The object position × plate scale, slid by Time × flow speed so the crust drifts, then bent by a slow noise so the plates never look like straight cells.",
-        "height": 725,
+        "height": 744,
         "title": "Drifting crust",
         "width": 2208
       }
@@ -557,7 +558,7 @@
       "type": "utility/comment",
       "position": {
         "x": -3960,
-        "y": 517
+        "y": 524
       },
       "inputValues": {},
       "params": {
@@ -572,12 +573,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6264,
-        "y": 700
+        "y": 679
       },
       "inputValues": {},
       "params": {
         "body": "A sine of Time plus a noise phase sends pulses of heat along the seams. The seam carries the pulse; the rim keeps a third of it. The hotter of the two is the heat, 0 to 1.",
-        "height": 742,
+        "height": 770,
         "title": "Travelling heat",
         "width": 2208
       }
@@ -602,7 +603,7 @@
       "type": "utility/comment",
       "position": {
         "x": -1704,
-        "y": -504
+        "y": -497
       },
       "inputValues": {},
       "params": {
@@ -617,7 +618,7 @@
       "type": "utility/comment",
       "position": {
         "x": -744,
-        "y": 2017
+        "y": 2024
       },
       "inputValues": {},
       "params": {
@@ -632,7 +633,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3016,
-        "y": 775
+        "y": 782
       },
       "inputValues": {},
       "params": {}
@@ -642,7 +643,7 @@
       "type": "color/blackbody",
       "position": {
         "x": -3336,
-        "y": 688
+        "y": 695
       },
       "inputValues": {},
       "params": {}
@@ -652,7 +653,7 @@
       "type": "property/float",
       "position": {
         "x": -3608,
-        "y": 1247
+        "y": 1254
       },
       "inputValues": {},
       "params": {
@@ -664,7 +665,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3336,
-        "y": 963
+        "y": 970
       },
       "inputValues": {},
       "params": {}
@@ -674,7 +675,7 @@
       "type": "math/max",
       "position": {
         "x": -4312,
-        "y": 898
+        "y": 905
       },
       "inputValues": {},
       "params": {}
@@ -684,7 +685,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3656,
-        "y": 944
+        "y": 951
       },
       "inputValues": {},
       "params": {}
@@ -694,7 +695,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -3656,
-        "y": 613
+        "y": 620
       },
       "inputValues": {
         "a": {
@@ -731,7 +732,7 @@
       "type": "input/normal",
       "position": {
         "x": -392,
-        "y": -424
+        "y": -417
       },
       "inputValues": {},
       "params": {
@@ -743,7 +744,7 @@
       "type": "math/remap",
       "position": {
         "x": 248,
-        "y": 2113
+        "y": 2120
       },
       "inputValues": {
         "outMax": {
@@ -762,7 +763,7 @@
       "type": "interpolation/smoothstep",
       "position": {
         "x": -1032,
-        "y": -1016
+        "y": -1037
       },
       "inputValues": {
         "edge0": {
@@ -781,7 +782,7 @@
       "type": "math/multiply",
       "position": {
         "x": -712,
-        "y": -1053
+        "y": -1074
       },
       "inputValues": {
         "b": {
@@ -796,7 +797,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1352,
-        "y": -1016
+        "y": -1065
       },
       "inputValues": {
         "scale": {
@@ -806,6 +807,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 3,
         "tile": false
       }
@@ -815,7 +817,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -392,
-        "y": -1269
+        "y": -1290
       },
       "inputValues": {
         "b": {
@@ -834,7 +836,7 @@
       "type": "math/remap",
       "position": {
         "x": -1032,
-        "y": -1473
+        "y": -1494
       },
       "inputValues": {
         "outMax": {
@@ -853,7 +855,7 @@
       "type": "math/multiply",
       "position": {
         "x": -9832,
-        "y": 528
+        "y": 531
       },
       "inputValues": {
         "b": {
@@ -889,7 +891,7 @@
       "type": "input/position",
       "position": {
         "x": -10152,
-        "y": 542
+        "y": 545
       },
       "inputValues": {},
       "params": {
@@ -901,7 +903,7 @@
       "type": "math/remap",
       "position": {
         "x": -4952,
-        "y": 863
+        "y": 870
       },
       "inputValues": {
         "inMax": {
@@ -928,7 +930,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5912,
-        "y": 1139
+        "y": 1146
       },
       "inputValues": {
         "b": {
@@ -943,7 +945,7 @@
       "type": "effects/noise",
       "position": {
         "x": -6232,
-        "y": 780
+        "y": 759
       },
       "inputValues": {
         "scale": {
@@ -953,6 +955,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -962,7 +965,7 @@
       "type": "math/multiply",
       "position": {
         "x": -5912,
-        "y": 836
+        "y": 843
       },
       "inputValues": {
         "b": {
@@ -977,7 +980,7 @@
       "type": "math/add",
       "position": {
         "x": -5592,
-        "y": 937
+        "y": 944
       },
       "inputValues": {},
       "params": {}
@@ -987,7 +990,7 @@
       "type": "math/sin",
       "position": {
         "x": -5272,
-        "y": 900
+        "y": 907
       },
       "inputValues": {},
       "params": {}
@@ -1017,7 +1020,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4632,
-        "y": 1101
+        "y": 1108
       },
       "inputValues": {
         "b": {
@@ -1032,7 +1035,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": -938
+        "y": -959
       },
       "inputValues": {
         "b": {
@@ -1062,7 +1065,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -712,
-        "y": 2113
+        "y": 2120
       },
       "inputValues": {
         "a": {
@@ -1101,7 +1104,7 @@
       "type": "math/multiply",
       "position": {
         "x": -4632,
-        "y": 798
+        "y": 805
       },
       "inputValues": {},
       "params": {}
@@ -1121,7 +1124,7 @@
       "type": "math/multiply",
       "position": {
         "x": -712,
-        "y": -1356
+        "y": -1377
       },
       "inputValues": {},
       "params": {}
@@ -1131,7 +1134,7 @@
       "type": "math/multiply",
       "position": {
         "x": -392,
-        "y": -163
+        "y": -156
       },
       "inputValues": {
         "b": {
@@ -1146,7 +1149,7 @@
       "type": "interpolation/lerp",
       "position": {
         "x": -72,
-        "y": 2113
+        "y": 2120
       },
       "inputValues": {
         "a": {
@@ -1165,7 +1168,7 @@
       "type": "math/multiply",
       "position": {
         "x": -72,
-        "y": -298
+        "y": -291
       },
       "inputValues": {},
       "params": {}
@@ -1175,7 +1178,7 @@
       "type": "property/float",
       "position": {
         "x": -3928,
-        "y": 729
+        "y": 736
       },
       "inputValues": {},
       "params": {
@@ -1187,7 +1190,7 @@
       "type": "input/time",
       "position": {
         "x": -10472,
-        "y": 797
+        "y": 800
       },
       "inputValues": {},
       "params": {}
@@ -1197,7 +1200,7 @@
       "type": "effects/noise",
       "position": {
         "x": -9192,
-        "y": 535
+        "y": 510
       },
       "inputValues": {
         "scale": {
@@ -1207,6 +1210,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -1216,7 +1220,7 @@
       "type": "math/multiply",
       "position": {
         "x": -8872,
-        "y": 591
+        "y": 594
       },
       "inputValues": {
         "b": {
@@ -1231,7 +1235,7 @@
       "type": "math/add",
       "position": {
         "x": -8552,
-        "y": 526
+        "y": 529
       },
       "inputValues": {},
       "params": {}

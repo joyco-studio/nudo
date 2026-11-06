@@ -1077,11 +1077,12 @@
       "type": "effects/noise",
       "position": {
         "x": -6920,
-        "y": 292
+        "y": 264
       },
       "inputValues": {},
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "tile": false
       }
     },
