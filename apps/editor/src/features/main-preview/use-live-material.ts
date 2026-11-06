@@ -14,6 +14,7 @@ import { recordCompile, recordCompilePending } from './compile-counter'
 import { recordPreviewApply } from './preview-apply-counter'
 import { previewMaterialsOf } from './preview-materials'
 import type { PreviewMaterials } from './preview-materials'
+import { createStructuralPreviewSync } from './structural-preview'
 
 /** Quiet period after the last structural edit before the graph is compiled again. */
 const COMPILE_DEBOUNCE_MS = 150
@@ -81,8 +82,11 @@ export function useLiveMaterial(): LiveMaterial {
       onPendingChange: recordCompilePending,
     })
     scheduler.update(useEditorStore.getState().graph)
+    const syncGraph = createStructuralPreviewSync(registry, (graph) => {
+      scheduler.update(graph)
+    })
     const unsubscribe = useEditorStore.subscribe((state, previousState) => {
-      if (state.graph !== previousState.graph) scheduler.update(state.graph)
+      syncGraph(state, previousState)
       showPreviews(scheduler, state, previousState)
     })
     const unsubscribeTextures = textureCache.subscribe((assetId, state) => {

@@ -73,6 +73,7 @@ function numericFacade(): TslFacade<Value> {
     normalFromHeight: unsupported,
     mainLight: unsupported,
     transform: unsupported,
+    share: (value) => value,
     builtin: unsupported,
     swizzle: unsupported,
   }

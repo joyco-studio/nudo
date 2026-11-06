@@ -98,6 +98,7 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
         lights.add(component)
         return facade.mainLight(component)
       },
+      share: (value, name) => referenceTo({ name: names.counted(name), value }),
     },
     texturePlaceholders,
     lights,

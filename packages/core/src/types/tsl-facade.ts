@@ -190,6 +190,12 @@ export interface TslFacade<E> {
    * perpendicular to the surface and comes out length 1. Within one space it is `value` itself.
    */
   transform(kind: TransformKind, from: TransformSpace, to: TransformSpace, value: E): E
+  /**
+   * `value`, marked as read in several places inside one node's `build` (a Noise's bent point,
+   * read by every octave). The live graph already shares the node, so it is returned as is; a
+   * generated module declares it once as a constant named after `name` instead of repeating it.
+   */
+  share(value: E, name: string): E
   builtin(name: BuiltinName): E
   construct(type: VectorType, parts: readonly (E | number)[]): E
   swizzle(value: E, components: Swizzle): E

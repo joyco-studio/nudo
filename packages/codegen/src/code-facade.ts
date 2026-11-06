@@ -222,6 +222,8 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     normalFromHeight: (height, strength) => callHelper('normalFromHeight', [height, strength]),
     mainLight: (component) => compose(`${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS[component]}`, []),
     transform,
+    // Naming needs the module's allocator, which the code backend owns; it overrides this.
+    share: (value) => value,
     builtin: (name) => compose(name === 'uv' ? 'uv()' : name, [], { imports: [name] }),
     construct,
     swizzle: (value, components: Swizzle) => member(value, components),

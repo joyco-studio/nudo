@@ -353,6 +353,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     normalFromHeight: (height, strength) => normalFromHeightNodes(height, strength),
     mainLight: (component) => MAIN_LIGHT_UNIFORMS[component],
     transform: transformVector,
+    share: (value) => value,
     builtin: (name) => BUILTINS[name](),
     construct: (type, parts) => CONSTRUCTORS[type](...parts),
     swizzle: readSwizzle,

@@ -470,6 +470,19 @@ describe('generateModule', () => {
       expect(inline).toContain('.mul(float(2))')
     })
 
+    it('declares the bent point once, however many octaves and channels read it', () => {
+      const code = noiseTo((graph) =>
+        withLink(
+          withParam(withInput(graph, port('warp', 'distortion'), float(2)), 'warp', 'octaves', 15),
+          port('warp', 'color'),
+          port('master', 'baseColor'),
+        ),
+      )
+
+      expect(code.split(DISTORTION_OFFSET)).toHaveLength(2)
+      expect(code).toMatch(/const distortedPoint\d+ = /)
+    })
+
     it('leaves the octave weights out of the sum with Normalize off', () => {
       const withOctaves = (graph: Graph): Graph => withParam(graph, 'warp', 'octaves', 3)
       const normalized = noiseTo(withOctaves)

@@ -222,7 +222,10 @@ export const noiseNode = defineNode({
     const isDistorted = !tiling && zeroInputs?.has('distortion') !== true
     const scaled = tsl.mul(inputs.p, inputs.scale)
     // Out and both Color channels read the same bent point, so the three stay coherent.
-    const point = isDistorted ? distort(tsl, kind, scaled, inputs.distortion) : scaled
+    // Shared so a generated module declares the bent point once, not once per octave and channel.
+    const point = isDistorted
+      ? tsl.share(distort(tsl, kind, scaled, inputs.distortion), 'distortedPoint')
+      : scaled
     const sample = (offset: readonly number[] | null) =>
       fractalNoise(tsl, {
         kind,

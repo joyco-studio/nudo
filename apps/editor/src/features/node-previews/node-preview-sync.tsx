@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 
 import { textureCache } from '@/features/assets/texture-cache'
+import { createStructuralPreviewSync } from '@/features/main-preview/structural-preview'
 import { useEditorStore } from '@/store/editor-store'
+import { registry } from '@/store/registry'
 import type { EditorState } from '@/store/store-types'
 
 import type { PreviewEngine } from './preview-engine'
@@ -32,8 +34,11 @@ export function NodePreviewSync() {
   useEffect(() => {
     const engine = getSharedPreviewEngine()
     engine.update(useEditorStore.getState().graph)
+    const syncGraph = createStructuralPreviewSync(registry, (graph) => {
+      engine.update(graph)
+    })
     const unsubscribe = useEditorStore.subscribe((state, previous) => {
-      if (state.graph !== previous.graph) engine.update(state.graph)
+      syncGraph(state, previous)
       showValuePreviews(engine, state, previous)
     })
     const unsubscribeTextures = textureCache.subscribe((assetId, state) => {

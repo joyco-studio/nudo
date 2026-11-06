@@ -58,6 +58,7 @@ export function createRecordingFacade(): TslFacade<string> {
     normalFromHeight: (height, strength) => `normalFromHeight(${height},${strength})`,
     mainLight: (component) => `mainLight(${component})`,
     transform: (kind, from, to, value) => `transform(${kind},${from},${to},${value})`,
+    share: (value) => value,
     builtin: (name) => `builtin(${name})`,
     construct: (type, parts) => `construct(${type},${formatParts(parts)})`,
     swizzle: (value, components) => `swizzle(${value},${components})`,
