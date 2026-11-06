@@ -42,6 +42,19 @@ export function uniformExpression(
 
 const PRIMARY_OUTPUT_ID = 'out'
 
+const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
+const TRAILING_COUNTER = /\d+$/
+
+/** `value.toVar()`: a var declared where the loop's helper puts it, ahead of the loop. */
+const toVar = (value: CodeExpression): CodeExpression => compose(`${value.code}.toVar()`, [value])
+
+/** The base name of a captured value: `normalize1` captures as `normalizeVar1`. */
+const capturedBase = (value: CodeExpression): string =>
+  IDENTIFIER.test(value.code) ? `${value.code.replace(TRAILING_COUNTER, '')}Var` : 'capturedVar'
+
+const listOf = (expressions: readonly CodeExpression[]): string =>
+  `[${expressions.map((expression) => expression.code).join(', ')}]`
+
 /** The suffix that tells the outputs of one node apart; a lone or primary output needs none. */
 const outputSuffix = (definition: AnyNodeDefinition, portId: string): string =>
   definition.outputs.length === 1 || portId === PRIMARY_OUTPUT_ID
@@ -94,6 +107,33 @@ export function createCodeBackend(properties: readonly BlackboardProperty[]): Co
       if (property.value.type === 'texture') return textureReader(property.name)
       if (property.exposed) return compose(`${UNIFORMS_OBJECT}.${property.name}`, [])
       return literalOf(property.value, isColorWidget(property.widget))
+    },
+    openRepeat: (_node, initial, readsIndex) => {
+      const declare = (base: string, value: CodeExpression): CodeExpression =>
+        referenceTo({ name: names.counted(base), value })
+      const captured: CodeExpression[] = []
+      const index = readsIndex
+        ? declare('repeatIndex', compose('float(0).toVar()', [], { imports: ['float'] }))
+        : null
+      const state = initial.map((value) => declare('repeatValue', toVar(value)))
+      return {
+        index,
+        state,
+        capture: (value) => {
+          const declared = declare(capturedBase(value), toVar(value))
+          captured.push(declared)
+          return declared
+        },
+        close: (iterations, next) => {
+          const call = compose(
+            `repeatLoop(${iterations.code}, ${listOf(captured)}, ${index?.code ?? 'null'}, ${listOf(state)}, ${listOf(next)})`,
+            [iterations, ...captured, ...(index === null ? [] : [index]), ...state, ...next],
+            { helpers: ['repeatLoop'] },
+          )
+          const results = declare('repeatResults', call)
+          return state.map((_, slot) => compose(`${results.code}[${String(slot)}]`, [results]))
+        },
+      }
     },
     nameOutput: (node, definition, portId, expression) => {
       // A property reader prints as the property itself, and a reroute as what feeds it.

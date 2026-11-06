@@ -1,7 +1,12 @@
 import { addNode, asEdgeId, asNodeId, compile, connect, createGraph } from '@nudo-tsl/core'
 import type { CompileBackend, Graph, NodeRegistry, Result } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
-import { createDefaultRegistry, createRecordingFacade, fresnelNode } from './index'
+import {
+  createDefaultRegistry,
+  createRecordingFacade,
+  fresnelNode,
+  openRecordingRepeat,
+} from './index'
 
 const PHASE_1_TYPES = [
   'master/stack',
@@ -28,6 +33,7 @@ const createRecordingBackend = (): CompileBackend<string> => ({
   tsl: createRecordingFacade(),
   inputValue: (ref) => `u(${ref.nodeId}:${ref.portId})`,
   property: (property) => `prop(${property.name})`,
+  openRepeat: openRecordingRepeat,
 })
 
 const withNode = (graph: Graph, registry: NodeRegistry, id: string, type: string): Graph =>

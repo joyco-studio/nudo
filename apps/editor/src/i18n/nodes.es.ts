@@ -893,6 +893,88 @@ export const NODES_ES: NodeTranslations = {
     },
     params: { op: { label: 'Comparar' } },
   },
+  'logic/repeat-input': {
+    label: 'Repetir · entrada',
+    description:
+      'Empieza un bucle: los nodos entre este y su Repetir · salida se ejecutan una vez por pasada, y cada pasada lee los valores que le dejó la anterior.',
+    formula: 'para i < Iteraciones',
+    keywords: ['repetir', 'bucle', 'iterar', 'zona', 'pasos', 'acumular', 'raymarch'],
+    inputs: {
+      iterations: {
+        label: 'Iteraciones',
+        description: 'Cuántas pasadas hace el bucle: un número entero de 0 a 1024.',
+      },
+      a: {
+        label: 'A',
+        description: 'Lo que vale A al empezar la primera pasada; fija el tipo de A.',
+      },
+      b: {
+        label: 'B',
+        description: 'Lo que vale B al empezar la primera pasada; fija el tipo de B.',
+      },
+      c: {
+        label: 'C',
+        description: 'Lo que vale C al empezar la primera pasada; fija el tipo de C.',
+      },
+      d: {
+        label: 'D',
+        description: 'Lo que vale D al empezar la primera pasada; fija el tipo de D.',
+      },
+    },
+    outputs: {
+      index: {
+        label: 'Índice',
+        description: 'El número de la pasada actual: 0 en la primera, luego 1, 2, etc.',
+      },
+      a: {
+        label: 'A',
+        description: 'A en esta pasada: su valor inicial, o lo que dejó la anterior.',
+      },
+      b: {
+        label: 'B',
+        description: 'B en esta pasada: su valor inicial, o lo que dejó la anterior.',
+      },
+      c: {
+        label: 'C',
+        description: 'C en esta pasada: su valor inicial, o lo que dejó la anterior.',
+      },
+      d: {
+        label: 'D',
+        description: 'D en esta pasada: su valor inicial, o lo que dejó la anterior.',
+      },
+    },
+  },
+  'logic/repeat-output': {
+    label: 'Repetir · salida',
+    description:
+      'Cierra un bucle: recibe lo que vale cada valor en la pasada siguiente y entrega los valores tras la última.',
+    formula: 'tras la última pasada',
+    keywords: ['repetir', 'bucle', 'iterar', 'zona', 'pasos', 'acumular', 'raymarch'],
+    inputs: {
+      a: {
+        label: 'A',
+        description: 'Lo que vale A en la pasada siguiente; sin conectar, no cambia.',
+      },
+      b: {
+        label: 'B',
+        description: 'Lo que vale B en la pasada siguiente; sin conectar, no cambia.',
+      },
+      c: {
+        label: 'C',
+        description: 'Lo que vale C en la pasada siguiente; sin conectar, no cambia.',
+      },
+      d: {
+        label: 'D',
+        description: 'Lo que vale D en la pasada siguiente; sin conectar, no cambia.',
+      },
+    },
+    outputs: {
+      a: { label: 'A', description: 'A tras la última pasada.' },
+      b: { label: 'B', description: 'B tras la última pasada.' },
+      c: { label: 'C', description: 'C tras la última pasada.' },
+      d: { label: 'D', description: 'D tras la última pasada.' },
+    },
+  },
 
   // Vector
   'vector/split': {

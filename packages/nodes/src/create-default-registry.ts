@@ -26,6 +26,7 @@ import { aaStepNode } from './interpolation/aa-step-node'
 import { lerpNode } from './interpolation/lerp-node'
 import { smoothstepNode } from './interpolation/smoothstep-node'
 import { stepNode } from './interpolation/step-node'
+import { repeatInputNode, repeatOutputNode } from './logic/repeat-nodes'
 import { selectNode } from './logic/select-node'
 import { masterStackNode } from './master/master-stack'
 import { absNode } from './math/abs-node'
@@ -164,6 +165,9 @@ export const PHASE_3_CATALOG_C: readonly AnyNodeDefinition[] = [
   toneMapNode,
 ]
 
+/** The two ends of a Repeat zone, a loop over the nodes between them. */
+export const LOOP_DEFINITIONS: readonly AnyNodeDefinition[] = [repeatInputNode, repeatOutputNode]
+
 export function createDefaultRegistry(): NodeRegistry {
   const registry = createNodeRegistry()
   for (const definition of [
@@ -171,6 +175,7 @@ export function createDefaultRegistry(): NodeRegistry {
     ...PHASE_2_CATALOG_A,
     ...PHASE_2_CATALOG_B,
     ...PHASE_3_CATALOG_C,
+    ...LOOP_DEFINITIONS,
   ]) {
     const result = registry.register(definition)
     if (!result.ok) throw new Error(`Duplicate built-in node type: ${result.error.type}`)

@@ -441,6 +441,7 @@ export const en = {
   'node.outlineOff': 'Turn on Outline to use this',
   'node.meshDefault': 'Mesh default',
   'node.off': 'Off',
+  'node.unchanged': 'Unchanged',
   'port.name': '{port}, {side}, {type}, {connection}',
   'port.side.input': 'input port',
   'port.side.output': 'output port',

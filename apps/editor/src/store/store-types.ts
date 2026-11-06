@@ -54,7 +54,10 @@ export interface GraphSlice {
    * replaces the graph after an await reads it first and gives up when it has moved on since.
    */
   graphGeneration: number
-  /** Returns the new node id, or null when the node could not be added. */
+  /**
+   * Returns the new node id, or null when the node could not be added. Either end of a Repeat zone
+   * is added together with the other (one history entry); the id is the end that was asked for.
+   */
   addNode(type: NodeTypeId, position: XY): NodeId | null
   removeNodes(ids: readonly NodeId[]): void
   /**

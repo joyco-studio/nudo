@@ -3,6 +3,7 @@ import {
   addNode,
   addProperty,
   addPropertyNode,
+  addRepeatZone,
   asEdgeId,
   asNodeId,
   asPropertyId,
@@ -38,6 +39,10 @@ const SLOT_SOURCES: Readonly<Record<string, string>> = {
   roughness: 'math/sin',
   metalness: 'input/float',
 }
+
+/** What the Repeat zone starts from, and the outside value its body reads. */
+const ZONE_START_TYPE = 'input/position'
+const ZONE_OUTSIDE_TYPE = 'input/time'
 
 type ParamOverrides = Readonly<Record<string, ParamValue>>
 
@@ -149,7 +154,8 @@ export function createCatalogGraph(registry: NodeRegistry): Graph {
   }
 
   for (const definition of registry.list()) {
-    if (definition.type === MASTER_TYPE || definition.reads === 'property') continue
+    const isAddedApart = definition.reads === 'property' || definition.repeat !== undefined
+    if (definition.type === MASTER_TYPE || isAddedApart) continue
     for (const overrides of enumVariants(definition)) {
       const id = nextNodeId(definition.type)
       graph = unwrap(addNode(graph, registry, { id, type: definition.type, position: ORIGIN }))
@@ -165,6 +171,27 @@ export function createCatalogGraph(registry: NodeRegistry): Graph {
       }
     }
   }
+
+  // A Repeat zone: each pass adds the pass number and a value from outside the zone (captured).
+  const zoneInput = nextNodeId('logic/repeat-input')
+  const zoneOutput = nextNodeId('logic/repeat-output')
+  graph = unwrap(
+    addRepeatZone(graph, registry, { inputId: zoneInput, outputId: zoneOutput, position: ORIGIN }),
+  )
+  const outside = sourceByType.get(ZONE_OUTSIDE_TYPE)
+  const start = sourceByType.get(ZONE_START_TYPE)
+  if (outside === undefined || start === undefined) throw new Error('No source for the zone')
+  link(start, { nodeId: zoneInput, portId: 'a' })
+  const passSum = nextNodeId(SUM_TYPE)
+  const outsideSum = nextNodeId(SUM_TYPE)
+  graph = unwrap(addNode(graph, registry, { id: passSum, type: SUM_TYPE, position: ORIGIN }))
+  graph = unwrap(addNode(graph, registry, { id: outsideSum, type: SUM_TYPE, position: ORIGIN }))
+  link({ nodeId: zoneInput, portId: 'a' }, { nodeId: passSum, portId: 'a' })
+  link({ nodeId: zoneInput, portId: 'index' }, { nodeId: passSum, portId: 'b' })
+  link({ nodeId: passSum, portId: 'out' }, { nodeId: outsideSum, portId: 'a' })
+  link(outside, { nodeId: outsideSum, portId: 'b' })
+  link({ nodeId: outsideSum, portId: 'out' }, { nodeId: zoneOutput, portId: 'a' })
+  sources.push({ nodeId: zoneOutput, portId: 'a' })
 
   // One more sampler keeps its own inline texture, which has no property behind it.
   const inlineSampler = nextNodeId(SAMPLE_TEXTURE_TYPE)

@@ -30,6 +30,7 @@ import {
   gradientNode,
   noiseNode,
   normalFromHeightNode,
+  openRecordingRepeat,
   positionNode,
   sampleTexture2dNode,
   sceneColorNode,
@@ -844,6 +845,7 @@ describe('compiling catalog B nodes', () => {
     tsl: createRecordingFacade(),
     inputValue: (ref) => `u(${ref.nodeId}:${ref.portId})`,
     property: (property) => `prop(${property.name})`,
+    openRepeat: openRecordingRepeat,
   }
 
   const compileOutput = (graph: Graph, nodeId: string, portId: string) =>

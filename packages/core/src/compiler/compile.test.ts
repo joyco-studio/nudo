@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { addNode } from '../graph/add-node'
+import { addRepeatZone } from '../graph/add-repeat-zone'
+import { removeNodes } from '../graph/remove-nodes'
+import { extractFragment } from '../fragment/extract-fragment'
+import { pasteFragment } from '../fragment/paste-fragment'
+import { resolvePortTypes } from '../type-inference/resolve-port-types'
 import { connect } from '../graph/connect'
 import { createGraph } from '../graph/create-graph'
 import { disconnect } from '../graph/disconnect'
@@ -78,6 +83,24 @@ const stringFacade: TslFacade<string> = {
   swizzle: (value, components) => `swizzle(${value},${components})`,
 }
 
+/** Prints a zone's loop as `repeat(input,iterations,[start],[next],[values captured])[slot]`. */
+const openStringRepeat: CompileBackend<string>['openRepeat'] = (node, initial, readsIndex) => {
+  const captured: string[] = []
+  return {
+    index: readsIndex ? `index(${node.id})` : null,
+    state: initial.map((_, slot) => `state(${node.id},${String(slot)})`),
+    capture: (value) => {
+      captured.push(value)
+      return `captured(${value})`
+    },
+    close: (iterations, next) =>
+      next.map(
+        (_, slot) =>
+          `repeat(${node.id},${iterations},[${initial.join(',')}],[${next.join(',')}],[${captured.join(',')}])[${String(slot)}]`,
+      ),
+  }
+}
+
 const createStringBackend = (options: Pick<CompileBackend<string>, 'nameOutput'> = {}) => {
   const receivedValues = new Map<string, PortValue>()
   const requestedProperties: string[] = []
@@ -92,6 +115,7 @@ const createStringBackend = (options: Pick<CompileBackend<string>, 'nameOutput'>
       requestedProperties.push(property.name)
       return `prop(${property.name})`
     },
+    openRepeat: openStringRepeat,
     ...options,
   }
   return { backend, receivedValues, requestedProperties }
@@ -660,6 +684,7 @@ describe('compile', () => {
         return `u(${ref.nodeId}:${ref.portId})`
       },
       property: (property) => `prop(${property.name})`,
+      openRepeat: openStringRepeat,
     }
 
     const result = compile(
@@ -894,5 +919,277 @@ describe('compile nameOutput', () => {
       ok: false,
       errors: [{ nodeId: 'c', code: 'build-failed', message: 'naming failed' }],
     })
+  })
+})
+
+const REPEAT_GROUPS = { a: 'A', b: 'B', c: 'C', d: 'D' } as const
+
+const repeatInput = defineNode({
+  type: 'test/repeat-input',
+  category: 'logic',
+  label: 'Repeat Input',
+  description: 'Start of a zone',
+  keywords: [],
+  repeat: 'input',
+  inputs: [
+    { id: 'iterations', label: 'Iterations', type: concrete('float'), default: float(4) },
+    ...Object.entries(REPEAT_GROUPS).map(([id, group]) => ({
+      id,
+      label: id,
+      type: generic(group),
+      default: float(0),
+    })),
+  ],
+  outputs: [
+    { id: 'index', label: 'Index', type: concrete('float') },
+    ...Object.entries(REPEAT_GROUPS).map(([id, group]) => ({
+      id,
+      label: id,
+      type: generic(group),
+    })),
+  ],
+  build: ({ tsl, inputs }) => ({
+    index: tsl.construct('float', [0]),
+    ...Object.fromEntries(Object.keys(REPEAT_GROUPS).map((id) => [id, inputs[id] ?? ''])),
+  }),
+})
+
+const repeatOutput = defineNode({
+  type: 'test/repeat-output',
+  category: 'logic',
+  label: 'Repeat Output',
+  description: 'End of a zone',
+  keywords: [],
+  repeat: 'output',
+  inputs: Object.entries(REPEAT_GROUPS).map(([id, group]) => ({
+    id,
+    label: id,
+    type: generic(group),
+    default: float(0),
+    optional: true,
+  })),
+  outputs: Object.entries(REPEAT_GROUPS).map(([id, group]) => ({
+    id,
+    label: id,
+    type: generic(group),
+  })),
+  params: [{ id: 'repeatInput', label: 'Repeat Input', kind: 'string', default: '', hidden: true }],
+  build: () => {
+    throw new Error('A Repeat Output is built by the compiler')
+  },
+})
+
+describe('compile repeat zones', () => {
+  const registry = createRegistry(repeatInput, repeatOutput)
+  const zone = (extra: readonly (readonly [string, string])[] = []): Graph =>
+    withNodesOn(
+      unwrap(
+        addRepeatZone(createGraph(), registry, {
+          inputId: asNodeId('p'),
+          outputId: asNodeId('r'),
+          position: origin,
+        }),
+      ),
+      registry,
+      extra,
+    )
+  const baseColorOf = (graph: Graph) => {
+    const { result } = compileMaster(graph, registry)
+    return expectMasterSlots(result).baseColor
+  }
+
+  it('builds the body inside the loop and captures what it reads from outside', () => {
+    let graph = zone([
+      ['c', 'test/color'],
+      ['f', 'test/float'],
+      ['sum', 'test/add'],
+    ])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'a'])
+    graph = link(graph, registry, 'e2', ['p', 'a'], ['sum', 'a'])
+    graph = link(graph, registry, 'e3', ['f', 'out'], ['sum', 'b'])
+    graph = link(graph, registry, 'e4', ['sum', 'out'], ['r', 'a'])
+    graph = link(graph, registry, 'e5', ['r', 'a'], [MASTER_NODE_ID, 'baseColor'])
+
+    expect(baseColorOf(graph)).toBe(
+      'repeat(p,u(p:iterations),[u(c:color)],[add(state(p,0),construct(vec3,[captured(u(f:value))]))],[u(f:value)])[0]',
+    )
+  })
+
+  it('reads the pass number only when something is wired to Index', () => {
+    let graph = zone([['sum', 'test/add']])
+    graph = link(graph, registry, 'e1', ['p', 'a'], ['sum', 'a'])
+    graph = link(graph, registry, 'e2', ['p', 'index'], ['sum', 'b'])
+    graph = link(graph, registry, 'e3', ['sum', 'out'], ['r', 'a'])
+    graph = link(graph, registry, 'e4', ['r', 'a'], [MASTER_NODE_ID, 'roughness'])
+    const { result } = compileMaster(graph, registry)
+
+    expect(expectMasterSlots(result).roughness).toBe(
+      'repeat(p,u(p:iterations),[u(p:a)],[add(state(p,0),index(p))],[])[0]',
+    )
+  })
+
+  it('carries a slot with no next value over unchanged', () => {
+    let graph = zone([['c', 'test/color']])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'a'])
+    graph = link(graph, registry, 'e2', ['r', 'a'], [MASTER_NODE_ID, 'baseColor'])
+
+    expect(baseColorOf(graph)).toBe('repeat(p,u(p:iterations),[u(c:color)],[state(p,0)],[])[0]')
+  })
+
+  it('leaves slots without wires out of the loop, their result being the starting value', () => {
+    let graph = zone([['c', 'test/color']])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'b'])
+    graph = link(graph, registry, 'e2', ['r', 'b'], [MASTER_NODE_ID, 'baseColor'])
+    const { backend } = createStringBackend()
+
+    const preview = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('r'), portId: 'a' },
+    })
+
+    expect(baseColorOf(graph)).toBe('repeat(p,u(p:iterations),[u(c:color)],[state(p,0)],[])[0]')
+    expect(preview).toEqual({ ok: true, output: { kind: 'port', expression: 'u(p:a)' } })
+  })
+
+  it('gives the next value and the result the type of the starting value', () => {
+    let graph = zone([
+      ['c', 'test/color'],
+      ['f', 'test/float'],
+    ])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'a'])
+    graph = link(graph, registry, 'e2', ['f', 'out'], ['r', 'a'])
+    const types = resolvePortTypes(graph, registry)
+
+    expect(types.inputs.get('r:a')).toBe('vec3')
+    expect(types.outputs.get('r:a')).toBe('vec3')
+  })
+
+  it('refuses a material that reads the Repeat Input outside its zone', () => {
+    let graph = zone([['c', 'test/color']])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'a'])
+    graph = link(graph, registry, 'e2', ['p', 'a'], [MASTER_NODE_ID, 'baseColor'])
+    const { result } = compileMaster(graph, registry)
+
+    expect(result.ok).toBe(false)
+    expect(result.ok ? [] : result.errors.map((error) => error.code)).toEqual([
+      'invalid-repeat-zone',
+    ])
+  })
+
+  it('previews a body node at its first pass', () => {
+    let graph = zone([
+      ['c', 'test/color'],
+      ['sum', 'test/add'],
+    ])
+    graph = link(graph, registry, 'e1', ['c', 'out'], ['p', 'a'])
+    graph = link(graph, registry, 'e2', ['p', 'a'], ['sum', 'a'])
+    graph = link(graph, registry, 'e3', ['sum', 'out'], ['r', 'a'])
+    const { backend } = createStringBackend()
+
+    const result = compile(graph, registry, backend, {
+      kind: 'port',
+      ref: { nodeId: asNodeId('sum'), portId: 'out' },
+    })
+
+    expect(result).toEqual({
+      ok: true,
+      output: { kind: 'port', expression: 'add(u(c:color),u(sum:b))' },
+    })
+  })
+
+  it('reports a Repeat Output whose Repeat Input is gone', () => {
+    let graph = createGraph()
+    graph = {
+      ...graph,
+      nodes: {
+        ...graph.nodes,
+        [asNodeId('r')]: {
+          id: asNodeId('r'),
+          type: 'test/repeat-output',
+          position: origin,
+          inputValues: {},
+          params: { repeatInput: 'missing' },
+        },
+      },
+    }
+    graph = link(graph, registry, 'e1', ['r', 'a'], [MASTER_NODE_ID, 'roughness'])
+    const { result } = compileMaster(graph, registry)
+
+    expect(result).toEqual({
+      ok: false,
+      errors: [
+        {
+          nodeId: 'r',
+          code: 'invalid-repeat-zone',
+          message: 'This Repeat Output has no Repeat Input',
+        },
+      ],
+    })
+  })
+
+  it('refuses to feed a zone result back into its starting values', () => {
+    const graph = zone()
+    const result = connect(graph, registry, {
+      id: asEdgeId('e1'),
+      from: { nodeId: asNodeId('r'), portId: 'a' },
+      to: { nodeId: asNodeId('p'), portId: 'a' },
+    })
+
+    expect(result).toEqual({
+      ok: false,
+      error: { code: 'invalid-connection', reason: 'cycle' },
+    })
+  })
+
+  it('nests a zone inside another, reading the outer pass from the inner body', () => {
+    let graph = unwrap(
+      addRepeatZone(zone(), registry, {
+        inputId: asNodeId('p2'),
+        outputId: asNodeId('r2'),
+        position: origin,
+      }),
+    )
+    graph = withNodesOn(graph, registry, [['sum', 'test/add']])
+    graph = link(graph, registry, 'e1', ['p', 'a'], ['p2', 'a'])
+    graph = link(graph, registry, 'e2', ['p2', 'a'], ['sum', 'a'])
+    graph = link(graph, registry, 'e3', ['p', 'index'], ['sum', 'b'])
+    graph = link(graph, registry, 'e4', ['sum', 'out'], ['r2', 'a'])
+    graph = link(graph, registry, 'e5', ['r2', 'a'], ['r', 'a'])
+    graph = link(graph, registry, 'e6', ['r', 'a'], [MASTER_NODE_ID, 'roughness'])
+    const { result } = compileMaster(graph, registry)
+
+    expect(expectMasterSlots(result).roughness).toBe(
+      'repeat(p,u(p:iterations),[u(p:a)],[repeat(p2,u(p2:iterations),[state(p,0)],[add(state(p2,0),captured(index(p)))],[index(p)])[0]],[])[0]',
+    )
+  })
+
+  it('refuses a node added on its own as either end of a zone', () => {
+    const result = addNode(createGraph(), registry, {
+      id: asNodeId('r'),
+      type: 'test/repeat-output',
+      position: origin,
+    })
+
+    expect(result).toEqual({ ok: false, error: { code: 'repeat-zone-required' } })
+  })
+
+  it('removes and copies both ends of a zone together, pairing the copies', () => {
+    const graph = zone()
+
+    const removed = unwrap(removeNodes(graph, [asNodeId('r')]))
+    const fragment = extractFragment(graph, [asNodeId('p')])
+    let next = 0
+    const pasted =
+      fragment === null
+        ? null
+        : pasteFragment(graph, fragment, {
+            offset: origin,
+            createNodeId: () => asNodeId(`copy${String((next += 1))}`),
+            createEdgeId: () => asEdgeId('unused'),
+          })
+
+    expect(Object.keys(removed.nodes)).toEqual([MASTER_NODE_ID])
+    expect(fragment?.nodes.map((node) => node.id)).toEqual(['p', 'r'])
+    expect(pasted?.graph.nodes[asNodeId('copy2')]?.params).toEqual({ repeatInput: 'copy1' })
   })
 })

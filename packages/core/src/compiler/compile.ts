@@ -1,4 +1,13 @@
 import type { NodeRegistry } from '../registry/node-registry'
+import {
+  REPEAT_INDEX_OUTPUT,
+  REPEAT_ITERATIONS_INPUT,
+  REPEAT_SLOTS,
+  findRepeatInput,
+  indexDependencies,
+  repeatZoneBody,
+} from '../repeat/repeat-zone'
+import type { DependencyIndex, RepeatSlot } from '../repeat/repeat-zone'
 import { portKey } from '../type-inference/port-key'
 import type { PortKey } from '../type-inference/port-key'
 import { resolvePortTypes } from '../type-inference/resolve-port-types'
@@ -23,6 +32,7 @@ import type {
   CompileResult,
   CompileTarget,
   MasterSlot,
+  RepeatLoop,
 } from './compile-backend'
 
 /** The failure itself is already recorded in the shared error list. */
@@ -34,6 +44,31 @@ const failed = err('failed' as const)
 
 const describeError = (error: unknown): string =>
   error instanceof Error ? error.message : String(error)
+
+/** The loop of a Repeat zone, as the nodes of its body see it. */
+interface ZoneScope<E> {
+  readonly inputId: NodeId
+  /** The nodes built anew inside the loop; see `repeatZoneBody`. */
+  readonly body: ReadonlySet<NodeId>
+  /** The Repeat Input's outputs inside the loop: the pass number and each slot's current value. */
+  readonly current: NodeOutputs<E>
+  readonly loop: RepeatLoop<E>
+  /** Values from outside the zone, each captured ahead of the loop once. */
+  readonly captured: Map<PortKey, Outcome<E>>
+}
+
+/**
+ * Where nodes are being built: the graph itself (no zone), or the body of a zone's loop, nested in
+ * the scope around the zone. Each scope builds a node at most once.
+ */
+interface Scope<E> {
+  readonly parent: Scope<E> | null
+  readonly zone: ZoneScope<E> | null
+  readonly evaluated: Map<NodeId, Outcome<NodeOutputs<E>>>
+}
+
+const OUTSIDE_ZONE_MESSAGE =
+  "A Repeat Input's values only exist inside its zone: connect what reads them on to the Repeat Output"
 
 /**
  * Compiles the graph into backend expressions. Only nodes reachable from the target are
@@ -48,7 +83,8 @@ export function compile<E>(
   const { tsl } = backend
   const resolved = resolvePortTypes(graph, registry)
   const errors: CompileError[] = []
-  const evaluated = new Map<NodeId, Outcome<NodeOutputs<E>>>()
+  const root: Scope<E> = { parent: null, zone: null, evaluated: new Map() }
+  let dependencies: DependencyIndex | null = null
 
   const propertyExpressions = new Map<PropertyId, E>()
 
@@ -61,12 +97,53 @@ export function compile<E>(
     return failed
   }
 
-  const resolveConnected = (ref: PortRef, edge: GraphEdge, inputType: DataType): Outcome<E> => {
-    const source = evaluateNode(edge.from.nodeId)
+  const attempt = <T>(nodeId: NodeId, run: () => T): Outcome<T> => {
+    try {
+      return ok(run())
+    } catch (error) {
+      return fail(nodeId, 'build-failed', describeError(error))
+    }
+  }
+
+  /**
+   * The expression of an output as `scope` reads it. Inside a zone, a node outside the body is
+   * built in the scope around it and captured ahead of the loop.
+   */
+  function outputOf(ref: PortRef, scope: Scope<E>): Outcome<E> {
+    const { zone, parent } = scope
+    const isOutside = zone !== null && ref.nodeId !== zone.inputId && !zone.body.has(ref.nodeId)
+    if (isOutside && parent !== null) {
+      const key = portKey(ref)
+      const cached = zone.captured.get(key)
+      if (cached !== undefined) return cached
+      const outer = outputOf(ref, parent)
+      const captured = outer.ok ? attempt(ref.nodeId, () => zone.loop.capture(outer.value)) : outer
+      zone.captured.set(key, captured)
+      return captured
+    }
+    const outputs =
+      zone !== null && ref.nodeId === zone.inputId
+        ? ok(zone.current)
+        : evaluateNode(ref.nodeId, scope)
+    if (!outputs.ok) return failed
+    const expression = outputs.value[ref.portId]
+    if (expression === undefined) {
+      return fail(ref.nodeId, 'unresolved-type', `Output ${portKey(ref)} has no expression`)
+    }
+    return ok(expression)
+  }
+
+  const resolveConnected = (
+    ref: PortRef,
+    edge: GraphEdge,
+    inputType: DataType,
+    scope: Scope<E>,
+  ): Outcome<E> => {
+    const source = outputOf(edge.from, scope)
     if (!source.ok) return failed
-    const expression = source.value[edge.from.portId]
+    const expression = source.value
     const sourceType = resolved.outputs.get(portKey(edge.from))
-    if (expression === undefined || sourceType === undefined) {
+    if (sourceType === undefined) {
       return fail(ref.nodeId, 'unresolved-type', `Output ${portKey(edge.from)} has no expression`)
     }
     const conversion = getConversion(sourceType, inputType)
@@ -109,14 +186,18 @@ export function compile<E>(
     }
   }
 
-  const resolveInput = (node: GraphNode, input: InputDefinition<string>): Outcome<E> => {
+  const resolveInput = (
+    node: GraphNode,
+    input: InputDefinition<string>,
+    scope: Scope<E>,
+  ): Outcome<E> => {
     const ref: PortRef = { nodeId: node.id, portId: input.id }
     const inputType = resolved.inputs.get(portKey(ref))
     if (inputType === undefined) {
       return fail(node.id, 'unresolved-type', `Input ${portKey(ref)} has no resolved type`)
     }
     const edge = incomingByInput.get(portKey(ref))
-    if (edge !== undefined) return resolveConnected(ref, edge, inputType)
+    if (edge !== undefined) return resolveConnected(ref, edge, inputType, scope)
     if (input.fallback !== undefined) return resolveFallback(node, input.fallback)
     return resolveInline(node, input, ref, inputType)
   }
@@ -162,14 +243,119 @@ export function compile<E>(
     return named
   }
 
-  const buildNode = (node: GraphNode, definition: AnyNodeDefinition): Outcome<NodeOutputs<E>> => {
+  const resolveInputById = (
+    node: GraphNode,
+    definition: AnyNodeDefinition,
+    inputId: string,
+    scope: Scope<E>,
+  ): Outcome<E> => {
+    const input = definition.inputs.find((candidate) => candidate.id === inputId)
+    if (input === undefined) {
+      return fail(node.id, 'missing-definition', `${definition.type} has no input "${inputId}"`)
+    }
+    return resolveInput(node, input, scope)
+  }
+
+  const hasEdgeAt = (nodeId: NodeId, portId: string): boolean =>
+    Object.values(graph.edges).some(
+      (edge) =>
+        (edge.from.nodeId === nodeId && edge.from.portId === portId) ||
+        (edge.to.nodeId === nodeId && edge.to.portId === portId),
+    )
+
+  /**
+   * Builds a Repeat zone from its Repeat Output: the starting values and the count in the scope
+   * around the zone, then the body inside the loop. Slots with no wire on either node never
+   * change, so they stay out of the loop and their result is the starting value.
+   */
+  const buildRepeatOutput = (
+    output: GraphNode,
+    outputDefinition: AnyNodeDefinition,
+    scope: Scope<E>,
+  ): Outcome<NodeOutputs<E>> => {
+    const pairing = findRepeatInput(graph, registry, output)
+    if (!pairing.ok) return fail(output.id, 'invalid-repeat-zone', pairing.message)
+    const input = pairing.input
+    const inputDefinition = registry.get(input.type)
+    if (inputDefinition === undefined) {
+      return fail(input.id, 'missing-definition', `No definition registered for ${input.type}`)
+    }
+
+    const isLooped = (slot: RepeatSlot): boolean =>
+      hasEdgeAt(input.id, slot) || hasEdgeAt(output.id, slot)
+    const looped = REPEAT_SLOTS.filter(isLooped)
+    const iterations = resolveInputById(input, inputDefinition, REPEAT_ITERATIONS_INPUT, scope)
+    const initial = REPEAT_SLOTS.map((slot) =>
+      resolveInputById(input, inputDefinition, slot, scope),
+    )
+    if (!iterations.ok || initial.some((value) => !value.ok)) return failed
+    const startOf = (slot: RepeatSlot): E | undefined => {
+      const value = initial[REPEAT_SLOTS.indexOf(slot)]
+      return value?.ok === true ? value.value : undefined
+    }
+    const starts = looped.flatMap((slot) => startOf(slot) ?? [])
+
+    const opened = attempt(input.id, () =>
+      backend.openRepeat(input, starts, hasEdgeAt(input.id, REPEAT_INDEX_OUTPUT)),
+    )
+    if (!opened.ok) return failed
+    const loop = opened.value
+    const current: Record<string, E> = {}
+    if (loop.index !== null) current[REPEAT_INDEX_OUTPUT] = loop.index
+    looped.forEach((slot, index) => {
+      const state = loop.state[index]
+      if (state !== undefined) current[slot] = state
+    })
+
+    dependencies ??= indexDependencies(graph)
+    const zone: Scope<E> = {
+      parent: scope,
+      evaluated: new Map(),
+      zone: {
+        inputId: input.id,
+        body: repeatZoneBody(dependencies, input.id, output.id),
+        current,
+        loop,
+        captured: new Map(),
+      },
+    }
+    const next = looped.map((slot, index) => {
+      const isConnected = incomingByInput.has(portKey({ nodeId: output.id, portId: slot }))
+      const state = loop.state[index]
+      if (!isConnected && state !== undefined) return ok(state)
+      return resolveInputById(output, outputDefinition, slot, zone)
+    })
+    const nextValues = next.flatMap((value) => (value.ok ? [value.value] : []))
+    if (nextValues.length < next.length) return failed
+
+    const results = attempt(output.id, () => loop.close(iterations.value, nextValues))
+    if (!results.ok) return failed
+    const outputs: Record<string, E> = {}
+    for (const slot of REPEAT_SLOTS) {
+      const looping = looped.indexOf(slot)
+      const value = looping === -1 ? startOf(slot) : results.value[looping]
+      if (value !== undefined) outputs[slot] = value
+    }
+    return ok(nameOutputs(output, outputDefinition, outputs))
+  }
+
+  const buildNode = (
+    node: GraphNode,
+    definition: AnyNodeDefinition,
+    scope: Scope<E>,
+  ): Outcome<NodeOutputs<E>> => {
+    if (definition.repeat === 'output') return buildRepeatOutput(node, definition, scope)
+    // Reached outside its zone's loop: a node preview shows the first pass, a material cannot.
+    if (definition.repeat === 'input' && target.kind === 'master') {
+      return fail(node.id, 'invalid-repeat-zone', OUTSIDE_ZONE_MESSAGE)
+    }
     const property = definition.reads === 'property' ? resolveProperty(node) : null
     const inputs: Record<string, E> = {}
     const resolvedTypes: Record<string, DataType> = {}
     let hasFailedInput = false
 
     for (const input of definition.inputs) {
-      const expression = resolveInput(node, input)
+      const expression = resolveInput(node, input, scope)
       const inputType = resolved.inputs.get(portKey({ nodeId: node.id, portId: input.id }))
       if (!expression.ok || inputType === undefined) {
         hasFailedInput = true
@@ -194,7 +380,8 @@ export function compile<E>(
     }
   }
 
-  function evaluateNode(nodeId: NodeId): Outcome<NodeOutputs<E>> {
+  function evaluateNode(nodeId: NodeId, scope: Scope<E>): Outcome<NodeOutputs<E>> {
+    const { evaluated } = scope
     const cached = evaluated.get(nodeId)
     if (cached !== undefined) return cached
 
@@ -205,7 +392,7 @@ export function compile<E>(
         ? fail(nodeId, 'missing-definition', `Node ${nodeId} does not exist in the graph`)
         : definition === undefined
           ? fail(nodeId, 'missing-definition', `No definition registered for ${node.type}`)
-          : buildNode(node, definition)
+          : buildNode(node, definition, scope)
     evaluated.set(nodeId, outcome)
     return outcome
   }
@@ -224,7 +411,7 @@ export function compile<E>(
       if (input === undefined) continue
       const isConnected = incomingByInput.has(portKey({ nodeId: master.id, portId: slot }))
       if (input.optional === true && !isConnected) continue
-      const expression = resolveInput(master, input)
+      const expression = resolveInput(master, input, root)
       if (expression.ok) slots[slot] = expression.value
     }
     return errors.length > 0
@@ -233,7 +420,7 @@ export function compile<E>(
   }
 
   const compilePort = (ref: PortRef): CompileResult<E> => {
-    const outputs = evaluateNode(ref.nodeId)
+    const outputs = evaluateNode(ref.nodeId, root)
     if (!outputs.ok) return { ok: false, errors }
     const expression = outputs.value[ref.portId]
     if (expression === undefined) {

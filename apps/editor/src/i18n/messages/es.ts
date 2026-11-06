@@ -453,6 +453,7 @@ export const es = {
   'node.outlineOff': 'Activá el contorno para usarlo',
   'node.meshDefault': 'Valor de la malla',
   'node.off': 'Desactivado',
+  'node.unchanged': 'Sin cambios',
   'port.name': '{port}, {side}, {type}, {connection}',
   'port.side.input': 'puerto de entrada',
   'port.side.output': 'puerto de salida',

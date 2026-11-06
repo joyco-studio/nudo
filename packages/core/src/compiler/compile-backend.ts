@@ -75,13 +75,41 @@ export interface CompileBackend<E> {
    * output downstream. Codegen hoists shared values into named constants through this hook.
    */
   nameOutput?(node: GraphNode, definition: AnyNodeDefinition, portId: string, expression: E): E
+  /**
+   * Opens the loop of the Repeat zone that starts at `node` (its Repeat Input), with one slot per
+   * `initial` value. `readsIndex` is false when nothing reads the pass number.
+   */
+  openRepeat(node: GraphNode, initial: readonly E[], readsIndex: boolean): RepeatLoop<E>
+}
+
+/**
+ * The loop of one Repeat zone, opened before its body is built. Expressions built from `index`,
+ * `state` and `capture` belong inside the loop; `close` puts them there.
+ */
+export interface RepeatLoop<E> {
+  /** The number of the current pass (0, 1, 2…), as a float; null when nothing reads it. */
+  readonly index: E | null
+  /** The value of each slot at the start of the current pass, in the order given to `openRepeat`. */
+  readonly state: readonly E[]
+  /** A value from outside the zone that its body reads: computed once, ahead of the loop. */
+  capture(value: E): E
+  /**
+   * Runs `iterations` passes (whole, 0 to `REPEAT_MAX_ITERATIONS`), each setting every slot to
+   * its `next` value computed from the previous pass. Returns each slot's value after the last.
+   */
+  close(iterations: E, next: readonly E[]): readonly E[]
 }
 
 export type CompileTarget = { kind: 'master' } | { kind: 'port'; ref: PortRef }
 
 export interface CompileError {
   readonly nodeId: NodeId
-  readonly code: 'missing-definition' | 'unresolved-type' | 'build-failed' | 'missing-property'
+  readonly code:
+    | 'missing-definition'
+    | 'unresolved-type'
+    | 'build-failed'
+    | 'missing-property'
+    | 'invalid-repeat-zone'
   readonly message: string
 }
 

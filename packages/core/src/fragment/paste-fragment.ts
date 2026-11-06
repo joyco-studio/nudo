@@ -1,8 +1,9 @@
 import type { NodeRegistry } from '../registry/node-registry'
 import type { Graph, GraphEdge, GraphNode, XY } from '../types/graph'
 import type { EdgeId, NodeId } from '../types/ids'
-import { MASTER_NODE_ID, MASTER_NODE_TYPE } from '../types/ids'
+import { MASTER_NODE_ID, MASTER_NODE_TYPE, asNodeId } from '../types/ids'
 import { PROPERTY_ID_PARAM } from '../types/param-definition'
+import { REPEAT_INPUT_PARAM } from '../repeat/repeat-zone'
 import type { GraphFragment } from './graph-fragment'
 
 export interface PasteOptions {
@@ -61,6 +62,17 @@ export function pasteFragment(
     copyableNodes.map((node) => [node.id, options.createNodeId()]),
   )
 
+  /** A pasted Repeat Output pairs with the copy of its Repeat Input, or with none. */
+  const pairedParams = (node: GraphNode): GraphNode['params'] => {
+    const partner = node.params[REPEAT_INPUT_PARAM]
+    if (typeof partner !== 'string') return node.params
+    const copy = newIdByOldId.get(asNodeId(partner))
+    if (copy !== undefined) return { ...node.params, [REPEAT_INPUT_PARAM]: copy }
+    return Object.fromEntries(
+      Object.entries(node.params).filter(([paramId]) => paramId !== REPEAT_INPUT_PARAM),
+    )
+  }
+
   const pastedNodes = copyableNodes.flatMap((node): GraphNode[] => {
     const id = newIdByOldId.get(node.id)
     if (id === undefined) return []
@@ -68,7 +80,7 @@ export function pasteFragment(
       x: node.position.x + options.offset.x,
       y: node.position.y + options.offset.y,
     }
-    return [{ ...node, id, position }]
+    return [{ ...node, id, position, params: pairedParams(node) }]
   })
 
   const pastedEdges = fragment.edges.flatMap((edge): GraphEdge[] => {

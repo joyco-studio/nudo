@@ -8,10 +8,11 @@ import type {
   VectorPortValue,
 } from '@nudo-tsl/core'
 import { Vector2, Vector3, Vector4 } from 'three'
-import { texture, uniform } from 'three/tsl'
-import type { TextureNode, UniformNode } from 'three/webgpu'
+import { Var, float, texture, uniform } from 'three/tsl'
+import type { Node, TextureNode, UniformNode } from 'three/webgpu'
 import { createLiveFacade } from './live-facade'
 import type { LiveNode } from './live-facade'
+import { repeatLoop } from './repeat-loop'
 import { toShaderName } from './shader-name'
 import { createTextureResolver } from './texture-resolution'
 import type { MaterialOptions } from './texture-resolution'
@@ -42,6 +43,13 @@ function createUniform(value: VectorPortValue): LiveUniform {
   }
 }
 
+/**
+ * A Repeat Input's count is a float input, so the compiler only ever hands over a float node; the
+ * graph's types are known at runtime, which a type-erased `Node` cannot show.
+ */
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- the count input is declared float; see above
+const asFloatNode = (node: LiveNode): Node<'float'> => node as Node<'float'>
+
 export function createLiveBackend(options?: MaterialOptions): LiveBackend {
   const uniforms = new Map<PortKey, LiveUniform>()
   const properties = new Map<PropertyId, LiveProperty>()
@@ -70,6 +78,22 @@ export function createLiveBackend(options?: MaterialOptions): LiveBackend {
       const created = createProperty(property)
       properties.set(property.id, created)
       return created
+    },
+    openRepeat: (_node, initial, readsIndex) => {
+      const captured: LiveNode[] = []
+      const index = readsIndex ? Var(float(0)) : null
+      const state = initial.map((value) => Var(value))
+      return {
+        index,
+        state,
+        capture: (value) => {
+          const declared = Var(value)
+          captured.push(declared)
+          return declared
+        },
+        close: (iterations, next) =>
+          repeatLoop(asFloatNode(iterations), captured, index, state, next),
+      }
     },
   }
 }

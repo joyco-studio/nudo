@@ -1,6 +1,8 @@
 import {
   MASTER_NODE_ID,
+  REPEAT_ZONE_WIDTH,
   addNode,
+  addRepeatZone,
   checkConnection,
   connect,
   createGraph,
@@ -93,6 +95,20 @@ export const createGraphSlice: EditorSliceCreator<GraphSlice> = (set, get) => ({
 
   addNode: (type, position) => {
     const id = createNodeId()
+    const end = registry.get(type)?.repeat
+    if (end !== undefined) {
+      // Either end of a Repeat zone comes with the other, placed where the picked one is.
+      const partnerId = createNodeId()
+      const isInput = end === 'input'
+      const result = addRepeatZone(get().graph, registry, {
+        inputId: isInput ? id : partnerId,
+        outputId: isInput ? partnerId : id,
+        position: isInput ? position : { x: position.x - REPEAT_ZONE_WIDTH, y: position.y },
+      })
+      if (!result.ok) return null
+      set({ graph: result.value })
+      return id
+    }
     const result = addNode(get().graph, registry, { id, type, position })
     if (!result.ok) return null
     set({ graph: result.value })

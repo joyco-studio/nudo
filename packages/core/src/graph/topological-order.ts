@@ -1,3 +1,4 @@
+import { repeatLinks } from '../repeat/repeat-zone'
 import type { Graph } from '../types/graph'
 import type { NodeId } from '../types/ids'
 
@@ -6,7 +7,8 @@ const compareIds = (a: NodeId, b: NodeId): number => (a < b ? -1 : a > b ? 1 : 0
 /**
  * Kahn's algorithm: sources first, ties broken by node id so the order is deterministic.
  * Assumes the graph is acyclic; nodes that sit on a cycle are left out of the result.
- * Edges that reference missing nodes are ignored.
+ * Edges that reference missing nodes are ignored. A Repeat zone counts as an edge from its Repeat
+ * Input to its Repeat Output.
  */
 export function topologicalOrder(graph: Graph): readonly NodeId[] {
   const nodeIds = Object.values(graph.nodes).map((node) => node.id)
@@ -14,9 +16,14 @@ export function topologicalOrder(graph: Graph): readonly NodeId[] {
   const pendingInputs = new Map<NodeId, number>(nodeIds.map((id) => [id, 0]))
   const consumers = new Map<NodeId, NodeId[]>(nodeIds.map((id) => [id, []]))
 
-  for (const edge of Object.values(graph.edges)) {
-    const { nodeId: source } = edge.from
-    const { nodeId: target } = edge.to
+  const links = [
+    ...Object.values(graph.edges).map((edge) => ({
+      source: edge.from.nodeId,
+      target: edge.to.nodeId,
+    })),
+    ...repeatLinks(graph).map((link) => ({ source: link.input, target: link.output })),
+  ]
+  for (const { source, target } of links) {
     if (!knownIds.has(source) || !knownIds.has(target)) continue
     consumers.get(source)?.push(target)
     pendingInputs.set(target, (pendingInputs.get(target) ?? 0) + 1)

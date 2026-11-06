@@ -8,8 +8,8 @@ export interface TslHelper {
 
 /**
  * These sources mirror the live runtime's helpers (`packages/runtime/src/simplex-noise.ts`,
- * `normal-from-height.ts`, `scene-depth-fade.ts`, `voronoi-cell.ts`, `voronoi-minkowski.ts` and
- * `hash-noise.ts`) minus
+ * `normal-from-height.ts`, `scene-depth-fade.ts`, `voronoi-cell.ts`, `voronoi-minkowski.ts`,
+ * `hash-noise.ts` and `repeat-loop.ts`) minus
  * their type annotations. A parity test compares them with the runtime files, so a change on one
  * side must be made on the other.
  */
@@ -608,6 +608,32 @@ const tiledVoronoi2 = Fn(([pointInput, jitter, metric, exponentInput, periodInpu
   return vec4(nearestDistance, secondDistance, nearestPoint)
 })`
 
+const REPEAT_LOOP_SOURCE = `/** The most passes a Repeat zone makes, so a runaway count cannot hang the GPU. */
+const MAX_ITERATIONS = 1024
+
+/**
+ * The loop of a Repeat zone. 'captured', 'index' and 'state' are vars ('Var') declared ahead
+ * of the loop, in that order: values from outside the zone, the pass number (or null when nothing
+ * reads it) and each slot's value. Each of 'count' passes (whole, at most 1024) sets 'index' and
+ * then every slot to its 'next' value; all of them are computed before any slot changes, so each
+ * reads the previous pass. Returns each slot read after the loop, which every reader shares: the
+ * loop is written once, wherever the first of them is built.
+ */
+function repeatLoop(count, captured, index, state, next) {
+  const loop = Loop(min(count, MAX_ITERATIONS), ({ i }) => {
+    if (index !== null) index.assign(float(i))
+    const computed = next.map((value) => Var(value))
+    state.forEach((value, slot) => value.assign(computed[slot] ?? value))
+  })
+  const declared = [...captured, ...(index === null ? [] : [index]), ...state, loop]
+  return state.map((value) =>
+    Fn(() => {
+      declared.forEach((node) => Stack(node))
+      return value
+    })(),
+  )
+}`
+
 export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
   simplexNoise3: {
     imports: ['Fn', 'abs', 'dot', 'floor', 'max', 'min', 'step', 'vec3', 'vec4'],
@@ -659,6 +685,10 @@ export const TSL_HELPERS: Readonly<Record<HelperName, TslHelper>> = {
     ],
     source: TILED_VORONOI_SOURCE,
   },
+  repeatLoop: {
+    imports: ['Fn', 'Loop', 'Stack', 'Var', 'float', 'min'],
+    source: REPEAT_LOOP_SOURCE,
+  },
 }
 
 /** Declaration order: a helper never reads another, so any stable order works. */
@@ -676,4 +706,5 @@ export const HELPER_ORDER: readonly HelperName[] = [
   'hashVec3',
   'tiledNoise3',
   'tiledVoronoi2',
+  'repeatLoop',
 ]
