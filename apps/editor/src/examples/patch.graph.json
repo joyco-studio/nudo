@@ -6,7 +6,7 @@
       "type": "property/float",
       "position": {
         "x": -3624,
-        "y": 497
+        "y": 516
       },
       "inputValues": {},
       "params": {
@@ -18,7 +18,7 @@
       "type": "utility/comment",
       "position": {
         "x": -2680,
-        "y": 669
+        "y": 688
       },
       "inputValues": {},
       "params": {
@@ -48,7 +48,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4344,
-        "y": 114
+        "y": 133
       },
       "inputValues": {},
       "params": {
@@ -63,12 +63,12 @@
       "type": "utility/comment",
       "position": {
         "x": -1768,
-        "y": -909
+        "y": -1002
       },
       "inputValues": {},
       "params": {
         "body": "Paper made of two noises in view space, so it stays put while the mesh turns: soft clouds of pulp and a fine tooth. Their sum, remapped, darkens the paper color a little.",
-        "height": 1040,
+        "height": 1152,
         "title": "Paper",
         "width": 1568
       }
@@ -78,7 +78,7 @@
       "type": "utility/comment",
       "position": {
         "x": -1128,
-        "y": 163
+        "y": 182
       },
       "inputValues": {},
       "params": {
@@ -93,7 +93,7 @@
       "type": "utility/comment",
       "position": {
         "x": -4024,
-        "y": 604
+        "y": 623
       },
       "inputValues": {},
       "params": {
@@ -108,7 +108,7 @@
       "type": "math/remap",
       "position": {
         "x": -776,
-        "y": -584
+        "y": -621
       },
       "inputValues": {
         "inMax": {
@@ -131,7 +131,7 @@
       "type": "math/subtract",
       "position": {
         "x": -3032,
-        "y": 768
+        "y": 787
       },
       "inputValues": {},
       "params": {}
@@ -175,7 +175,7 @@
       "type": "math/power",
       "position": {
         "x": -3992,
-        "y": 231
+        "y": 250
       },
       "inputValues": {
         "b": {
@@ -190,7 +190,7 @@
       "type": "input/main-light",
       "position": {
         "x": -4312,
-        "y": 198
+        "y": 217
       },
       "inputValues": {},
       "params": {}
@@ -212,7 +212,7 @@
       "type": "math/multiply",
       "position": {
         "x": -456,
-        "y": -467
+        "y": -504
       },
       "inputValues": {},
       "params": {}
@@ -222,7 +222,7 @@
       "type": "property/vec3",
       "position": {
         "x": -728,
-        "y": -197
+        "y": -234
       },
       "inputValues": {},
       "params": {
@@ -234,7 +234,7 @@
       "type": "math/add",
       "position": {
         "x": -1096,
-        "y": -547
+        "y": -584
       },
       "inputValues": {},
       "params": {}
@@ -244,7 +244,7 @@
       "type": "input/position",
       "position": {
         "x": -1736,
-        "y": -454
+        "y": -491
       },
       "inputValues": {},
       "params": {
@@ -256,7 +256,7 @@
       "type": "math/multiply",
       "position": {
         "x": -2056,
-        "y": 935
+        "y": 954
       },
       "inputValues": {
         "b": {
@@ -271,7 +271,7 @@
       "type": "math/subtract",
       "position": {
         "x": -1096,
-        "y": 259
+        "y": 278
       },
       "inputValues": {
         "b": {
@@ -286,7 +286,7 @@
       "type": "math/multiply",
       "position": {
         "x": -776,
-        "y": 334
+        "y": 353
       },
       "inputValues": {},
       "params": {}
@@ -296,7 +296,7 @@
       "type": "math/hash",
       "position": {
         "x": -2376,
-        "y": 972
+        "y": 991
       },
       "inputValues": {},
       "params": {}
@@ -306,7 +306,7 @@
       "type": "property/float",
       "position": {
         "x": -3944,
-        "y": 1047
+        "y": 1066
       },
       "inputValues": {},
       "params": {
@@ -318,7 +318,7 @@
       "type": "property/float",
       "position": {
         "x": -1048,
-        "y": 562
+        "y": 581
       },
       "inputValues": {},
       "params": {
@@ -330,7 +330,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3672,
-        "y": 852
+        "y": 871
       },
       "inputValues": {},
       "params": {}
@@ -340,7 +340,7 @@
       "type": "math/add",
       "position": {
         "x": -456,
-        "y": 269
+        "y": 288
       },
       "inputValues": {},
       "params": {}
@@ -350,7 +350,7 @@
       "type": "effects/voronoi",
       "position": {
         "x": -3352,
-        "y": 684
+        "y": 703
       },
       "inputValues": {
         "scale": {
@@ -368,7 +368,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1416,
-        "y": -829
+        "y": -922
       },
       "inputValues": {
         "scale": {
@@ -378,6 +378,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 4,
         "tile": false
       }
@@ -387,7 +388,7 @@
       "type": "property/float",
       "position": {
         "x": -2648,
-        "y": 1116
+        "y": 1135
       },
       "inputValues": {},
       "params": {
@@ -399,7 +400,7 @@
       "type": "property/float",
       "position": {
         "x": -1368,
-        "y": 1108
+        "y": 1127
       },
       "inputValues": {},
       "params": {
@@ -411,7 +412,7 @@
       "type": "math/multiply",
       "position": {
         "x": -1096,
-        "y": 866
+        "y": 885
       },
       "inputValues": {},
       "params": {}
@@ -421,7 +422,7 @@
       "type": "math/sin",
       "position": {
         "x": -776,
-        "y": 829
+        "y": 848
       },
       "inputValues": {},
       "params": {}
@@ -431,7 +432,7 @@
       "type": "math/add",
       "position": {
         "x": -3032,
-        "y": 232
+        "y": 251
       },
       "inputValues": {
         "b": {
@@ -446,7 +447,7 @@
       "type": "math/subtract",
       "position": {
         "x": -3672,
-        "y": 194
+        "y": 213
       },
       "inputValues": {
         "b": {
@@ -461,7 +462,7 @@
       "type": "math/multiply",
       "position": {
         "x": -3352,
-        "y": 269
+        "y": 288
       },
       "inputValues": {},
       "params": {}
@@ -471,7 +472,7 @@
       "type": "effects/noise",
       "position": {
         "x": -1416,
-        "y": -349
+        "y": -386
       },
       "inputValues": {
         "scale": {
@@ -481,6 +482,7 @@
       },
       "params": {
         "kind": "simplex",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -490,7 +492,7 @@
       "type": "vector/rotate-2d",
       "position": {
         "x": -1736,
-        "y": 870
+        "y": 889
       },
       "inputValues": {
         "center": {
@@ -508,7 +510,7 @@
       "type": "vector/split",
       "position": {
         "x": -1416,
-        "y": 749
+        "y": 768
       },
       "inputValues": {},
       "params": {}
@@ -518,7 +520,7 @@
       "type": "input/position",
       "position": {
         "x": -3992,
-        "y": 786
+        "y": 805
       },
       "inputValues": {},
       "params": {
@@ -530,7 +532,7 @@
       "type": "math/remap",
       "position": {
         "x": -456,
-        "y": 792
+        "y": 811
       },
       "inputValues": {
         "inMax": {

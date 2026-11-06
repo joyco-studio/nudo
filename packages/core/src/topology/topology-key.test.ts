@@ -75,8 +75,29 @@ const counted = defineNode({
   build: () => ({}),
 })
 
+const warped = defineNode({
+  type: 'test/warped',
+  category: 'utility',
+  label: 'Warped',
+  description: 'Leaves its warp out while it is 0',
+  keywords: [],
+  inputs: [
+    {
+      id: 'warp',
+      label: 'Warp',
+      type: concrete('float'),
+      default: float(0),
+      offAtZero: true,
+    },
+    { id: 'gain', label: 'Gain', type: concrete('float'), default: float(0) },
+  ],
+  outputs: [{ id: 'out', label: 'Out', type: concrete('vec3') }],
+  build: ({ tsl }) => ({ out: tsl.construct('vec3', [0, 0, 0]) }),
+})
+
 const registry = createNodeRegistry()
 registry.register(master)
+registry.register(warped)
 registry.register(counted)
 registry.register(passThrough)
 registry.register(annotated)
@@ -200,6 +221,49 @@ describe('topologyKey', () => {
       const three = withNodeParams('test/counted', { count: 3 })
 
       expect(topologyKey(three, registry)).not.toBe(topologyKey(two, registry))
+    })
+
+    describe('an input that is off at 0', () => {
+      const warpedGraph = (): Graph =>
+        unwrap(
+          addNode(createGraph(), registry, {
+            id: asNodeId('w'),
+            type: 'test/warped',
+            position: origin,
+          }),
+        )
+      const withWarp = (graph: Graph, value: number): Graph =>
+        unwrap(setInputValue(graph, { nodeId: asNodeId('w'), portId: 'warp' }, float(value)))
+
+      it('changes the key when it leaves 0 or comes back, so the node rebuilds with it', () => {
+        const off = warpedGraph()
+        const on = withWarp(off, 0.5)
+
+        expect(topologyKey(on, registry)).not.toBe(topologyKey(off, registry))
+        expect(topologyKey(withWarp(on, 0), registry)).toBe(topologyKey(off, registry))
+      })
+
+      it('keeps the key while it moves between values that are not 0', () => {
+        const on = withWarp(warpedGraph(), 0.5)
+
+        expect(topologyKey(withWarp(on, 2), registry)).toBe(topologyKey(on, registry))
+        expect(topologyKey(withWarp(on, -1), registry)).toBe(topologyKey(on, registry))
+      })
+
+      it('ignores the value of inputs that are not off at 0', () => {
+        const off = warpedGraph()
+        const gained = unwrap(
+          setInputValue(off, { nodeId: asNodeId('w'), portId: 'gain' }, float(3)),
+        )
+
+        expect(topologyKey(gained, registry)).toBe(topologyKey(off, registry))
+      })
+
+      it('leaves the value out without a registry, which cannot tell such inputs apart', () => {
+        const off = warpedGraph()
+
+        expect(topologyKey(withWarp(off, 0.5))).toBe(topologyKey(off))
+      })
     })
 
     it('keeps the property reference in the key even though it is hidden', () => {

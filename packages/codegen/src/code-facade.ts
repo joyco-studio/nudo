@@ -1,4 +1,4 @@
-import { VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
+import { TRANSFORM_MATRICES, VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
   CellDimensions,
   ColorSpaceDirection,
@@ -8,6 +8,9 @@ import type {
   NoiseKind,
   Swizzle,
   ToneMapKind,
+  TransformKind,
+  TransformMatrix,
+  TransformSpace,
   TslFacade,
   VectorType,
   VoronoiDistance,
@@ -128,6 +131,33 @@ function construct(type: VectorType, parts: readonly (CodeExpression | number)[]
   return compose(`${type}(${joinCodes(printed)})`, printed, { imports: [type] })
 }
 
+/** A space-to-space matrix: the `three/tsl` uniform, or the product of a chain of them. */
+function matrixProduct(chain: readonly TransformMatrix[]): CodeExpression | null {
+  const matrices = chain.map((name) => compose(name, [], { imports: [name] }))
+  const [first, ...rest] = matrices
+  if (first === undefined) return null
+  return rest.reduce((product, matrix) => method(product, 'mul', [matrix]), first)
+}
+
+/** Mirrors the live facade's `transform`: see `TslFacade.transform`. */
+function transform(
+  kind: TransformKind,
+  from: TransformSpace,
+  to: TransformSpace,
+  value: CodeExpression,
+): CodeExpression {
+  if (kind === 'normal') {
+    const inverse = matrixProduct(TRANSFORM_MATRICES[to][from])
+    if (inverse === null) return value
+    const inverseTranspose = call('transpose', [call('mat3', [inverse])])
+    return call('normalize', [method(inverseTranspose, 'mul', [value])])
+  }
+  const matrix = matrixProduct(TRANSFORM_MATRICES[from][to])
+  if (matrix === null) return value
+  const w = kind === 'point' ? 1 : 0
+  return member(method(matrix, 'mul', [construct('vec4', [value, w])]), 'xyz')
+}
+
 /**
  * Prints each facade call as TSL source: arithmetic as method chains (`a.mul(b)`), everything else
  * as a call to the `three/tsl` export. Semantically it matches the live facade call for call.
@@ -191,6 +221,7 @@ export function createCodeFacade(): TslFacade<CodeExpression> {
     sceneDepthFade: (distance) => callHelper('sceneDepthFade', [distance]),
     normalFromHeight: (height, strength) => callHelper('normalFromHeight', [height, strength]),
     mainLight: (component) => compose(`${LIGHTS_OBJECT}.${MAIN_LIGHT_KEYS[component]}`, []),
+    transform,
     builtin: (name) => compose(name === 'uv' ? 'uv()' : name, [], { imports: [name] }),
     construct,
     swizzle: (value, components: Swizzle) => member(value, components),

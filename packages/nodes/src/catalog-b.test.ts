@@ -72,7 +72,19 @@ const buildWith = (
   resolvedTypes: Readonly<Record<string, DataType>> = {},
   property: string | null = null,
 ): Readonly<Record<string, string>> =>
-  definition.build({ tsl: createRecordingFacade(), inputs, resolvedTypes, params, property })
+  definition.build({
+    tsl: createRecordingFacade(),
+    inputs,
+    resolvedTypes,
+    params,
+    property,
+    // As the compiler does: an `offAtZero` input left out here is unwired at its default, 0.
+    zeroInputs: new Set(
+      definition.inputs
+        .filter((input) => input.offAtZero === true && !(input.id in inputs))
+        .map((input) => input.id),
+    ),
+  })
 
 const unwrap = <T, E>(result: Result<T, E>): T => {
   if (!result.ok) throw new Error(`Unexpected failure: ${JSON.stringify(result.error)}`)
@@ -223,6 +235,7 @@ describe('effects nodes', () => {
       ['scale', { type: 'float', value: 1 }],
       ['roughness', { type: 'float', value: 0.5 }],
       ['lacunarity', { type: 'float', value: 2 }],
+      ['distortion', { type: 'float', value: 0 }],
       ['period', { type: 'vec3', value: [1, 1, 0] }],
     ])
     expect(noiseNode.params).toEqual([
@@ -237,7 +250,13 @@ describe('effects nodes', () => {
         ],
         default: 'simplex',
       },
-      { id: 'octaves', label: 'Octaves', kind: 'number', default: 1, min: 1, max: 8, step: 1 },
+      { id: 'octaves', label: 'Octaves', kind: 'number', default: 1, min: 1, max: 15, step: 1 },
+      expect.objectContaining({
+        id: 'normalize',
+        label: 'Normalize',
+        kind: 'boolean',
+        default: true,
+      }),
       TILE_PARAM,
     ])
   })
@@ -293,12 +312,26 @@ describe('effects nodes', () => {
       )
     })
 
-    it('clamps the octave count to 1 through 8', () => {
+    it("clamps the octave count to 1 through 15, as far as Blender's Detail goes", () => {
       expect(buildWith(noiseNode, inputs, { octaves: 0 }).out).toBe(single)
       expect(buildWith(noiseNode, inputs, { octaves: -4 }).out).toBe(single)
-      expect(buildWith(noiseNode, inputs, { octaves: 12 })).toEqual(
-        buildWith(noiseNode, inputs, { octaves: 8 }),
+      expect(buildWith(noiseNode, inputs, { octaves: 40 })).toEqual(
+        buildWith(noiseNode, inputs, { octaves: 15 }),
       )
+      expect(
+        buildWith(noiseNode, inputs, { octaves: 15 }).out?.match(/noise\(simplex/g),
+      ).toHaveLength(15)
+    })
+
+    it('returns the raw sum of the octaves with Normalize off, and divides it by default', () => {
+      const sum = `add(add(${single},${octave(1)}),${octave(2)})`
+      const normalized = buildWith(noiseNode, inputs, { octaves: 3 }).out
+
+      expect(normalized).toMatch(/^div\(/)
+      expect(buildWith(noiseNode, inputs, { octaves: 3, normalize: true }).out).toBe(normalized)
+      expect(buildWith(noiseNode, inputs, { octaves: 3, normalize: false }).out).toBe(sum)
+      // One octave has nothing to divide either way.
+      expect(buildWith(noiseNode, inputs, { normalize: false }).out).toBe(single)
     })
 
     it('ignores a stored octave count that is not a number', () => {
@@ -339,6 +372,69 @@ describe('effects nodes', () => {
       expect(color.match(/tiledNoise\(/g)).toHaveLength(3)
       expect(color).toContain('add(mul(p,s),construct(vec3,[19.1,33.4,47.2]))')
       expect(color).toContain('add(mul(p,s),construct(vec3,[74.2,-124.5,99.4]))')
+    })
+  })
+
+  describe('noise distortion', () => {
+    const inputs = { p: 'p', scale: 's', roughness: 'r', lacunarity: 'l' }
+    const bend = (kind: string, offset: string): string =>
+      `noise(${kind},add(mul(p,s),construct(vec3,[${offset}])))`
+    const OFFSETS = ['-61.3,17.9,88.4', '43.6,-92.1,-27.5', '-8.2,66.7,-113.8']
+    const bent = (kind: string): string =>
+      `add(mul(p,s),mul(construct(vec3,[${OFFSETS.map((offset) => bend(kind, offset)).join(',')}]),d))`
+
+    it('adds no code at all while the distortion is unwired at 0', () => {
+      const plain = buildWith(noiseNode, inputs, { octaves: 3 })
+
+      expect(buildWith(noiseNode, { ...inputs, distortion: 'd' }, { octaves: 3 })).not.toEqual(
+        plain,
+      )
+      expect(JSON.stringify(plain)).not.toContain('-61.3')
+    })
+
+    it('bends the scaled point once, before the octaves, by three single-octave noises', () => {
+      const out = buildWith(noiseNode, { ...inputs, distortion: 'd' }, { octaves: 2 }).out
+
+      expect(out).toBe(
+        `div(add(noise(simplex,${bent('simplex')}),mul(noise(simplex,mul(${bent('simplex')},pow(l,construct(float,[1])))),pow(r,construct(float,[1])))),add(construct(float,[1]),pow(r,construct(float,[1]))))`,
+      )
+    })
+
+    it('samples every channel of the color from the bent point', () => {
+      const { color } = buildWith(noiseNode, { ...inputs, distortion: 'd' }, { kind: 'perlin' })
+
+      expect(color).toContain(`noise(perlin,${bent('perlin')})`)
+      expect(color).toContain(
+        `noise(perlin,add(${bent('perlin')},construct(vec3,[19.1,33.4,47.2])))`,
+      )
+      expect(color).toContain(
+        `noise(perlin,add(${bent('perlin')},construct(vec3,[74.2,-124.5,99.4])))`,
+      )
+    })
+
+    it('bends only X and Y for the 2D Perlin, with the 2D noise', () => {
+      const out = buildWith(noiseNode, { ...inputs, distortion: 'd' }, { kind: 'perlin-2d' }).out
+      const bend2d = (offset: string): string =>
+        `noise(perlin,swizzle(add(mul(p,s),construct(vec3,[${offset}])),xy))`
+
+      expect(out).toBe(
+        `noise(perlin,swizzle(add(mul(p,s),mul(construct(vec3,[${bend2d(OFFSETS[0] ?? '')},${bend2d(OFFSETS[1] ?? '')},0]),d)),xy))`,
+      )
+    })
+
+    it('is ignored while the noise tiles, so the pattern still repeats', () => {
+      const withPeriod = { ...inputs, period: 'period' }
+
+      expect(buildWith(noiseNode, { ...withPeriod, distortion: 'd' }, { tile: true })).toEqual(
+        buildWith(noiseNode, withPeriod, { tile: true }),
+      )
+    })
+
+    it('is declared off at 0, so a graph only pays for it once it is used', () => {
+      const distortion = noiseNode.inputs.find((input) => input.id === 'distortion')
+
+      expect(distortion?.offAtZero).toBe(true)
+      expect(noiseNode.inputs.filter((input) => input.offAtZero === true)).toHaveLength(1)
     })
   })
 

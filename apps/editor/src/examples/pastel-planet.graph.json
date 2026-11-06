@@ -95,7 +95,7 @@
       "type": "property/float",
       "position": {
         "x": -6616,
-        "y": 700
+        "y": 709
       },
       "inputValues": {},
       "params": {
@@ -107,7 +107,7 @@
       "type": "effects/noise",
       "position": {
         "x": -6664,
-        "y": -41
+        "y": -88
       },
       "inputValues": {
         "scale": {
@@ -117,6 +117,7 @@
       },
       "params": {
         "kind": "perlin",
+        "normalize": true,
         "octaves": 3,
         "tile": false
       }
@@ -212,7 +213,7 @@
       "type": "math/multiply",
       "position": {
         "x": -8008,
-        "y": 201
+        "y": 194
       },
       "inputValues": {
         "b": {
@@ -257,12 +258,12 @@
       "type": "utility/comment",
       "position": {
         "x": -6696,
-        "y": -137
+        "y": -184
       },
       "inputValues": {},
       "params": {
         "body": "The normal, bent by Noise Color in Linear Light, snaps to the cells of a Minkowski Voronoi: its exponent below 1 pinches each cell into a star. The normalized cell is the new normal, so the light breaks into brush-stroke facets.",
-        "height": 917,
+        "height": 964,
         "title": "Brush normals",
         "width": 1248
       }
@@ -272,7 +273,7 @@
       "type": "utility/comment",
       "position": {
         "x": -8680,
-        "y": -46
+        "y": -53
       },
       "inputValues": {},
       "params": {
@@ -292,7 +293,7 @@
       "inputValues": {},
       "params": {
         "body": "The paint, overlaid on the bands as in the .blend. A noise's peaks stand in for the .blend's light mask: streaks that glow on top.",
-        "height": 965,
+        "height": 993,
         "title": "Overlay",
         "width": 1248
       }
@@ -347,7 +348,7 @@
       "type": "math/add",
       "position": {
         "x": -7048,
-        "y": 34
+        "y": 27
       },
       "inputValues": {
         "b": {
@@ -362,7 +363,7 @@
       "type": "math/multiply",
       "position": {
         "x": -7368,
-        "y": 71
+        "y": 64
       },
       "inputValues": {
         "b": {
@@ -532,7 +533,7 @@
       "type": "input/normal",
       "position": {
         "x": -6664,
-        "y": 439
+        "y": 448
       },
       "inputValues": {},
       "params": {
@@ -728,7 +729,7 @@
       "type": "input/position",
       "position": {
         "x": -8648,
-        "y": 283
+        "y": 276
       },
       "inputValues": {},
       "params": {
@@ -740,7 +741,7 @@
       "type": "vector/split",
       "position": {
         "x": -8328,
-        "y": 185
+        "y": 178
       },
       "inputValues": {},
       "params": {}
@@ -809,7 +810,7 @@
       "type": "effects/noise",
       "position": {
         "x": -712,
-        "y": 436
+        "y": 408
       },
       "inputValues": {
         "scale": {
@@ -819,6 +820,7 @@
       },
       "params": {
         "kind": "perlin",
+        "normalize": true,
         "octaves": 2,
         "tile": false
       }
@@ -895,7 +897,7 @@
       "type": "vector/combine",
       "position": {
         "x": -7688,
-        "y": 80
+        "y": 73
       },
       "inputValues": {},
       "params": {}

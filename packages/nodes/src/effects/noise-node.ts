@@ -13,7 +13,7 @@ type NoiseNodeKind = NoiseKind | 'perlin-2d'
 
 const DEFAULT_KIND: NoiseNodeKind = 'simplex'
 const MIN_OCTAVES = 1
-const MAX_OCTAVES = 8
+const MAX_OCTAVES = 15
 const DEFAULT_OCTAVES = 1
 const DEFAULT_ROUGHNESS = 0.5
 const DEFAULT_LACUNARITY = 2
@@ -25,6 +25,16 @@ const GREEN_OFFSET = [19.1, 33.4, 47.2] as const
 const BLUE_OFFSET = [74.2, -124.5, 99.4] as const
 /** Out runs from -1 to 1; Color, like a Blender Noise Color, from 0 to 1. */
 const HALF = 0.5
+/**
+ * Where the three noises that bend the point (Distortion) sample, one per axis: unrelated to each
+ * other and to the Color offsets, as Blender's random distortion offsets are.
+ */
+const DISTORTION_OFFSETS = [
+  [-61.3, 17.9, 88.4],
+  [43.6, -92.1, -27.5],
+  [-8.2, 66.7, -113.8],
+] as const
+const NORMALIZE_PARAM_ID = 'normalize'
 
 const KIND_OPTIONS: readonly EnumOption<NoiseNodeKind>[] = [
   { value: 'perlin', label: 'Perlin' },
@@ -41,7 +51,10 @@ function resolveOctaves(stored: ParamValue | undefined): number {
 interface FractalNoiseInputs<E> {
   readonly kind: NoiseNodeKind
   readonly octaves: number
-  readonly p: E
+  /** False: the octaves' raw sum, as Blender's Noise with Normalize off. */
+  readonly normalize: boolean
+  /** P times Scale, already bent by Distortion. */
+  readonly scaled: E
   /** Added to the scaled point, to sample an unrelated stretch of the same noise. */
   readonly offset: E | null
   readonly scale: E
@@ -49,6 +62,22 @@ interface FractalNoiseInputs<E> {
   readonly lacunarity: E
   /** Set while the node tiles: the repeat, in units of `p`. */
   readonly period: E | null
+}
+
+/** One plain noise at `point`: 3D, or the 2D Perlin reading its X and Y. */
+const plainNoise = <E>(tsl: TslFacade<E>, kind: NoiseNodeKind, point: E): E =>
+  kind === 'perlin-2d' ? tsl.noise('perlin', tsl.swizzle(point, 'xy')) : tsl.noise(kind, point)
+
+/**
+ * The scaled point bent by Distortion, as Blender does it: once, before the octaves, by three
+ * single-octave noises (one per axis) times the strength. The 2D Perlin leaves Z alone.
+ */
+function distort<E>(tsl: TslFacade<E>, kind: NoiseNodeKind, scaled: E, distortion: E): E {
+  const bend = (offset: readonly number[]): E =>
+    plainNoise(tsl, kind, tsl.add(scaled, tsl.construct('vec3', offset)))
+  const [x, y, z] = DISTORTION_OFFSETS
+  const parts = kind === 'perlin-2d' ? [bend(x), bend(y), 0] : [bend(x), bend(y), bend(z)]
+  return tsl.add(scaled, tsl.mul(tsl.construct('vec3', parts), distortion))
 }
 
 /** Octave `octave`'s sample: plain noise, or tiled noise whose lattice repeats every period. */
@@ -60,24 +89,21 @@ function octaveSample<E>(
 ): E {
   const { kind, period, scale } = inputs
   const point = frequency === null ? scaled : tsl.mul(scaled, frequency)
-  if (period === null) {
-    return kind === 'perlin-2d'
-      ? tsl.noise('perlin', tsl.swizzle(point, 'xy'))
-      : tsl.noise(kind, point)
-  }
+  if (period === null) return plainNoise(tsl, kind, point)
   const cells = tsl.mul(tsl.mul(period, scale), frequency ?? tsl.construct('float', [1]))
   const { lattice, fit } = latticeTiling(tsl, cells)
   return tsl.tiledNoise(tsl.mul(point, fit), lattice)
 }
 
 /**
- * Octave `i` samples at `scale * lacunarity^i` and weighs `roughness^i`. The sum is divided by the
- * summed weights so the range stays -1 to 1. One octave is the plain noise call. While tiling,
- * every octave's lattice repeats on whole cells, so the sum repeats too.
+ * Octave `i` samples at `scale * lacunarity^i` and weighs `roughness^i`. Normalized, the sum is
+ * divided by the summed weights so the range stays -1 to 1; otherwise it is the raw sum. One octave
+ * is the plain noise call. While tiling, every octave's lattice repeats on whole cells, so the sum
+ * repeats too.
  */
 function fractalNoise<E>(tsl: TslFacade<E>, inputs: FractalNoiseInputs<E>): E {
-  const { octaves, p, offset, scale, roughness, lacunarity } = inputs
-  const scaled = offset === null ? tsl.mul(p, scale) : tsl.add(tsl.mul(p, scale), offset)
+  const { octaves, normalize, offset, roughness, lacunarity } = inputs
+  const scaled = offset === null ? inputs.scaled : tsl.add(inputs.scaled, offset)
   const base = octaveSample(tsl, inputs, scaled, null)
   if (octaves <= MIN_OCTAVES) return base
 
@@ -90,16 +116,28 @@ function fractalNoise<E>(tsl: TslFacade<E>, inputs: FractalNoiseInputs<E>): E {
     sum = tsl.add(sum, tsl.mul(sample, amplitude))
     totalAmplitude = tsl.add(totalAmplitude, amplitude)
   }
-  return tsl.div(sum, totalAmplitude)
+  return normalize ? tsl.div(sum, totalAmplitude) : sum
 }
 
 export const noiseNode = defineNode({
   type: 'effects/noise',
   category: 'effects',
   label: 'Noise',
-  description: 'Smooth random values that vary across space, from Perlin or simplex noise.',
-  formula: 'noise(P × Scale)',
-  keywords: ['noise', 'perlin', 'simplex', 'random', 'clouds', 'procedural'],
+  description:
+    "Smooth random values that vary across space, from Perlin or simplex noise. Works like Blender's Noise Texture: octaves, Distortion, and Normalize (off gives the raw, signed sum of the octaves).",
+  formula: 'noise(P × Scale + warp)',
+  keywords: [
+    'noise',
+    'perlin',
+    'simplex',
+    'random',
+    'clouds',
+    'procedural',
+    'fbm',
+    'distortion',
+    'warp',
+    'normalize',
+  ],
   inputs: [
     {
       id: 'p',
@@ -129,6 +167,15 @@ export const noiseNode = defineNode({
       default: float(DEFAULT_LACUNARITY),
       description: 'With more than one octave, how much denser each layer is than the last.',
     },
+    {
+      id: 'distortion',
+      label: 'Distortion',
+      type: concrete('float'),
+      default: float(0),
+      offAtZero: true,
+      description:
+        "Bends the sample point with another noise first, as Blender's Distortion does, for torn, smeared shapes; 0 is off, and tiling ignores it.",
+    },
     PERIOD_3D,
   ],
   outputs: [
@@ -136,7 +183,8 @@ export const noiseNode = defineNode({
       id: 'out',
       label: 'Out',
       type: concrete('float'),
-      description: 'Smooth random values, roughly between -1 and 1.',
+      description:
+        'Smooth random values, roughly between -1 and 1; wider with Normalize off, as the octaves add up.',
     },
     {
       id: 'color',
@@ -157,19 +205,35 @@ export const noiseNode = defineNode({
       max: MAX_OCTAVES,
       step: 1,
     },
+    {
+      id: NORMALIZE_PARAM_ID,
+      label: 'Normalize',
+      kind: 'boolean',
+      default: true,
+      description:
+        "On: Out stays within -1 to 1 (Blender's Factor is Out × 0.5 + 0.5). Off: the raw sum of the octaves, larger and signed, as Blender's Noise with Normalize unchecked returns.",
+    },
     TILE_PARAM,
   ],
-  build: ({ tsl, inputs, params }) => {
+  build: ({ tsl, inputs, params, zeroInputs }) => {
+    const kind = resolveEnumParam(KIND_OPTIONS, params.kind, DEFAULT_KIND)
+    const tiling = isTiling(params)
+    // A distortion at 0 adds nothing, so its three noises are left out; tiling can't keep it.
+    const isDistorted = !tiling && zeroInputs?.has('distortion') !== true
+    const scaled = tsl.mul(inputs.p, inputs.scale)
+    // Out and both Color channels read the same bent point, so the three stay coherent.
+    const point = isDistorted ? distort(tsl, kind, scaled, inputs.distortion) : scaled
     const sample = (offset: readonly number[] | null) =>
       fractalNoise(tsl, {
-        kind: resolveEnumParam(KIND_OPTIONS, params.kind, DEFAULT_KIND),
+        kind,
         octaves: resolveOctaves(params.octaves),
-        p: inputs.p,
+        normalize: params[NORMALIZE_PARAM_ID] !== false,
+        scaled: point,
         offset: offset === null ? null : tsl.construct('vec3', offset),
         scale: inputs.scale,
         roughness: inputs.roughness,
         lacunarity: inputs.lacunarity,
-        period: isTiling(params) ? inputs.period : null,
+        period: tiling ? inputs.period : null,
       })
     const out = sample(null)
     const half = tsl.construct('float', [HALF])

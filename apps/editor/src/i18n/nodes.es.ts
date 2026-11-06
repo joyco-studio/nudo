@@ -1114,6 +1114,40 @@ export const NODES_ES: NodeTranslations = {
       },
     },
   },
+  'vector/vector-transform': {
+    label: 'Transformar vector',
+    description:
+      'Lleva un punto, una dirección o una normal de un espacio a otro (mundo, objeto o cámara), como el Vector Transform de Blender.',
+    formula: 'Desde → Hacia',
+    keywords: ['transformar', 'espacio', 'mundo', 'objeto', 'local', 'cámara', 'vista', 'matriz'],
+    inputs: {
+      in: {
+        label: 'Entrada',
+        description: 'El punto, la dirección o la normal a llevar, en el espacio Desde.',
+      },
+    },
+    outputs: {
+      out: {
+        label: 'Salida',
+        description:
+          'El mismo punto, dirección o normal en el espacio Hacia; un vector conserva el cambio de largo de la escala del objeto, una normal sale de longitud 1.',
+      },
+    },
+    params: {
+      type: {
+        label: 'Tipo',
+        options: { point: 'Punto', vector: 'Vector', normal: 'Normal' },
+      },
+      from: {
+        label: 'Desde',
+        options: { world: 'Mundo', object: 'Objeto', camera: 'Cámara' },
+      },
+      to: {
+        label: 'Hacia',
+        options: { world: 'Mundo', object: 'Objeto', camera: 'Cámara' },
+      },
+    },
+  },
   'vector/rotate-2d': {
     label: 'Rotar 2D',
     description: 'Rota un punto 2D alrededor de un centro, según un ángulo en radianes.',
@@ -1247,9 +1281,10 @@ export const NODES_ES: NodeTranslations = {
   },
   'effects/noise': {
     label: 'Ruido',
-    description: 'Valores aleatorios suaves que varían en el espacio, con ruido Perlin o simplex.',
-    formula: 'noise(P × Escala)',
-    keywords: ['ruido', 'aleatorio', 'nubes', 'procedural'],
+    description:
+      'Valores aleatorios suaves que varían en el espacio, con ruido Perlin o simplex. Funciona como el Noise Texture de Blender: octavas, Distorsión y Normalizar (apagado da la suma cruda y con signo de las octavas).',
+    formula: 'noise(P × Escala + warp)',
+    keywords: ['ruido', 'aleatorio', 'nubes', 'procedural', 'fbm', 'distorsión', 'normalizar'],
     inputs: {
       p: {
         label: 'P',
@@ -1267,6 +1302,11 @@ export const NODES_ES: NodeTranslations = {
         label: 'Lacunaridad',
         description: 'Con más de una octava, cuánto más densa es cada capa que la anterior.',
       },
+      distortion: {
+        label: 'Distorsión',
+        description:
+          'Dobla el punto con otro ruido antes de muestrear, como la Distortion de Blender, para formas rasgadas y corridas; 0 la apaga, y al repetir se ignora.',
+      },
       period: {
         label: 'Período',
         description:
@@ -1276,7 +1316,8 @@ export const NODES_ES: NodeTranslations = {
     outputs: {
       out: {
         label: 'Salida',
-        description: 'Valores aleatorios suaves, más o menos entre -1 y 1.',
+        description:
+          'Valores aleatorios suaves, más o menos entre -1 y 1; más amplios sin Normalizar, porque las octavas se suman.',
       },
       color: {
         label: 'Color',
@@ -1290,6 +1331,11 @@ export const NODES_ES: NodeTranslations = {
         options: { perlin: 'Perlin', simplex: 'Simplex', 'perlin-2d': 'Perlin 2D' },
       },
       octaves: { label: 'Octavas' },
+      normalize: {
+        label: 'Normalizar',
+        description:
+          'Encendido: Salida queda entre -1 y 1 (el Factor de Blender es Salida × 0,5 + 0,5). Apagado: la suma cruda de las octavas, más grande y con signo, como devuelve el Noise de Blender sin Normalize.',
+      },
       tile: {
         label: 'Repetir',
         description:

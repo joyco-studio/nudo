@@ -26,6 +26,7 @@ import { convertValue } from '../values/convert-value'
 import { applyConversion } from './apply-conversion'
 import { MASTER_SLOTS } from './compile-backend'
 import { resolveParams } from './resolve-params'
+import { hasOffAtZeroInputs, zeroInputIds } from './zero-inputs'
 import type {
   CompileBackend,
   CompileError,
@@ -376,6 +377,11 @@ export function compile<E>(
         resolvedTypes,
         params: resolveParams(definition, node.params),
         property: property === null ? null : property.value,
+        ...(hasOffAtZeroInputs(definition) && {
+          zeroInputs: zeroInputIds(node, definition, (inputId) =>
+            incomingByInput.has(portKey({ nodeId: node.id, portId: inputId })),
+          ),
+        }),
       })
       return ok(nameOutputs(node, definition, built))
     } catch (error) {

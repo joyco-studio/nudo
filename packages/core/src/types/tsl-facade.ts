@@ -59,6 +59,36 @@ export type ToneMapKind = 'aces-filmic' | 'agx' | 'neutral' | 'reinhard' | 'cine
 /** What a Main Light node reads off the scene's shared key light. */
 export type MainLightComponent = 'direction' | 'color'
 
+/** What a Vector Transform moves between spaces: a position, a direction, or a surface normal. */
+export type TransformKind = 'point' | 'vector' | 'normal'
+
+/** A coordinate space a Vector Transform reads from or writes to. Camera space is view space. */
+export type TransformSpace = 'world' | 'object' | 'camera'
+
+/** A 4×4 matrix three.js keeps as a uniform for every object, named as `three/tsl` exports it. */
+export type TransformMatrix =
+  | 'modelWorldMatrix'
+  | 'modelWorldMatrixInverse'
+  | 'cameraViewMatrix'
+  | 'cameraWorldMatrix'
+  | 'modelViewMatrix'
+
+/**
+ * The matrices that take coordinates from one space to another, multiplied left to right
+ * (`[A, B]` is `A · B`, so B applies first). Empty within a space: nothing to do.
+ */
+export const TRANSFORM_MATRICES: Readonly<
+  Record<TransformSpace, Readonly<Record<TransformSpace, readonly TransformMatrix[]>>>
+> = {
+  object: { object: [], world: ['modelWorldMatrix'], camera: ['modelViewMatrix'] },
+  world: { object: ['modelWorldMatrixInverse'], world: [], camera: ['cameraViewMatrix'] },
+  camera: {
+    object: ['modelWorldMatrixInverse', 'cameraWorldMatrix'],
+    world: ['cameraWorldMatrix'],
+    camera: [],
+  },
+}
+
 /** The subset of TSL used by nodes, in functional style: `tsl.mul(a, b)`, not `a.mul(b)`. */
 export interface TslFacade<E> {
   add(a: E, b: E): E
@@ -154,6 +184,12 @@ export interface TslFacade<E> {
   normalFromHeight(height: E, strength: E): E
   /** The shared key light: world-space direction toward it, or color × intensity: vec3. */
   mainLight(component: MainLightComponent): E
+  /**
+   * A vec3 carried from space `from` to space `to`, as Blender's Vector Transform does: a point
+   * moves, scales and turns; a vector scales and turns, keeping its length change; a normal stays
+   * perpendicular to the surface and comes out length 1. Within one space it is `value` itself.
+   */
+  transform(kind: TransformKind, from: TransformSpace, to: TransformSpace, value: E): E
   builtin(name: BuiltinName): E
   construct(type: VectorType, parts: readonly (E | number)[]): E
   swizzle(value: E, components: Swizzle): E

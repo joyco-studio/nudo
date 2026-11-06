@@ -1,4 +1,4 @@
-import { VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
+import { TRANSFORM_MATRICES, VORONOI_DISTANCE_IDS, WORLEY_METRIC_IDS } from '@nudo-tsl/core'
 import type {
   BuiltinName,
   CellDimensions,
@@ -8,6 +8,9 @@ import type {
   NoiseKind,
   Swizzle,
   ToneMapKind,
+  TransformKind,
+  TransformMatrix,
+  TransformSpace,
   TslFacade,
   VectorType,
   VoronoiMetric,
@@ -20,6 +23,8 @@ import {
   agxToneMapping,
   atan,
   cameraPosition,
+  cameraViewMatrix,
+  cameraWorldMatrix,
   checker,
   cineonToneMapping,
   clamp,
@@ -42,10 +47,14 @@ import {
   lessThan,
   linearToneMapping,
   lessThanEqual,
+  mat3,
   max,
   min,
   mix,
   modelScale,
+  modelViewMatrix,
+  modelWorldMatrix,
+  modelWorldMatrixInverse,
   mul,
   mx_cell_noise_float,
   mx_noise_float,
@@ -75,6 +84,7 @@ import {
   step,
   sub,
   time,
+  transpose,
   uv,
   vec2,
   vec3,
@@ -152,6 +162,8 @@ const linearToSrgbNode = widen(sRGBTransferOETF)
 const sceneColorNode = widen(viewportSharedTexture)
 const sceneDepthFadeNode = widen(sceneDepthFade)
 const normalFromHeightNodes = widen(normalFromHeight)
+const mat3Node = widen(mat3)
+const transposeNode = widen(transpose)
 
 const COMPARISONS: Readonly<Record<CompareOp, TslFunction>> = {
   lt: widen(lessThan),
@@ -223,6 +235,21 @@ const BUILTINS: Readonly<Record<BuiltinName, () => LiveNode>> = {
   modelScale: () => modelScale,
 }
 
+const MATRICES: Readonly<Record<TransformMatrix, LiveNode>> = {
+  modelWorldMatrix,
+  modelWorldMatrixInverse,
+  cameraViewMatrix,
+  cameraWorldMatrix,
+  modelViewMatrix,
+}
+
+/** A space-to-space matrix: the uniform itself, or the product of a chain of them. */
+function matrixProduct(chain: readonly TransformMatrix[]): LiveNode | null {
+  const [first, ...rest] = chain.map((name) => MATRICES[name])
+  if (first === undefined) return null
+  return rest.reduce((product, matrix) => mulNodes(product, matrix), first)
+}
+
 const isLiveNode = (candidate: unknown): candidate is LiveNode => candidate instanceof Node
 
 /** Reads a swizzle off a node; TSL exposes swizzles as dynamic properties. */
@@ -248,6 +275,27 @@ function sampleTexture(textureNode: LiveNode, uvNode: LiveNode, level: LiveNode 
   }
   const sampled = textureNode.sample(uvNode)
   return level === null ? sampled : sampled.level(level)
+}
+
+/**
+ * See `TslFacade.transform`. A normal goes through the inverse transpose of the from→to matrix,
+ * built from the to→from matrix rather than inverted on the GPU.
+ */
+function transformVector(
+  kind: TransformKind,
+  from: TransformSpace,
+  to: TransformSpace,
+  value: LiveNode,
+): LiveNode {
+  if (kind === 'normal') {
+    const inverse = matrixProduct(TRANSFORM_MATRICES[to][from])
+    if (inverse === null) return value
+    return normalizeNode(mulNodes(transposeNode(mat3Node(inverse)), value))
+  }
+  const matrix = matrixProduct(TRANSFORM_MATRICES[from][to])
+  if (matrix === null) return value
+  const w = kind === 'point' ? 1 : 0
+  return readSwizzle(mulNodes(matrix, CONSTRUCTORS.vec4(value, w)), 'xyz')
 }
 
 export function createLiveFacade(): TslFacade<LiveNode> {
@@ -304,6 +352,7 @@ export function createLiveFacade(): TslFacade<LiveNode> {
     sceneDepthFade: (distanceNode) => sceneDepthFadeNode(distanceNode),
     normalFromHeight: (height, strength) => normalFromHeightNodes(height, strength),
     mainLight: (component) => MAIN_LIGHT_UNIFORMS[component],
+    transform: transformVector,
     builtin: (name) => BUILTINS[name](),
     construct: (type, parts) => CONSTRUCTORS[type](...parts),
     swizzle: readSwizzle,
