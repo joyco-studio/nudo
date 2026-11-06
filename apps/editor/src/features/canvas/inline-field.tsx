@@ -1,5 +1,6 @@
 import { float, texture } from '@nudo-tsl/core'
 import type { DataType, GraphNode, InputDefinition, PortValue } from '@nudo-tsl/core'
+import { repeatOutputNode } from '@nudo-tsl/nodes'
 
 import type { MessageKey } from '@/i18n/translate'
 import { useT } from '@/i18n/use-t'
@@ -20,6 +21,13 @@ import { VectorField } from './vector-field'
 const OPTIONAL_HINT: MessageKey = 'node.meshDefault'
 /** Optional inputs whose absence means "off" rather than a mesh value. */
 const OPTIONAL_HINTS: Readonly<Record<string, MessageKey>> = { alphaClip: 'node.off' }
+/** A Repeat Output's slot with no next value keeps its value from pass to pass. */
+const REPEAT_NEXT_HINT: MessageKey = 'node.unchanged'
+
+const optionalHint = (node: GraphNode, input: InputDefinition<string>): MessageKey =>
+  node.type === repeatOutputNode.type
+    ? REPEAT_NEXT_HINT
+    : (OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT)
 
 const HINT_TEXT: Readonly<Record<FieldSize, string>> = {
   compact: 'text-micro',
@@ -72,7 +80,7 @@ export function InlineField({ node, input, dataType, explanation }: InlineFieldP
     return (
       <>
         <PortLabel label={input.label} explanation={explanation} />
-        <MutedHint>{t(OPTIONAL_HINTS[input.id] ?? OPTIONAL_HINT)}</MutedHint>
+        <MutedHint>{t(optionalHint(node, input))}</MutedHint>
       </>
     )
   }

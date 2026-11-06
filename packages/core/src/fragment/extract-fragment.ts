@@ -1,3 +1,4 @@
+import { withRepeatPartners } from '../repeat/repeat-zone'
 import { sortedById } from '../serialization/stable-json'
 import type { Graph } from '../types/graph'
 import type { NodeId } from '../types/ids'
@@ -7,10 +8,11 @@ import type { GraphFragment } from './graph-fragment'
 
 /**
  * Copies the given nodes and the edges between them. The master node, unknown ids and edges that
- * leave the set are dropped. Returns null when nothing copyable remains.
+ * leave the set are dropped. Copying either end of a Repeat zone copies the other with it.
+ * Returns null when nothing copyable remains.
  */
 export function extractFragment(graph: Graph, nodeIds: readonly NodeId[]): GraphFragment | null {
-  const selected = new Set(nodeIds.filter((id) => id !== MASTER_NODE_ID))
+  const selected = new Set(withRepeatPartners(graph, nodeIds).filter((id) => id !== MASTER_NODE_ID))
   const nodes = sortedById(Object.values(graph.nodes).filter((node) => selected.has(node.id)))
   if (nodes.length === 0) return null
 

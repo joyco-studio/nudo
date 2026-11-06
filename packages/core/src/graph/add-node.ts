@@ -24,6 +24,8 @@ export function addNode(
   if (input.type === MASTER_NODE_TYPE) return err({ code: 'duplicate-id', id: MASTER_NODE_ID })
   // Property readers need a valid `propertyId`, which only `addPropertyNode` can guarantee.
   if (definition.reads === 'property') return err({ code: 'property-required' })
+  // A Repeat zone needs both ends paired, which only `addRepeatZone` can guarantee.
+  if (definition.repeat !== undefined) return err({ code: 'repeat-zone-required' })
   if (graph.nodes[input.id] !== undefined) return err({ code: 'duplicate-id', id: input.id })
 
   const node = {

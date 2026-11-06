@@ -9,7 +9,12 @@ import {
 } from '@nudo-tsl/core'
 import type { CompileBackend, Graph, Result } from '@nudo-tsl/core'
 import { describe, expect, it } from 'vitest'
-import { createDefaultRegistry, createRecordingFacade, rerouteNode } from './index'
+import {
+  createDefaultRegistry,
+  createRecordingFacade,
+  openRecordingRepeat,
+  rerouteNode,
+} from './index'
 
 const registry = createDefaultRegistry()
 
@@ -22,6 +27,7 @@ const backend: CompileBackend<string> = {
   tsl: createRecordingFacade(),
   inputValue: (ref) => `u(${ref.nodeId}:${ref.portId})`,
   property: (property) => `prop(${property.name})`,
+  openRepeat: openRecordingRepeat,
 }
 
 const NOISE_TO_BASE_COLOR = asEdgeId('noise-to-base-color')

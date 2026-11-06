@@ -153,12 +153,12 @@ export const TOOL_CATALOG: readonly ToolSpec[] = [
   ),
   spec(
     'add_node',
-    'Adds a node of a type from list_node_types. Omit position to let nudo place it next to related nodes.',
+    'Adds a node of a type from list_node_types. Omit position to let nudo place it next to related nodes. Either end of a Repeat zone (logic/repeat-input, logic/repeat-output) is added with the other, already paired; the result names it pairedNodeId.',
     TOOL_ARG_SCHEMAS.add_node,
   ),
   spec(
     'remove_nodes',
-    'Removes the nodes with the given ids, along with the edges attached to them.',
+    'Removes the nodes with the given ids, along with the edges attached to them. Removing either end of a Repeat zone removes both.',
     TOOL_ARG_SCHEMAS.remove_nodes,
   ),
   spec(

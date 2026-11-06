@@ -15,3 +15,5 @@ export type GraphError =
   /** Property reader nodes must be created with `addPropertyNode`. */
   | { code: 'property-required' }
   | { code: 'property-not-found'; id: string }
+  /** Either end of a Repeat zone must be created with `addRepeatZone`. */
+  | { code: 'repeat-zone-required' }

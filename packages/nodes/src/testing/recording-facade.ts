@@ -1,4 +1,4 @@
-import type { TslFacade } from '@nudo-tsl/core'
+import type { CompileBackend, TslFacade } from '@nudo-tsl/core'
 
 const formatParts = (parts: readonly (string | number)[]): string => `[${parts.join(',')}]`
 
@@ -62,3 +62,22 @@ export function createRecordingFacade(): TslFacade<string> {
     swizzle: (value, components) => `swizzle(${value},${components})`,
   }
 }
+
+/**
+ * Opens a Repeat zone's loop as printed calls: `state(input,slot)`, `index(input)`,
+ * `captured(value)`, and `repeat(input,iterations,[start],[next])[slot]` for each result. For tests.
+ */
+export const openRecordingRepeat: CompileBackend<string>['openRepeat'] = (
+  node,
+  initial,
+  readsIndex,
+) => ({
+  index: readsIndex ? `index(${node.id})` : null,
+  state: initial.map((_, slot) => `state(${node.id},${String(slot)})`),
+  capture: (value) => `captured(${value})`,
+  close: (iterations, next) =>
+    next.map(
+      (_, slot) =>
+        `repeat(${node.id},${iterations},[${initial.join(',')}],[${next.join(',')}])[${String(slot)}]`,
+    ),
+})

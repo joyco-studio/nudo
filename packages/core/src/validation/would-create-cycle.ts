@@ -1,14 +1,19 @@
+import { repeatLinks } from '../repeat/repeat-zone'
 import type { Graph, PortRef } from '../types/graph'
 import type { NodeId } from '../types/ids'
 
-/** Node ids reachable by following edges forward from `start` (including `start`). */
+/**
+ * Node ids reachable by following edges forward from `start` (including `start`), with each Repeat
+ * zone counted as an edge from its Repeat Input to its Repeat Output.
+ */
 function collectReachableNodes(graph: Graph, start: NodeId): ReadonlySet<NodeId> {
   const consumersBySource = new Map<NodeId, NodeId[]>()
-  for (const edge of Object.values(graph.edges)) {
-    const consumers = consumersBySource.get(edge.from.nodeId) ?? []
-    consumers.push(edge.to.nodeId)
-    consumersBySource.set(edge.from.nodeId, consumers)
+  const link = (source: NodeId, consumer: NodeId): void => {
+    consumersBySource.set(source, [...(consumersBySource.get(source) ?? []), consumer])
   }
+  for (const edge of Object.values(graph.edges)) link(edge.from.nodeId, edge.to.nodeId)
+  // A zone's result depends on its starting values: feeding it back into them closes a loop.
+  for (const { input, output } of repeatLinks(graph)) link(input, output)
 
   const visited = new Set<NodeId>()
   const pending: NodeId[] = [start]

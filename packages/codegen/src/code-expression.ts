@@ -13,6 +13,7 @@ export type HelperName =
   | 'hashVec3'
   | 'tiledNoise3'
   | 'tiledVoronoi2'
+  | 'repeatLoop'
 
 /**
  * A piece of generated JavaScript plus what it needs around it: the `three/tsl` names to import,

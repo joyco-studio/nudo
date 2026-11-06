@@ -13,6 +13,7 @@ import {
   ok,
   portKey,
   renameProperty,
+  repeatPartnerOf,
   resolvePortTypes,
   setParam,
   setPropertyExposed,
@@ -179,7 +180,9 @@ const addNodeTool = defineHandler('add_node', async ({ type, position }, context
   if (nodeId === null) return invalid(`Node type "${type}" cannot be added directly.`)
   if (typeof nodeId !== 'string') return nodeId
   context.onTouch({ nodeId, created: true })
-  return succeed({ nodeId })
+  // Either end of a Repeat zone arrives with the other: hand its id back too.
+  const pairedNodeId = repeatPartnerOf(currentGraph(), nodeId)
+  return succeed(pairedNodeId === null ? { nodeId } : { nodeId, pairedNodeId })
 })
 
 const removeNodes = defineHandler('remove_nodes', async ({ ids }, context) => {

@@ -98,6 +98,13 @@ export interface NodeDefinition<I extends string, O extends string> {
    * its output as the input itself: codegen gives it no name of its own.
    */
   readonly passthrough?: boolean
+  /**
+   * Marks the two ends of a Repeat zone (see `repeat-zone.ts`). The compiler builds a zone as a
+   * loop: the Repeat Input's outputs read the values of the current pass and the Repeat Output's
+   * `build` is never called. Outside a zone's loop (a node preview), the Repeat Input's `build`
+   * stands in for the first pass.
+   */
+  readonly repeat?: 'input' | 'output'
   /** Written once, runs on both backends. */
   build<E>(ctx: BuildContext<E, I>): Readonly<Record<O, E>>
 }

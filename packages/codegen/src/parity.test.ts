@@ -36,6 +36,7 @@ const RUNTIME_SOURCES: Readonly<Record<(typeof HELPER_ORDER)[number], string>> =
   hashVec3: '../../runtime/src/hash-noise.ts',
   tiledNoise3: '../../runtime/src/tiled-noise.ts',
   tiledVoronoi2: '../../runtime/src/tiled-voronoi.ts',
+  repeatLoop: '../../runtime/src/repeat-loop.ts',
 }
 
 const registry = createDefaultRegistry()

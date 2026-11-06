@@ -2,6 +2,7 @@ import {
   addNode,
   addProperty,
   addPropertyNode,
+  addRepeatZone,
   asEdgeId,
   asNodeId,
   asPropertyId,
@@ -935,10 +936,18 @@ describe('new catalog nodes', () => {
 
   /** Not sources of a value: the master takes values, a comment holds none, a reroute forwards one. */
   const NOT_SOURCES = new Set(['master/stack', 'utility/comment', 'utility/reroute'])
-  /** Property readers need a Blackboard property behind them; the property tests cover those. */
+  /**
+   * Property readers need a Blackboard property behind them, and either end of a Repeat zone the
+   * other end; the property and Repeat zone tests cover those.
+   */
   const catalogTypes = registry
     .list()
-    .filter((definition) => !NOT_SOURCES.has(definition.type) && definition.reads !== 'property')
+    .filter(
+      (definition) =>
+        !NOT_SOURCES.has(definition.type) &&
+        definition.reads !== 'property' &&
+        definition.repeat === undefined,
+    )
     .map((definition) => definition.type)
 
   it.each(catalogTypes)('%s compiles into the base color', (type) => {
@@ -982,5 +991,47 @@ describe('reroute', () => {
     expect([...rerouted.uniforms.keys()]).toEqual([...direct.uniforms.keys()])
     expect(valueUniform).toBeDefined()
     expect(rerouted.material?.opacityNode).toBe(valueUniform)
+  })
+})
+
+describe('Repeat zones', () => {
+  const registry = createDefaultRegistry()
+
+  /** Each pass adds the normal to the position; the result feeds the base color. */
+  const marchingZone = (): Graph => {
+    let graph = unwrap(
+      addRepeatZone(createGraph(), registry, {
+        inputId: asNodeId('p'),
+        outputId: asNodeId('r'),
+        position: { x: 0, y: 0 },
+      }),
+    )
+    graph = withNode(graph, registry, 'position', 'input/position')
+    graph = withNode(graph, registry, 'normal', 'input/normal')
+    graph = withNode(graph, registry, 'step', 'math/add')
+    graph = withEdge(graph, registry, ['position', 'out'], ['p', 'a'])
+    graph = withEdge(graph, registry, ['p', 'a'], ['step', 'a'])
+    graph = withEdge(graph, registry, ['normal', 'out'], ['step', 'b'])
+    graph = withEdge(graph, registry, ['step', 'out'], ['r', 'a'])
+    return withEdge(graph, registry, ['r', 'a'], ['master', 'baseColor'])
+  }
+
+  it('builds a material whose iteration count is a live uniform', () => {
+    const build = createMaterial(marchingZone(), registry)
+
+    expect(build.errors).toEqual([])
+    expect(build.material?.colorNode).toBeInstanceOf(Node)
+    expect(
+      build.uniforms.get(portKey({ nodeId: asNodeId('p'), portId: 'iterations' }))?.value,
+    ).toBe(8)
+  })
+
+  it('refuses a material that reads the Repeat Input outside its zone', () => {
+    const graph = withEdge(marchingZone(), registry, ['p', 'a'], ['master', 'emission'])
+
+    const build = createMaterial(graph, registry)
+
+    expect(build.material).toBeNull()
+    expect(build.errors.map((error) => error.code)).toEqual(['invalid-repeat-zone'])
   })
 })

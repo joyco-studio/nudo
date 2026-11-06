@@ -1,5 +1,6 @@
 import { topologicalOrder } from '../graph/topological-order'
 import type { NodeRegistry } from '../registry/node-registry'
+import { REPEAT_SLOTS, findRepeatInput } from '../repeat/repeat-zone'
 import { widestType } from '../types-system/widest-type'
 import { BUILTIN_TYPES } from '../types/builtin-types'
 import type { DataType, PortTypeSpec, VectorType } from '../types/data-type'
@@ -77,6 +78,26 @@ function resolveGroupTypes(
   )
 }
 
+/**
+ * A paired Repeat Output carries its Repeat Input's slots: each slot's next value and result take
+ * the type of the slot's starting value, so the loop assigns like to like.
+ */
+function repeatSlotTypes(
+  graph: Graph,
+  registry: NodeRegistry,
+  node: GraphNode,
+  outputs: ReadonlyMap<PortKey, DataType>,
+): ReadonlyMap<string, DataType> {
+  const pairing = findRepeatInput(graph, registry, node)
+  if (!pairing.ok) return new Map()
+  return new Map(
+    REPEAT_SLOTS.flatMap((slot) => {
+      const type = outputs.get(portKey({ nodeId: pairing.input.id, portId: slot }))
+      return type === undefined ? [] : [[slot, type] as const]
+    }),
+  )
+}
+
 const resolveSpec = (spec: PortTypeSpec, groupTypes: ReadonlyMap<string, VectorType>): DataType => {
   if (spec.kind === 'concrete') return spec.type
   return groupTypes.get(spec.group) ?? FALLBACK_GROUP_TYPE
@@ -86,6 +107,7 @@ const resolveSpec = (spec: PortTypeSpec, groupTypes: ReadonlyMap<string, VectorT
  * Resolves every input and output port to a concrete type.
  * A generic group takes the widest type among its connected sources; when nothing is
  * connected it falls back to the widest inline value (so disconnecting reverts to the default).
+ * The topological order puts each Repeat Input before its Repeat Output, which copies its types.
  */
 export function resolvePortTypes(graph: Graph, registry: NodeRegistry): ResolvedTypes {
   const inputs = new Map<PortKey, DataType>()
@@ -104,11 +126,22 @@ export function resolvePortTypes(graph: Graph, registry: NodeRegistry): Resolved
       outputs,
     )
 
+    const slotTypes =
+      definition.repeat === 'output'
+        ? repeatSlotTypes(graph, registry, node, outputs)
+        : new Map<string, DataType>()
+
     for (const input of definition.inputs) {
-      inputs.set(portKey({ nodeId, portId: input.id }), resolveSpec(input.type, groupTypes))
+      inputs.set(
+        portKey({ nodeId, portId: input.id }),
+        slotTypes.get(input.id) ?? resolveSpec(input.type, groupTypes),
+      )
     }
     for (const output of definition.outputs) {
-      outputs.set(portKey({ nodeId, portId: output.id }), resolveSpec(output.type, groupTypes))
+      outputs.set(
+        portKey({ nodeId, portId: output.id }),
+        slotTypes.get(output.id) ?? resolveSpec(output.type, groupTypes),
+      )
     }
   }
 

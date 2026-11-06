@@ -1,5 +1,6 @@
 import {
   MASTER_NODE_ID,
+  REPEAT_ZONE_WIDTH,
   asEdgeId,
   asNodeId,
   concrete,
@@ -521,5 +522,25 @@ describe('insertReroute', () => {
     expect(getState().insertReroute(asEdgeId('missing'), ORIGIN)).toBeNull()
     expect(getState().graph).toBe(graph)
     expect(getState().notice).toEqual({ kind: 'error', messageKey: 'notice.rerouteFailed' })
+  })
+})
+
+describe('Repeat zones', () => {
+  it('adds the other end with either one, paired, in one undo step', () => {
+    const outputId = addNodeOrFail('logic/repeat-output', { x: 600, y: 40 })
+    const nodes = Object.values(getState().graph.nodes)
+    const input = nodes.find((node) => node.type === 'logic/repeat-input')
+
+    expect(input?.position).toEqual({ x: 600 - REPEAT_ZONE_WIDTH, y: 40 })
+    expect(getState().graph.nodes[outputId]?.params).toEqual({ repeatInput: input?.id })
+    expect(historyLength()).toBe(1)
+  })
+
+  it('removes both ends when one is deleted', () => {
+    const inputId = addNodeOrFail('logic/repeat-input')
+
+    getState().removeNodes([inputId])
+
+    expect(Object.keys(getState().graph.nodes)).toEqual([MASTER_NODE_ID])
   })
 })
